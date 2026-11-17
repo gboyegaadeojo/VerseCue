@@ -31,7 +31,7 @@ async function choose(kind){
   const result=await dialog.showOpenDialog(mainWindow,{title:kind==='worker'?'Select trusted whisper-cli executable':'Select local Whisper GGML model',properties:['openFile'],filters:kind==='model'?[{name:'Whisper model',extensions:['bin']}]:[]});
   if(result.canceled)return null;const file=result.filePaths[0];const stat=await fs.stat(file);if(!stat.isFile())throw new Error('Select a file');
   if(kind==='worker')settings.executable=file;else settings.model=file;
-  speech.cancel();speech.configure(settings.executable,settings.model);await store.save(settingsFile,settings);return settings;
+  speech.cancel();speech.configure(settings.executable,settings.model,settings.speechMode);await store.save(settingsFile,settings);return settings;
 }
 async function bootstrap(){
   settingsFile=path.join(app.getPath('userData'),'settings.json');const loaded=await store.load(settingsFile);settings=loaded.settings;
@@ -46,7 +46,7 @@ async function bootstrap(){
   if(!settings.executable&&!settings.model){
     try{await fs.access(bundledWorker);await fs.access(path.join(speechDir,'ggml-base.en.bin'));settings.executable=bundledWorker;settings.model=path.join(speechDir,'ggml-base.en.bin');}catch{}
   }
-  connector.configure(settings.host,settings.port);service.configure({translation:settings.translation,dryRun:true});speech.configure(settings.executable,settings.model);
+  connector.configure(settings.host,settings.port);service.configure({translation:settings.translation,dryRun:true});speech.configure(settings.executable,settings.model,settings.speechMode);
   if(loaded.recovered)service.log('CORRUPT_SETTINGS_RECOVERED','warning');
   session.defaultSession.setPermissionRequestHandler(async(webContents,permission,callback,details)=>{
     const win=BrowserWindow.fromWebContents(webContents);const local=windows.has(win)&&webContents.getURL().split('?')[0]===ui;
@@ -61,7 +61,7 @@ async function bootstrap(){
   handler('private-api-start',async options=>{if(options?.allowPreparation&&!preparation.available())throw new Error('Native preparation is unavailable on this platform/build');return {...await privateApi.start(options),nativePreparationAvailable:preparation.available()};});
   handler('private-api-stop',()=>privateApi.stop());
   handler('private-api-copy-token',()=>{if(!privateApi.accepting||!privateApi.token)throw new Error('Enable the private API first');clipboard.writeText(privateApi.token);return true;});
-  handler('save-settings',async value=>{const valid=store.validateSettings(value);speech.cancel();preparation.cancel();if(speech.busy)throw new Error('Recognition is stopping; retry in a moment');settings=await store.save(settingsFile,valid);connector.configure(settings.host,settings.port);speech.configure(settings.executable,settings.model);service.configure({translation:settings.translation,dryRun:true});return settings;});
+  handler('save-settings',async value=>{const valid=store.validateSettings(value);speech.cancel();preparation.cancel();if(speech.busy)throw new Error('Recognition is stopping; retry in a moment');settings=await store.save(settingsFile,valid);connector.configure(settings.host,settings.port);speech.configure(settings.executable,settings.model,settings.speechMode);service.configure({translation:settings.translation,dryRun:true});return settings;});
   handler('choose-worker',()=>choose('worker'));handler('choose-model',()=>choose('model'));
   handler('command',async(command,payload)=>{
     switch(command){
@@ -88,10 +88,10 @@ async function bootstrap(){
     if(service.stopped||service.mode==='paused')throw new Error('Listening is paused');const epoch=service.generation;
     const result=await speech.transcribe(samples);
     if(epoch!==service.generation||service.stopped||service.mode==='paused')throw new Error('Stale recognition discarded');
-    service.ingest(result.text,{authorized:true});return result;
+    service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});service.ingest(result.text,{authorized:true});return result;
   });
   handler('export-settings',async()=>{const r=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-settings.json'});if(!r.canceled){const safe={...settings,executable:'',model:'',audioDevice:''};await fs.writeFile(r.filePath,JSON.stringify(safe,null,2));return true;}return false;});
-  handler('import-settings',async()=>{const r=await dialog.showOpenDialog(mainWindow,{properties:['openFile'],filters:[{name:'JSON',extensions:['json']}]});if(r.canceled)return null;const bytes=await fs.readFile(r.filePaths[0],'utf8');if(bytes.length>16384)throw new Error('Settings file too large');const incoming=store.validateSettings(JSON.parse(bytes));incoming.executable='';incoming.model='';incoming.audioDevice='';speech.cancel();preparation.cancel();if(speech.busy)throw new Error('Stop recognition before import');settings=await store.save(settingsFile,incoming);connector.configure(settings.host,settings.port);speech.configure('','');service.reset();service.configure({translation:settings.translation});return settings;});
+  handler('import-settings',async()=>{const r=await dialog.showOpenDialog(mainWindow,{properties:['openFile'],filters:[{name:'JSON',extensions:['json']}]});if(r.canceled)return null;const bytes=await fs.readFile(r.filePaths[0],'utf8');if(bytes.length>16384)throw new Error('Settings file too large');const incoming=store.validateSettings(JSON.parse(bytes));incoming.executable='';incoming.model='';incoming.audioDevice='';speech.cancel();preparation.cancel();if(speech.busy)throw new Error('Stop recognition before import');settings=await store.save(settingsFile,incoming);connector.configure(settings.host,settings.port);speech.configure('','',settings.speechMode);service.reset();service.configure({translation:settings.translation});return settings;});
   handler('export-diagnostics',async()=>{const preview={schemaVersion:1,appVersion:app.getVersion(),platform:process.platform,p0:'PENDING',events:service.events,capabilities:service.snapshot().capabilities};const r=await dialog.showMessageBox(mainWindow,{type:'info',buttons:['Cancel','Save redacted diagnostics'],defaultId:0,message:`Export ${preview.events.length} event codes and times, app/platform versions and capability flags. No references, transcripts, audio, paths or addresses are included.`});if(r.response!==1)return false;const dest=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-diagnostics.json'});if(!dest.canceled)await fs.writeFile(dest.filePath,JSON.stringify(preview,null,2));return !dest.canceled;});
   handler('compact',()=>{if(compactWindow)compactWindow.focus();else compactWindow=createWindow(true);});
   healthTimer=setInterval(async()=>{

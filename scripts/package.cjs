@@ -5,7 +5,9 @@ const fs=require('node:fs/promises');const path=require('node:path');const {spaw
 (async()=>{
   const root=path.resolve(__dirname,'..');const pkg=require('../package.json');
   if(!['win32','darwin'].includes(process.platform))throw new Error('Build on Windows or macOS for that native package');
-  const runtime=path.dirname(require('electron'));const name=`VerseCue-${pkg.version}-${process.platform}-${process.arch}`;
+  // On macOS the executable lives inside Electron.app/Contents/MacOS; copying
+  // its parent would omit the app bundle, frameworks and resources.
+  const runtime=path.join(path.dirname(require.resolve('electron/package.json')),'dist');const name=`VerseCue-${pkg.version}-${process.platform}-${process.arch}`;
   const out=path.join(root,'dist',name);await fs.mkdir(path.dirname(out),{recursive:true});
   // Refuse overwriting an existing package; never recursively delete a build.
   await fs.mkdir(out);await fs.cp(runtime,out,{recursive:true});

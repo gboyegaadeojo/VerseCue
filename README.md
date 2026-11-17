@@ -25,6 +25,8 @@ Version 0.2.4 extends the requested [private API and experimental Windows prepar
 
 Source 0.2.5 adds [bounded capture during recognition](docs/26-bounded-audio-capture.md), with visible overflow/stale-audio counts and stop/restart ownership tests. The verified 0.2.4 ZIP is a prior development checkpoint; newer source is verified and packaged separately.
 
+Source0.2.6 adds [optional resident CPU recognition and target-change race protection](docs/27-resident-speech-and-target-races.md). Default CLI behavior remains available; resident mode is explicitly selected in Setup and has not met the live-service latency target.
+
 ## Start here
 1. Read the [leadership summary](docs/00-executive-summary.md) and [requirements summary](REQUIREMENTS_SUMMARY.md).
 2. Read the [P0 feasibility report and authorization-gated test procedure](docs/10-integration-feasibility-and-poc.md). Public presentation triggers do not establish arbitrary Bible lookup. Partial personal-host evidence is in docs/18–19; full P0 has not passed.

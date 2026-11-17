@@ -11,7 +11,7 @@ async function bundle(resources){
   try{
     const r=spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',"$ErrorActionPreference='Stop'; Expand-Archive -LiteralPath $env:VERSECUE_SPEECH_ARCHIVE -DestinationPath $env:VERSECUE_SPEECH_STAGE"],{env:{...process.env,VERSECUE_SPEECH_ARCHIVE:archive,VERSECUE_SPEECH_STAGE:staging},windowsHide:true,encoding:'utf8'});
     if(r.error||r.status!==0)throw new Error(r.error?.message||r.stderr||'Speech extraction failed');
-    const release=path.join(staging,'Release');for(const name of await fs.readdir(release))if(name==='whisper-cli.exe'||name.endsWith('.dll'))await fs.copyFile(path.join(release,name),path.join(destination,name));
+    const release=path.join(staging,'Release');for(const name of await fs.readdir(release))if(name==='whisper-cli.exe'||name==='whisper-server.exe'||name.endsWith('.dll'))await fs.copyFile(path.join(release,name),path.join(destination,name));
     await fs.copyFile(model,path.join(destination,'ggml-base.en.bin'));
     await fs.copyFile(path.join(root,'legal','WHISPER-LICENSE.txt'),path.join(destination,'WHISPER-LICENSE.txt'));
     await fs.copyFile(path.join(root,'legal','WHISPER-MODEL-LICENSE.txt'),path.join(destination,'WHISPER-MODEL-LICENSE.txt'));
