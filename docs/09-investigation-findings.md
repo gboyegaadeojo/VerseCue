@@ -128,3 +128,6 @@ Stage 2 documentary comparison is complete at available evidence depth; unresolv
 
 ## Personal-host evidence update
 2026-11-17: installed Windows ProPresenter 21.4.2 schema and saved-passage trigger diagnostics executed under new user authorization. Detailed evidence/limits: docs/18-personal-propresenter-test-results.md. This updates earlier no-test statements only for the recorded personal-host checks, not speech/Mac/physical-output acceptance. No arbitrary lookup route established; P0 PENDING.
+
+## New empirical UI findings — 2026-11-17
+Dynamic Bible UI trial and exact limitations are in docs/19. Unprepared Philippians range preparation and intentional first-cue trigger worked on personal Windows host; no API Bible lookup established. Text-clipping warnings, delayed/uncertain UI-edit completion, stale accessibility state and transient readback identity gaps block unattended-route acceptance. Last-resort UI route remains provisional. Source recording start 01:18:10 recorded in docs/test-data/sermon-source-intake.md, but no link/file supplied; no recognition analysis claimed.
