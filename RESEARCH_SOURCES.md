@@ -1,0 +1,92 @@
+﻿# VerseCue research source register
+
+Initialized 2026-11-17 UTC. This register distinguishes document evidence from installed behavior. Access dates are recorded only after retrieval; the intake source list alone is not evidence of access. Never infer Bible lookup from a general presentation trigger, or successful audience output from HTTP success.
+
+## Evidence grades
+- V-DOC: retrieved primary vendor documentation; supports only its stated documented scope.
+- V-TEST: reproducible observed test with exact build/platform, request/response, timestamps and artifacts; none at intake.
+- HYPOTHESIS: proposed behavior or target needing measurement.
+- REQUIRES VERIFICATION: unavailable/unretrieved/uncertain claim, including installation-specific behavior.
+- PENDING: required procedure not yet executed. NOT DOCUMENTED means absent from the inspected documentation scope, not proof of unsupported behavior.
+
+## Initial sources queued for Stage 1
+| ID | Publisher | Title / identification supplied in specification | URL | Access date | Evidence status |
+|---|---|---|---|---|---|
+| SRC-01 | Renewed Vision | ProPresenter API | https://openapi.propresenter.com/ | 2026-11-17 | Landing page reached, no readable text; see SRC-08 |
+| SRC-02 | Renewed Vision | TCP/IP Connections with ProPresenter API | https://support.renewedvision.com/hc/en-us/articles/31606866768147-TCP-IP-Connections-with-ProPresenter-API | 2026-11-17 | V-DOC |
+| SRC-03 | Renewed Vision | Using Bibles in ProPresenter | https://support.renewedvision.com/hc/en-us/articles/360041347594-Using-Bibles-in-ProPresenter | 2026-11-17 | V-DOC |
+| SRC-04 | Renewed Vision | Themes in ProPresenter | https://support.renewedvision.com/hc/en-us/articles/11910559859603-Themes-in-ProPresenter | 2026-11-17 | V-DOC |
+| SRC-05 | Renewed Vision | Installing Bibles in ProPresenter | https://support.renewedvision.com/hc/en-us/articles/360041814913-Installing-Bibles-in-ProPresenter | 2026-11-17 | V-DOC |
+| SRC-06 | SmartVerses | Product homepage | https://www.smartverses.app/ | 2026-11-17 | V-DOC marketing; inspiration only |
+| SRC-07 | SmartVerses | Features | https://www.smartverses.app/features | 2026-11-17 | V-DOC marketing; inspiration only |
+
+## Research procedure and provenance
+For each source, retrieve the exact URL, record observed title, publication/update date if exposed (otherwise unknown), access date, scope/version, supported claims and limitations. Record redirects or access failures. Inspect official API methods, schemas and transport guidance before proposing requests. Match documented version to the installed application only after an explicitly authorized test. Save reproducible procedures and gaps in docs/10 and investigation findings in docs/09. Record prices with currency/date/formula and compatibility/licensing with primary vendor terms in Stage 2; no pricing, license or stack claim is made here.
+
+If browsing or installation testing is unavailable: mark REQUIRES VERIFICATION/PENDING, provide the exact manual procedure and required artifacts, and continue permitted work. Do not contact a production host or scan IFC's LAN as part of public research.
+
+## Intake audit
+All seven supplied seed URLs are registered, without presenting them as already verified. Evidence grading, date handling, missing-test behavior and pricing/compatibility provenance rules are explicit. This register will be updated as sources are retrieved.
+
+## Stage 1 additional sources and retrieval outcomes
+All sources below were accessed on 2026-11-17 UTC. No publication/update date was exposed in inspected primary text; unknown dates are not inferred from crawl dates or copyright notices. Titles in the initial table were confirmed, except SRC-06 observed title was "AI-Powered Church Presentation Software | Free Download" and SRC-07 was "All SmartVerses Features | SmartVerses".
+
+| ID | Publisher / title | URL | Access date | Evidence / scope |
+|---|---|---|---|---|
+| SRC-08 | Renewed Vision — ProPresenter API schema | https://openapi.propresenter.com/swagger.json | 2026-11-17 | V-DOC snapshot; not installed API evidence. Stored at docs/evidence/propresenter-openapi-2026-11-17.txt. |
+| SRC-09 | Renewed Vision — Using Macros in ProPresenter | https://support.renewedvision.com/hc/en-us/articles/4402663090323-Using-Macros-in-ProPresenter | 2026-11-17 | V-DOC macro actions/workflow. |
+| SRC-10 | Renewed Vision — Connecting to ProPresenter Control | https://support.renewedvision.com/hc/en-us/articles/6024791423763-Connecting-to-ProPresenter-Control | 2026-11-17 | V-DOC network setup; examples are not IFC configuration. |
+| SRC-11 | Renewed Vision — Importing PowerPoint files Natively within ProPresenter | https://support.renewedvision.com/hc/en-us/articles/45377042213011-Importing-PowerPoint-files-Natively-within-ProPresenter | 2026-11-17 | V-DOC version 21 import; not proof of Bible lookup/rights. |
+| SRC-12 | Renewed Vision — historical API resource attempted | https://renewedvision.com/api_spec/swagger.json | Attempted 2026-11-17 | Tool could not retrieve; REQUIRES VERIFICATION, not used as evidence. |
+
+## Claim index and limits
+- SRC-02: optional TCP framing/subset/response semantics; no measured socket behavior or installed security evidence.
+- SRC-03: Bible UI translation/search/theme/save/navigation workflow; no remote arbitrary-reference proof.
+- SRC-04: Bible-theme assignment and per-screen Look theme application; no IFC fidelity test.
+- SRC-05: installation and per-computer licensing guidance; no external redistribution grant assumed.
+- SRC-06/07: public interaction inspiration only; no verified accuracy, speed or integration internals.
+- SRC-08: inspected public method/schema snapshot. No Bible/Scripture/translation matches; NOT DOCUMENTED in that snapshot does not mean unsupported in installed version 21. No security declarations found does not establish installed authentication behavior.
+- IFC intake reply: user-reported installation/assets, free-use constraint, English scope and accepted latency targets; not vendor/test evidence.
+
+No V-TEST evidence exists. No performance figures, prices, speech-provider choice or runtime support promises were accepted from search snippets. Search results outside primary vendor sources were discovery leads only and were not used to substantiate technical conclusions. At the Stage 1 checkpoint, Stage 2 investigations awaited the gate reply; IFC subsequently authorized provisional continuation and Stage 2 sources follow below.
+
+## Stage 1 audit
+Seed URLs retrieved or retrieval limitations recorded; primary claims carry source IDs, URLs, date and evidence scope. Installed facts and test outcomes remain pending. Snapshot hash and method are in docs/09. This register supersedes the intake-only access state above.
+
+## Stage 2 primary sources — accessed 2026-11-17 UTC
+V-DOC means documented only; no binaries, accounts, benchmark or platform test was run. Publication/update dates unknown unless stated. Recommendations and estimates derived from these sources are investigator judgments, not vendor guarantees. Links below are claim provenance; current terms must be rechecked before adoption.
+
+| ID | Publisher / observed title | URL | Evidence and supported scope |
+|---|---|---|---|
+| SRC-13 | ggml-org — whisper.cpp | https://github.com/ggml-org/whisper.cpp | V-DOC; MIT repository, model memory, acceleration and naive microphone streaming example. |
+| SRC-14 | SYSTRAN — faster-whisper | https://github.com/SYSTRAN/faster-whisper | V-DOC; CTranslate2/Python, CPU/CUDA and external streaming integrations, MIT repository. |
+| SRC-15 | Deepgram — Pricing | https://deepgram.com/pricing | V-DOC; promotional STT rates, credits are not recurring free service. |
+| SRC-16 | Deepgram — Interim results | https://developers.deepgram.com/docs/interim-results | V-DOC; preliminary/final streaming results. |
+| SRC-17 | Microsoft — Azure Speech pricing | https://azure.microsoft.com/en-us/pricing/details/speech/ | V-DOC; F0 5 audio hours/month; paid region/currency rate not resolved. Seed URL redirected here. |
+| SRC-18 | Microsoft — How to recognize speech | https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-recognize-speech | V-DOC; realtime recognition guide readable despite authorization banner. |
+| SRC-19 | Google — Speech-to-Text pricing | https://cloud.google.com/speech-to-text/pricing | V-DOC; V2 standard first tier USD 0.016/minute. |
+| SRC-20 | Google — Transcribe audio from streaming input | https://docs.cloud.google.com/speech-to-text/docs/streaming-recognize | V-DOC; streaming gRPC; initial V2 URL redirected. |
+| SRC-21 | AssemblyAI — Pricing authoritative reference | https://www.assemblyai.com/pricing.md | V-DOC; updated 2026-11-10; realtime models, hourly rates and billing. Also inspected https://www.assemblyai.com/pricing . |
+| SRC-22 | Apple — supportsOnDeviceRecognition | https://developer.apple.com/documentation/Speech/SFSpeechRecognizer/supportsOnDeviceRecognition | V-DOC search excerpt only; on-device availability conditional; full page REQUIRES VERIFICATION. |
+| SRC-23 | Microsoft — Speech recognition | https://learn.microsoft.com/en-us/windows/uwp/ui-input/speech-recognition | V-DOC; OS runtime, grammar and permission requirements. |
+| SRC-24 | Tauri — What is Tauri? | https://v2.tauri.app/start/ | V-DOC; system webview/Rust desktop approach. |
+| SRC-25 | Tauri — Distribute | https://v2.tauri.app/distribute/ | V-DOC; packaging/signing guides; no actual installer built. |
+| SRC-26 | Tauri — Embedding External Binaries | https://v2.tauri.app/develop/sidecar/ | V-DOC; per-target sidecar packaging. |
+| SRC-27 | Electron — Process Model | https://www.electronjs.org/docs/latest/tutorial/process-model | V-DOC; Chromium multiprocess desktop architecture. |
+| SRC-28 | Avalonia — Supported platforms | https://docs.avaloniaui.net/docs/supported-platforms | V-DOC; support tiers vary by release. |
+| SRC-29 | Microsoft — Supported platforms for .NET MAUI apps | https://learn.microsoft.com/en-us/dotnet/maui/supported-platforms?view=net-maui-10.0 | V-DOC; Mac Catalyst and WinUI targets, not tested compatibility. |
+| SRC-30 | Apple — Become a member | https://developer.apple.com/programs/enroll/ | V-DOC search excerpt; USD 99/year and qualifying fee waiver, eligibility unverified. |
+| SRC-31 | Apple — Signing Mac Software with Developer ID | https://developer.apple.com/developer-id/ | V-DOC; Developer ID, hardened runtime and notarization workflow. |
+| SRC-32 | Microsoft — Windows 10 release information | https://learn.microsoft.com/en-us/windows/release-health/release-information | V-DOC search excerpt; ordinary support ended 2025-10-14; edition/ESU exceptions need review. |
+| SRC-33 | Microsoft — Loopback Recording | https://learn.microsoft.com/en-gb/windows/win32/coreaudio/loopback-recording | V-DOC search excerpt; shared-mode WASAPI render loopback. |
+| SRC-34 | Lockman — Permission to Quote: NASB, Amplified, NBLA, LBLA | https://www.lockman.org/permission-to-quote-copyright-trademark-information/ | V-DOC; AMP/AMPC notices and limits; no blanket redistribution grant inferred. |
+| SRC-35 | Biblica — Permissions | https://www.biblica.com/permissions/ | V-DOC; conditions on text use; app licensing must be separately checked. |
+| SRC-36 | NavPress — Permissions | https://www.navpress.com/permissions | V-DOC; The Message use/attribution and online/audio permission procedure. |
+| SRC-37 | Thomas Nelson — attempted permissions page | https://www.thomasnelsonbibles.com/about-us/permissions/ | Retrieval failed; REQUIRES VERIFICATION; no NKJV license claim accepted. |
+| SRC-38 | Apple — requiresOnDeviceRecognition | https://developer.apple.com/documentation/speech/sfspeechrecognitionrequest/requiresondevicerecognition | JS-only response; full content not retrieved. Markdown guess failed; use SRC-22 with explicit limit. |
+
+BibleGateway AMP/AMPC pages were inspected as discovery leads for Lockman; use SRC-34 as primary permissions evidence. No Bible text downloaded. No cloud privacy/retention agreement has been approved; all cloud retention, training use, region and deletion claims remain REQUIRES VERIFICATION. For each cloud vendor: obtain current service terms, DPA, model-training opt-out and region/retention documents for the exact plan, save dated references and have IFC review before any upload. No signup or provider selection is authorized by this research.
+
+
+## Installed primary evidence — 2026-11-17
+SRC-39: Personal Windows ProPresenter 21.4.2 (352584193), API v1. About/Network/Bible UI and loopback `/version`, `/v1/doc/index.html`, `/v1/doc/swagger.json`, library/presentation/status reads and allowlisted test-cue triggers observed. Local source is installation-specific, no private LAN URL published. Schema file docs/evidence/propresenter-installed-21.4.2-openapi.txt is data-only documentation (205 paths); stored separately from public snapshot. V-TEST only within scope and limits in docs/18-personal-propresenter-test-results.md. No Bible lookup/Auto/physical audience output or real speech result claimed. No raw private configuration/Bible text included.

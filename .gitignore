@@ -1,0 +1,23 @@
+# Never publish local secrets or private service/test artifacts.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.log
+*.tmp
+poc/private/
+docs/evidence/private/
+recordings/
+captures/
+node_modules/
+target/
+dist/
+.DS_Store
+Thumbs.db
+.aws/
+.ssh/
+.codex/
+.agents/
