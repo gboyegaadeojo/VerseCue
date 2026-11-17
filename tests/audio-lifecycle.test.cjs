@@ -12,3 +12,4 @@ function setup(){
 test('stop during worklet initialization releases the late audio context and track',async()=>{
   const fixture=setup();const start=fixture.audio.start('synthetic-device',0);await new Promise(resolve=>setImmediate(resolve));await fixture.audio.stop();fixture.release();await start;assert.equal(fixture.audio.active,false);assert.equal(fixture.audio.ctx,null);assert.equal(fixture.counts().closed,1);assert.ok(fixture.counts().stopped>=1);
 });
+test('authorization revoked during worklet initialization cannot activate a late input',async()=>{const fixture=setup();let authorized=true;const start=fixture.audio.start('synthetic-device',0,()=>authorized);await new Promise(resolve=>setImmediate(resolve));authorized=false;fixture.release();await start;assert.equal(fixture.audio.active,false);assert.equal(fixture.counts().closed,1);assert.ok(fixture.counts().stopped>=1);});

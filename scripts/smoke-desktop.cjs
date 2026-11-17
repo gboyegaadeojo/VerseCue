@@ -51,6 +51,14 @@ const {_electron}=require('playwright');const assert=require('node:assert/strict
     const localApi=await page.evaluate(()=>window.versecue.privateApiStatus());assert.equal(localApi.value.enabled,true);assert.equal(localApi.value.allowPreparedSend,false);
     assert.equal((await fetch(`http://127.0.0.1:${localApi.value.port}/v1/status`)).status,401);
     await page.locator('#private-api-disable').click();assert.equal((await page.evaluate(()=>window.versecue.privateApiStatus())).value.enabled,false);
+    await page.evaluate(()=>window.versecue.command('resume'));
+    const captureOwner=await page.evaluate(()=>window.versecue.beginAudio({authorized:true}));assert.equal(captureOwner.ok,true);
+    assert.equal((await compact.evaluate(()=>window.versecue.beginAudio({authorized:true}))).ok,false);
+    assert.equal((await compact.evaluate(()=>window.versecue.audio(new Array(3200).fill(0)))).ok,false);
+    await compact.evaluate(()=>window.versecue.endAudio());assert.equal((await page.evaluate(()=>window.versecue.state())).value.capture.active,true);
+    await compact.evaluate(()=>window.versecue.command('stop'));assert.equal((await page.evaluate(()=>window.versecue.state())).value.capture.active,false);
+    await page.evaluate(()=>window.versecue.command('resume'));assert.equal((await compact.evaluate(()=>window.versecue.beginAudio({authorized:true}))).ok,true);
+    await compact.close();await page.waitForFunction(async()=>!(await window.versecue.state()).value.capture.active);
     // SYNTHETIC oscillator checks worklet transport only. No mic permission or
     // speaker playback; a zero-gain destination keeps this signal inaudible.
     const worklet=await page.evaluate(async()=>{
@@ -64,6 +72,7 @@ const {_electron}=require('playwright');const assert=require('node:assert/strict
     const dialogOverflow=await page.evaluate(()=>{const dialog=document.querySelector('#settings-dialog');return dialog.scrollWidth>dialog.clientWidth+2;});assert.equal(dialogOverflow,false,'Setup must not overflow horizontally at 200% text zoom');
     assert.equal(network.length,0);assert.deepEqual(errors,[]);
     const report={passed:true,at:new Date().toISOString(),runtime:await electron.evaluate(()=>({...process.versions})),checks:['startup dry run','manual canonical reference','simulated send','history receipt wording','emergency stop/rearm','setup dialog','context isolation/sandbox/no Node','compact shared state/stop','zero renderer HTTP requests','SYNTHETIC silent worklet transport','200% full-window horizontal fit'],pageErrors:errors,rendererHttpRequests:network.length};
+    report.checks.push('invalid KJV action blocking','latest candidate selection','review-only previous/next verse','profile save/load/delete and API revocation','exclusive full/compact capture ownership','nonowner audio rejection','owner close and cross-window stop revoke capture','200% setup dialog horizontal fit');
     report.packaged=Boolean(executable);if(executable){const setup=await page.evaluate(()=>window.versecue.settings());assert.ok(setup.value.executable.endsWith('whisper-cli.exe'));assert.ok(setup.value.model.endsWith('ggml-base.en.bin'));report.bundledSpeechDetected=true;}
     await fs.writeFile(executable?'test-results/packaged-smoke.json':'test-results/desktop-smoke.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
   }finally{await electron.close();}

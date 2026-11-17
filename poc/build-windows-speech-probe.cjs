@@ -1,0 +1,6 @@
+// THROWAWAY DIAGNOSTIC — NOT PRODUCTION CODE
+'use strict';
+const {execFileSync,spawnSync}=require('node:child_process');const path=require('node:path');const fs=require('node:fs');
+if(process.platform!=='win32')throw new Error('Windows-only diagnostic');
+const assembly=execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',"Add-Type -AssemblyName System.Speech; [System.Speech.Recognition.SpeechRecognitionEngine].Assembly.Location"],{windowsHide:true,encoding:'utf8'}).trim();
+const output=path.resolve('poc/private/tools/WindowsSpeechProbe.exe');fs.mkdirSync(path.dirname(output),{recursive:true});const compiler=path.join(process.env.WINDIR??'C:\\Windows','Microsoft.NET','Framework64','v4.0.30319','csc.exe');const result=spawnSync(compiler,['/nologo','/target:exe','/platform:x64','/reference:'+assembly,'/reference:System.Web.Extensions.dll','/out:'+output,path.resolve('poc/WindowsSpeechProbe.cs')],{windowsHide:true,shell:false,encoding:'utf8'});if(result.error||result.status!==0)throw new Error('Diagnostic compiler failed: '+(result.stderr||result.stdout||result.error?.message));console.log('Compiled private WAV-only Windows speech diagnostic; no microphone or output operation.');

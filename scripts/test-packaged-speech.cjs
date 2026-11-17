@@ -9,7 +9,9 @@ const {_electron}=require('playwright');const fs=require('node:fs/promises');con
     const page=await electron.firstWindow();await page.waitForFunction(()=>typeof window.versecue==='object');
     const resources=await electron.evaluate(()=>process.resourcesPath);const executable=path.join(resources,'speech','whisper-cli.exe'),model=path.join(resources,'speech','ggml-base.en.bin');await fs.access(executable);await fs.access(model);
     const settingResult=await page.evaluate(async options=>{const current=await window.versecue.settings();return window.versecue.saveSettings({...current.value,...options});},{speechMode:mode==='--resident'?'resident':'cli',executable,model});assert.equal(settingResult.ok,true,settingResult.error);
+    const capture=await page.evaluate(()=>window.versecue.beginAudio({authorized:true}));assert.equal(capture.ok,true,capture.error);
     const result=await page.evaluate(samples=>window.versecue.audio(samples),samples);assert.equal(result.ok,true,result.error);assert.ok(result.value.text.length>0);
+    await page.evaluate(()=>window.versecue.endAudio());
     const state=await page.evaluate(()=>window.versecue.state());assert.equal(state.value.dryRun,true);assert.equal(state.value.history.length,0);
     const report={at:new Date().toISOString(),passed:true,packaged:true,bundledLocalWorker:true,speechMode:mode==='--resident'?'resident':'cli',audioSource:'authorized private PCM fixture through IPC; no microphone',audioSeconds:samples.length/16000,elapsedMs:result.value.elapsedMs,transcriptNonempty:true,outputHistoryEntries:state.value.history.length,accuracyScored:false,liveLatencyScored:false};await fs.writeFile(mode==='--resident'?'test-results/packaged-resident-integration.json':'test-results/packaged-speech-integration.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
   }finally{await electron.close();}

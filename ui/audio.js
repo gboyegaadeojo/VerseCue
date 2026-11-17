@@ -2,17 +2,17 @@
 // Authorized physical input only; memory bounded to twelve seconds at 16 kHz.
 class PastorAudio {
   constructor({onLevel,onWindow,onHealth,onLost}){this.onLevel=onLevel;this.onWindow=onWindow;this.onHealth=onHealth;this.onLost=onLost;this.stream=null;this.ctx=null;this.node=null;this.active=false;this.cancelEpoch=0;this.noSignal=0;this.droppedSamples=0;this.buffer=new AudioWindowBuffer({onWindow:async samples=>{this.onHealth('Recognizing locally · capture continues in a bounded buffer');await this.onWindow(samples);},onDrop:drop=>{this.droppedSamples+=drop.samples;this.onHealth(`Audio ${drop.reason==='stale'?'expired':'overflow'} · ${(this.droppedSamples/16000).toFixed(1)}s dropped; recognition cannot keep up`);},onError:()=>this.onHealth('Recognition failed · review speech setup')});}
-  async start(deviceId,channel){
-    await this.stop();if(!deviceId)throw new Error('Select a specific audio input in Setup');
+  async start(deviceId,channel,guard=()=>true){
+    await this.stop();if(!guard())throw new Error('Audio session authorization was revoked');if(!deviceId)throw new Error('Select a specific audio input in Setup');
     const epoch=++this.cancelEpoch;
     const stream=await navigator.mediaDevices.getUserMedia({audio:{deviceId:{exact:deviceId},echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:{ideal:Math.max(channel+1,2)}},video:false});
-    if(epoch!==this.cancelEpoch){stream.getTracks().forEach(t=>t.stop());return;}
+    if(epoch!==this.cancelEpoch||!guard()){stream.getTracks().forEach(t=>t.stop());return;}
     this.stream=stream;const track=stream.getAudioTracks()[0];
     track.onended=()=>{this.onHealth('Input lost · recognition stopped');this.stop();this.onLost?.();};
     // Browser-native device-rate conversion happens before the worklet.
     const context=new AudioContext({sampleRate:16000});
     try{await context.audioWorklet.addModule('capture-worklet.js');}catch(error){stream.getTracks().forEach(t=>t.stop());await context.close().catch(()=>{});throw error;}
-    if(epoch!==this.cancelEpoch){stream.getTracks().forEach(t=>t.stop());await context.close().catch(()=>{});return;}
+    if(epoch!==this.cancelEpoch||!guard()){stream.getTracks().forEach(t=>t.stop());await context.close().catch(()=>{});return;}
     this.ctx=context;
     const source=this.ctx.createMediaStreamSource(stream);
     this.node=new AudioWorkletNode(this.ctx,'versecue-capture',{processorOptions:{channel}});

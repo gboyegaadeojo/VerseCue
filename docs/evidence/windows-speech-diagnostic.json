@@ -1,0 +1,59 @@
+{
+  "at": "2026-11-17T21:47:58.327Z",
+  "recognizer": "Installed Microsoft Speech Recognizer 8.0 Windows en-US",
+  "grammar": "dictation",
+  "rows": [
+    {
+      "id": "REAL-PILOT-001-6",
+      "elapsedMs": 4708,
+      "exitCode": 0,
+      "timedOut": false,
+      "phraseCount": 1,
+      "transcriptNonempty": true,
+      "transcriptSha256": "5c0e9777fa9e43219ace3548631ee571f0af5cf7ebcc7b03593fdcc0ef07a287",
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "id": "REAL-PILOT-001-12",
+      "elapsedMs": 7387,
+      "exitCode": 0,
+      "timedOut": false,
+      "phraseCount": 2,
+      "transcriptNonempty": true,
+      "transcriptSha256": "608a23e70b864739397b20bfdb5e8714a104c95acb47cc65928137d5264af60f",
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "id": "REAL-PILOT-002-12",
+      "elapsedMs": 11161,
+      "exitCode": 0,
+      "timedOut": false,
+      "phraseCount": 1,
+      "transcriptNonempty": true,
+      "transcriptSha256": "80c9be0a9d5305548c95be42ce1941ccdaa0f8fabbf2bf4c88f32caea8230df4",
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "id": "REAL-PILOT-004-14",
+      "elapsedMs": 3756,
+      "exitCode": 0,
+      "timedOut": false,
+      "phraseCount": 3,
+      "transcriptNonempty": true,
+      "transcriptSha256": "7f3769f75b18de10ed353df021168ea5213e252df09b253573142cf9f55a01ab",
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    }
+  ],
+  "microphoneCapture": false,
+  "outputRequests": 0,
+  "applicationBackendChanged": false,
+  "limitations": [
+    "No independently verified labels",
+    "No Mac equivalent tested",
+    "Request duration is not live audible-end output latency"
+  ]
+}
