@@ -1,0 +1,4 @@
+'use strict';
+const fs=require('node:fs');const lock=require('../package-lock.json');
+const entries=Object.entries(lock.packages).filter(([name])=>name).map(([name,p])=>({name:name.split('node_modules/').at(-1),version:p.version,license:p.license??'SEE_UPSTREAM',integrity:p.integrity??null,developmentOnly:p.dev===true}));
+fs.writeFileSync('legal/dependency-inventory.json',JSON.stringify({schemaVersion:1,applicationVersion:require('../package.json').version,components:entries,runtimeNotices:'Packaged Electron LICENSE and LICENSES.chromium.html',optionalSpeech:'WHISPER-LICENSE.txt, WHISPER-MODEL-LICENSE.txt; pinned hashes in bundle-local-speech.cjs',note:'Inventory, not an independent license/security attestation'},null,2)+'\n');console.log(`${entries.length} pinned dependency components inventoried.`);

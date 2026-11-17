@@ -15,6 +15,10 @@ captures/
 node_modules/
 target/
 dist/
+.cache/
+test-results/
+artifacts/
+native/bin/
 .DS_Store
 Thumbs.db
 .aws/

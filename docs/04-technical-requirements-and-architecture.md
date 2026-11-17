@@ -1,6 +1,6 @@
 ﻿# Technical requirements and architecture candidate
 
-2026-11-17. **PROVISIONAL throughout: P0 is PENDING.** This is a reviewable candidate, not a committed architecture, build system or implementation authorization. No application code. ADRs in docs/14 and comparisons in docs/09 govern selection; installed version 21 behavior must govern connector details. Requirements FR-001–062/NFR-001–024 remain authoritative.
+2026-11-17. **PROVISIONAL throughout: P0 is PENDING.** This document preserves the original candidate design. Under later explicit user implementation approval, an Electron development application was built; see [actual development architecture, tests and limits](22-development-build-and-release-status.md) and ADR-013. The Tauri/native-core proposal below is not the implementation in the current build. Requirements FR-001–062/NFR-001–024 remain authoritative; no full release acceptance is inferred.
 
 ## Architecture decisions and deployment
 Recommend evaluation of a Tauri 2 OS-webview shell, Rust/native core, native capture bridge and constrained whisper.cpp worker, deterministic parser and independent capability-aware connector. These are candidates; no dependencies/toolchain selected. Electron remains a fallback for proven capture/accessibility/team-fit problems; Avalonia/MAUI alternatives are compared in docs/09. UI is native-feeling installable desktop, not native OS widgets. No web service or cloud account required. Do not couple parser/command policy to a provider or infer Bible capabilities from presentation APIs.

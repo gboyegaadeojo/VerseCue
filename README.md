@@ -1,11 +1,30 @@
-﻿# VerseCue — IFC discovery and requirements package
+# VerseCue — IFC desktop companion
 
-Prepared 2026-11-17 for Immanuel Fellowship Church, Winnipeg. **Documentation only. P0 feasibility PENDING. All integration-dependent requirements, architecture and release plans are PROVISIONAL.** IFC approved the provisional requirements and subsequently authorized personal-host ProPresenter tests and GitHub publication. Partial test results are in docs/18; production application code, church production-host access, spending and cloud-provider selection remain unauthorized.
+Prepared 2026-11-17 for Immanuel Fellowship Church, Winnipeg. **Development application now implemented under explicit user approval. P0 feasibility and full service-release acceptance remain PENDING.** All original requirements are retained. Church production-host access, spending and cloud-provider selection remain unauthorized. Arbitrary ProPresenter Bible lookup, Auto and Clear remain unavailable; finite prepared test cues do not satisfy P0.
+
+## Try the development application
+
+The Windows development package is built locally under `dist/` with a verified offline speech engine/model, notices and SHA256 manifest. Extract the whole ZIP and run `VerseCue.exe` inside it. It starts in **Confirm + dry run**, does not capture audio until explicitly started, and creates no audience graphics. This unsigned package is for supervised development, not a live service.
+
+For source development on Windows:
+
+```text
+npm.cmd ci --cache .cache/npm
+node node_modules/electron/install.js
+npm.cmd start
+npm.cmd test
+npm.cmd run check
+npm.cmd run test:desktop
+```
+
+Read [running/setup, evidence and release limitations](docs/22-development-build-and-release-status.md) and [all 86 requirement implementation statuses](docs/implementation-coverage.json). Mac source/packaging is provided but native Mac speech/capture/install testing and signing are pending. No cloud service or paid API is required.
+
+Version 0.2.0 adds the requested [private API and experimental Windows preparation bridge](docs/23-private-api-and-experimental-bible-bridge.md). The API is off at startup and uses a rotating memory-only token on loopback. The native helper compiles and remains explicitly experimental/runtime-unverified; it prepares references only and never clicks a passage live. Build it with `node scripts/build-windows-bridge.cjs` before packaging if needed.
 
 ## Start here
 1. Read the [leadership summary](docs/00-executive-summary.md) and [requirements summary](REQUIREMENTS_SUMMARY.md).
-2. Read the [P0 feasibility report and authorization-gated test procedure](docs/10-integration-feasibility-and-poc.md). Public presentation triggers do not establish arbitrary Bible lookup. No hardware/output test passed.
-3. Review [open risks/decisions](docs/07-risks-and-open-questions.md), [decision brief](docs/16-decision-brief.md) and [audit](docs/17-package-audit.md) before approving requirements. Acceptance of documentation does not waive P0 or authorize implementation.
+2. Read the [P0 feasibility report and authorization-gated test procedure](docs/10-integration-feasibility-and-poc.md). Public presentation triggers do not establish arbitrary Bible lookup. Partial personal-host evidence is in docs/18–19; full P0 has not passed.
+3. Review [open risks/decisions](docs/07-risks-and-open-questions.md), [decision brief](docs/16-decision-brief.md) and [audit](docs/17-package-audit.md). Requirements and later implementation approval are recorded; missing feasibility evidence remains missing.
 4. Use [PROGRESS.md](PROGRESS.md) for current stage, pending blockers and exact next action. Resume by reading it and the relevant sections of the [authoritative master specification](VerseCue_Master_Development_Prompt_v2_Codex.md).
 
 VerseCue is intended as a small Windows/macOS companion that identifies explicit spoken references and defaults to volunteer confirmation. ProPresenter remains the only Bible/presentation/output authority, preserving IFC's existing themes, room/stream Looks and manual/Companion workflow. No standalone output workaround is in scope.
@@ -41,25 +60,25 @@ VerseCue is intended as a small Windows/macOS companion that identifies explicit
 - [Public API schema snapshot](docs/evidence/propresenter-openapi-2026-11-17.txt): vendor data only; provenance/hash in investigation findings. Not an application module or installed-version proof.
 - `poc/`: reserved for labelled disposable non-destructive diagnostics. Labelled read-only and explicitly armed test-trigger diagnostics now exist; see poc/README.md and docs/18 for actual runs. Future probes retain the prescribed header, run README, no secrets and read-only/dry-run defaults.
 
-## Readiness and use restrictions
+## Historical baseline readiness (superseded by the development-build report)
 Known user-reported environment: ProPresenter 21, Mac mini M4, MOTU M4, English, same-PC first plus LAN companion design, Companion and existing themes/Looks/macros. Installed names: KJV, Amplified, Amplified classic, NIV, NKJV, The Message. Exact build/macOS/default edition/routing/assets remain unverified. IFC requires free operation; local STT is recommended, not benchmarked. Accepted delay targets remain unmeasured. No model/backend/framework/toolchain is finally accepted.
 
 Real accuracy/accent evidence requires consented IFC sermon excerpts and representative holdout/rehearsal material; none supplied. Current synthetic corpus tests parser design only. Full acceptance outcomes remain PENDING; limited personal Windows connector/schema observations are recorded in docs/18. Markdown diagrams are design artifacts, not a running UI.
 
 At Stage 4 STOP, IFC reviews this package and pending P0 blockers. Production implementation requires both feasibility and requirements approval; production host access/live tests, purchases, cloud choice and publishing each need explicit authorization. If no supportable arbitrary Bible route works, stop for product decision and preserve manual ProPresenter operation.
 
-## Review status update — 2026-11-17
+## Historical requirements-review checkpoint — 2026-11-17
 IFC approved the provisional requirements baseline by replying **I approve**. Stage 4 requirements approval is recorded. **P0 remains PENDING**, so implementation is not ready; the next step is a separately authorized isolated feasibility test session. All existing host/output, purchase/cloud and GitHub/publication restrictions remain in force. See PROGRESS.md for the exact next action.
 
-## Current personal test and publication status
+## Historical personal-test and publication checkpoint
 2026-11-17: user authorized personal-host passage tests and GitHub publication. [Personal test results](docs/18-personal-propresenter-test-results.md): Windows ProPresenter 21.4.2, installed schema inspected, saved KJV John 3:16/Romans 8:28 cues triggered with preview/readback evidence. P0 still PENDING: arbitrary lookup, church Looks/physical outputs, Mac/LAN, guarded policy and real-audio performance unproved. Labelled diagnostic scripts now exist under [poc](poc/README.md); no production application code/build scaffold. Private repository: https://github.com/gboyegaadeojo/VerseCue . Historical no-publication/no-host statements are superseded only within this new authorization.
 
 
-## Dynamic-route test update
+## Historical dynamic-route test checkpoint
 [Unprepared Bible UI investigation](docs/19-dynamic-bible-ui-investigation.md) tested Philippians 4:6–7 preparation/preview, native next verse, translation selection and actual action palette. Results are partial: uncertain UI completion, stale semantic/readback identity and clipped-text warnings prevent P0 acceptance. [Sunday-service source intake](docs/test-data/sermon-source-intake.md) records requested start 1:18:10; actual link/file and permitted-use scope remain pending. No real-audio results or production application code.
 
-## Real sermon pilot update
+## Historical real sermon pilot checkpoint
 [Local sermon-audio pilot](docs/20-sermon-audio-pilot.md) used the supplied IFC service at1:18:10–1:23:10. CPU-only base.en processed300s in67.256s; real ordinal ambiguity observed, no accuracy/live-latency pass. [Four real recording clip metadata records](docs/test-data/real-recording-pilot-manifest.json) have expected labels pending independent listening; recordings/transcripts/models remain private and Git-ignored. Original synthetic corpus unchanged. New diagnostic sources are under poc/, no production application code.
 
-## Incremental speech timing update
+## Historical incremental speech timing checkpoint
 [Streaming-style replay findings](docs/21-streaming-style-replay-results.md) and [content-free measurements](docs/evidence/replay-stt-metrics.json): eight windows, current fastest tested model-resident CPU configurationmedian4.099s/max5.273s before stabilization/display. These are exploratory per-window timings, not live acceptance. P0 remains PENDING and no production application code. Local test servers stopped; private audio/transcripts stay excluded from GitHub.

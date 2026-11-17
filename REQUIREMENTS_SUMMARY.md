@@ -1,6 +1,6 @@
 # VerseCue requirements summary
 
-2026-11-17 — IFC review baseline. **PROVISIONAL integration; P0 PENDING. Documentation only.**
+2026-11-17 — IFC review baseline. **PROVISIONAL integration; P0 PENDING.** Later explicit user approval authorized the Electron development application; [current scope/evidence/blockers](docs/22-development-build-and-release-status.md). This summary preserves the full approved requirements and does not claim service-release acceptance.
 
 VerseCue should reduce volunteer delay after explicit spoken Scripture references while leaving ProPresenter as the single presentation system. A clean authorized MOTU M4 pastor feed supplies local speech recognition; deterministic parsing and canonical validation produce a fresh reference card. Confirm is default. Guarded Auto is optional, intentionally armed and unavailable whenever translation, context, target or ownership is uncertain. Suggest-only blocks sends while listening; Paused stops capture; emergency stop blocks further sends without clearing existing output.
 

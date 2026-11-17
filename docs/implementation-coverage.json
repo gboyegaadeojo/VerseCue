@@ -1,0 +1,610 @@
+{
+  "schemaVersion": 1,
+  "version": "0.2.0",
+  "p0": "PENDING",
+  "release": "DEVELOPMENT_ONLY",
+  "requirements": [
+    {
+      "id": "FR-001",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-002",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-003",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-004",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-005",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-006",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-007",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-008",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-009",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-010",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-011",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-012",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-013",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-014",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-015",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-016",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-017",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-018",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-019",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-020",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-021",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-022",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-023",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-024",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-025",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-026",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-027",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-028",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Confirm implemented; Auto intentionally unavailable"
+    },
+    {
+      "id": "FR-029",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-030",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-031",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-032",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-033",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-034",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-035",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-036",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-037",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-038",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-039",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-040",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-041",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-042",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-043",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-044",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "P0 blocked: arbitrary Bible lookup not verified"
+    },
+    {
+      "id": "FR-045",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-046",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-047",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-048",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-049",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Dry-run zero-network behavior unit/desktop tested; full connector HIL pending"
+    },
+    {
+      "id": "FR-050",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-051",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-052",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-053",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "No cloud/provider credentials supported; vault adapter not implemented"
+    },
+    {
+      "id": "FR-054",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-055",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-056",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-057",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-058",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-059",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-060",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-061",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "FR-062",
+      "status": "partial",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+    },
+    {
+      "id": "NFR-001",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-002",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-003",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-004",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-005",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-006",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-007",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-008",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-009",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-010",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-011",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-012",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-013",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-014",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-015",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-016",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-017",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-018",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-019",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-020",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-021",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-022",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-023",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    },
+    {
+      "id": "NFR-024",
+      "status": "pending",
+      "acceptance": "PENDING",
+      "evidence": "docs/22-development-build-and-release-status.md",
+      "note": "Limited development evidence does not establish quantified release acceptance"
+    }
+  ]
+}

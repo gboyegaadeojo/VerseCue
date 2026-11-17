@@ -3,7 +3,7 @@
 Updated: 2026-11-17 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work.
 
 ## Current stage
-STOPPED — bounded streaming-style replay/comparison complete; overall feasibility gate PENDING. Requirements approved and GitHub publication completed. IFC explicitly replied "continue provisionally" on 2026-11-17. P0 gate: PENDING. Requirements approval: granted by user reply "I approve" on 2026-11-17 for the provisional documentation baseline. No production application code or build-system selection. GitHub and personal test-host access/triggering were subsequently authorized and performed as recorded below; church live-host access remains unauthorized.
+WORKING — final sanitized publication of Windows development build0.2.0/private API. User explicitly authorized continuous implementation and then requested a private MCP/API; later instructions supersede historical no-application-code restriction. 108 regression checks passed; packaged desktop/API-enable-disable/synthetic-worklet/zoom and private-fixture speech passed;112manifest files and source equality verified; online npm audit0findings. A compiled experimental Windows preparation-only helper is included, disabled unless explicitly opted in. Its native runtime test is PENDING: computer-use app-launch approval timed out. Direct Sky keyboard preparation Luke15:11-13 succeeded without output change but accessibility lag/clipping persisted. P0/full application/service release remain PENDING, not complete. Requirements/private publication/personal-host approvals persist; no missing general approval, church live-host access, purchases or cloud inference inferred. No standalone output.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -44,6 +44,13 @@ Status vocabulary: not started / drafted / audited. Audited means checked for th
 | docs/evidence/sermon-pilot-metrics.json | audited | Content-free measured run metrics |
 | docs/21-streaming-style-replay-results.md | audited | Cold replay/warm beam5/beam1, actual limitations |
 | docs/evidence/replay-stt-metrics.json | audited | Eight content-free comparison rows |
+| docs/22-development-build-and-release-status.md | audited | Implemented development scope, actual tests, all release blockers |
+| docs/implementation-coverage.json | audited | All 62 FR + 24 NFR with honest partial/pending status |
+| core/, desktop/, ui/ | drafted | Authorized Electron development application; full acceptance PENDING |
+| tests/, scripts/ | audited | 108 regression cases, desktop/audio/packaging/private-API checks |
+| legal/ and package-lock.json | audited | Pinned dependency inventory, offline speech/runtime notices |
+| docs/23-private-api-and-experimental-bible-bridge.md | audited | User-requested private API, native implementation/evidence boundaries |
+| native/windows/BibleBridge.cs | drafted | Compiled Windows preparation-only helper; native runtime test PENDING |
 
 ## Decisions made
 - User specification is authoritative; documentation first, full staged deliverables retained.
@@ -51,6 +58,7 @@ Status vocabulary: not started / drafted / audited. Audited means checked for th
 - Confirm is the initial default; Auto requires intentional enablement and proven safeguards.
 - No production ProPresenter access or output changes without explicit authorization. Public vendor research may proceed.
 - No committed architecture until P0 investigation; implementation requires feasibility and requirements gates.
+- Later user instruction explicitly authorizes implementation despite unresolved P0: Electron development build selected; no P0 pass inferred. Prior gate/no-code statements below are historical. Full production-service release still requires actual feasibility/acceptance evidence; unsupported arbitrary lookup/Auto/Clear remain disabled.
 - No GitHub initialization/publication until explicit authorization.
 - IFC authorized provisional documentation continuation on 2026-11-17; this does not satisfy P0 or implementation gates.
 - Research recommendations only: Tauri 2 candidate, local whisper.cpp evaluation, deterministic parser, optional future local faster-whisper. No final architecture/backend/model/build system/cloud choice accepted.
@@ -61,13 +69,13 @@ Q-01 through Q-09 asked together and answered in part on 2026-11-17. See PROJECT
 DATA-01/02: user supplied IFC Sunday-service YouTube source. Requested start1:18:10 honored; 300s real audio and four private excerpts prepared. Local base.en batch pilot completed; no independently verified labels, accuracy/accent generalization or live latency acceptance. User supplied source for testing; no separate pastor-consent artifact held. Do not request the source/timestamp or manual clips again.
 
 ## P0-blocking unknowns
-- Exact installed ProPresenter build, supported Bible-reference route and installed API behavior.
+- Personal Windows installed build/API known (21.4.2); supportable arbitrary Bible lookup/output and native bridge runtime verification remain pending. Church Mac build remains unknown.
 - Translation availability/rights and IFC theme/room/stream Look fidelity.
 - Authorized hardware-in-loop test environment and test evidence, including concurrent media/operator safety.
 - Windows/macOS viability and representative measured turnaround.
 
 ## Exact next action
-Complete sanitized findings publication, then report STOPPED/P0 PENDING at the required feasibility checkpoint; no background processes remain after final reply. This bounded next-step request is fulfilled. Next diagnostic work is a smaller/quantized or supported-acceleration model comparison with independent listening/reference-end labels and representative hardware/load; real streaming/VAD/stabilization and all remaining PP route/fidelity/platform/concurrency tests remain unpassed. Do not select architecture or write production code from these partial CPU results. Existing requirements, personal-test, source-use and private-GitHub approvals persist, no repeat approval needed. Do not ask for source/timestamp/manual clips again. Raw recordings/windows/transcripts/models remain ignored; cleanup review2026-11-24. Continue sending WORKING updates roughly everyminute during active turns and explicitly state STOPPED/WAITING plus reason at handoff.
+Finish commit/push/remote verification of reviewed source and content-free build evidence, then stop at the unresolved native integration verification checkpoint with a concrete Windows artifact. Resume with the docs/23 supervised native preparation procedure when the computer-use app launch can be approved at the tool gate, followed by focus/translation/completion/clipping/concurrency/failure tests; no repeat project/source/timestamp approval request. Native Mac, real-streaming/holdout quality/end-to-output latency, physical fidelity and soak/signing acceptance remain required. Do not call the app complete or enable Auto from development/fake tests. Private API/token/native preparation are off at startup; keep source free of recordings/models/private dumps/secrets. No background recognition/helper/API jobs should remain after final handoff.
 ## Checkpoints and audit
 - Stage 0: read complete authoritative prompt before work; wrote and audited intake files one at a time, asked nine material questions with defaults and requested 3–5 pastor-consented real sermon excerpts. Incorporated IFC answers without repeating questions.
 - Stage 1: re-read progress and master Sections 2/4/15. Retrieved primary vendor sources and public schema, stored data-only evidence snapshot. Wrote/audited docs/10 before docs/09; updated source register. Full pending test matrix, weighted provisional scores and authorization-gated reproduction steps retained. No probe executed or production host contacted.

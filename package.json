@@ -1,0 +1,47 @@
+{
+  "name": "versecue",
+  "productName": "VerseCue",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Local Scripture reference companion for Immanuel Fellowship Church",
+  "author": "Immanuel Fellowship Church",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "start": "node scripts/start.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "check": "node scripts/check.cjs",
+    "test:desktop": "node scripts/smoke-desktop.cjs",
+    "pack": "node scripts/package.cjs",
+    "dist:win": "node scripts/package.cjs --zip --with-local-speech",
+    "dist:mac": "node scripts/package.cjs --zip"
+  },
+  "build": {
+    "appId": "church.immanuel.versecue",
+    "asar": true,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "desktop/**/*",
+      "core/**/*",
+      "ui/**/*",
+      "legal/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "portable",
+      "signAndEditExecutable": false
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "zip",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "VerseCue listens to your selected pastor audio input to suggest Scripture references locally."
+      }
+    }
+  },
+  "devDependencies": {
+    "electron": "45.3.3",
+    "playwright": "1.65.1"
+  }
+}

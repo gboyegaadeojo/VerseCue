@@ -1,6 +1,8 @@
 # Implementation handoff — documentation only
 
-2026-11-17. **PROVISIONAL integration-dependent handoff; P0 PENDING. No production code or implementation authorization.** This is a task/interface/dependency plan for an eventual approved team. A requirements-package approval cannot itself turn unperformed P0 tests into a pass. Production build/scaffold begins only after feasibility and requirements gates are both satisfied; host/output/purchase/GitHub authorization remains separate.
+**Current implementation status:** The user's later explicit continuous-build authorization supersedes this document's historical no-implementation restriction. The Electron development application now exists. Read [development scope, evidence and release blockers](22-development-build-and-release-status.md) and [all 86 implementation statuses](implementation-coverage.json). P0 remains PENDING; the original full requirements and release criteria below remain required.
+
+2026-11-17 historical handoff baseline: **PROVISIONAL integration-dependent handoff; P0 PENDING.** This is the original task/interface/dependency plan. Documentation approval did not itself turn unperformed P0 tests into a pass. Later direct implementation authorization is recorded in PROGRESS.md; church production access/output, purchases and cloud remain restricted.
 
 ## Definition of ready and gate prerequisites
 Ready for isolated P0 diagnostics: scoped IFC host/read/write/output authorization, non-live target/window, supervisor, exact builds/assets/rights, backup/restore plan and allowed request list. Probe scripts only under poc/, first comment `THROWAWAY DIAGNOSTIC — NOT PRODUCTION CODE`, run README, no secrets, dry-run/read-only default, explicit separate write arm/host allowlist. No probe exists now.
