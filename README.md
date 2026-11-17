@@ -57,3 +57,6 @@ IFC approved the provisional requirements baseline by replying **I approve**. St
 
 ## Dynamic-route test update
 [Unprepared Bible UI investigation](docs/19-dynamic-bible-ui-investigation.md) tested Philippians 4:6–7 preparation/preview, native next verse, translation selection and actual action palette. Results are partial: uncertain UI completion, stale semantic/readback identity and clipped-text warnings prevent P0 acceptance. [Sunday-service source intake](docs/test-data/sermon-source-intake.md) records requested start 1:18:10; actual link/file and permitted-use scope remain pending. No real-audio results or production application code.
+
+## Real sermon pilot update
+[Local sermon-audio pilot](docs/20-sermon-audio-pilot.md) used the supplied IFC service at1:18:10–1:23:10. CPU-only base.en processed300s in67.256s; real ordinal ambiguity observed, no accuracy/live-latency pass. [Four real recording clip metadata records](docs/test-data/real-recording-pilot-manifest.json) have expected labels pending independent listening; recordings/transcripts/models remain private and Git-ignored. Original synthetic corpus unchanged. New diagnostic sources are under poc/, no production application code.

@@ -1,0 +1,34 @@
+// THROWAWAY DIAGNOSTIC — NOT PRODUCTION CODE
+// Fixed private sermon sample, offline CLI, four CPU threads, no ProPresenter calls.
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { createWriteStream } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+const root=new URL('../',import.meta.url);
+const file=p=>fileURLToPath(new URL(p,root));
+const input=file('recordings/ifc-2026-11-15-011810-012310.wav');
+const model=file('poc/private/models/ggml-base.en.bin');
+const archive=file('poc/private/tools/whisper-bin-x64.zip');
+const executable=file('poc/private/tools/whisper-b5454/Release/whisper-cli.exe');
+const digest=async(p,a)=>createHash(a).update(await readFile(p)).digest('hex');
+const archiveSha=await digest(archive,'sha256');
+const modelSha=await digest(model,'sha1');
+if(archiveSha!=='6ba69e3482d7826214f90a6a9c84ca07782aec1e1d0c6a7c30c994fd5d816ccb'||modelSha!=='137c40403d78fd54d454da0f9bd998f78703390c')throw new Error('Diagnostic artifact hash mismatch');
+await mkdir(file('recordings'),{recursive:true});
+const out=file('recordings/ifc-2026-11-15-base-en');
+const stdout=createWriteStream(out+'.stdout.private.txt');
+const stderr=createWriteStream(out+'.stderr.private.txt');
+const args=['-m',model,'-f',input,'-t','4','-p','1','-ng','-l','en','-oj','-of',out];
+const started=new Date().toISOString(),start=performance.now();
+const child=spawn(executable,args,{windowsHide:true,stdio:['ignore','pipe','pipe']});
+child.stdout.pipe(stdout);child.stderr.pipe(stderr);
+let timedOut=false;
+const timeout=setTimeout(()=>{timedOut=true;child.kill();},240000);
+const exitCode=await new Promise((resolve,reject)=>{child.once('error',reject);child.once('close',resolve);});
+clearTimeout(timeout);
+const wallMs=Math.round(performance.now()-start);
+const result={source:'REAL-RECORDING',source_id:'VbZV38kZjBg',start_seconds:4690,duration_seconds:300,started_utc:started,finished_utc:new Date().toISOString(),tool_release:'b5454 (v1.9.5 source)',archive_sha256:archiveSha,model:'base.en',model_sha1:modelSha,audio_sha256:await digest(input,'sha256'),cpu_threads:4,gpu:false,exit_code:exitCode,timed_out:timedOut,wall_ms:wallMs,offline_batch_rtf:wallMs/300000,accuracy_scored:false,live_latency_measured:false,propresenter_requests:0};
+await writeFile(out+'.metrics.private.json',JSON.stringify(result,null,2));
+console.log(JSON.stringify(result,null,2));
+if(exitCode!==0||timedOut)process.exitCode=1;

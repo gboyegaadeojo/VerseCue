@@ -131,3 +131,6 @@ Stage 2 documentary comparison is complete at available evidence depth; unresolv
 
 ## New empirical UI findings — 2026-11-17
 Dynamic Bible UI trial and exact limitations are in docs/19. Unprepared Philippians range preparation and intentional first-cue trigger worked on personal Windows host; no API Bible lookup established. Text-clipping warnings, delayed/uncertain UI-edit completion, stale accessibility state and transient readback identity gaps block unattended-route acceptance. Last-resort UI route remains provisional. Source recording start 01:18:10 recorded in docs/test-data/sermon-source-intake.md, but no link/file supplied; no recognition analysis claimed.
+
+## First real-service local speech pilot
+See docs/20-sermon-audio-pilot.md and four-row REAL-RECORDING pilot manifest. Supplied IFC video evaluated at01:18:10–01:23:10, not link47:01. Local base.en/4CPU/noGPU batch completed300s in67.256s (RTF0.22419). Invalid/ambiguous Samuel ordinals and chapter-only/range forms observed; narrow diagnostic flagged review/rejection, not production parser behavior. Automatic captions disagree on ordinal and cannot serve as gold truth. Accuracy/streaming/live latency and all output safety acceptance remain PENDING. No cloud speech upload or raw media/transcript GitHub publication.

@@ -46,3 +46,20 @@ node ./poc/inspect-propresenter.mjs /v1/doc/index.html 1025
 node ./poc/inspect-propresenter.mjs /v1/doc/swagger.json 1025 --save-schema
 ```
 The optional save flag stores the documentation schema only under docs/evidence. Resource reads accept only exact UUID library/presentation paths, never trigger/focus/clear suffixes. Other read output may include private asset names; do not publish raw dumps.
+
+## Real sermon speech diagnostics (offline, no output control)
+All three scripts below are **THROWAWAY DIAGNOSTIC — NOT PRODUCTION CODE** and accept only this pilot's fixed private paths. No ProPresenter connection/send, live microphone capture or cloud upload. Prerequisite: user-provided service source, authorized local evaluation, 300-second PCM mono/16-kHz sample from 01:18:10, verified official tool/model in ignored poc/private/. Actual source/tool/hash/measurement details: docs/20-sermon-audio-pilot.md. Raw audio/transcripts/logs remain ignored; cleanup review due 2026-11-24, no automatic scheduler.
+
+- `inspect-sermon-captions.mjs`: extract 4,690–4,990-second automatic-caption events to private JSON, report lexical reference hints. After full-service staging-caption cleanup, reads the existing private window instead. Automatic captions are not ground truth. Reacquisition is not automatic.
+- `run-local-stt-diagnostic.mjs`: verify official release archive SHA256/model SHA1, run fixed five-minute sample with local whisper-cli/base.en, 4 CPU threads, no GPU, timeout 240 seconds; save only private transcript/log/metrics and print content-free run metrics. Offline batch throughput is not streaming/reference-to-output latency. It does not download/install tools/models or select an application backend.
+- `spot-check-sermon-references.mjs`: inspect a few observed ordinal/chapter/range forms in private STT output, write private review flags; not a general Bible parser, no gold labels or accuracy score and never Auto eligible.
+
+Run after the private prerequisites have been prepared:
+```powershell
+node ./poc/inspect-sermon-captions.mjs
+node ./poc/run-local-stt-diagnostic.mjs
+node ./poc/spot-check-sermon-references.mjs
+```
+Official diagnostic sources: https://github.com/ggml-org/whisper.cpp/releases/tag/b5454 and https://huggingface.co/ggerganov/whisper.cpp . Do not use arbitrary executable/model replacements or commit these large assets. The source supplied by user is https://www.youtube.com/watch?v=VbZV38kZjBg ; explicit start 1:18:10 overrides its link timestamp 47:01. Do not bypass video access controls or use browser cookies/credentials to fetch it. Existing speech sample/hash prevents silent source substitution; no synthetic audio counted as real evidence.
+
+Four private WAV excerpts and a content-free public manifest were derived; see docs/test-data/real-recording-pilot-manifest.json. Expected labels remain null pending independent listening. Do not change the 66 existing synthetic corpus rows to REAL-RECORDING.

@@ -1,0 +1,22 @@
+﻿{
+    "source":  "REAL-RECORDING",
+    "source_id":  "VbZV38kZjBg",
+    "start_seconds":  4690,
+    "duration_seconds":  300,
+    "started_utc":  "2026-11-17T16:53:16.335Z",
+    "finished_utc":  "2026-11-17T16:54:23.609Z",
+    "tool_release":  "b5454 (v1.9.5 source)",
+    "archive_sha256":  "6ba69e3482d7826214f90a6a9c84ca07782aec1e1d0c6a7c30c994fd5d816ccb",
+    "model":  "base.en",
+    "model_sha1":  "137c40403d78fd54d454da0f9bd998f78703390c",
+    "audio_sha256":  "7e3ed360d9fc3ff4b8e2f727b3501813b71a25c0e4ecd5f1a5f9d135fee0a912",
+    "cpu_threads":  4,
+    "gpu":  false,
+    "exit_code":  0,
+    "timed_out":  false,
+    "wall_ms":  67256,
+    "offline_batch_rtf":  0.22418666666666667,
+    "accuracy_scored":  false,
+    "live_latency_measured":  false,
+    "propresenter_requests":  0
+}

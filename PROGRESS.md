@@ -3,7 +3,7 @@
 Updated: 2026-11-17 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work.
 
 ## Current stage
-P0 dynamic UI investigation completed for current personal test session; gate PENDING. Requirements approved and GitHub publication completed. IFC explicitly replied "continue provisionally" on 2026-11-17. P0 gate: PENDING. Requirements approval: granted by user reply "I approve" on 2026-11-17 for the provisional documentation baseline. No production application code or build-system selection. GitHub and personal test-host access/triggering were subsequently authorized and performed as recorded below; church live-host access remains unauthorized.
+P0 real-service audio pilot completed; overall feasibility gate PENDING. Requirements approved and GitHub publication completed. IFC explicitly replied "continue provisionally" on 2026-11-17. P0 gate: PENDING. Requirements approval: granted by user reply "I approve" on 2026-11-17 for the provisional documentation baseline. No production application code or build-system selection. GitHub and personal test-host access/triggering were subsequently authorized and performed as recorded below; church live-host access remains unauthorized.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -38,7 +38,10 @@ Status vocabulary: not started / drafted / audited. Audited means checked for th
 | docs/17-package-audit.md | audited | 4; historical audit, later scoped test update |
 | docs/18-personal-propresenter-test-results.md | audited | Authorized personal Windows partial evidence |
 | docs/19-dynamic-bible-ui-investigation.md | audited | Unprepared range/UI/translation/palette partial evidence |
-| docs/test-data/sermon-source-intake.md | audited | Start 1:18:10 recorded; actual source pending |
+| docs/test-data/sermon-source-intake.md | audited | Supplied link/metadata/sample acquisition recorded |
+| docs/20-sermon-audio-pilot.md | audited | Real300s local CPU batch pilot; no accuracy/live-latency pass |
+| docs/test-data/real-recording-pilot-manifest.json | audited | Four private clips, expected labels null pending review |
+| docs/evidence/sermon-pilot-metrics.json | audited | Content-free measured run metrics |
 
 ## Decisions made
 - User specification is authoritative; documentation first, full staged deliverables retained.
@@ -53,7 +56,7 @@ Status vocabulary: not started / drafted / audited. Audited means checked for th
 ## Open questions
 Q-01 through Q-09 asked together and answered in part on 2026-11-17. See PROJECT_ASSUMPTIONS.md response register. Known: ProPresenter 21, Mac mini M4, same-PC first plus LAN future, MOTU M4, six installed translations, existing themes/Looks/macros, Companion, English, free use, latency targets accepted. Remaining: exact build/macOS/RAM, default translation/IDs, routing/theme/macro details and measured behavior. Do not repeat answered questions.
 
-DATA-01: requested 3–5 consented real sermon excerpts on 2026-11-17; not supplied. No real accent/accuracy evidence exists.
+DATA-01/02: user supplied IFC Sunday-service YouTube source. Requested start1:18:10 honored; 300s real audio and four private excerpts prepared. Local base.en batch pilot completed; no independently verified labels, accuracy/accent generalization or live latency acceptance. User supplied source for testing; no separate pastor-consent artifact held. Do not request the source/timestamp or manual clips again.
 
 ## P0-blocking unknowns
 - Exact installed ProPresenter build, supported Bible-reference route and installed API behavior.
@@ -62,7 +65,7 @@ DATA-01: requested 3–5 consented real sermon excerpts on 2026-11-17; not suppl
 - Windows/macOS viability and representative measured turnaround.
 
 ## Exact next action
-Dynamic UI findings published to private GitHub (findings commit 0ec9fa3). STOP with P0 PENDING and exact input request: actual Sunday-service link/file, starting at already supplied 1:18:10, plus permitted pastor-consented evaluation use. Do not ask user to cut clips or repeat timestamp; no source visible/local media found. Continue authorized integration diagnostics independently when useful, but no production application code until actual P0 pass. Existing personal-host trigger/GitHub/requirements approvals persist; do not request them again. Next technical blockers: reliable supported dynamic lookup or last-resort UI completion/ownership/readback, clipping-free authorized template, church room/stream/Mac/LAN/concurrency and real-audio timing. Do not fix/change the user's theme silently or call preview success physical-output acceptance. Private repo already published; preserve all empirical/provisional distinctions.
+Current handoff contains sanitized sermon-pilot report/metrics/four-clip manifest/throwaway probes for the authorized private repository; raw recordings/transcripts/models remain ignored. Report P0 PENDING without requesting repeated requirements/test/GitHub/source approvals. Next engineering evidence: independent listening/reference-end annotation of prepared clips, bounded streaming/local STT latency on representative hardware, and unresolved ProPresenter supported dynamic lookup/focus/clipping/room-stream/Mac/LAN/concurrency/recovery tests. No production application code until full P0 pass; no output from model transcript. Real source is https://www.youtube.com/watch?v=VbZV38kZjBg , explicit start4690s overrides link2821s. Private QA retention cleanup review due2026-11-24, no automatic scheduler. IFC retains/validates permitted pastor-consented formal acceptance use; no unrestricted media publication permission inferred.
 ## Checkpoints and audit
 - Stage 0: read complete authoritative prompt before work; wrote and audited intake files one at a time, asked nine material questions with defaults and requested 3–5 pastor-consented real sermon excerpts. Incorporated IFC answers without repeating questions.
 - Stage 1: re-read progress and master Sections 2/4/15. Retrieved primary vendor sources and public schema, stored data-only evidence snapshot. Wrote/audited docs/10 before docs/09; updated source register. Full pending test matrix, weighted provisional scores and authorization-gated reproduction steps retained. No probe executed or production host contacted.
@@ -97,4 +100,7 @@ Dynamic UI findings published to private GitHub (findings commit 0ec9fa3). STOP 
 User instructed continuing investigation/building and named a Sunday-service start time **1:18:10 (4690 seconds)**. No recording/link/file is visible in the message or local workspace media inventory; request source once and continue independent integration work. Do not claim any audio analysis or assume a specific Sunday video. Pastor-consent/use scope must be confirmed before audio processing; no cloud upload or persistent recording implied. Personal-host testing/GitHub authorization persist. Current investigation: last-resort ProPresenter Bible UI route, new unprepared passage, focus/formatting and macro/action coverage. No production app code while P0 pending.
 
 - Dynamic UI checkpoint 2026-11-17: unprepared Philippians 4:6–7 KJV generated four cues; explicit first cue click changed preview and API group/index readback. Next-verse expanded preparation to 4:6–8/seven cues. ASV selected in preparation then KJV restored; no intentional ASV cue trigger. Reference set-value timed out and appeared later; semantic translation state stale versus screenshot; active Default identity reused and unavailable after regeneration while previous output preview persists. Explicit UI warning identifies clipped text due too-small boxes; no theme modified. Actual View Action Palette opened by menu (Alt+A listed); no visible Bible-search action and no action added/triggered. Final personal preparation KJV Philippians4:6–8, preview last intentional4:6 first segment. docs/19 audited; P0 PENDING, no production code. Sunday-service source absent, requested once with timestamp4690s captured; independent work continued.
+
+
+- Real-service pilot checkpoint2026-11-17: user provided VbZV38kZjBg; metadata Sunday Service November15,2026, channelIFC, uploadNov16,duration7961s, public. Requested4690–4990s (not link2821s), verified300s PCM16/16k/mono sample SHA2567e3ed360d9fc3ff4b8e2f727b3501813b71a25c0e4ecd5f1a5f9d135fee0a912. Remote seek stalled/stopped; temporary small full audio/captions staging removed after local trim/extraction; only requestedwindow/private derivedclips remain. Official whisper.cppb5454 CPU ZIP/modelbase.en hashes verified, fourCPUthreads/noGPU/offline batch completed67,256ms (RTF0.22419), no timeout/output requests. Automatic captions are unverified; local4Samuel/forSamuel versus caption1Samuel, chapteronlyIsaiah6 and range1–8 observations captured without gold labels or accuracy claim. Narrow throwaway probe flagged five selected forms, allAuto=false. Four verified private clips15/18/24/12s, manifestREAL-RECORDING/expected=null. No audio/transcripts/model/cloud STT in GitHub; ignored paths verified. P0 PENDING; no production code. Node syntax checks and idempotent caption-window inspection passed. Private cleanup review2026-11-24.
 
