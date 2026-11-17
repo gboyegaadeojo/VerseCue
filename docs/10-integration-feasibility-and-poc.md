@@ -136,3 +136,6 @@ See docs/19-dynamic-bible-ui-investigation.md. Under existing personal-host auth
 
 ## Real-audio pilot update
 User source acquired and local offline speech diagnostic executed, as detailed in docs/20. Batch throughput observation does not satisfy P0 sub-4-second reference-to-output gate. No ProPresenter output triggered from transcript, no accepted streaming/accuracy/intent/translation policy implementation. Canonical invalid ordinal/homophone cases reinforce fail-closed requirements. P0 remains PENDING; prior statements that no real source exists are superseded only for this unscored personal pilot.
+
+## Streaming-style STT timing update
+2026-11-17: docs/21 reports eight-window simulated arrival and persistent-model comparisons. Fastest tested beam1 median4.099s/max5.273s per window before stabilization/output, no live audible-end-to-output measurement or verified labels. Thus no latency/recognition P0 pass. Diagnostic servers loopback-only and stopped; no PP writes. Existing saved/dynamic UI route evidence remains partial and all fidelity/concurrency/platform blockers remain. No production code or committed architecture.

@@ -60,3 +60,6 @@ IFC approved the provisional requirements baseline by replying **I approve**. St
 
 ## Real sermon pilot update
 [Local sermon-audio pilot](docs/20-sermon-audio-pilot.md) used the supplied IFC service at1:18:10–1:23:10. CPU-only base.en processed300s in67.256s; real ordinal ambiguity observed, no accuracy/live-latency pass. [Four real recording clip metadata records](docs/test-data/real-recording-pilot-manifest.json) have expected labels pending independent listening; recordings/transcripts/models remain private and Git-ignored. Original synthetic corpus unchanged. New diagnostic sources are under poc/, no production application code.
+
+## Incremental speech timing update
+[Streaming-style replay findings](docs/21-streaming-style-replay-results.md) and [content-free measurements](docs/evidence/replay-stt-metrics.json): eight windows, current fastest tested model-resident CPU configurationmedian4.099s/max5.273s before stabilization/display. These are exploratory per-window timings, not live acceptance. P0 remains PENDING and no production application code. Local test servers stopped; private audio/transcripts stay excluded from GitHub.

@@ -1,0 +1,227 @@
+﻿{
+    "source_id":  "VbZV38kZjBg",
+    "model":  "base.en",
+    "tool_build":  "b5454",
+    "cpu_threads":  4,
+    "gpu":  false,
+    "sample_windows":  8,
+    "cold":  {
+                 "p50_ms":  7642,
+                 "p95_ms":  14008,
+                 "skipped_scheduled_windows":  12,
+                 "audio_arrival_simulated":  true,
+                 "model_reload_per_window":  true
+             },
+    "warm_beam5":  {
+                       "startup_ms":  900,
+                       "p50_ms":  6193,
+                       "p95_ms":  9527,
+                       "server_stopped":  true
+                   },
+    "warm_beam1":  {
+                       "startup_ms":  484,
+                       "p50_ms":  4099,
+                       "p95_ms":  5273,
+                       "server_stopped":  true
+                   },
+    "post_review_note":  "Narrow original hint matcher omitted Psalm chapter forms; NO_SELECTED_COMPLETE_HINT is not proof of no Scripture recognition. Repeated no-hints do not establish a stable candidate.",
+    "accuracy_scored":  false,
+    "live_audible_end_to_output_latency_measured":  false,
+    "propresenter_requests":  0,
+    "rows":  [
+                 {
+                     "case_id":  "REAL-PILOT-001",
+                     "window_start_seconds":  0,
+                     "window_end_seconds":  6,
+                     "silence_padding_seconds":  0,
+                     "cold_cli_ms":  7642,
+                     "warm_beam5_ms":  6590,
+                     "warm_beam1_ms":  3440,
+                     "cold_hint":  {
+                                       "kind":  "NO_SELECTED_COMPLETE_HINT"
+                                   },
+                     "warm_beam5_hint":  {
+                                             "kind":  "NO_SELECTED_COMPLETE_HINT"
+                                         },
+                     "warm_beam1_hint":  {
+                                             "kind":  "NO_SELECTED_COMPLETE_HINT"
+                                         },
+                     "post_review_flags":  [
+
+                                           ],
+                     "independent_truth_verified":  false,
+                     "auto_eligible":  false
+                 },
+                 {
+                     "case_id":  "REAL-PILOT-001",
+                     "window_start_seconds":  0,
+                     "window_end_seconds":  12,
+                     "silence_padding_seconds":  0,
+                     "cold_cli_ms":  4849,
+                     "warm_beam5_ms":  6866,
+                     "warm_beam1_ms":  4099,
+                     "cold_hint":  {
+                                       "kind":  "INVALID_ORDINAL"
+                                   },
+                     "warm_beam5_hint":  {
+                                             "kind":  "INVALID_ORDINAL"
+                                         },
+                     "warm_beam1_hint":  {
+                                             "kind":  "CHAPTER_ONLY",
+                                             "proposal":  "1 Samuel 3",
+                                             "niv":  false
+                                         },
+                     "post_review_flags":  [
+
+                                           ],
+                     "independent_truth_verified":  false,
+                     "auto_eligible":  false
+                 },
+                 {
+                     "case_id":  "REAL-PILOT-001",
+                     "window_start_seconds":  6,
+                     "window_end_seconds":  18,
+                     "silence_padding_seconds":  3,
+                     "cold_cli_ms":  7324,
+                     "warm_beam5_ms":  6193,
+                     "warm_beam1_ms":  4090,
+                     "cold_hint":  {
+                                       "kind":  "NO_SELECTED_COMPLETE_HINT"
+                                   },
+                     "warm_beam5_hint":  {
+                                             "kind":  "NO_SELECTED_COMPLETE_HINT"
+                                         },
+                     "warm_beam1_hint":  {
+                                             "kind":  "NO_SELECTED_COMPLETE_HINT"
+                                         },
+                     "post_review_flags":  [
+
+                                           ],
+                     "independent_truth_verified":  false,
+                     "auto_eligible":  false
+                 },
+                 {
+                     "case_id":  "REAL-PILOT-002",
+                     "window_start_seconds":  0,
+                     "window_end_seconds":  6,
+                     "silence_padding_seconds":  0,
+                     "cold_cli_ms":  6589,
+                     "warm_beam5_ms":  6488,
+                     "warm_beam1_ms":  3819,
+                     "cold_hint":  {
+                                       "kind":  "NO_SELECTED_COMPLETE_HINT"
+                                   },
+                     "warm_beam5_hint":  {
+                                             "kind":  "NO_SELECTED_COMPLETE_HINT"
+                                         },
+                     "warm_beam1_hint":  {
+                                             "kind":  "NO_SELECTED_COMPLETE_HINT"
+                                         },
+                     "post_review_flags":  [
+
+                                           ],
+                     "independent_truth_verified":  false,
+                     "auto_eligible":  false
+                 },
+                 {
+                     "case_id":  "REAL-PILOT-002",
+                     "window_start_seconds":  0,
+                     "window_end_seconds":  12,
+                     "silence_padding_seconds":  0,
+                     "cold_cli_ms":  10297,
+                     "warm_beam5_ms":  5035,
+                     "warm_beam1_ms":  4151,
+                     "cold_hint":  {
+                                       "kind":  "NO_SELECTED_COMPLETE_HINT"
+                                   },
+                     "warm_beam5_hint":  {
+                                             "kind":  "NO_SELECTED_COMPLETE_HINT"
+                                         },
+                     "warm_beam1_hint":  {
+                                             "kind":  "NO_SELECTED_COMPLETE_HINT"
+                                         },
+                     "post_review_flags":  [
+                                               "ALTERNATE_PSALM_CHAPTER_PROPOSAL_.json",
+                                               "ALTERNATE_PSALM_CHAPTER_PROPOSAL_.warm.private.json",
+                                               "ALTERNATE_PSALM_CHAPTER_PROPOSAL_.warm-beam1.private.json"
+                                           ],
+                     "independent_truth_verified":  false,
+                     "auto_eligible":  false
+                 },
+                 {
+                     "case_id":  "REAL-PILOT-002",
+                     "window_start_seconds":  8,
+                     "window_end_seconds":  20,
+                     "silence_padding_seconds":  2,
+                     "cold_cli_ms":  14008,
+                     "warm_beam5_ms":  9527,
+                     "warm_beam1_ms":  4264,
+                     "cold_hint":  {
+                                       "kind":  "NO_SELECTED_COMPLETE_HINT"
+                                   },
+                     "warm_beam5_hint":  {
+                                             "kind":  "NO_SELECTED_COMPLETE_HINT"
+                                         },
+                     "warm_beam1_hint":  {
+                                             "kind":  "NO_SELECTED_COMPLETE_HINT"
+                                         },
+                     "post_review_flags":  [
+
+                                           ],
+                     "independent_truth_verified":  false,
+                     "auto_eligible":  false
+                 },
+                 {
+                     "case_id":  "REAL-PILOT-004",
+                     "window_start_seconds":  0,
+                     "window_end_seconds":  6,
+                     "silence_padding_seconds":  0,
+                     "cold_cli_ms":  10975,
+                     "warm_beam5_ms":  5082,
+                     "warm_beam1_ms":  5273,
+                     "cold_hint":  {
+                                       "kind":  "CHAPTER_ONLY",
+                                       "proposal":  "Isaiah 6"
+                                   },
+                     "warm_beam5_hint":  {
+                                             "kind":  "CHAPTER_ONLY",
+                                             "proposal":  "Isaiah 6"
+                                         },
+                     "warm_beam1_hint":  {
+                                             "kind":  "CHAPTER_ONLY",
+                                             "proposal":  "Isaiah 6"
+                                         },
+                     "post_review_flags":  [
+
+                                           ],
+                     "independent_truth_verified":  false,
+                     "auto_eligible":  false
+                 },
+                 {
+                     "case_id":  "REAL-PILOT-004",
+                     "window_start_seconds":  2,
+                     "window_end_seconds":  14,
+                     "silence_padding_seconds":  2,
+                     "cold_cli_ms":  12197,
+                     "warm_beam5_ms":  4220,
+                     "warm_beam1_ms":  4580,
+                     "cold_hint":  {
+                                       "kind":  "RANGE_PROPOSAL",
+                                       "proposal":  "Isaiah 6"
+                                   },
+                     "warm_beam5_hint":  {
+                                             "kind":  "RANGE_PROPOSAL",
+                                             "proposal":  "Isaiah 6"
+                                         },
+                     "warm_beam1_hint":  {
+                                             "kind":  "RANGE_PROPOSAL",
+                                             "proposal":  "Isaiah 6"
+                                         },
+                     "post_review_flags":  [
+
+                                           ],
+                     "independent_truth_verified":  false,
+                     "auto_eligible":  false
+                 }
+             ]
+}
