@@ -3,7 +3,7 @@
 Updated: 2026-11-17 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work.
 
 ## Current stage
-WORKING — continuous authorized development, source version0.2.6.129regression tests/source desktop and packaged desktop/CLI/resident speech checks passed.118files/source hashes/ZIP verified; resident CPU worker is opt-in and still slower than live target. Candidate preparation, numeric KJV bounds, bounded capture and target-generation race guards implemented. Native three-reference review receipts remain partial; clipping and one unintended manual personal-test clear are recorded. CUDA inference stalled and is not enabled. Evaluating tiny.en privately for speed without changing bundled/default base.en. P0/service acceptance pending. Existing development/testing/private-publication approvals persist; no repeated general approval needed.
+WORKING — continuous authorized development, source version0.2.7.135regression tests passed. Named profile save/load/delete and safe API revocation passed source desktop tests; KJV Previous/Next review controls implemented and source UI checks passed. Expanded setup200%zoom check and0.2.7 packaging underway. Last fully verified/published0.2.6 artifact has118files; opt-in resident CPU remains slower than target. Tiny.en measured3.0–3.9s requests with differing interpretations, diagnostic-only/default unchanged. Native three-reference receipts remain partial; clipping and one unintended manual personal-test clear recorded. CUDA not enabled. P0/service acceptance pending; no new general approval needed.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -55,6 +55,9 @@ Status vocabulary: not started / drafted / audited. Audited means checked for th
 | docs/25-gpu-speech-diagnostic.md | audited | CPU fallback diagnosed; CUDA load verified but inference stalled; not enabled |
 | docs/26-bounded-audio-capture.md | audited | 0.2.5 bounded capture during inference; overflow/stale/stop-restart tests |
 | docs/27-resident-speech-and-target-races.md | audited | Opt-in resident CPU worker, actual two-request fixture test and old-target response protection |
+| docs/28-model-size-diagnostic.md | audited | Eight resident requests; faster tiny.en with differing interpretations; no default change |
+| docs/29-local-service-profiles.md | audited | Named local snapshots; safe load/revoke;133tests passed; UI validation underway |
+| docs/30-manual-verse-navigation.md | audited | KJV reference proposal controls; range/chapter bounds;135tests/source UI passed |
 
 ## Decisions made
 - User specification is authoritative; documentation first, full staged deliverables retained.
@@ -79,7 +82,7 @@ DATA-01/02: user supplied IFC Sunday-service YouTube source. Requested start1:18
 - Windows/macOS viability and representative measured turnaround.
 
 ## Exact next action
-Publish reviewed0.2.6 source/evidence, finish pinned tiny.en download/hash check and compare resident requests on existing private windows; record timing without accuracy claims or silent default-model replacement. Docs/24–27 retain findings and limits.0.2.6 ZIP checksumba4efc9cb40059ff02090f3b106bdf212ac2505f54382cb38c5b7448710dc4ba. Continue remaining authorized implementation; no live church access, cloud inference or purchases. Preserve all86requirements; no P0/physical fidelity/quality/performance/Mac/soak/signing pass inferred. No general approval is required for these steps.
+Publish reviewed0.2.7 source/evidence, then implement one-owner audio capture across full/compact windows and regression-test cancellation/ownership.0.2.7 desktop/CLI/resident/ZIP119files verified; SHA2561dc6befb4d6de7667e4d751d0439169257bd9370a74b61a8cd565508404422a8. CLI7,561ms/resident7,663ms fixture checks are not live latency. Structural audit passed16required docs/86requirements/66matchingcorpusrows/75relative links. No live church access, cloud inference or purchases. Preserve all86requirements; no P0/physical fidelity/quality/performance/Mac/soak/signing pass inferred. No general approval is required for these steps.
 ## Checkpoints and audit
 - 0.2.5 publication: reviewed source/tests/redacted evidence committed and pushed to private gboyegaadeojo/VerseCue main at b69280a. No private audio/transcripts/models/binaries staged.0.2.6 continuation adds generation-scoped connector reads/mappings/dispatch and an explicitly selected resident CPU worker with memory WAV requests, random loopback route, owned process cancellation and90second idle stop. Actual12second fixture requests8,015/6,825ms produced transcripts and worker shutdown was verified; no live latency or accuracy pass.129tests/source desktop smoke passed.0.2.6 packaging underway; final source/package integrity and resident packaged test remain next.
 - Development continuation: source0.2.4 has119passing tests, KJV numeric validation and candidate preparation with race guards. Packaged0.2.4 desktop smoke and private12second speech fixture passed (9,492ms, no output); ZIP integrity verification follows archive completion. GPU20/90second inference attempts timed out after verified CUDA backend load; keep CPU implementation. Independent latency/accuracy/service acceptance remains pending. Next implementation task: bounded continuous audio capture while one worker is busy, with explicit overflow/staleness reporting and stop/restart race tests.

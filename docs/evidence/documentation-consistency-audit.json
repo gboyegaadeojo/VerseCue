@@ -1,0 +1,18 @@
+{
+  "at": "2026-11-17T21:35:28.968Z",
+  "applicationVersion": "0.2.7",
+  "passed": true,
+  "requiredDocuments": 16,
+  "rootDocuments": 5,
+  "markdownFilesChecked": 38,
+  "relativeLinksChecked": 75,
+  "functionalRequirements": 62,
+  "nonfunctionalRequirements": 24,
+  "coverageRows": 86,
+  "corpusRows": 66,
+  "corpusCsvJsonEqual": true,
+  "p0": "PENDING",
+  "limitations": [
+    "Structural consistency only; not editorial, Mermaid rendering, runtime or release acceptance"
+  ]
+}

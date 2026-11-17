@@ -1,0 +1,106 @@
+{
+  "started": "2026-11-17T21:20:49.575Z",
+  "finished": "2026-11-17T21:21:35.559Z",
+  "provider": "resident CPU whisper.cpp b5454",
+  "threads": 4,
+  "beamSize": 1,
+  "rows": [
+    {
+      "model": "base.en",
+      "id": "REAL-PILOT-001-6",
+      "audioSeconds": 6,
+      "elapsedMs": 8430,
+      "includesStartup": true,
+      "transcriptNonempty": true,
+      "transcriptSha256": "008814b69a0f6407d52968e7c4bb9a0da09aa9aace54d4e2301135af11915bcb",
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "model": "base.en",
+      "id": "REAL-PILOT-001-12",
+      "audioSeconds": 12,
+      "elapsedMs": 8052,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "transcriptSha256": "58d4a7a5a5fb058212a15ed9a72a58ae28a1f5e071a71d6460ab52fc1d7ca05d",
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "model": "base.en",
+      "id": "REAL-PILOT-002-12",
+      "audioSeconds": 12,
+      "elapsedMs": 8114,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "transcriptSha256": "6a0904d3c07b98523dcdf9a8dea8dff946825f9ab3bd0ca5158729395cfdbfec",
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "model": "base.en",
+      "id": "REAL-PILOT-004-14",
+      "audioSeconds": 12,
+      "elapsedMs": 7010,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "transcriptSha256": "ba5eb0bbf273232014d09806e95144b6c2b378180ce8a0a719efe143f56c39d9",
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "model": "tiny.en",
+      "id": "REAL-PILOT-001-6",
+      "audioSeconds": 6,
+      "elapsedMs": 3943,
+      "includesStartup": true,
+      "transcriptNonempty": true,
+      "transcriptSha256": "26640b5e7718ed20a20ae0a27856d25606ec33f566b592f92cd8b6c31e435b23",
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "model": "tiny.en",
+      "id": "REAL-PILOT-001-12",
+      "audioSeconds": 12,
+      "elapsedMs": 3062,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "transcriptSha256": "78bab7b6484ffb715c294dafbe94039ecf976b10be3c66603371051ecbea0a5a",
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "model": "tiny.en",
+      "id": "REAL-PILOT-002-12",
+      "audioSeconds": 12,
+      "elapsedMs": 3552,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "transcriptSha256": "038dae1276bb23b9302d54b304ffbb055b177fed0f96ef65228a0ed83938eebf",
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "model": "tiny.en",
+      "id": "REAL-PILOT-004-14",
+      "audioSeconds": 12,
+      "elapsedMs": 3041,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "transcriptSha256": "67581f59a028496d7e9395d98c2af065ecea4ba9ddab85241a84ce4237cf12eb",
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    }
+  ],
+  "outputRequests": 0,
+  "microphoneCapture": false,
+  "defaultModelChanged": false,
+  "limitations": [
+    "No independent gold labels",
+    "Uncontrolled shared-host load",
+    "Cold first request and subsequent warm requests",
+    "Fixture decode duration is not audible-end output latency"
+  ]
+}

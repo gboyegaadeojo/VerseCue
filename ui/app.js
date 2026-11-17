@@ -19,6 +19,7 @@ function render(next){
     $('show').textContent=state.dryRun?'Simulate passage':'Show prepared test cue';
     const blocked=state.stopped||state.busy||!candidate.authorized||candidate.reference.valid===false||candidate.reference.overLimit||candidate.reference.verse==null||candidate.issues.some(i=>/Invalid|no-show|not supported/.test(i));
     $('show').disabled=blocked||state.mode!=='confirm';$('prepare-candidate').disabled=blocked||!nativeAvailable;
+    $('previous-verse').disabled=blocked||candidate.translation!=='KJV';$('next-verse').disabled=blocked||candidate.translation!=='KJV';
     $('expiry').textContent=`${Math.max(0,Math.ceil((candidate.expiresAt-Date.now())/1000))}s remaining`;
   }else $('expiry').textContent='';
   $('queue-count').textContent=String(state.queue.length);
@@ -48,9 +49,15 @@ bind('reject',()=>action('reject',selectedId));
 bind('edit',()=>{const c=state.queue.find(c=>c.id===selectedId);if(c){$('reference-input').value=`${c.label} in ${c.translation}`;action('reject',c.id).catch(e=>message(e.message));$('reference-input').focus();}});
 bind('reset',async()=>{await action('reset');await stopAudio();$('transcript').textContent='No audio has been processed.';$('audio-consent').checked=false;message('Session reset. Transient references and history cleared; dry run restored.');});
 bind('compact',()=>call('compact'));
+bind('previous-verse',async()=>{await action('navigate',{id:selectedId,direction:-1});message('Previous verse proposed for review; no output change.');});
+bind('next-verse',async()=>{await action('navigate',{id:selectedId,direction:1});message('Next verse proposed for review; no output change.');});
 $('mode').addEventListener('change',()=>action('mode',$('mode').value).catch(e=>message(e.message)));
 $('reference-form').addEventListener('submit',async e=>{e.preventDefault();try{const candidates=await action('ingest',{text:$('reference-input').value});message(candidates.length?'Reference ready for review.':'No complete reference found. Use an explicit book, chapter and verse.');}catch(error){message(error.message);}});
-bind('setup',async()=>{fillSettings(await call('settings'));$('settings-dialog').showModal();});bind('close-settings',()=>$('settings-dialog').close());
+async function refreshProfiles(){const rows=await call('profiles');$('profile-select').replaceChildren();const empty=document.createElement('option');empty.value='';empty.textContent='Choose a saved profile';$('profile-select').append(empty);for(const row of rows){const option=document.createElement('option');option.value=row.id;option.textContent=row.name;$('profile-select').append(option);}}
+bind('setup',async()=>{fillSettings(await call('settings'));$('settings-dialog').showModal();await refreshProfiles();});bind('close-settings',()=>$('settings-dialog').close());
+bind('profile-save',async()=>{await call('saveProfile',$('profile-name').value);await refreshProfiles();message('Saved the current stored setup as a local profile snapshot.',true);});
+bind('profile-load',async()=>{if(!$('profile-select').value)throw new Error('Choose a saved profile');await stopAudio();fillSettings(await call('loadProfile',$('profile-select').value));renderPrivateApi(await call('privateApiStatus'));message('Profile loaded. Listening paused, output disarmed and API revoked. Test the target and verify the audio input before resuming Confirm.',true);});
+bind('profile-remove',async()=>{if(!$('profile-select').value)throw new Error('Choose a saved profile');await call('removeProfile',$('profile-select').value);await refreshProfiles();message('Snapshot deleted; the current setup remains available.',true);});
 bind('refresh-devices',refreshDevices);
 $('settings-form').addEventListener('submit',async e=>{e.preventDefault();try{await stopAudio();const value={...settings,speechMode:$('speech-mode').value,host:$('host').value.trim(),port:Number($('port').value),translation:$('default-translation').value.trim().toUpperCase(),audioDevice:$('audio-device').value,channel:Number($('audio-channel').value)-1};fillSettings(await call('saveSettings',value));message('Setup saved. Dry run restored; verify mappings before arming.',true);}catch(error){message(error.message,true);}});
 bind('choose-worker',async()=>{const s=await call('chooseWorker');if(s)fillSettings(s);});bind('choose-model',async()=>{const s=await call('chooseModel');if(s)fillSettings(s);});

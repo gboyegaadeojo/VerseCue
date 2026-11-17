@@ -22,11 +22,20 @@ const {_electron}=require('playwright');const assert=require('node:assert/strict
     assert.equal(await page.locator('#show').isDisabled(),true);assert.equal(await page.locator('#prepare-candidate').isDisabled(),true);
     await page.locator('#reference-input').fill('Romans 8:28');await page.locator('#reference-form button').click();
     await page.waitForFunction(()=>document.querySelector('#reference').textContent==='Romans 8:28');
+    await page.locator('#next-verse').click();await page.waitForFunction(()=>document.querySelector('#reference').textContent==='Romans 8:29');
+    await page.locator('#previous-verse').click();await page.waitForFunction(()=>document.querySelector('#reference').textContent==='Romans 8:28');
     await page.locator('#stop').click();await page.waitForFunction(()=>!document.querySelector('#resume').hidden);
     assert.equal((await page.evaluate(()=>window.versecue.state())).value.stopped,true);
     await page.locator('#resume').click();await page.locator('#setup').click();
     await page.waitForFunction(()=>document.querySelector('#settings-dialog').open);
     await page.screenshot({path:'test-results/desktop-setup.png',fullPage:true});
+    await page.locator('#profile-name').fill('SYNTHETIC UI Smoke');await page.locator('#profile-save').click();
+    await page.waitForFunction(()=>[...document.querySelector('#profile-select').options].some(option=>option.text==='SYNTHETIC UI Smoke'));
+    await page.locator('#profile-select').selectOption({label:'SYNTHETIC UI Smoke'});
+    const enabled=await page.evaluate(()=>window.versecue.startPrivateApi({allowPreparedSend:false}));assert.equal(enabled.ok,true);
+    await page.locator('#profile-load').click();await page.waitForFunction(()=>document.querySelector('#setup-message').textContent.startsWith('Profile loaded.'));
+    const loadedProfile=await page.evaluate(()=>window.versecue.state());assert.equal(loadedProfile.value.mode,'paused');assert.equal(loadedProfile.value.dryRun,true);assert.equal((await page.evaluate(()=>window.versecue.privateApiStatus())).value.enabled,false);
+    await page.locator('#profile-remove').click();await page.waitForFunction(()=>![...document.querySelector('#profile-select').options].some(option=>option.text==='SYNTHETIC UI Smoke'));
     const props=await electron.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().map(w=>w.webContents.getLastWebPreferences()));
     assert.ok(props.every(p=>p.contextIsolation&&p.sandbox&&!p.nodeIntegration));
     assert.equal(await page.evaluate(()=>typeof window.require),'undefined');
@@ -51,6 +60,8 @@ const {_electron}=require('playwright');const assert=require('node:assert/strict
     });assert.equal(worklet.error,null);assert.ok(worklet.count>=1600&&worklet.count<1700);assert.ok(worklet.rms>.1);
     await page.evaluate(()=>{document.body.style.zoom='2';});
     const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2);assert.equal(overflow,false,'Full UI must not overflow horizontally at 200% text zoom');
+    await page.locator('#setup').click();await page.waitForFunction(()=>document.querySelector('#settings-dialog').open);
+    const dialogOverflow=await page.evaluate(()=>{const dialog=document.querySelector('#settings-dialog');return dialog.scrollWidth>dialog.clientWidth+2;});assert.equal(dialogOverflow,false,'Setup must not overflow horizontally at 200% text zoom');
     assert.equal(network.length,0);assert.deepEqual(errors,[]);
     const report={passed:true,at:new Date().toISOString(),runtime:await electron.evaluate(()=>({...process.versions})),checks:['startup dry run','manual canonical reference','simulated send','history receipt wording','emergency stop/rearm','setup dialog','context isolation/sandbox/no Node','compact shared state/stop','zero renderer HTTP requests','SYNTHETIC silent worklet transport','200% full-window horizontal fit'],pageErrors:errors,rendererHttpRequests:network.length};
     report.packaged=Boolean(executable);if(executable){const setup=await page.evaluate(()=>window.versecue.settings());assert.ok(setup.value.executable.endsWith('whisper-cli.exe'));assert.ok(setup.value.model.endsWith('ggml-base.en.bin'));report.bundledSpeechDetected=true;}

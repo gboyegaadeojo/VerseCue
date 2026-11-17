@@ -10,13 +10,14 @@ const store=require('../core/settings.cjs');
 const {LocalControlAPI}=require('../core/control-api.cjs');
 const {BiblePreparation}=require('../core/bible-preparation.cjs');
 const {PreparationController}=require('../core/preparation-controller.cjs');
+const {Profiles}=require('../core/profiles.cjs');
 const connector=new Connector();const service=new Session(connector);const speech=new LocalSpeech();
 let preparation,preparationController;
 async function prepareBible(reference,translation,guard=()=>true){
   if(!preparationController)throw new Error('Preparation controller is not ready');return preparationController.prepare(reference,translation,guard);
 }
 const privateApi=new LocalControlAPI(service,{onStop:()=>{speech.cancel();preparation?.cancel();connector.arm(false);service.stop();},onPrepare:prepareBible,onRevoke:()=>preparation?.cancel(),onEvent:code=>{service.log(code);service.notify();}});
-let settings,settingsFile,mainWindow,compactWindow,healthTimer,healthBusy=false;const windows=new Set();
+let settings,settingsFile,profiles,mainWindow,compactWindow,healthTimer,healthBusy=false;const windows=new Set();
 const ui=pathToFileURL(path.join(__dirname,'../ui/index.html')).href;
 function trusted(e){if(!windows.has(BrowserWindow.fromWebContents(e.sender))||e.senderFrame!==e.sender.mainFrame||e.senderFrame.url.split('?')[0]!==ui)throw new Error('Untrusted caller');}
 function handler(name,callback){ipcMain.handle(name,async(e,...args)=>{try{trusted(e);return {ok:true,value:await callback(...args)};}catch(error){return {ok:false,error:error.message};}});}
@@ -35,6 +36,7 @@ async function choose(kind){
 }
 async function bootstrap(){
   settingsFile=path.join(app.getPath('userData'),'settings.json');const loaded=await store.load(settingsFile);settings=loaded.settings;
+  profiles=new Profiles(path.join(app.getPath('userData'),'profiles.json'));
   const helper=app.isPackaged?path.join(process.resourcesPath,'native','VerseCue.BibleBridge.exe'):path.join(__dirname,'../native/bin/VerseCue.BibleBridge.exe');
   let helperExists=false;try{await fs.access(helper);helperExists=true;}catch{}
   preparation=new BiblePreparation({helper:helperExists?helper:null});
@@ -57,6 +59,14 @@ async function bootstrap(){
   // Renderer needs local assets only. All ProPresenter traffic is mediated by the core.
   session.defaultSession.webRequest.onBeforeRequest((details,callback)=>callback({cancel:!details.url.startsWith('file://')&&!details.url.startsWith('devtools://')}));
   handler('state',()=>service.snapshot());handler('settings',()=>settings);
+  handler('profiles-list',()=>profiles.list());
+  handler('profiles-save',name=>profiles.save(name,settings));
+  handler('profiles-remove',id=>profiles.remove(id));
+  handler('profiles-load',async id=>{
+    speech.cancel();preparation.cancel();connector.arm(false);service.setMode('paused');await privateApi.stop();
+    if(speech.busy)throw new Error('Recognition is stopping; retry profile load in a moment');
+    const incoming=await profiles.get(id);settings=await store.save(settingsFile,incoming);connector.configure(settings.host,settings.port);speech.configure(settings.executable,settings.model,settings.speechMode);service.configure({translation:settings.translation,dryRun:true});return settings;
+  });
   handler('private-api-status',()=>({...privateApi.status(),nativePreparationAvailable:preparation.available()}));
   handler('private-api-start',async options=>{if(options?.allowPreparation&&!preparation.available())throw new Error('Native preparation is unavailable on this platform/build');return {...await privateApi.start(options),nativePreparationAvailable:preparation.available()};});
   handler('private-api-stop',()=>privateApi.stop());
@@ -76,6 +86,7 @@ async function bootstrap(){
         return preparationController.prepareCandidate(payload.id);
       }
       case 'reject':return service.reject(payload);
+      case 'navigate':return service.navigate(payload?.id,payload?.direction);
       case 'send':return service.send(payload);
       case 'test':try{return await connector.test();}finally{service.notify();}
       case 'map':return connector.prepare(payload);

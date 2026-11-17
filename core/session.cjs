@@ -2,6 +2,7 @@
 const {EventEmitter}=require('node:events');
 const {randomUUID}=require('node:crypto');
 const {parse}=require('./parser.cjs');
+const kjvBounds=require('./kjv-versification.json').bounds;
 class Session extends EventEmitter {
   constructor(connector,{clock=()=>performance.timeOrigin+performance.now()}={}) {
     super();this.connector=connector;this.clock=clock;this.mode='confirm';this.stopped=false;this.dryRun=true;this.queue=[];this.history=[];this.events=[];this.generation=0;this.busy=false;this.translation='KJV';this.context=null;this.revisions=new Map();this.lastSend=null;
@@ -31,6 +32,15 @@ class Session extends EventEmitter {
     this.queue.push(...candidates);this.queue=this.queue.slice(-5);this.notify();return candidates;
   }
   reject(id){this.queue=this.queue.filter(c=>c.id!==id);this.log('CANDIDATE_DISMISSED');this.notify();}
+  navigate(id,direction){
+    this.expire();const candidate=this.queue.find(item=>item.id===id);
+    if(![-1,1].includes(direction)||!candidate||this.stopped||this.busy||!candidate.authorized||candidate.generation!==this.generation||candidate.reference.valid===false||candidate.reference.overLimit||candidate.reference.verse==null||candidate.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))throw new Error('Choose a valid unexpired candidate before navigating');
+    if(candidate.translation!=='KJV')throw new Error('Verified numbering is unavailable for this translation; edit the reference explicitly');
+    const reference=candidate.reference,chapters=kjvBounds[reference.book];let chapter=direction===1?(reference.endChapter??reference.chapter):reference.chapter,verse=(direction===1?(reference.endVerse??reference.verse):reference.verse)+direction;
+    if(verse<1&&chapter>1){chapter--;verse=chapters[chapter-1];}else if(verse>chapters[chapter-1]&&chapter<chapters.length){chapter++;verse=1;}
+    if(!chapters?.[chapter-1]||verse<1||verse>chapters[chapter-1])throw new Error('Book boundary reached; choose the next book explicitly');
+    this.queue=this.queue.filter(item=>item.id!==id);return this.ingest(`${reference.book} ${chapter}:${verse} in KJV`,{manual:true});
+  }
   reset(){this.invalidate();this.revisions.clear();this.history=[];this.stopped=false;this.mode='confirm';this.dryRun=true;this.lastSend=null;this.log('SESSION_RESET');this.notify();}
   async send(id,{additionalGuard=()=>true}={}){
     this.expire();const c=this.queue.find(c=>c.id===id);
