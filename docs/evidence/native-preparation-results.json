@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "dateUtc": "2026-11-17",
+  "target": "authorized personal Windows ProPresenter 21.4.2",
+  "method": "Computer-use activation of the packaged VerseCue preparation control; independent ProPresenter observation",
+  "p0": "PENDING",
+  "productionOutput": false,
+  "outputTriggerActions": 0,
+  "unexpectedClearActions": 1,
+  "cases": [
+    {"build":"0.2.0","reference":"Genesis 12:1-3","translation":"KJV","uiPreparationObserved":true,"receipt":"TIMEOUT","elapsedMs":null,"note":"Preparation changed; broad completion check did not finish. Previous output preview remained unchanged."},
+    {"build":"0.2.1","reference":"Isaiah 40:28-31","translation":"KJV","uiPreparationObserved":true,"receipt":"TIMEOUT_VERIFY_GENERATED_LABELS","elapsedMs":null,"note":"Cached-property instrumentation alone did not resolve verification."},
+    {"build":"0.2.2","reference":"Psalm 46:1-3","translation":"KJV","uiPreparationObserved":true,"receipt":"TIMEOUT_VERIFY_GENERATED_LABELS","elapsedMs":null,"note":"MTA/Unicode input worked; completion still failed. ProPresenter normalized book display to Psalms."},
+    {"build":"0.2.3","reference":"Romans 12:1-2","translation":"KJV","uiPreparationObserved":true,"receipt":"PREPARED_NEEDS_OPERATOR_REVIEW","clippingWarning":true,"elapsedMs":null,"note":"Immediate raw Bible-view parent scope, cached metadata and canonical reference comparison allowed completion. Four visible preparation cues; no cue clicked."},
+    {"build":"0.2.3","reference":"Psalm 23:1","translation":"KJV","uiPreparationObserved":true,"receipt":"PREPARED_NEEDS_OPERATOR_REVIEW","clippingWarning":true,"elapsedMs":null,"note":"Single-verse request and Psalm/Psalms canonical alias accepted. No live trigger."},
+    {"build":"0.2.3","reference":"John 3:16","translation":"KJV","uiPreparationObserved":true,"receipt":"PREPARED_NEEDS_OPERATOR_REVIEW","clippingWarning":true,"elapsedMs":null,"note":"Required reference prepared; warning surfaced; no cue trigger."}
+  ],
+  "unexpectedActions": [{"operation":"slide clear during manual popup inspection","scope":"authorized disconnected personal Windows test instance","cause":"coordinate click intended for floating Bible theme options reached underlying clear control","observation":"test preview became blank; exact physical outputs not observed","response":"acknowledged to user; no automatic restore trigger; discontinue coordinate interaction with floating panel","applicationNativeHelperInvolved":false,"churchProductionHostAccessed":false}],
+  "limitations": ["No independent audible-end latency or speech accuracy score", "Worker timings not captured from these UI observations", "Clipped-text theme remains unresolved", "No Mac/LAN/concurrent media/Companion/physical output acceptance", "No new cue trigger, library/theme/Look change or translation switch; one unintended personal test clear is separately recorded"]
+}

@@ -4,6 +4,8 @@ const names = 'Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|1
 const chapters = [50,40,27,36,34,24,21,4,31,24,22,25,29,36,10,13,10,42,150,31,12,8,66,52,5,48,12,14,3,9,1,4,7,3,3,3,2,14,4,28,16,24,21,28,16,16,13,6,6,4,4,5,3,6,4,3,1,13,5,5,3,5,1,1,1,22];
 const small = 'zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen'.split(' ');
 const tens = {twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
+const kjvBounds=require('./kjv-versification.json').bounds;
+function numbering(translation){return translation==='KJV'?kjvBounds:null;}
 function normalize(text) {
   let s = String(text).toLowerCase().replace(/[–—]/g,'-');
   s = s.replace(/\b(one hundred|a hundred)\b/g,'hundred');
@@ -32,7 +34,7 @@ function validate(r, bounds) {
   }
   return reasons;
 }
-function parse(text, {context=null, now=Date.now(), bounds=null}={}) {
+function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslation='KJV'}={}) {
   if(typeof text!=='string'||text.length>8192) return {references:[],issues:['Invalid transcript size']};
   let s=normalize(text); const corrected=/\b(sorry|i meant|rather|correction|not)\b/.test(s);
   if(/\bnot\b/.test(s)&&/\bi meant\b/.test(s)) s=s.split(/\bnot\b/)[0];
@@ -65,16 +67,21 @@ function parse(text, {context=null, now=Date.now(), bounds=null}={}) {
     if(/\bprevious verse\b/.test(s))v=context.verse-1;
     if(v!=null){
       let chapter=context.chapter;v=+v;
-      const chapterMax=bounds?.[context.book]?.[chapter-1];
-      if(v<1){const previousMax=bounds?.[context.book]?.[chapter-2];if(chapter>1&&previousMax){chapter--;v=previousMax;}else{issues.push('Previous chapter boundary is not verified');v=null;}}
+      const relativeBounds=bounds??numbering(translation??context.translation??defaultTranslation);
+      const chapterMax=relativeBounds?.[context.book]?.[chapter-1];
+      if(v<1){const previousMax=relativeBounds?.[context.book]?.[chapter-2];if(chapter>1&&previousMax){chapter--;v=previousMax;}else{issues.push('Previous chapter boundary is not verified');v=null;}}
       else if(chapterMax&&v>chapterMax){chapter++;v=1;}
       if(v!=null)references.push({...context,chapter,verse:v,endVerse:undefined,endChapter:undefined,translation:translation??context.translation,relative:true,corrected});
     }
   }
   for(const r of references) {
-    r.issues=validate(r,bounds);
+    const selectedBounds=bounds??numbering(r.translation??(r.relative?context?.translation:null)??defaultTranslation);
+    r.issues=validate(r,selectedBounds);r.valid=r.issues.length===0;r.numberingSystem=selectedBounds===kjvBounds?'KJV':selectedBounds?'provided':null;
     if(r.verse==null)r.issues.push('Chapter-only reference needs review');
-    if(!bounds)r.issues.push('Exact verse bounds require verified ProPresenter preparation');
+    if(!selectedBounds)r.issues.push('Translation numbering requires verified ProPresenter preparation');
+    let rangeLength=r.endVerse&&(!r.endChapter||r.endChapter===r.chapter)?r.endVerse-r.verse+1:1;
+    if(r.endChapter&&r.endChapter!==r.chapter&&selectedBounds&&r.valid){rangeLength=(selectedBounds[r.book][r.chapter-1]-r.verse+1)+r.endVerse;for(let chapter=r.chapter+1;chapter<r.endChapter;chapter++)rangeLength+=selectedBounds[r.book][chapter-1];}
+    r.overLimit=rangeLength>10;if(r.overLimit)r.issues.push('Range exceeds the 10-verse limit; shorten it or use ProPresenter manually');
     if(r.implicitChapter)r.issues.push('Implicit single chapter · review');
     if(/\b(do not show|not now|don.t show)\b/.test(s))r.issues.push('Explicit no-show instruction');
     if(/\b(in french|in spanish)\b/.test(s))r.issues.push('Requested language is not supported');
@@ -82,4 +89,4 @@ function parse(text, {context=null, now=Date.now(), bounds=null}={}) {
   }
   return {references,issues,corrected,multiple:references.length>1};
 }
-module.exports={parse,normalize,validate,label,names,chapters};
+module.exports={parse,normalize,validate,label,names,chapters,numbering};

@@ -8,7 +8,7 @@ class Session extends EventEmitter {
   }
   snapshot(){this.expire();return {mode:this.mode,stopped:this.stopped,dryRun:this.dryRun,queue:structuredClone(this.queue),history:structuredClone(this.history),events:structuredClone(this.events),busy:this.busy,translation:this.translation,capabilities:{auto:false,arbitraryLookup:false,clear:false},connection:this.connector.status??{state:'offline'}};}
   notify(){this.emit('change',this.snapshot());}
-  log(code,state='info'){this.events.push({id:randomUUID(),at:this.clock(),code,state});this.events=this.events.slice(-100);}
+  log(code,state='info',metrics=null){const safe={};for(const key of ['nativeWorkerMs','sttWorkerMs'])if(Number.isFinite(metrics?.[key])&&metrics[key]>=0&&metrics[key]<=120000)safe[key]=Math.round(metrics[key]);this.events.push({id:randomUUID(),at:this.clock(),code,state,...(Object.keys(safe).length?{metrics:safe}:{})});this.events=this.events.slice(-100);}
   invalidate(){this.generation++;this.queue=[];this.context=null;}
   expire(){this.queue=this.queue.filter(c=>c.expiresAt>this.clock());}
   setMode(mode){if(!['confirm','suggest','paused'].includes(mode))throw new Error('Auto is unavailable until integration and speech acceptance pass');this.invalidate();this.mode=mode;this.log('MODE_CHANGED');this.notify();}
@@ -22,7 +22,7 @@ class Session extends EventEmitter {
     this.revisions.set(id,revision);if(this.revisions.size>200)this.revisions.delete(this.revisions.keys().next().value);
     this.queue=this.queue.filter(c=>c.utteranceId!==id);
     if(!final){this.generation++;this.notify();return [];}
-    const parsed=parse(text,{context:this.context,now:this.clock()});
+    const parsed=parse(text,{context:this.context,now:this.clock(),defaultTranslation:this.translation});
     // A new explicit book/reference or a failed parse cannot preserve a prior
     // remote context for later relative references.
     if(parsed.references.some(r=>!r.relative)||parsed.issues.length)this.context=null;
@@ -35,7 +35,7 @@ class Session extends EventEmitter {
   async send(id,{additionalGuard=()=>true}={}){
     this.expire();const c=this.queue.find(c=>c.id===id);
     if(!c||this.stopped||this.mode!=='confirm'||this.busy||!c.authorized||c.generation!==this.generation)throw new Error('Send blocked: expired, paused, stopped, busy or invalidated');
-    if(c.reference.verse==null||c.issues.some(i=>/Invalid|no-show|not supported/.test(i)))throw new Error('Edit this incomplete, prohibited or invalid reference before sending');
+    if(c.reference.verse==null||c.reference.valid===false||c.reference.overLimit||c.issues.some(i=>/Invalid|no-show|not supported/.test(i)))throw new Error('Edit this incomplete, prohibited, out-of-bounds or over-limit reference before sending');
     const key=`${c.label}|${c.translation}`;
     if(this.lastSend?.key===key&&this.clock()-this.lastSend.at<10000)throw new Error('Duplicate cooldown: wait before intentionally repeating');
     this.busy=true;const gen=this.generation;this.notify();

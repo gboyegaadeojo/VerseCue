@@ -6,4 +6,6 @@ Electron is distributed under the MIT license and contains Chromium, Node.js and
 
 Source checkouts do not contain whisper.cpp or model binaries. The optional Windows `--with-local-speech` development package includes only the previously verified official b5454 archive's CLI/shared libraries and base.en GGML model, checked against the recorded SHA256 values before copying. It preserves the upstream notices in WHISPER-LICENSE.txt and WHISPER-MODEL-LICENSE.txt. Native Mac speech assets remain separately required and unverified. No cloud recognizer is included. Sources and local pilot are recorded in RESEARCH_SOURCES.md.
 
-No fonts, artwork, cloud SDKs or third-party Bible datasets are included in the application source. Interface uses platform fonts.
+No fonts, artwork, cloud SDKs or Bible text datasets are included in the application source. Interface uses platform fonts. Numeric reference metadata is the explicitly licensed exception described below.
+
+Numeric KJV reference-numbering metadata is generated from the MIT-licensed openbibleinfo Bible-Passage-Reference-Parser4.0.0 (build-only dependency). Only canonical book/chapter verse counts are included in core/kjv-versification.json; no Bible text, apocryphal books or aggressive library parsing rules are shipped. Preserve REFERENCE-METADATA-LICENSE.txt. This metadata is not proof of installed Bible availability or exact-text/theme fidelity; other translations are not silently assigned KJV bounds.

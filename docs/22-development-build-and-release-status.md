@@ -12,6 +12,8 @@ The official Electron security/context-isolation/IPC and manual-distribution doc
 
 ## What is implemented
 
+Current continuation: source0.2.5 supersedes the historical baseline below. See [native/reference validation](24-native-bridge-verification-and-validation.md), [GPU investigation](25-gpu-speech-diagnostic.md) and [bounded capture](26-bounded-audio-capture.md). All124 tests and source desktop smoke passed. The0.2.4 checkpoint ZIP verified115files,315,757,010bytes, SHA256 `ee66c4f50f64d396fb69c5ded84219f4ff3e34a56ffe8a5f7e6b5028c5ab39fc`; packaged desktop and private fixture speech passed (9,492ms under uncontrolled load). That artifact predates the0.2.5 capture change. Native runtime preparation is now partially verified, exact KJV verse bounds are bundled without verse text, and capture now buffers during inference with bounded explicit drops. Full acceptance remains pending; original baseline details below are historical where these supplements supersede them.
+
 | Area | Actual development behavior | Limits |
 |---|---|---|
 | Full/compact desktop | Booth-sized candidate, mode/target/connection/audio labels, setup, focused native button keyboard activation, shared compact state, always-on-top compact, emergency stop | VoiceOver/NVDA and Mac behavior pending; no global hotkeys |

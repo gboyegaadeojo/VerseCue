@@ -19,7 +19,11 @@ npm.cmd run test:desktop
 
 Read [running/setup, evidence and release limitations](docs/22-development-build-and-release-status.md) and [all 86 requirement implementation statuses](docs/implementation-coverage.json). Mac source/packaging is provided but native Mac speech/capture/install testing and signing are pending. No cloud service or paid API is required.
 
-Version 0.2.0 adds the requested [private API and experimental Windows preparation bridge](docs/23-private-api-and-experimental-bible-bridge.md). The API is off at startup and uses a rotating memory-only token on loopback. The native helper compiles and remains explicitly experimental/runtime-unverified; it prepares references only and never clicks a passage live. Build it with `node scripts/build-windows-bridge.cjs` before packaging if needed.
+Version 0.2.4 extends the requested [private API and experimental Windows preparation bridge](docs/23-private-api-and-experimental-bible-bridge.md) with candidate preparation and numeric KJV reference validation. The API is off at startup and uses a rotating memory-only token on loopback. [Native verification results and limits](docs/24-native-bridge-verification-and-validation.md) record three successful preparation receipts, existing clipping warnings and one separate unintended manual personal-test clear. The helper remains experimental, prepares references only and never clicks a passage live. Build it with `node scripts/build-windows-bridge.cjs` before packaging if needed. P0 and service release remain pending.
+
+[GPU diagnostic results](docs/25-gpu-speech-diagnostic.md) explain the CPU fallback and subsequent CUDA inference stall. Acceleration is not enabled or bundled.
+
+Source 0.2.5 adds [bounded capture during recognition](docs/26-bounded-audio-capture.md), with visible overflow/stale-audio counts and stop/restart ownership tests. The verified 0.2.4 ZIP is a prior development checkpoint; newer source is verified and packaged separately.
 
 ## Start here
 1. Read the [leadership summary](docs/00-executive-summary.md) and [requirements summary](REQUIREMENTS_SUMMARY.md).

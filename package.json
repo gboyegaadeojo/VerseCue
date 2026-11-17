@@ -1,7 +1,7 @@
 {
   "name": "versecue",
   "productName": "VerseCue",
-  "version": "0.2.0",
+  "version": "0.2.5",
   "private": true,
   "description": "Local Scripture reference companion for Immanuel Fellowship Church",
   "author": "Immanuel Fellowship Church",
@@ -41,6 +41,7 @@
     }
   },
   "devDependencies": {
+    "bible-passage-reference-parser": "4.0.0",
     "electron": "45.3.3",
     "playwright": "1.65.1"
   }

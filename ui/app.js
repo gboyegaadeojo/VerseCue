@@ -1,23 +1,24 @@
 'use strict';
 const $=id=>document.getElementById(id);const api=window.versecue;
-let state=null,settings=null,selectedId=null,listening=false;
+let state=null,settings=null,selectedId=null,listening=false,lastLatestId=null;
 if(new URLSearchParams(location.search).has('compact'))document.body.classList.add('compact');
 function message(text,setup=false){$(setup?'setup-message':'message').textContent=text;}
 async function call(method,...args){const result=await api[method](...args);if(!result.ok)throw new Error(result.error);return result.value;}
 async function action(command,payload){return call('command',command,payload);}
 function bind(id,fn){$(id).addEventListener('click',()=>Promise.resolve().then(fn).catch(e=>message(e.message,$('settings-dialog').open)));}
 function render(next){
-  state=next;const candidate=state.queue.find(c=>c.id===selectedId)??state.queue.at(-1);selectedId=candidate?.id??null;
+  state=next;const latest=state.queue.at(-1)?.id??null;if(latest!==lastLatestId){selectedId=latest;lastLatestId=latest;}const candidate=state.queue.find(c=>c.id===selectedId)??state.queue.at(-1);selectedId=candidate?.id??null;
   $('target-banner').textContent=state.dryRun?'DRY RUN · Suggestions only affect this app. No ProPresenter output.':'ARMED TEST TARGET · Show triggers a mapped ProPresenter cue. Audience output is not independently observed.';
   $('target-banner').classList.toggle('armed',!state.dryRun);
   $('connection').textContent=state.connection.state==='connected'?state.connection.version:'Not connected';$('translation').textContent=state.translation;
-  $('mode').value=state.mode;$('mode').disabled=state.stopped;$('resume').hidden=!state.stopped;
+  $('mode').value=state.mode;$('mode').disabled=state.stopped;$('resume').hidden=!state.stopped&&state.mode!=='paused';$('resume').textContent=state.stopped?'Re-arm in Confirm':'Resume in Confirm';
   $('candidate-empty').hidden=Boolean(candidate);$('candidate').hidden=!candidate;
   if(candidate){
     $('reference').textContent=candidate.label;$('candidate-translation').textContent=candidate.translation;$('phrase').textContent=candidate.phrase;
     $('review-note').textContent=candidate.issues.join(' · ')||'Review the reference before sending.';
     $('show').textContent=state.dryRun?'Simulate passage':'Show prepared test cue';
-    $('show').disabled=state.stopped||state.mode!=='confirm'||state.busy||!candidate.authorized||candidate.reference.verse==null||candidate.issues.some(i=>/Invalid|no-show|not supported/.test(i));
+    const blocked=state.stopped||state.busy||!candidate.authorized||candidate.reference.valid===false||candidate.reference.overLimit||candidate.reference.verse==null||candidate.issues.some(i=>/Invalid|no-show|not supported/.test(i));
+    $('show').disabled=blocked||state.mode!=='confirm';$('prepare-candidate').disabled=blocked||!nativeAvailable;
     $('expiry').textContent=`${Math.max(0,Math.ceil((candidate.expiresAt-Date.now())/1000))}s remaining`;
   }else $('expiry').textContent='';
   $('queue-count').textContent=String(state.queue.length);
@@ -59,11 +60,13 @@ bind('arm',async()=>{await action('arm',$('test-target').checked);message('Prepa
 bind('export-settings',async()=>{await call('exportSettings');message('Export excludes local worker/model paths and audio device identifiers.',true);});
 bind('import-settings',async()=>{await stopAudio();const s=await call('importSettings');if(s)fillSettings(s);message('Imported safe settings. Choose local audio and speech files again. Dry run restored.',true);});
 bind('export-diagnostics',()=>call('exportDiagnostics'));
-function renderPrivateApi(status){$('private-api-status').textContent=status.enabled?`Enabled · http://127.0.0.1:${status.port} · ${status.allowPreparedSend?'prepared test sends allowed':'review submissions only'}${status.allowPreparation?' · experimental preparation enabled':''}`:'Disabled · no local listener';$('private-api-enable').disabled=status.enabled;$('private-api-send').disabled=status.enabled;$('private-api-token').disabled=!status.enabled;$('private-api-disable').disabled=!status.enabled;$('private-api-prepare').disabled=status.enabled||!status.nativePreparationAvailable;$('native-preparation').disabled=!status.nativePreparationAvailable;$('native-preparation-status').textContent=status.nativePreparationAvailable?'Experimental helper available · runtime verification pending. Open the Bible view in ProPresenter and select the matching installed translation first.':'Native preparation is unavailable on this platform/build.';}
+let nativeAvailable=false;
+function renderPrivateApi(status){nativeAvailable=status.nativePreparationAvailable===true;$('private-api-status').textContent=status.enabled?`Enabled · http://127.0.0.1:${status.port} · ${status.allowPreparedSend?'prepared test sends allowed':'review submissions only'}${status.allowPreparation?' · experimental preparation enabled':''}`:'Disabled · no local listener';$('private-api-enable').disabled=status.enabled;$('private-api-send').disabled=status.enabled;$('private-api-token').disabled=!status.enabled;$('private-api-disable').disabled=!status.enabled;$('private-api-prepare').disabled=status.enabled||!nativeAvailable;$('native-preparation').disabled=!nativeAvailable;$('native-preparation-status').textContent=nativeAvailable?'Experimental helper available. Open ProPresenter’s Bible view and select the matching installed translation. Every passage still needs review; Auto is unavailable.':'Native preparation is unavailable on this platform/build.';}
 bind('private-api-enable',async()=>{if($('private-api-prepare').checked&&!$('native-preparation-consent').checked)throw new Error('Acknowledge experimental focus changes before enabling API preparation');renderPrivateApi(await call('startPrivateApi',{allowPreparedSend:$('private-api-send').checked,allowPreparation:$('private-api-prepare').checked}));message('Private API enabled for this application session. Copy the token only to a trusted local client.');});
 bind('private-api-disable',async()=>{await call('stopPrivateApi');renderPrivateApi(await call('privateApiStatus'));message('Private API stopped and token revoked.');});
 bind('private-api-token',async()=>{await call('copyPrivateApiToken');message('Session token copied to your clipboard. It is not stored in settings or diagnostics.');});
-bind('native-preparation',async()=>{await stopAudio();const result=await action('prepare-bible',{reference:$('native-preparation-reference').value.trim(),acknowledgeFocusChange:$('native-preparation-consent').checked});message(result.clippingWarning?'Passage prepared with a ProPresenter clipping warning. Inspect and correct formatting manually; nothing was sent live.':'Passage prepared for operator review. Formatting and physical output are not verified; nothing was sent live.');});
+bind('native-preparation',async()=>{if(!$('native-preparation-consent').checked)throw new Error('Acknowledge experimental focus changes first');$('native-preparation').disabled=true;message('Preparing the passage in ProPresenter. Listening is paused and output is disarmed.');try{await stopAudio();const result=await action('prepare-bible',{reference:$('native-preparation-reference').value.trim(),acknowledgeFocusChange:true});message(result.clippingWarning?'Passage prepared with a ProPresenter clipping warning. Inspect and correct formatting manually; nothing was sent live.':'Passage prepared for operator review. Formatting and physical output are not verified; nothing was sent live.');}finally{$('native-preparation').disabled=false;}});
+bind('prepare-candidate',async()=>{if(!$('native-preparation-consent').checked){$('native-preparation-panel').scrollIntoView({behavior:'smooth'});throw new Error('Enable experimental preparation for this supervised test session first');}const id=selectedId;await stopAudio();message('Preparing the reviewed candidate in ProPresenter; output is disarmed.');const result=await action('prepare-candidate',{id,acknowledgeFocusChange:true});message(`Prepared for review in ${(result.workerElapsedMs/1000).toFixed(1)}s. ${result.clippingWarning?'ProPresenter reports clipped text; inspect formatting. ':''}Nothing was sent live.`);});
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!event.repeat){event.preventDefault();action('stop').then(stopAudio).catch(e=>message(e.message));}if(event.repeat&&(event.key==='Enter'||event.key===' '))event.preventDefault();});
 navigator.mediaDevices?.addEventListener('devicechange',async()=>{if(!listening)return;const devices=await navigator.mediaDevices.enumerateDevices();if(!devices.some(d=>d.deviceId===settings.audioDevice)){await stopAudio();await action('mode','paused');message('Selected input disconnected. Recognition paused; choose the intended input again.');}});
 api.onState(render);

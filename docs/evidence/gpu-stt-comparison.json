@@ -1,0 +1,124 @@
+{
+  "started": "2026-11-17T20:47:18.289Z",
+  "finished": "2026-11-17T20:48:22.478Z",
+  "hardware": {
+    "cpu": "AMD Ryzen 7 4800HS",
+    "physicalCores": 8,
+    "logicalProcessors": 16,
+    "ramBytes": 16556568576,
+    "gpu": "NVIDIA GeForce RTX 2060 with Max-Q Design",
+    "gpuMemoryMiB": 6144,
+    "driver": "610.88"
+  },
+  "model": "base.en",
+  "whisperBuild": "b5454",
+  "cudaArchive": "11.8.0",
+  "threads": 4,
+  "beamSize": 1,
+  "rows": [
+    {
+      "id": "REAL-PILOT-001-6",
+      "backend": "cpu",
+      "elapsedMs": 8537,
+      "exitCode": 0,
+      "timedOut": false,
+      "transcriptNonempty": true,
+      "transcriptSha256": "6e5b8378bddef43e741e625501308822ad51e855a59e73496292726485c56109",
+      "cudaDeviceReported": false,
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "id": "REAL-PILOT-001-12",
+      "backend": "cpu",
+      "elapsedMs": 8930,
+      "exitCode": 0,
+      "timedOut": false,
+      "transcriptNonempty": true,
+      "transcriptSha256": "01c56da014fb7c1db11c30f3382d5c14805fc913b16072ae70b47df2e23daad4",
+      "cudaDeviceReported": false,
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "id": "REAL-PILOT-002-12",
+      "backend": "cpu",
+      "elapsedMs": 7741,
+      "exitCode": 0,
+      "timedOut": false,
+      "transcriptNonempty": true,
+      "transcriptSha256": "6ee5c15c3b1a5b76a3639b9fa0258b9807c2f3b7972502c92d65da4723e79ad9",
+      "cudaDeviceReported": false,
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "id": "REAL-PILOT-004-14",
+      "backend": "cpu",
+      "elapsedMs": 7256,
+      "exitCode": 0,
+      "timedOut": false,
+      "transcriptNonempty": true,
+      "transcriptSha256": "4e18ae9f975e8049736cf47923ad300af24dbb7ea55df7001493541e038c7159",
+      "cudaDeviceReported": false,
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "id": "REAL-PILOT-001-6",
+      "backend": "cuda",
+      "elapsedMs": 8294,
+      "exitCode": 0,
+      "timedOut": false,
+      "transcriptNonempty": true,
+      "transcriptSha256": "6e5b8378bddef43e741e625501308822ad51e855a59e73496292726485c56109",
+      "cudaDeviceReported": false,
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "id": "REAL-PILOT-001-12",
+      "backend": "cuda",
+      "elapsedMs": 8287,
+      "exitCode": 0,
+      "timedOut": false,
+      "transcriptNonempty": true,
+      "transcriptSha256": "01c56da014fb7c1db11c30f3382d5c14805fc913b16072ae70b47df2e23daad4",
+      "cudaDeviceReported": false,
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "id": "REAL-PILOT-002-12",
+      "backend": "cuda",
+      "elapsedMs": 7740,
+      "exitCode": 0,
+      "timedOut": false,
+      "transcriptNonempty": true,
+      "transcriptSha256": "6ee5c15c3b1a5b76a3639b9fa0258b9807c2f3b7972502c92d65da4723e79ad9",
+      "cudaDeviceReported": false,
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    },
+    {
+      "id": "REAL-PILOT-004-14",
+      "backend": "cuda",
+      "elapsedMs": 7248,
+      "exitCode": 0,
+      "timedOut": false,
+      "transcriptNonempty": true,
+      "transcriptSha256": "4e18ae9f975e8049736cf47923ad300af24dbb7ea55df7001493541e038c7159",
+      "cudaDeviceReported": false,
+      "accuracyScored": false,
+      "liveLatencyScored": false
+    }
+  ],
+  "outputRequests": 0,
+  "microphoneCapture": false,
+  "limitations": [
+    "Cold CLI per window, not streaming",
+    "No independent real-audio labels",
+    "Uncontrolled shared-host background load",
+    "No audience output or physical latency observation"
+  ]
+}

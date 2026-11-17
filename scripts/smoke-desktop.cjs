@@ -17,7 +17,11 @@ const {_electron}=require('playwright');const assert=require('node:assert/strict
     await page.screenshot({path:'test-results/desktop-candidate.png',fullPage:true});
     await page.locator('#show').click();await page.waitForFunction(()=>document.querySelector('#message').textContent.includes('zero output requests'));
     assert.match(await page.locator('#history').innerText(),/Simulated/);
+    await page.locator('#reference-input').fill('John 3:99');await page.locator('#reference-form button').click();
+    await page.waitForFunction(()=>document.querySelector('#reference').textContent==='John 3:99');
+    assert.equal(await page.locator('#show').isDisabled(),true);assert.equal(await page.locator('#prepare-candidate').isDisabled(),true);
     await page.locator('#reference-input').fill('Romans 8:28');await page.locator('#reference-form button').click();
+    await page.waitForFunction(()=>document.querySelector('#reference').textContent==='Romans 8:28');
     await page.locator('#stop').click();await page.waitForFunction(()=>!document.querySelector('#resume').hidden);
     assert.equal((await page.evaluate(()=>window.versecue.state())).value.stopped,true);
     await page.locator('#resume').click();await page.locator('#setup').click();

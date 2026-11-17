@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "applicationVersion": "0.2.0",
+  "applicationVersion": "0.2.5",
   "components": [
     {
       "name": "@electron-internal/extract-zip",
@@ -21,6 +21,13 @@
       "version": "24.19.2",
       "license": "MIT",
       "integrity": "sha512-93d49wCWJkCyN87MxLpNN6KXPCwFw7bVUg79mGUV1OS40JGWwVCr8n61DXCSqz7CV6/VfPkb7xec7uP2M+QHWQ==",
+      "developmentOnly": true
+    },
+    {
+      "name": "bible-passage-reference-parser",
+      "version": "4.0.0",
+      "license": "MIT",
+      "integrity": "sha512-glCq4RVcvbeNMI2h+XppurZ2zyaelsI23dX1Uv+xXQ2KRjkWRpITyNHD2+qvLG8HSSWYw/71MOEa4DgsY+i1oA==",
       "developmentOnly": true
     },
     {

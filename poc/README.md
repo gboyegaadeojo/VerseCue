@@ -75,3 +75,11 @@ node ./poc/compare-warm-stt.mjs
 node ./poc/compare-warm-stt.mjs --beam1
 ```
 Run sequentially; the second requires the fixed eight-window baseline from this pilot. The optional fixed --beam1 switches requested beam/best-of1 instead of5 and writes separate private results. This is a development-sample speed/quality investigation, not a backend/architecture choice, live streaming interface, probability calibration or acceptance test. No data/code from these probes belongs in a production module.
+
+## Private GPU backend diagnostics
+
+`node poc/compare-gpu-stt.mjs` compares four existing private replay WAVs with pinned CPU and CUDA11.8 b5454 builds, base.en, four threads and beam1. Verifies archive/model digests first; each child is limited to20seconds. Raw text stays under ignored recordings/gpu-comparison-private; content-free results go to docs/evidence/gpu-stt-comparison.json. Cold file processing is not live streaming or accuracy acceptance. Initial CUDA profile silently used CPU, so its profile name must not be interpreted as successful acceleration.
+
+`node poc/inspect-gpu-backend.mjs` runs one existing six-second clip without suppressing backend diagnostics, keeping full stderr private and printing only backend-related lines with local paths redacted. `node poc/inspect-cuda-imports.mjs` reads the downloaded ggml-cuda.dll PE import table without loading it. Prerequisites are the previously verified private assets; neither script installs drivers, downloads dependencies, captures a microphone or contacts ProPresenter. Any added NVIDIA library remains diagnostic-only pending redistribution/license review.
+
+`node poc/check-speech-stdin.mjs` feeds one existing authorized12second WAV through a closed stdin pipe, with a45second diagnostic deadline and no new audio file. Logs remain private. Latest run exited0/read bytes after8,829ms but yielded no stdout transcript; memory-only recognition is not verified and the application transport was not changed.

@@ -9,19 +9,11 @@ const {LocalSpeech}=require('../core/stt.cjs');
 const store=require('../core/settings.cjs');
 const {LocalControlAPI}=require('../core/control-api.cjs');
 const {BiblePreparation}=require('../core/bible-preparation.cjs');
+const {PreparationController}=require('../core/preparation-controller.cjs');
 const connector=new Connector();const service=new Session(connector);const speech=new LocalSpeech();
-let preparation;
+let preparation,preparationController;
 async function prepareBible(reference,translation,guard=()=>true){
-  if(!preparation?.available())throw new Error('Experimental Windows preparation helper is unavailable');
-  if(!guard()||service.stopped||service.busy||preparation.busy)throw new Error('Stop/busy state blocks Bible preparation');
-  if(new URL(connector.base).hostname!=='127.0.0.1')throw new Error('Experimental UI preparation requires the local loopback ProPresenter target');
-  const version=await connector.read('/version');
-  if(version.host_description!=='ProPresenter 21.4.2'||version.platform!=='win')throw new Error('This experimental UI profile is restricted to the inspected Windows ProPresenter 21.4.2 build');
-  if(!guard()||service.stopped||service.busy||preparation.busy)throw new Error('Preparation canceled during target validation');
-  speech.cancel();connector.arm(false);service.configure({dryRun:true,translation:settings.translation});service.setMode('paused');
-  const generation=service.generation;
-  const result=await preparation.prepare(reference,translation,{guard:()=>guard()&&!service.stopped&&generation===service.generation});
-  service.log('NATIVE_BIBLE_PREPARED_REVIEW');service.notify();return result;
+  if(!preparationController)throw new Error('Preparation controller is not ready');return preparationController.prepare(reference,translation,guard);
 }
 const privateApi=new LocalControlAPI(service,{onStop:()=>{speech.cancel();preparation?.cancel();connector.arm(false);service.stop();},onPrepare:prepareBible,onRevoke:()=>preparation?.cancel(),onEvent:code=>{service.log(code);service.notify();}});
 let settings,settingsFile,mainWindow,compactWindow,healthTimer,healthBusy=false;const windows=new Set();
@@ -46,6 +38,7 @@ async function bootstrap(){
   const helper=app.isPackaged?path.join(process.resourcesPath,'native','VerseCue.BibleBridge.exe'):path.join(__dirname,'../native/bin/VerseCue.BibleBridge.exe');
   let helperExists=false;try{await fs.access(helper);helperExists=true;}catch{}
   preparation=new BiblePreparation({helper:helperExists?helper:null});
+  preparationController=new PreparationController({service,connector,speech,preparation,getTranslation:()=>settings.translation});
   // Optional verified offline resources are local development-package assets,
   // not downloaded or executed automatically during startup.
   const speechDir=path.join(process.resourcesPath,'speech');
@@ -68,7 +61,7 @@ async function bootstrap(){
   handler('private-api-start',async options=>{if(options?.allowPreparation&&!preparation.available())throw new Error('Native preparation is unavailable on this platform/build');return {...await privateApi.start(options),nativePreparationAvailable:preparation.available()};});
   handler('private-api-stop',()=>privateApi.stop());
   handler('private-api-copy-token',()=>{if(!privateApi.accepting||!privateApi.token)throw new Error('Enable the private API first');clipboard.writeText(privateApi.token);return true;});
-  handler('save-settings',async value=>{const valid=store.validateSettings(value);speech.cancel();if(speech.busy)throw new Error('Recognition is stopping; retry in a moment');settings=await store.save(settingsFile,valid);connector.configure(settings.host,settings.port);speech.configure(settings.executable,settings.model);service.configure({translation:settings.translation,dryRun:true});return settings;});
+  handler('save-settings',async value=>{const valid=store.validateSettings(value);speech.cancel();preparation.cancel();if(speech.busy)throw new Error('Recognition is stopping; retry in a moment');settings=await store.save(settingsFile,valid);connector.configure(settings.host,settings.port);speech.configure(settings.executable,settings.model);service.configure({translation:settings.translation,dryRun:true});return settings;});
   handler('choose-worker',()=>choose('worker'));handler('choose-model',()=>choose('model'));
   handler('command',async(command,payload)=>{
     switch(command){
@@ -78,12 +71,16 @@ async function bootstrap(){
       case 'resume':preparation.cancel();return service.resume();
       case 'reset':speech.cancel();preparation.cancel();connector.arm(false);return service.reset();
       case 'prepare-bible':if(payload?.acknowledgeFocusChange!==true)throw new Error('Acknowledge experimental preparation and focus change');return prepareBible(payload.reference,settings.translation);
+      case 'prepare-candidate':{
+        if(payload?.acknowledgeFocusChange!==true)throw new Error('Acknowledge experimental preparation and focus change');
+        return preparationController.prepareCandidate(payload.id);
+      }
       case 'reject':return service.reject(payload);
       case 'send':return service.send(payload);
       case 'test':try{return await connector.test();}finally{service.notify();}
       case 'map':return connector.prepare(payload);
-      case 'dry-run':connector.arm(false);service.configure({dryRun:true,translation:settings.translation});return;
-      case 'arm':if(payload!==true)throw new Error('Explicit test-target acknowledgment required');connector.arm(true);service.configure({dryRun:false,translation:settings.translation});return;
+      case 'dry-run':preparation.cancel();connector.arm(false);service.configure({dryRun:true,translation:settings.translation});return;
+      case 'arm':if(payload!==true)throw new Error('Explicit test-target acknowledgment required');if(preparation.busy)throw new Error('Finish or cancel Bible preparation before arming output');connector.arm(true);service.configure({dryRun:false,translation:settings.translation});return;
       default:throw new Error('Unknown command');
     }
   });
@@ -94,7 +91,7 @@ async function bootstrap(){
     service.ingest(result.text,{authorized:true});return result;
   });
   handler('export-settings',async()=>{const r=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-settings.json'});if(!r.canceled){const safe={...settings,executable:'',model:'',audioDevice:''};await fs.writeFile(r.filePath,JSON.stringify(safe,null,2));return true;}return false;});
-  handler('import-settings',async()=>{const r=await dialog.showOpenDialog(mainWindow,{properties:['openFile'],filters:[{name:'JSON',extensions:['json']}]});if(r.canceled)return null;const bytes=await fs.readFile(r.filePaths[0],'utf8');if(bytes.length>16384)throw new Error('Settings file too large');const incoming=store.validateSettings(JSON.parse(bytes));incoming.executable='';incoming.model='';incoming.audioDevice='';speech.cancel();if(speech.busy)throw new Error('Stop recognition before import');settings=await store.save(settingsFile,incoming);connector.configure(settings.host,settings.port);speech.configure('','');service.reset();service.configure({translation:settings.translation});return settings;});
+  handler('import-settings',async()=>{const r=await dialog.showOpenDialog(mainWindow,{properties:['openFile'],filters:[{name:'JSON',extensions:['json']}]});if(r.canceled)return null;const bytes=await fs.readFile(r.filePaths[0],'utf8');if(bytes.length>16384)throw new Error('Settings file too large');const incoming=store.validateSettings(JSON.parse(bytes));incoming.executable='';incoming.model='';incoming.audioDevice='';speech.cancel();preparation.cancel();if(speech.busy)throw new Error('Stop recognition before import');settings=await store.save(settingsFile,incoming);connector.configure(settings.host,settings.port);speech.configure('','');service.reset();service.configure({translation:settings.translation});return settings;});
   handler('export-diagnostics',async()=>{const preview={schemaVersion:1,appVersion:app.getVersion(),platform:process.platform,p0:'PENDING',events:service.events,capabilities:service.snapshot().capabilities};const r=await dialog.showMessageBox(mainWindow,{type:'info',buttons:['Cancel','Save redacted diagnostics'],defaultId:0,message:`Export ${preview.events.length} event codes and times, app/platform versions and capability flags. No references, transcripts, audio, paths or addresses are included.`});if(r.response!==1)return false;const dest=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-diagnostics.json'});if(!dest.canceled)await fs.writeFile(dest.filePath,JSON.stringify(preview,null,2));return !dest.canceled;});
   handler('compact',()=>{if(compactWindow)compactWindow.focus();else compactWindow=createWindow(true);});
   healthTimer=setInterval(async()=>{
