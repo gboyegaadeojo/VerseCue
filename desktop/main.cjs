@@ -8,6 +8,7 @@ const {PreparedCatalog}=require('../core/prepared-catalog.cjs');
 const {SavedBibleWorkflow}=require('../core/saved-bible-workflow.cjs');
 const {ReferencePassages}=require('../core/reference-passages.cjs');
 const {PassageCoordinator}=require('../core/passage-coordinator.cjs');
+const {ReferencePreparation}=require('../core/reference-preparation.cjs');
 const {Session}=require('../core/session.cjs');
 const {LocalSpeech}=require('../core/stt.cjs');
 const store=require('../core/settings.cjs');
@@ -21,12 +22,12 @@ const {GuardedAuto}=require('../core/guarded-auto.cjs');
 const connector=new Connector();const catalog=new PreparedCatalog(connector);const service=new Session(connector);const speech=new LocalSpeech();
 const automatic=new GuardedAuto(service);
 const referencePassages=new ReferencePassages({connector,catalog});
-let preparation,preparationController,savedBible,passageCoordinator,preparationOwner=null,suspensionBlocker=null;
+let preparation,preparationController,savedBible,passageCoordinator,referencePreparation,reviewOwnerId=null,preparationOwner=null,suspensionBlocker=null;
 function updateBackgroundCapture(active){if(active&&suspensionBlocker===null)suspensionBlocker=powerSaveBlocker.start('prevent-app-suspension');if(!active&&suspensionBlocker!==null){powerSaveBlocker.stop(suspensionBlocker);suspensionBlocker=null;}}
 const capture=new CaptureLease({canStart:()=>!service.recovery?.required&&!service.stopped&&service.mode!=='paused'&&!speech.busy&&!preparation?.busy&&!savedBible?.busy&&!passageCoordinator?.busy,onStop:()=>{automatic.cancel();speech.cancel();updateBackgroundCapture(false);},onChange:value=>{updateBackgroundCapture(value.active);service.capture={...value,backgroundProtected:suspensionBlocker!==null&&powerSaveBlocker.isStarted(suspensionBlocker)};service.notify();}});
-function cancelPreparation(){if(passageCoordinator)passageCoordinator.cancel();else savedBible?.cancel();preparation?.cancel();}
-async function ownedPreparation(event,operation){if(preparationOwner)throw new Error('Another window is preparing a Bible passage');const owner={id:event.sender.id};preparationOwner=owner;try{return await operation();}finally{if(preparationOwner===owner)preparationOwner=null;}}
-function cancelAudio(){automatic.cancel();capture.cancel();}
+function cancelPreparation(){reviewOwnerId=null;referencePreparation?.cancel();if(passageCoordinator)passageCoordinator.cancel();else savedBible?.cancel();preparation?.cancel();}
+async function ownedPreparation(event,operation){if(preparationOwner)throw new Error('Another window is preparing a Bible passage');const owner={id:event.sender.id};preparationOwner=owner;try{const result=await operation();if(['review-required','part-shown','readback-matched'].includes(result?.phase))reviewOwnerId=owner.id;return result;}finally{if(preparationOwner===owner)preparationOwner=null;}}
+function cancelAudio(){referencePreparation?.configure(false);automatic.cancel();capture.cancel();}
 async function prepareBible(reference,translation,guard=()=>true){
   if(!preparationController)throw new Error('Preparation controller is not ready');if(savedBible?.busy||passageCoordinator?.busy)throw new Error('Finish the passage preparation first');return preparationController.prepare(reference,translation,guard);
 }
@@ -38,7 +39,7 @@ function handler(name,callback,{withEvent=false}={}){ipcMain.handle(name,async(e
 function createWindow(compact=false){
   const win=new BrowserWindow({width:compact?450:1280,height:compact?630:900,minWidth:compact?360:800,minHeight:550,title:'VerseCue',backgroundColor:'#10151d',show:false,alwaysOnTop:compact,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,backgroundThrottling:false}});
   windows.add(win);win.setMenuBarVisibility(false);win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('will-navigate',e=>e.preventDefault());const captureOwnerId=win.webContents.id;
-  const releaseUnavailableOwner=code=>{if(!capture.owns(captureOwnerId)&&preparationOwner?.id!==captureOwnerId)return;cancelAudio();cancelPreparation();privateApi.stop().catch(()=>{});connector.arm(false);service.setMode('paused');service.log(code,'warning');service.notify();};
+  const releaseUnavailableOwner=code=>{if(!capture.owns(captureOwnerId)&&preparationOwner?.id!==captureOwnerId&&reviewOwnerId!==captureOwnerId)return;cancelAudio();cancelPreparation();privateApi.stop().catch(()=>{});connector.arm(false);service.setMode('paused');service.log(code,'warning');service.notify();};
   win.webContents.on('render-process-gone',()=>releaseUnavailableOwner('AUDIO_OWNER_RENDERER_GONE'));
   win.webContents.on('did-start-navigation',details=>{if(details.isMainFrame)releaseUnavailableOwner('AUDIO_OWNER_RELOADED');});
   win.on('closed',()=>{releaseUnavailableOwner('AUDIO_OWNER_CLOSED');windows.delete(win);if(compact)compactWindow=null;});win.once('ready-to-show',()=>win.show());win.loadURL(ui+(compact?'?compact=1':''));return win;
@@ -62,6 +63,7 @@ async function bootstrap(){
   preparationController=new PreparationController({service,connector,speech:{cancel:cancelAudio},preparation,getTranslation:()=>settings.translation});
   savedBible=new SavedBibleWorkflow({service,connector,catalog,controller:preparationController});
   passageCoordinator=new PassageCoordinator({service,connector,resolver:referencePassages,savedBible,onChange:value=>{service.passagePreparation=value;service.notify();}});
+  referencePreparation=new ReferencePreparation({service,coordinator:passageCoordinator,prepare:(id,event)=>ownedPreparation(event,()=>passageCoordinator.prepare(id)),onChange:value=>{service.referencePreparation=value;service.notify();}});
   const recovery=new PowerRecovery({service,connector,cancelAudio,cancelPreparation:()=>cancelPreparation(),revokeApi:()=>privateApi.stop(),getTarget:()=>settings});
   powerMonitor.on('suspend',()=>recovery.handle('suspend'));powerMonitor.on('resume',()=>recovery.handle('resume'));
   // Optional verified offline resources are local development-package assets,
@@ -109,7 +111,8 @@ async function bootstrap(){
   handler('choose-worker',()=>choose('worker'));handler('choose-model',()=>choose('model'));
   handler('command',async(event,command,payload)=>{
     switch(command){
-      case 'ingest':if(typeof payload?.text!=='string')throw new Error('Invalid reference');if(preparation.busy||savedBible?.busy||passageCoordinator?.busy||passageCoordinator?.review)cancelPreparation();return service.ingestChecked(payload.text,{manual:true});
+      case 'ingest':{if(typeof payload?.text!=='string')throw new Error('Invalid reference');if(preparation.busy||savedBible?.busy||passageCoordinator?.busy||passageCoordinator?.review)cancelPreparation();const candidates=await service.ingestChecked(payload.text,{manual:true});referencePreparation.consider(candidates,event);return candidates;}
+      case 'reference-preparation':if(service.stopped||service.recovery?.required)throw Error('Resume Confirm before enabling preparation');return referencePreparation.configure(payload);
       case 'mode':cancelAudio();cancelPreparation();return service.setMode(payload);
       case 'enable-auto':if(preparation.busy||savedBible?.busy)throw new Error('Finish Bible preparation before enabling Auto');automatic.cancel();speech.cancel();return service.enableAuto({acknowledged:payload?.acknowledged===true});
       case 'stop':cancelAudio();cancelPreparation();connector.arm(false);return service.stop();
@@ -148,7 +151,7 @@ async function bootstrap(){
     if(service.stopped||service.mode==='paused')throw new Error('Listening is paused');const epoch=service.generation;
     const result=await speech.transcribe(samples);
     if(epoch!==service.generation||service.stopped||service.mode==='paused')throw new Error('Stale recognition discarded');
-    service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});const candidates=await service.ingestChecked(result.text,{authorized:true,additionalGuard:()=>capture.owns(event.sender.id)&&epoch===service.generation});automatic.consider(candidates,{source:'local-speech',final:result.final===true,elapsedMs:result.elapsedMs,endEvidence:metadata?.endEvidence,droppedSamples:metadata?.droppedSamples});return result;
+    service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});const candidates=await service.ingestChecked(result.text,{authorized:true,additionalGuard:()=>capture.owns(event.sender.id)&&epoch===service.generation});referencePreparation.consider(candidates,event);automatic.consider(candidates,{source:'local-speech',final:result.final===true,elapsedMs:result.elapsedMs,endEvidence:metadata?.endEvidence,droppedSamples:metadata?.droppedSamples});return result;
   },{withEvent:true});
   handler('export-settings',async()=>{const r=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-settings.json'});if(!r.canceled){const safe={...settings,executable:'',model:'',audioDevice:''};await fs.writeFile(r.filePath,JSON.stringify(safe,null,2));return true;}return false;});
   handler('import-settings',async()=>{const r=await dialog.showOpenDialog(mainWindow,{properties:['openFile'],filters:[{name:'JSON',extensions:['json']}]});if(r.canceled)return null;const bytes=await fs.readFile(r.filePaths[0],'utf8');if(bytes.length>16384)throw new Error('Settings file too large');const incoming=store.validateSettings(JSON.parse(bytes));incoming.executable='';incoming.model='';incoming.audioDevice='';cancelAudio();cancelPreparation();if(speech.busy)throw new Error('Stop recognition before import');settings=await store.save(settingsFile,incoming);connector.configure(settings.host,settings.port);speech.configure('','',settings.speechMode);service.reset();service.configure({translation:settings.translation});return settings;});
