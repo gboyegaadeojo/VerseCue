@@ -54,8 +54,9 @@ class BibleBridge {
         return selectors[0];
     }
     static string SelectedTranslation(AutomationElement selector) {
-        var texts=selector.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text));
-        var names=texts.Cast<AutomationElement>().Select(e=>e.Current.Name).Where(n=>!String.IsNullOrWhiteSpace(n)).ToArray();
+        var cache=new CacheRequest();cache.TreeScope=TreeScope.Element;cache.TreeFilter=Automation.RawViewCondition;cache.Add(AutomationElement.NameProperty);
+        AutomationElementCollection texts;using(cache.Activate()){texts=selector.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text));}
+        var names=texts.Cast<AutomationElement>().Select(e=>e.Cached.Name).Where(n=>!String.IsNullOrWhiteSpace(n)).ToArray();
         Require(names.Length==1,"TRANSLATION_SELECTION_UNCERTAIN");return names[0];
     }
     static AutomationElement OpenBibleView(AutomationElement root,Process process) {
@@ -150,11 +151,14 @@ class BibleBridge {
         if(operation!="inspect"){Require(SetForegroundWindow(process.MainWindowHandle),"COULD_NOT_FOCUS_PROPRESENTER");WaitReleasedModifiers();}
         Stage("find-bible-controls");
         var header=operation=="inspect"?ById(root,"bibleViewerHeader"):OpenBibleView(root,process);Require(header!=null,"OPEN_BIBLES_VIEW_IN_PROPRESENTER");
+        // Restrict control discovery to the observed Bible viewer, rather than
+        // traversing unrelated library, media, stage and production controls.
+        var bibleControls=TreeWalker.RawViewWalker.GetParent(header);Require(bibleControls!=null,"BIBLE_VIEW_CONTAINER_MISSING");
         var container=ById(header,"ReferenceTextBox");Require(container!=null,"REFERENCE_CONTAINER_MISSING");
         var edits=container.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Edit));
         Require(edits.Count==1,"REFERENCE_INPUT_AMBIGUOUS");var field=edits[0];
         Require(field.Current.IsEnabled&&!field.Current.IsOffscreen,"REFERENCE_INPUT_NOT_READY");
-        var selector=TranslationSelector(root);string selected=SelectedTranslation(selector);
+        var selector=TranslationSelector(bibleControls);string selected=SelectedTranslation(selector);
         if(operation=="inspect")return new {ok=true,state="inspection-only",translationDisplayName=selected,reference=Value(field),outputRequests=0};
         SelectTranslation(root,process,selector,Translations[translation]);selected=SelectedTranslation(selector);
         Require(Translations[translation]==selected,"REQUESTED_EDITION_NOT_VERIFIED");
@@ -197,7 +201,7 @@ class BibleBridge {
                 clipped=warnings.Cast<AutomationElement>().Any(e=>(e.Cached.HelpText??"").IndexOf("clipped",StringComparison.OrdinalIgnoreCase)>=0||(e.Cached.Name??"").IndexOf("clipped",StringComparison.OrdinalIgnoreCase)>=0);
                 Stage("prepared-review");
                 bool saveCopy=operation=="prepare-save";
-                if(saveCopy)SaveBibleCopy(root,process,field,selector,reference,selected);
+                if(saveCopy)SaveBibleCopy(bible,process,field,selector,reference,selected);
                 return new {ok=true,state="prepared-needs-operator-review",reference=reference,translation=translation,referenceLabels=count,clippingWarning=clipped,saveCopyRequested=saveCopy,formattingVerified=false,outputRequests=0,outputObserved=false,elapsedMs=Total.ElapsedMilliseconds,timingsMs=Timings};
             }
             Thread.Sleep(150);

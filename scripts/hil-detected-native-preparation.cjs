@@ -16,7 +16,7 @@ const {titleReference}=require('../core/bible-passage-plan.cjs');
  const libraries=await read('/v1/libraries');assert.equal(libraries.length,1);const libraryRoute='/v1/library/'+libraries[0].uuid,catalog=await read(libraryRoute);
  assert.equal(catalog.items.some(item=>titleReference(item.name,'KJV')===reference),false,'Passage already exists; do not create a duplicate');
  const beforeIds=new Set(catalog.items.map(item=>item.uuid)),revision=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8',windowsHide:true}).trim();
- const sourceFiles=['core/preparation-controller.cjs','core/reference-preparation.cjs','core/bible-preparation.cjs','core/passage-coordinator.cjs','desktop/main.cjs'];
+ const sourceFiles=['core/preparation-controller.cjs','core/reference-preparation.cjs','core/bible-preparation.cjs','core/passage-coordinator.cjs','desktop/main.cjs','native/windows/BibleBridge.cs','native/bin/VerseCue.BibleBridge.exe'];
  const sourceHashes=Object.fromEntries(await Promise.all(sourceFiles.map(async file=>[file,createHash('sha256').update(await fs.readFile(file)).digest('hex')])));
  let app,report={at:new Date().toISOString(),reference,translation:'KJV',sourceRevision:revision,sourceHashes,actualProPresenterAccess:true,microphoneCapture:false,requestedOutputCommands:0,physicalOutputObserved:false,audibleEndLatencyMeasured:false};
  try{
