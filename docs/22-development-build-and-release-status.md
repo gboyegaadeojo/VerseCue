@@ -1,5 +1,7 @@
 # VerseCue development application and release status
 
+Current checkpoint: see [0.5.8 acceptance](47-acceptance-checkpoint-0.5.8.md) and [saved Bible preparation](46-native-saved-bible-preparation.md). The baseline tables below are historical where superseded. Auto, profiles, buffered/resident speech and restricted Windows preparation have since been implemented; full live-service acceptance remains pending.
+
 2026-11-17 UTC. **Development application implemented under the user's later explicit build authorization. P0 PENDING; full specified MVP and live-service release NOT COMPLETE.** This document supersedes earlier statements that application implementation is unauthorized. It does not change any of the 62 functional or 24 non-functional requirements or turn unperformed tests into passes.
 
 ## Authorization and architecture decision
