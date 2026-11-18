@@ -4,6 +4,7 @@ const path=require('node:path');
 const fs=require('node:fs/promises');
 const {pathToFileURL}=require('node:url');
 const {Connector}=require('../core/connector.cjs');
+const {PreparedCatalog}=require('../core/prepared-catalog.cjs');
 const {Session}=require('../core/session.cjs');
 const {LocalSpeech}=require('../core/stt.cjs');
 const store=require('../core/settings.cjs');
@@ -14,7 +15,7 @@ const {Profiles}=require('../core/profiles.cjs');
 const {CaptureLease}=require('../core/capture-lease.cjs');
 const {PowerRecovery}=require('../core/power-recovery.cjs');
 const {GuardedAuto}=require('../core/guarded-auto.cjs');
-const connector=new Connector();const service=new Session(connector);const speech=new LocalSpeech();
+const connector=new Connector();const catalog=new PreparedCatalog(connector);const service=new Session(connector);const speech=new LocalSpeech();
 const automatic=new GuardedAuto(service);
 let preparation,preparationController,suspensionBlocker=null;
 function updateBackgroundCapture(active){if(active&&suspensionBlocker===null)suspensionBlocker=powerSaveBlocker.start('prevent-app-suspension');if(!active&&suspensionBlocker!==null){powerSaveBlocker.stop(suspensionBlocker);suspensionBlocker=null;}}
@@ -114,6 +115,9 @@ async function bootstrap(){
       case 'navigate':return service.navigate(payload?.id,payload?.direction);
       case 'send':return service.send(payload);
       case 'test':try{return await connector.test();}finally{service.notify();}
+      case 'catalog-libraries':return catalog.libraries();
+      case 'catalog-presentations':return catalog.presentations(payload);
+      case 'catalog-cues':return catalog.cues(payload);
       case 'map':return connector.prepare(payload);
       case 'dry-run':preparation.cancel();connector.arm(false);service.configure({dryRun:true,translation:settings.translation});return;
       case 'arm':if(service.recovery?.required)throw new Error('Complete wake connection preflight and resume first');if(payload!==true)throw new Error('Explicit test-target acknowledgment required');if(preparation.busy)throw new Error('Finish or cancel Bible preparation before arming output');connector.arm(true);service.configure({dryRun:false,translation:settings.translation});return;
