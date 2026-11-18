@@ -1,5 +1,5 @@
 'use strict';
-const {app,BrowserWindow,ipcMain,dialog,session,systemPreferences,clipboard,powerSaveBlocker}=require('electron');
+const {app,BrowserWindow,ipcMain,dialog,session,systemPreferences,clipboard,powerSaveBlocker,powerMonitor}=require('electron');
 const path=require('node:path');
 const fs=require('node:fs/promises');
 const {pathToFileURL}=require('node:url');
@@ -12,10 +12,11 @@ const {BiblePreparation}=require('../core/bible-preparation.cjs');
 const {PreparationController}=require('../core/preparation-controller.cjs');
 const {Profiles}=require('../core/profiles.cjs');
 const {CaptureLease}=require('../core/capture-lease.cjs');
+const {PowerRecovery}=require('../core/power-recovery.cjs');
 const connector=new Connector();const service=new Session(connector);const speech=new LocalSpeech();
 let preparation,preparationController,suspensionBlocker=null;
 function updateBackgroundCapture(active){if(active&&suspensionBlocker===null)suspensionBlocker=powerSaveBlocker.start('prevent-app-suspension');if(!active&&suspensionBlocker!==null){powerSaveBlocker.stop(suspensionBlocker);suspensionBlocker=null;}}
-const capture=new CaptureLease({canStart:()=>!service.stopped&&service.mode!=='paused'&&!speech.busy&&!preparation?.busy,onStop:()=>{speech.cancel();updateBackgroundCapture(false);},onChange:value=>{updateBackgroundCapture(value.active);service.capture={...value,backgroundProtected:suspensionBlocker!==null&&powerSaveBlocker.isStarted(suspensionBlocker)};service.notify();}});
+const capture=new CaptureLease({canStart:()=>!service.recovery?.required&&!service.stopped&&service.mode!=='paused'&&!speech.busy&&!preparation?.busy,onStop:()=>{speech.cancel();updateBackgroundCapture(false);},onChange:value=>{updateBackgroundCapture(value.active);service.capture={...value,backgroundProtected:suspensionBlocker!==null&&powerSaveBlocker.isStarted(suspensionBlocker)};service.notify();}});
 function cancelAudio(){capture.cancel();}
 async function prepareBible(reference,translation,guard=()=>true){
   if(!preparationController)throw new Error('Preparation controller is not ready');return preparationController.prepare(reference,translation,guard);
@@ -49,6 +50,8 @@ async function bootstrap(){
   let helperExists=false;try{await fs.access(helper);helperExists=true;}catch{}
   preparation=new BiblePreparation({helper:helperExists?helper:null});
   preparationController=new PreparationController({service,connector,speech:{cancel:cancelAudio},preparation,getTranslation:()=>settings.translation});
+  const recovery=new PowerRecovery({service,connector,cancelAudio,cancelPreparation:()=>preparation.cancel(),revokeApi:()=>privateApi.stop(),getTarget:()=>settings});
+  powerMonitor.on('suspend',()=>recovery.handle('suspend'));powerMonitor.on('resume',()=>recovery.handle('resume'));
   // Optional verified offline resources are local development-package assets,
   // not downloaded or executed automatically during startup.
   const speechDir=path.join(process.resourcesPath,'speech');
@@ -110,7 +113,7 @@ async function bootstrap(){
       case 'test':try{return await connector.test();}finally{service.notify();}
       case 'map':return connector.prepare(payload);
       case 'dry-run':preparation.cancel();connector.arm(false);service.configure({dryRun:true,translation:settings.translation});return;
-      case 'arm':if(payload!==true)throw new Error('Explicit test-target acknowledgment required');if(preparation.busy)throw new Error('Finish or cancel Bible preparation before arming output');connector.arm(true);service.configure({dryRun:false,translation:settings.translation});return;
+      case 'arm':if(service.recovery?.required)throw new Error('Complete wake connection preflight and resume first');if(payload!==true)throw new Error('Explicit test-target acknowledgment required');if(preparation.busy)throw new Error('Finish or cancel Bible preparation before arming output');connector.arm(true);service.configure({dryRun:false,translation:settings.translation});return;
       default:throw new Error('Unknown command');
     }
   });

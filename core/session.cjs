@@ -8,7 +8,7 @@ class Session extends EventEmitter {
   constructor(connector,{clock=()=>performance.timeOrigin+performance.now()}={}) {
     super();this.connector=connector;this.clock=clock;this.mode='confirm';this.stopped=false;this.dryRun=true;this.queue=[];this.history=[];this.events=[];this.generation=0;this.busy=false;this.translation='KJV';this.context=null;this.revisions=new Map();this.lastSend=null;
   }
-  snapshot(){this.expire();return {generation:this.generation,mode:this.mode,stopped:this.stopped,dryRun:this.dryRun,queue:structuredClone(this.queue),history:structuredClone(this.history),events:structuredClone(this.events),busy:this.busy,translation:this.translation,quoteMatching:this.quoteStatus(),capture:this.capture?{...this.capture}:{active:false,ownerId:null},capabilities:{auto:false,arbitraryLookup:false,clear:false},connection:this.connector.status??{state:'offline'}};}
+  snapshot(){this.expire();return {recovery:this.recovery?{...this.recovery}:null,generation:this.generation,mode:this.mode,stopped:this.stopped,dryRun:this.dryRun,queue:structuredClone(this.queue),history:structuredClone(this.history),events:structuredClone(this.events),busy:this.busy,translation:this.translation,quoteMatching:this.quoteStatus(),capture:this.capture?{...this.capture}:{active:false,ownerId:null},capabilities:{auto:false,arbitraryLookup:false,clear:false},connection:this.connector.status??{state:'offline'}};}
   notify(){this.emit('change',this.snapshot());}
   quoteStatus(){return {enabled:this.quoteEnabled===true,...(this.quoteMatcher?.status()??{translation:null,passages:0})};}
   loadQuoteIndex(document,consent){const matcher=new QuoteMatcher(document,{rightsAcknowledged:consent===true});this.invalidate();this.quoteMatcher=matcher;this.quoteEnabled=false;this.log('QUOTE_INDEX_LOADED');this.notify();return this.quoteStatus();}
@@ -16,9 +16,9 @@ class Session extends EventEmitter {
   log(code,state='info',metrics=null){const safe={};for(const key of ['nativeWorkerMs','sttWorkerMs'])if(Number.isFinite(metrics?.[key])&&metrics[key]>=0&&metrics[key]<=120000)safe[key]=Math.round(metrics[key]);this.events.push({id:randomUUID(),at:this.clock(),code,state,...(Object.keys(safe).length?{metrics:safe}:{})});this.events=this.events.slice(-100);}
   invalidate(){this.generation++;this.queue=[];this.context=null;}
   expire(){this.queue=this.queue.filter(c=>c.expiresAt>this.clock());}
-  setMode(mode){if(!['confirm','suggest','paused'].includes(mode))throw new Error('Auto is unavailable until integration and speech acceptance pass');this.invalidate();this.mode=mode;this.log('MODE_CHANGED');this.notify();}
+  setMode(mode){if(!['confirm','suggest','paused'].includes(mode))throw new Error('Auto is unavailable until integration and speech acceptance pass');if(this.recovery?.required&&mode!=='paused')throw new Error('Recheck the connection after wake, then Resume in Confirm');this.invalidate();this.mode=mode;this.log('MODE_CHANGED');this.notify();}
   stop(){this.stopped=true;this.mode='paused';this.invalidate();this.log('EMERGENCY_STOP','warning');this.notify();}
-  resume(){this.stopped=false;this.mode='confirm';this.invalidate();this.log('REARMED_CONFIRM');this.notify();}
+  resume(){if(this.recovery?.required&&(this.recovery.phase!=='resume'||this.connector.status?.state!=='connected'||!this.connector.version))throw new Error('Test the ProPresenter connection after wake before resuming Confirm');this.recovery=null;this.stopped=false;this.mode='confirm';this.invalidate();this.log('REARMED_CONFIRM');this.notify();}
   configure({dryRun=true,translation='KJV'}={}){if(typeof dryRun!=='boolean'||!/^[- A-Z0-9]{2,30}$/.test(translation))throw new Error('Invalid session settings');this.invalidate();if(translation!==this.translation)this.quoteEnabled=false;this.dryRun=dryRun;this.translation=translation;this.log('CONFIG_CHANGED');this.notify();}
   ingest(text,{id=randomUUID(),revision=1,final=true,manual=false,authorized=true}={}) {
     if(this.stopped||(!manual&&this.mode==='paused'))return [];
@@ -50,10 +50,11 @@ class Session extends EventEmitter {
     if(!chapters?.[chapter-1]||verse<1||verse>chapters[chapter-1])throw new Error('Book boundary reached; choose the next book explicitly');
     this.queue=this.queue.filter(item=>item.id!==id);return this.ingest(`${reference.book} ${chapter}:${verse} in KJV`,{manual:true});
   }
-  reset(){this.quoteMatcher=null;this.quoteEnabled=false;this.invalidate();this.revisions.clear();this.history=[];this.stopped=false;this.mode='confirm';this.dryRun=true;this.lastSend=null;this.log('SESSION_RESET');this.notify();}
+  reset(){this.quoteMatcher=null;this.quoteEnabled=false;this.invalidate();this.revisions.clear();this.history=[];this.stopped=false;this.mode=this.recovery?.required?'paused':'confirm';this.dryRun=true;this.lastSend=null;this.log('SESSION_RESET');this.notify();}
   async send(id,{additionalGuard=()=>true,origin='desktop'}={}){
     this.expire();const c=this.queue.find(c=>c.id===id);
     if(!c||this.stopped||this.mode!=='confirm'||this.busy||!c.authorized||c.generation!==this.generation)throw new Error('Send blocked: expired, paused, stopped, busy or invalidated');
+    if(this.recovery?.required)throw new Error('Connection preflight is required after wake');
     if(c.recognition==='quote'&&origin!=='desktop')throw new Error('Quoted passages require confirmation in the desktop app');
     if(c.reference.verse==null||c.reference.valid===false||c.reference.overLimit||c.issues.some(i=>/Invalid|no-show|not supported/.test(i)))throw new Error('Edit this incomplete, prohibited, out-of-bounds or over-limit reference before sending');
     const key=`${c.label}|${c.translation}`;
