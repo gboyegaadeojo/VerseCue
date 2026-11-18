@@ -27,3 +27,23 @@ test('KJV numbering blocks nonexistent verses and bounds both range endpoints',(
 test('unknown translation is not silently assigned KJV numbering',()=>{const r=parse('3 John 1:15 in AMP').references[0];assert.equal(r.numberingSystem,null);assert.ok(r.issues.some(s=>/numbering/.test(s)));});
 test('relative KJV navigation crosses chapter boundaries using numeric metadata',()=>{const context={book:'John',chapter:3,verse:36,translation:'KJV',verified:true,verifiedAt:now};assert.equal(parse('next verse',{context,now}).references[0].label,'John 4:1');context.chapter=4;context.verse=1;assert.equal(parse('previous verse',{context,now}).references[0].label,'John 3:36');});
 test('range review cap includes cross-chapter verses',()=>{assert.equal(parse('John 3:16-4:2').references[0].overLimit,true);assert.equal(parse('John 3:35-4:2').references[0].overLimit,false);});
+
+// SYNTHETIC-TEXT regression cases from the operator's reported preaching forms.
+const preachingForms=[
+['Revelations 1 1','Revelation 1:1'],['Revelaations 1 vs 1','Revelation 1:1'],
+['Revelations 1 and verse 1','Revelation 1:1'],['Revelations 1 starting from verse 1','Revelation 1:1'],
+['Jeremiah 2 vs 5','Jeremiah 2:5'],['Jeremiah two verse five','Jeremiah 2:5'],
+['Jeremiah chapter two and verse five','Jeremiah 2:5'],['Jeremiah 2 beginning at verse 5','Jeremiah 2:5'],
+['Jeremiah 2 from verse 5','Jeremiah 2:5'],['Jeremiah chapter number 2 verse number 5','Jeremiah 2:5'],
+['Gen 1:1','Genesis 1:1'],['Gen. 1:1','Genesis 1:1'],['Genesis1:1','Genesis 1:1'],
+['Rev. 1 v. 1','Revelation 1:1'],['Jer. 2 vs. 5','Jeremiah 2:5'],['Phil 4:19','Philippians 4:19'],
+['1 Cor 13:4','1 Corinthians 13:4'],['First Cor 13 vs 4','1 Corinthians 13:4'],['2 Tim 1:7','2 Timothy 1:7'],
+['Ps. 23 verse 1','Psalm 23:1'],['John ch. 3 vv. 16 through 18','John 3:16-18'],
+['John 3 verses 16 to verse 18','John 3:16-18'],['John 3 starting from verse 16 through verse 18','John 3:16-18'],
+['The gospel according to John chapter three verse sixteen','John 3:16'],
+['Please turn to the book of Revelation chapter one and verse one','Revelation 1:1']
+];
+for(const [text,expected]of preachingForms)test('preaching form: '+text,()=>{const p=parse(text);assert.deepEqual(p.references.map(r=>r.label),[expected]);assert.equal(p.references[0].valid,true);});
+test('transcribed punctuation becomes reviewable chapter/verse, never an Auto-ready guess',()=>{for(const text of ['John 1-1.','Genesis 1.1','Philippians 4-19']){const r=parse(text).references[0];assert.equal(r.valid,true);assert.notEqual(r.verse,null);assert.ok(r.issues.some(i=>/punctuation/.test(i)));}});
+test('reported impossible Philippians transcription is retained as invalid, never guessed as 4:9 or 4:19',()=>{const r=parse('Philippians 4.92').references[0];assert.equal(r.label,'Philippians 4:92');assert.equal(r.valid,false);});
+test('chapter-only explanation asks for missing verse; wrong books are not silently rewritten',()=>{assert.match(parse('Genesis 1').references[0].issues.join(' '),/Verse number missing/);assert.equal(parse('John 1-1').references[0].book,'John');assert.equal(parse('Philippians 419').references[0].valid,false);});

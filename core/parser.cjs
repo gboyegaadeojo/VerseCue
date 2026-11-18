@@ -19,6 +19,9 @@ function normalize(text) {
   s=s.replace(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)\b/g,m=>String(small.indexOf(m)));
   return s.replace(/\b(first|i)\s+(?=samuel|kings|chronicles|corinthians|thessalonians|timothy|peter|john)/g,'1 ').replace(/\b(second|ii)\s+(?=samuel|kings|chronicles|corinthians|thessalonians|timothy|peter|john)/g,'2 ').replace(/\b(third|iii)\s+(?=john)/g,'3 ').replace(/\bpsalms\b/g,'psalm').replace(/\brevelations\b/g,'revelation').replace(/song of solomon/g,'song of songs');
 }
+// Exact common abbreviations and the reported transcription spelling only.
+const aliases={gen:'Genesis',exod:'Exodus',exo:'Exodus',lev:'Leviticus',num:'Numbers',deut:'Deuteronomy',josh:'Joshua',judg:'Judges',ps:'Psalm',psa:'Psalm',prov:'Proverbs',eccl:'Ecclesiastes',isa:'Isaiah',jer:'Jeremiah',lam:'Lamentations',ezek:'Ezekiel',dan:'Daniel',hos:'Hosea',obad:'Obadiah',mic:'Micah',hab:'Habakkuk',zeph:'Zephaniah',zech:'Zechariah',mal:'Malachi',matt:'Matthew',mt:'Matthew',mk:'Mark',lk:'Luke',jn:'John',rom:'Romans',cor:'Corinthians',gal:'Galatians',eph:'Ephesians',phil:'Philippians',col:'Colossians',thess:'Thessalonians',tim:'Timothy',phlm:'Philemon',heb:'Hebrews',jas:'James',pet:'Peter',rev:'Revelation',revelaations:'Revelation'};
+function citationForms(text){let s=text.replace(/\b([123])(?=[a-z])/g,'$1 ');for(const [short,full]of Object.entries(aliases))s=s.replace(new RegExp('\\b'+short+'\\.?(?=\\s*\\d)','g'),full.toLowerCase()+' ');return s.replace(/\b(chapter|verse)\s+number\s+/g,'$1 ').replace(/\b(?:ch|chap)\.?\s*(?=\d)/g,'chapter ').replace(/\b(?:vs|vv|v)\.?\s*(?=\d)/g,'verse ').replace(/\b(?:and\s+)?(?:(?:starting|beginning|start|begin)\s+(?:from|at)|from|at)\s+(?=verses?\b)/g,'').replace(/(\d)\s+and\s+(?=verses?\b)/g,'$1 ').replace(/([a-z])(?=\d)/g,'$1 ');}
 const bookPattern = names.slice().sort((a,b)=>b.length-a.length).map(n=>n.toLowerCase()).join('|');
 function label(r) { return `${r.book} ${r.chapter}${r.verse==null?'':`:${r.verse}${r.endChapter&&r.endChapter!==r.chapter?`-${r.endChapter}:${r.endVerse}`:r.endVerse&&r.endVerse!==r.verse?`-${r.endVerse}`:''}`}`; }
 function validate(r, bounds) {
@@ -36,14 +39,14 @@ function validate(r, bounds) {
 }
 function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslation='KJV'}={}) {
   if(typeof text!=='string'||text.length>8192) return {references:[],issues:['Invalid transcript size']};
-  let s=normalize(text); const corrected=/\b(sorry|i meant|rather|correction|not)\b/.test(s);
+  let s=normalize(citationForms(normalize(text))); const corrected=/\b(sorry|i meant|rather|correction|not)\b/.test(s);
   if(/\bnot\b/.test(s)&&/\bi meant\b/.test(s)) s=s.split(/\bnot\b/)[0];
   else if(/\b(sorry|rather|correction)\b/.test(s)) s=s.split(/\b(?:sorry|rather|correction)\b/).at(-1);
   const translationAlias={'NEW KING JAMES':'NKJV','KING JAMES':'KJV','AMPLIFIED CLASSIC':'AMPC','AMPLIFIED':'AMP','THE MESSAGE':'MSG','MESSAGE':'MSG'};
   const translationPhrase=s.match(/\b(new king james|king james|kjv|nkjv|niv|asv|esv|ampc|amp|amplified classic|amplified|the message|msg)\b/)?.[1]?.toUpperCase()??null;
   const translation=translationAlias[translationPhrase]??translationPhrase;
   const references=[]; const issues=[];
-  const re=new RegExp(`(?<![a-z0-9])(${bookPattern})\\s+(?:chapter\\s+)?(\\d+)(?:\\s*:\\s*|\\s+(?:verses?\\s+)?)(\\d+)(?:\\s*(?:through|to|-)\\s*(?:(\\d+)(?:\\s*:\\s*|\\s+(?:verse\\s+)?))?(\\d+))?`,'g');
+  const re=new RegExp(`(?<![a-z0-9])(${bookPattern})\\s+(?:chapter\\s+)?(\\d+)(?:\\s*[:.\\-]\\s*|\\s+(?:verses?\\s+)?)(\\d+)(?:\\s*(?:through|to|-)\\s*(?:verses?\\s+)?(?:(\\d+)(?:\\s*:\\s*|\\s+(?:verse\\s+)?))?(\\d+))?`,'g');
   let m;
   while((m=re.exec(s))) {
     if(/\b[1-9]\s+$/.test(s.slice(Math.max(0,m.index-3),m.index)) && !/^\d/.test(m[1])) {issues.push('Invalid or ambiguous book ordinal');continue;}
@@ -77,7 +80,8 @@ function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslat
   for(const r of references) {
     const selectedBounds=bounds??numbering(r.translation??(r.relative?context?.translation:null)??defaultTranslation);
     r.issues=validate(r,selectedBounds);r.valid=r.issues.length===0;r.numberingSystem=selectedBounds===kjvBounds?'KJV':selectedBounds?'provided':null;
-    if(r.verse==null)r.issues.push('Chapter-only reference needs review');
+    if(r.verse==null)r.issues.push('Verse number missing or not understood. Enter the full book, chapter and verse.');
+    if(r.verse!=null&&new RegExp('\\b'+r.chapter+'\\s*[.\\-]\\s*'+r.verse+'\\b').test(s))r.issues.push('Chapter/verse punctuation interpreted; confirm against the spoken reference.');
     if(!selectedBounds)r.issues.push('Translation numbering requires verified ProPresenter preparation');
     let rangeLength=r.endVerse&&(!r.endChapter||r.endChapter===r.chapter)?r.endVerse-r.verse+1:1;
     if(r.endChapter&&r.endChapter!==r.chapter&&selectedBounds&&r.valid){rangeLength=(selectedBounds[r.book][r.chapter-1]-r.verse+1)+r.endVerse;for(let chapter=r.chapter+1;chapter<r.endChapter;chapter++)rangeLength+=selectedBounds[r.book][chapter-1];}
