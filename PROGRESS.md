@@ -3,7 +3,7 @@
 Updated: 2026-11-18 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-WORKING - User authorized public repository for free standard Actions; all384history blobs scanned for private-path/credential patterns (zero findings), visibility changed PUBLIC, Mac run44224691206 compiled CPU speech but failed because Electron runtime was not explicitly installed. Native build fix follows separately. Citation forms/abbreviations/punctuation and clearer missing-verse text implemented on fix/preaching-reference-forms;199tests passed. Noisy user John quotation already matches with enabled index; inspector now exposes quote readiness. User requests full application and smoothness before ProPresenter tests: no host access/output during this build phase.
+WORKING - PRs #6 (citation forms), #7 (Mac runtime build), #8 (smoothness), #9 (translations/named saved-cue actual-output setup) and #10 (offline IBM Plex Sans) merged. Version0.5.5 Windows and Apple Silicon Mac prerelease assets are published, matching checksums verified.212tests passed. Windows131manifest files match source and packaged desktop/font/200%/smoothness/AMP trigger/background/Auto/recovery checks passed. Native Mac CI compiled CPU speech, verified ad-hoc signature and passed packaged workspace;36app source files match after EOL normalization. README links being updated via focused docs PR. User defers ProPresenter access/tests until build work is ready; no host/microphone/output accessed during this phase. Full application is NOT declared complete: arbitrary-passage route, real recognition accuracy, Mac/MOTU and service acceptance remain pending.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -92,7 +92,7 @@ DATA-01/02: user supplied IFC Sunday-service YouTube source. Requested start1:18
 - Windows/macOS viability and representative measured turnaround.
 
 ## Exact next action
-Finish citation PR validation/merge, fix native Mac runtime installation in a separate PR and rerun on public standard runner. Then implement smoothness and operator-friendly actual prepared-output setup as focused PRs; package/release new application changes. Keep arbitrary-passage, device and service acceptance honest; no ProPresenter test now.
+Merge current-platform download/docs update and verify links. Continue full-application readiness/onboarding and integration investigation without accessing ProPresenter under current user deferral. Arbitrary Bible lookup/output cannot be claimed proven from saved cues; installed-host evidence is required before that gate can pass. No repeated general build approval needed.
 
 ## Checkpoints and audit
 - 0.2.5 publication: reviewed source/tests/redacted evidence committed and pushed to private gboyegaadeojo/VerseCue main at b69280a. No private audio/transcripts/models/binaries staged.0.2.6 continuation adds generation-scoped connector reads/mappings/dispatch and an explicitly selected resident CPU worker with memory WAV requests, random loopback route, owned process cancellation and90second idle stop. Actual12second fixture requests8,015/6,825ms produced transcripts and worker shutdown was verified; no live latency or accuracy pass.129tests/source desktop smoke passed.0.2.6 packaging underway; final source/package integrity and resident packaged test remain next.

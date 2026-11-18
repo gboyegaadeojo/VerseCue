@@ -8,18 +8,18 @@ VerseCue listens to an authorized pastor audio feed, identifies Bible references
 
 ## Download
 
-**Current development version: 0.5.1.** These are supervised-test builds, not an approved live-service release.
+**Current development version: 0.5.5.** These are supervised-test builds, not an approved live-service release.
 
 | Computer | Download | Status |
 |---|---|---|
-| Windows, Intel/AMD 64-bit | [Download Windows ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.5.1/VerseCue-0.5.1-win32-x64.zip) | Desktop, offline speech, minimized operation and guarded-Auto development checks passed |
-| Mac, Apple Silicon (M1/M2/M3/M4) | [Mac build and download status](https://github.com/gboyegaadeojo/VerseCue/releases/tag/v0.5.1) | Native public-runner build in progress; no Mac binary is published until its checks pass |
+| Windows, Intel/AMD 64-bit | [Download Windows ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.5.5/VerseCue-0.5.5-win32-x64.zip) | Desktop, offline speech, minimized operation and guarded-Auto development checks passed |
+| Mac, Apple Silicon (M1/M2/M3/M4) | [Download Mac Apple Silicon ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.5.5/VerseCue-0.5.5-darwin-arm64.zip) | Native CPU speech build, local signature verification and packaged workspace check passed; church-device/ProPresenter acceptance pending |
 
-[All release files and checksums](https://github.com/gboyegaadeojo/VerseCue/releases/tag/v0.5.1). This repository is currently public; release downloads are available without repository membership. Do not use the automatically generated source-code ZIP as the installed application.
+[All release files and checksums](https://github.com/gboyegaadeojo/VerseCue/releases/tag/v0.5.5). This repository is currently public; release downloads are available without repository membership. Do not use the automatically generated source-code ZIP as the installed application.
 
 Windows: extract the **entire ZIP**, then open **VerseCue.exe** inside the extracted folder. Keep its supporting files together. The Windows package includes the verified local speech engine and model. These builds are not signed by a trusted software publisher.
 
-Mac: the release page will identify the available architecture and exact testing status. A Windows EXE cannot run on macOS. Developer ID signing/notarization and Mac microphone/ProPresenter field acceptance are not complete.
+Mac: extract the ZIP and move **VerseCue.app** to Applications. The package is for **Apple Silicon (M1/M2/M3/M4)** and includes the local speech engine/model. It is ad-hoc signed, not Developer ID signed or notarized; Gatekeeper may block it. Mac microphone/MOTU and ProPresenter field acceptance are not complete. Intel Mac builds are not provided.
 
 ## What it does
 
@@ -37,7 +37,7 @@ Mac: the release page will identify the available architecture and exact testing
 2. In **Settings**, choose the intended ProPresenter connection, pastor audio device/channel and installed Bible translation.
 3. Start in **dry run**, authorize the selected feed and click **Start listening** in Audio & recognition.
 4. Review a detected reference, or enter one manually. Prepare and inspect the exact passage in ProPresenter.
-5. For an authorized disconnected test, verify the saved cue mapping and arm test output in **Settings / Output**. Then deliberately confirm a passage.
+5. For an authorized disconnected test, use **Load saved libraries**, choose the saved presentation/cue by name, select its exact translation, verify the mapping and arm test output in **Settings / Output**. Then deliberately confirm a passage.
 
 **Preparing a passage and showing it are separate actions.** A successful request or matching readback does not prove what the congregation or livestream sees. Emergency Stop blocks further sends; ProPresenter remains available for manual operation.
 
@@ -66,6 +66,12 @@ If no meter movement appears, check the chosen device/channel and OS microphone 
 | Guarded Auto | Must be deliberately acknowledged. Eligible explicit references can simulate, or trigger complete saved cues separately verified for Auto on the armed local test target. It is not unrestricted automatic Bible lookup. |
 
 Dry run is an output safety state, separate from the selected recognition mode. Restarting does not silently enable Auto or microphone capture.
+
+## Spoken references and translations
+
+Examples supported: **Revelations 1 vs 1**, **Revelation 1 and verse 1**, **Revelation 1 starting from verse 1**, **Jeremiah 2 vs 5**, **Gen 1:1**, and **John 5:10 in the Amplified version**. AMP and AMPC remain distinct. Punctuation such as John1-1 produces a reference for review; impossible numbers are never guessed into another verse. A wrong recognized book still needs correction.
+
+In **Settings / Output**, choose the exact translation for each saved-cue mapping. ProPresenter must have that edition installed; VerseCue neither downloads paid Bibles nor substitutes KJV. The inspector shows whether optional quoted-wording matching has an enabled local index.
 
 ## Current limits
 
@@ -98,7 +104,7 @@ npm run test:desktop
 
 [Contributing and PR workflow](CONTRIBUTING.md) | [Current progress](PROGRESS.md) | [Implementation coverage](docs/implementation-coverage.json) | [Setup and release evidence](docs/22-development-build-and-release-status.md) | [Workspace guide](docs/38-figma-control-workspace.md).
 
-Application improvements use focused pull requests so changes can be reviewed and reverted independently. Merging a PR updates source; it does not automatically replace an already downloaded app. Download a newer build only when its application contents/version change. Version 0.5.1 already contains merged PRs #2-4.
+Application improvements use focused pull requests so changes can be reviewed and reverted independently. Merging a PR updates source; it does not automatically replace an already downloaded app. Download a newer build only when its application contents/version change. Version 0.5.5 includes merged PRs #2-10, including expanded citation forms, smoother updates, translated saved-cue browsing and offline IBM Plex Sans.
 
 ## Project documentation
 
