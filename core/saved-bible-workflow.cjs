@@ -28,10 +28,10 @@ class SavedBibleWorkflow {
    if(created.length!==1||!guard())throw Error('New saved copy was not identified; inspect ProPresenter before retrying');
    const item=created[0],inspected=await this.connector.inspect(item.uuid),p=inspected.p,slides=inspected.slides;
    if(!guard()||p.id?.uuid!==item.uuid||p.destination!=='presentation'||p.has_timeline||!String(p.id?.name??'').endsWith('('+translation+')')||!slides.length||slides.length>100||slides.some(s=>!s.enabled||typeof s.text!=='string'||!s.text.trim()||!contained(s.label,requested,translation)))throw Error('Saved passage identity/translation/cues could not be verified; review the copy manually');
-   const passagePlan=translation==='KJV'?planSavedPassage({p,slides},{uuid:item.uuid,reference,translation}):null;
+   const passagePlan=planSavedPassage({p,slides},{uuid:item.uuid,reference,translation});
    const activeAfter=outputKey(await this.connector.read('/v1/presentation/slide_index'));if(!guard()||activeAfter!==activeBefore)throw Error('Output changed during preparation; inspect ProPresenter and do not send automatically');
    this.service.log('NATIVE_BIBLE_COPY_SAVED_REVIEW');this.service.notify();
-   return {state:'saved-copy-needs-operator-review',reference,translation,library,uuid:item.uuid,name:item.name,cueCount:slides.length,coverageComplete:passagePlan?.coverageComplete??false,cueIndices:passagePlan?.cueIndices??null,bibleTextVerified:false,clippingWarning:receipt.clippingWarning===true,workerElapsedMs:receipt.workerElapsedMs,preparedGeneration,outputRequests:0,outputObserved:false,formattingVerified:false};
+   return {state:'saved-copy-needs-operator-review',reference,translation,library,uuid:item.uuid,name:item.name,cueCount:slides.length,coverageComplete:passagePlan.coverageComplete,numberingVerified:passagePlan.numberingVerified,coverageBasis:passagePlan.coverageBasis,cueIndices:passagePlan.cueIndices,bibleTextVerified:false,clippingWarning:receipt.clippingWarning===true,workerElapsedMs:receipt.workerElapsedMs,preparedGeneration,outputRequests:0,outputObserved:false,formattingVerified:false};
   }finally{this.busy=false;}
  }
 }
