@@ -1,6 +1,7 @@
 'use strict';
 function assessAuto(service,candidates,evidence={},{allowBusy=false}={}){
   if(service.mode!=='auto'||service.stopped||service.recovery?.required)return {eligible:false,reason:'Auto is paused or not enabled'};
+  if(service.operationOwner)return {eligible:false,reason:'A passage operation is in progress'};
   if(service.busy&&!allowBusy)return {eligible:false,reason:'Another command is already in flight'};
   if(!service.capture?.active)return {eligible:false,reason:'No authorized audio session'};
   if(evidence.source!=='local-speech'||evidence.final!==true||evidence.endEvidence!=='silence'||evidence.droppedSamples!==0)return {eligible:false,reason:'Completed, loss-free speech with silence evidence is required'};

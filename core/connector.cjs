@@ -27,17 +27,28 @@ class Connector {
     if(!mapping.version)throw new Error('Test the target first');this.mappings.set(`${reference}|${translation}`,mapping);
     return {reference,translation,cue,prepared:true};
   }
-  async preparePassage({uuid,reference,translation,expectedFingerprint,verified,guard=()=>true}){
+  async preparePassage({uuid,reference,translation,expectedFingerprint,verified,partIndex=0,expectedCurrent=null,guard=()=>true}){
     if(verified!==true)throw Error('Verify the passage text, edition and appearance before confirmation');
     const generation=this.generation,base=this.base,version=this.version?.host_description;
     if(!version||!guard())throw Error('Passage verification canceled or connection not tested');
     const source=await this.inspect(uuid);
     const plan=require('./bible-passage-plan.cjs').planSavedPassage(source,{uuid,reference,translation});
     if(plan.fingerprint!==expectedFingerprint)throw Error('Passage changed after review; prepare it again');
-    if(!plan.singleCue)throw Error('This passage spans multiple slides; complete passage navigation is not ready yet');
+    if(!Number.isInteger(partIndex)||partIndex<0||partIndex>=plan.cueIndices.length)throw Error('Invalid passage part');
+    let previous=null;
+    if(partIndex>0){const index=plan.cueIndices[partIndex-1];if(expectedCurrent?.uuid!==uuid||expectedCurrent?.index!==index)throw Error('Continuation requires the preceding verified passage part');previous={uuid,index,text:source.slides[index].text};}
+    else if(expectedCurrent!==null)throw Error('Unexpected previous passage part');
     if(generation!==this.generation||base!==this.base||version!==this.version?.host_description||!guard())throw Error('Passage verification canceled');
-    this.mappings.set(`${reference}|${translation}`,{uuid,cue:plan.cueIndices[0],reference,translation,autoVerified:false,fingerprint:plan.fingerprint,version});
-    return {reference,translation,prepared:true,cueCount:plan.cueIndices.length};
+    this.mappings.set(`${reference}|${translation}`,{uuid,cue:plan.cueIndices[partIndex],reference,translation,autoVerified:false,fingerprint:plan.fingerprint,version,expectedCurrent:previous,passagePart:{index:partIndex,count:plan.cueIndices.length}});
+    return {reference,translation,prepared:true,cueCount:plan.cueIndices.length,partIndex};
+  }
+  async assertCurrent(expected,guard=()=>true){
+    const generation=this.generation,base=this.base;
+    if(!expected||typeof expected.uuid!=='string'||!Number.isInteger(expected.index)||typeof expected.text!=='string')throw Error('Current output identity is incomplete');
+    const [index,slide]=await Promise.all([this.read('/v1/presentation/slide_index'),this.read('/v1/status/slide')]);
+    const clean=text=>String(text??'').replace(/\s+/g,' ').trim();
+    if(generation!==this.generation||base!==this.base||!guard())throw Error('Current output check canceled');
+    if(index.presentation_index?.presentation_id?.uuid!==expected.uuid||index.presentation_index?.index!==expected.index||clean(slide.current?.text)!==clean(expected.text))throw Error('Current output changed; passage continuation canceled');
   }
   async send(candidate,{dryRun,guard,automatic=false}){
     if(dryRun){if(!guard())throw new Error('Send canceled');return {state:'simulated',networkRequests:0};}
@@ -50,6 +61,7 @@ class Connector {
     if(v.host_description!==m.version)throw new Error('ProPresenter version changed; retest and remap');
     const {p,slides}=await this.inspect(m.uuid);
     if(fingerprint(p)!==m.fingerprint)throw new Error('Presentation changed; verify a new mapping');
+    if(m.expectedCurrent)await this.assertCurrent(m.expectedCurrent,guard);
     if(generation!==this.generation||base!==this.base||!this.armed||!guard())throw new Error('Send canceled before dispatch');
     let r;
     try{r=await this.fetch(`${this.base}/v1/presentation/${m.uuid}/${m.cue}/trigger`,{redirect:'error',signal:AbortSignal.timeout(2000)});}catch{this.armed=false;return {state:'uncertain',retry:false};}
@@ -64,7 +76,7 @@ class Connector {
         const [index,slide]=await Promise.all([this.read('/v1/presentation/slide_index',{timeoutMs}),this.read('/v1/status/slide',{timeoutMs})]);checks++;
         if(generation!==this.generation||base!==this.base||!this.armed||!guard())break;
         const match=index.presentation_index?.presentation_id?.uuid===m.uuid&&index.presentation_index?.index===m.cue&&clean(slide.current?.text)===clean(slides[m.cue].text);
-        if(match)return {state:'readback-matched',outputObserved:false,retry:false,readbackChecks:checks,readbackElapsedMs:Math.round(performance.now()-readbackStart)};
+        if(match)return {state:'readback-matched',outputObserved:false,retry:false,readbackChecks:checks,readbackElapsedMs:Math.round(performance.now()-readbackStart),presentation:{uuid:m.uuid,index:m.cue,fingerprint:m.fingerprint},part:m.passagePart??null};
         const wait=Math.min(100,deadline-performance.now());if(wait>0)await new Promise(resolve=>setTimeout(resolve,wait));
       }
     }catch{}

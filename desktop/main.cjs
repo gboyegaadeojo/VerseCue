@@ -28,7 +28,7 @@ function cancelPreparation(){if(passageCoordinator)passageCoordinator.cancel();e
 async function ownedPreparation(event,operation){if(preparationOwner)throw new Error('Another window is preparing a Bible passage');const owner={id:event.sender.id};preparationOwner=owner;try{return await operation();}finally{if(preparationOwner===owner)preparationOwner=null;}}
 function cancelAudio(){automatic.cancel();capture.cancel();}
 async function prepareBible(reference,translation,guard=()=>true){
-  if(!preparationController)throw new Error('Preparation controller is not ready');if(savedBible?.busy)throw new Error('Finish the saved-copy preparation first');return preparationController.prepare(reference,translation,guard);
+  if(!preparationController)throw new Error('Preparation controller is not ready');if(savedBible?.busy||passageCoordinator?.busy)throw new Error('Finish the passage preparation first');return preparationController.prepare(reference,translation,guard);
 }
 const privateApi=new LocalControlAPI(service,{onStop:()=>{cancelAudio();cancelPreparation();connector.arm(false);service.stop();},onPrepare:prepareBible,onRevoke:()=>cancelPreparation(),onEvent:code=>{service.log(code);service.notify();}});
 let settings,settingsFile,profiles,mainWindow,compactWindow,healthTimer,healthBusy=false;const windows=new Set();
@@ -129,8 +129,9 @@ async function bootstrap(){
       case 'send':return service.send(payload);
       case 'test':try{return await connector.test();}finally{service.notify();}
       case 'cancel-passage-preparation':cancelPreparation();return true;
+      case 'advance-passage':automatic.cancel();return ownedPreparation(event,()=>passageCoordinator.advance(payload?.activeToken));
       case 'confirm-passage':automatic.cancel();return ownedPreparation(event,()=>passageCoordinator.confirm(payload?.reviewToken,{verified:payload?.verified===true,acknowledgeTestOutput:payload?.acknowledgeTestOutput===true}));
-      case 'prepare-passage-candidate':return ownedPreparation(event,()=>passageCoordinator.prepare(payload?.id,{acknowledgeFocusChange:payload?.acknowledgeFocusChange===true,acknowledgeCreateCopy:payload?.acknowledgeCreateCopy===true}));
+      case 'prepare-passage-candidate':automatic.cancel();return ownedPreparation(event,()=>passageCoordinator.prepare(payload?.id,{acknowledgeFocusChange:payload?.acknowledgeFocusChange===true,acknowledgeCreateCopy:payload?.acknowledgeCreateCopy===true}));
       case 'resolve-candidate':return referencePassages.findCandidate(service,payload?.id);
       case 'catalog-libraries':return catalog.libraries();
       case 'catalog-presentations':return catalog.presentations(payload);
