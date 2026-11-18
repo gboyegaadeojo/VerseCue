@@ -1,0 +1,11 @@
+# Workspace smoothness
+
+2026-11-18. User requested smoother application behavior during the broader full-application build. Version0.5.3 removes the half-second full-card render loop. A lightweight expiry ticker updates only changed countdown text; queue expiry still triggers a full state render so expired controls are removed/disabled. Repeated unchanged state snapshots skip DOM writes while still updating the local state reference. Audio health text changes only when its value changes, reducing high-frequency text replacement during input frames. Recognition now has explicit processing feedback and transcript aria-busy state, separate from listening/capture health. Starting an input has clear progress feedback.
+
+The existing main-process freshness/Stop/ownership/Auto/connector checks are unchanged and are never deferred through animation frames. No rAF batching can delay authorization revocation in a minimized window. Recognition/capture still run under the existing bounded buffers. This is a UI responsiveness change, not a measured improvement in speech inference latency or recognition accuracy.
+
+Quiet100ms color feedback applies only when reduced motion is not requested; no layout/control-position animations or flashing status were added. Desktop canvas and inspector use thin scrollbars. Queue empty state is explicit. Existing button sizes, focus outlines, selection and separate prepare/show controls remain.
+
+The own-Electron test `scripts/test-workspace-smoothness.cjs` checks that stable reference/source/translation/quote text has zero DOM mutations during a2.1second idle sample, while expiry counts down and focused input/caret selection remains intact. It also checks navigation and Stop. Existing desktop/workspace/Auto tests and199regressions remain part of verification. No microphone or ProPresenter is accessed by this responsiveness test. Real booth usability/screen-reader/hardware acceptance remains pending.
+
+This improvement is independently reviewable/revertible from citation corrections (PR #6) and native Mac build recovery (PR #7). Full actual-output workflow development continues; these milestones do not complete arbitrary-passage or service acceptance.
