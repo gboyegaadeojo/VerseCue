@@ -14,7 +14,7 @@ All items below are necessary for the stated end-to-end behavior or its original
 
 | ID | Fix / acceptance outcome | Draft PR status |
 |---|---|---|
-| RF-01 | One reference-driven coordinator connects detection, resolution, preparation, readiness, Confirm/Auto, dispatch and readback. No per-reference library/presentation/cue setup. | Partial: normal coordinator/Confirm/ordered continuation and opt-in saved-detection preparation implemented; automatic arbitrary preparation/Auto/full route acceptance pending |
+| RF-01 | One reference-driven coordinator connects detection, resolution, preparation, readiness, Confirm/Auto, dispatch and readback. No per-reference library/presentation/cue setup. | Partial: normal coordinator/Confirm/ordered continuation and opt-in saved-detection preparation implemented; explicit-session native preparation of detected missing passages implemented on the restricted route; arbitrary Auto/full route acceptance pending |
 | RF-02 | Load arbitrary requested references/ranges through ProPresenter's real Bible with the installed edition. Fail visibly on unsupported host/build/route; never substitute a presentation engine or fabricate an API endpoint. | Restricted personal Windows21.4.2 view/edition/new-copy preparations passed; clipping, latency, full output and other routes remain pending |
 | RF-03 | Verify usable Windows, macOS and same-PC/LAN capability combinations. A remote HTTP connection does not imply remote native Bible control. | Pending platform/route evidence; do not claim parity |
 | RF-04 | Manage any necessary internal saved presentation, reuse unchanged verified copies, handle renamed/duplicate/stale copies and bound storage. No manual saving each passage; no automatic deletion without authorization. | Exact-copy discovery/reuse and verified native creation implemented; 100 native-copy attempts per run and explicit duplicate review implemented; global retention/full lifecycle acceptance pending |
@@ -120,3 +120,7 @@ Normal Confirm preparation now retains an already active authorized input while 
 ## Cross-window citation checkpoint
 
 Bounded citation fragments now assemble through the normal recognition and passage-review pipeline, retaining original audio age and requiring Confirm. Incomplete/partial references cannot become actionable candidates, and manual/input/lifecycle changes cancel fragment memory. 336 module tests and source synthetic desktop regressions pass. See [grammar, continuity rules and remaining acceptance](57-cross-window-citation-stabilization.md); full RF13 and original speech quality/latency/field exits are not marked complete.
+
+## Consented detected-native preparation
+
+An explicit Settings / Output session choice now lets Confirm detections create missing Bible copies through the same coordinator without another Prepare click. It discloses focus/copy effects, binds consent to the granting window and target, retains existing input and sends no output. Ordinary preaching preserves running work; new reference epochs cancel it. 341 module tests and synthetic source workflow/minimization/revocation tests pass; real-helper reliability, latency, clipping, platform and service acceptance remain pending. See [operation, safeguards and evidence](58-detected-missing-passage-preparation.md).

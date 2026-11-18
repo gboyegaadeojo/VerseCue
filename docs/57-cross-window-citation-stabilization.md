@@ -19,7 +19,7 @@ An incomplete citation displays **Waiting for the rest of the Bible reference** 
 | John chapter three / God is love verse sixteen | No assembly |
 | John chapter three / sixteen | No assembly: the verse marker was not supplied |
 
-The assembled card shows the source fragments and a review warning. No assembled reference Auto-sends, including one introduced by read/show. Existing opt-in saved-passage preparation can prepare its review in Confirm; creating a missing passage still needs the normal explicit native preparation consent. Appearance, translation and authorized target checks remain required before output. Partial STT results never create candidates.
+The assembled card shows the source fragments and a review warning. No assembled reference Auto-sends, including one introduced by read/show. Existing opt-in saved-passage preparation can prepare its review in Confirm; creating a missing passage needs explicit native consent, either for manual Prepare or the later [per-session detected-passage option](58-detected-missing-passage-preparation.md). Appearance, translation and authorized target checks remain required before output. Partial STT results never create candidates.
 
 ## Continuity and lifetime
 

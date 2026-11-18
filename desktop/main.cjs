@@ -49,13 +49,13 @@ function handler(name,callback,{withEvent=false}={}){ipcMain.handle(name,async(e
 function createWindow(compact=false){
   const win=new BrowserWindow({width:compact?450:1280,height:compact?630:900,minWidth:compact?360:800,minHeight:550,title:'VerseCue',backgroundColor:'#10151d',show:false,alwaysOnTop:compact,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,backgroundThrottling:false}});
   windows.add(win);win.setMenuBarVisibility(false);win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('will-navigate',e=>e.preventDefault());const captureOwnerId=win.webContents.id;
-  const releaseUnavailableOwner=code=>{if(!capture.owns(captureOwnerId)&&preparationOwner?.id!==captureOwnerId&&reviewOwnerId!==captureOwnerId)return;cancelAudio();cancelPreparation();privateApi.stop().catch(()=>{});connector.arm(false);service.setMode('paused');service.log(code,'warning');service.notify();};
+  const releaseUnavailableOwner=code=>{if(!capture.owns(captureOwnerId)&&preparationOwner?.id!==captureOwnerId&&reviewOwnerId!==captureOwnerId&&!referencePreparation?.owns(captureOwnerId))return;cancelAudio();cancelPreparation();privateApi.stop().catch(()=>{});connector.arm(false);service.setMode('paused');service.log(code,'warning');service.notify();};
   win.webContents.on('render-process-gone',()=>releaseUnavailableOwner('AUDIO_OWNER_RENDERER_GONE'));
   win.webContents.on('did-start-navigation',details=>{if(details.isMainFrame)releaseUnavailableOwner('AUDIO_OWNER_RELOADED');});
   win.on('closed',()=>{releaseUnavailableOwner('AUDIO_OWNER_CLOSED');windows.delete(win);if(compact)compactWindow=null;});win.once('ready-to-show',()=>win.show());win.loadURL(ui+(compact?'?compact=1':''));return win;
 }
 let enforcingSafeCapture=false;
-function update(){if(!enforcingSafeCapture&&capture.snapshot().active&&(service.stopped||service.mode==='paused'||service.recovery?.required)){enforcingSafeCapture=true;try{cancelAudio();}finally{enforcingSafeCapture=false;}}for(const win of windows)if(!win.isDestroyed())win.webContents.send('state-update',service.snapshot());}
+function update(){if(referencePreparation)service.referencePreparation=referencePreparation.status();if(!enforcingSafeCapture&&capture.snapshot().active&&(service.stopped||service.mode==='paused'||service.recovery?.required)){enforcingSafeCapture=true;try{cancelAudio();}finally{enforcingSafeCapture=false;}}for(const win of windows)if(!win.isDestroyed())win.webContents.send('state-update',service.snapshot());}
 service.on('change',update);
 async function choose(kind){
   if(speech.busy)throw new Error('Stop recognition before changing speech files');
@@ -73,7 +73,7 @@ async function bootstrap(){
   preparationController=new PreparationController({service,connector,speech:{cancel:cancelAudio},cancelRecognition:()=>{resetSpeechStabilization();speech.cancel();},preparation,getTranslation:()=>settings.translation});
   savedBible=new SavedBibleWorkflow({service,connector,catalog,controller:preparationController});
   passageCoordinator=new PassageCoordinator({service,connector,resolver:referencePassages,savedBible,onChange:value=>{service.passagePreparation=value;service.notify();}});
-  referencePreparation=new ReferencePreparation({service,coordinator:passageCoordinator,prepare:(id,event)=>ownedPreparation(event,()=>passageCoordinator.prepare(id)),onChange:value=>{service.referencePreparation=value;service.notify();}});
+  referencePreparation=new ReferencePreparation({service,coordinator:passageCoordinator,nativeReadiness:()=>savedBible.readiness(),prepare:(id,event,options)=>ownedPreparation(event,()=>passageCoordinator.prepare(id,options)),onChange:value=>{service.referencePreparation=value;service.notify();}});
   const recovery=new PowerRecovery({service,connector,cancelAudio,cancelPreparation:()=>cancelPreparation(),revokeApi:()=>privateApi.stop(),getTarget:()=>settings});
   powerMonitor.on('suspend',()=>recovery.handle('suspend'));powerMonitor.on('resume',()=>recovery.handle('resume'));
   // Optional verified offline resources are local development-package assets,
@@ -123,9 +123,9 @@ async function bootstrap(){
     switch(command){
       case 'ingest':{if(typeof payload?.text!=='string')throw new Error('Invalid reference');resetSpeechStabilization();if(preparation.busy||savedBible?.busy||passageCoordinator?.busy||passageCoordinator?.review||passageCoordinator?.active)cancelPreparation();const candidates=await service.ingestChecked(payload.text,{manual:true});referencePreparation.consider(candidates,event);return candidates;}
       case 'audio-loss':{if(!capture.owns(event.sender.id)||!['overflow','stale','clipping','capture-gap'].includes(payload?.reason)||!Number.isSafeInteger(payload.samples)||payload.samples<1)throw Error('Invalid audio discontinuity');resetSpeechStabilization();automatic.cancel();cancelPreparation();service.invalidate();if(service.mode==='auto'){connector.arm(false);service.setMode('paused');}service.log('AUDIO_LOSS_CONTEXT_RESET','warning');service.notify();return true;}
-      case 'reference-preparation':if(service.stopped||service.recovery?.required)throw Error('Resume Confirm before enabling preparation');return referencePreparation.configure(payload);
+      case 'reference-preparation':if(service.stopped||service.recovery?.required)throw Error('Resume Confirm before enabling preparation');return referencePreparation.configure(payload,event.sender.id);
       case 'mode':cancelAudio();cancelPreparation();return service.setMode(payload);
-      case 'enable-auto':if(preparation.busy||savedBible?.busy)throw new Error('Finish Bible preparation before enabling Auto');resetSpeechStabilization();automatic.cancel();speech.cancel();return service.enableAuto({acknowledged:payload?.acknowledged===true});
+      case 'enable-auto':if(preparation.busy||savedBible?.busy||passageCoordinator?.busy)throw new Error('Finish Bible preparation before enabling Auto');referencePreparation.configure(false);resetSpeechStabilization();automatic.cancel();speech.cancel();return service.enableAuto({acknowledged:payload?.acknowledged===true});
       case 'stop':cancelAudio();cancelPreparation();connector.arm(false);return service.stop();
       case 'resume':cancelPreparation();return service.resume();
       case 'reset':cancelAudio();cancelPreparation();connector.arm(false);return service.reset();
