@@ -13,9 +13,9 @@ VerseCue listens to an authorized pastor audio feed, identifies Bible references
 | Computer | Download | Status |
 |---|---|---|
 | Windows, Intel/AMD 64-bit | [Download Windows ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.5.1/VerseCue-0.5.1-win32-x64.zip) | Desktop, offline speech, minimized operation and guarded-Auto development checks passed |
-| Mac, Apple Silicon (M1/M2/M3/M4) | [Mac build and download status](https://github.com/gboyegaadeojo/VerseCue/releases/tag/v0.5.1) | Build process prepared; execution awaits runner-cost approval or a local Mac. No Mac binary published yet |
+| Mac, Apple Silicon (M1/M2/M3/M4) | [Mac build and download status](https://github.com/gboyegaadeojo/VerseCue/releases/tag/v0.5.1) | Native public-runner build in progress; no Mac binary is published until its checks pass |
 
-[All release files and checksums](https://github.com/gboyegaadeojo/VerseCue/releases/tag/v0.5.1). This repository is private: downloads require a GitHub account with repository access. Do not use the automatically generated source-code ZIP as the installed application.
+[All release files and checksums](https://github.com/gboyegaadeojo/VerseCue/releases/tag/v0.5.1). This repository is currently public; release downloads are available without repository membership. Do not use the automatically generated source-code ZIP as the installed application.
 
 Windows: extract the **entire ZIP**, then open **VerseCue.exe** inside the extracted folder. Keep its supporting files together. The Windows package includes the verified local speech engine and model. These builds are not signed by a trusted software publisher.
 
