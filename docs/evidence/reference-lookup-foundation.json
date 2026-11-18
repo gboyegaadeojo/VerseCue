@@ -1,0 +1,20 @@
+{
+  "at": "2026-11-18T15:24:06.177Z",
+  "version": "0.6.0",
+  "passed": true,
+  "referenceDrivenLookup": true,
+  "operatorLibraryPresentationCueSelection": false,
+  "splitCueIndicesPreserved": true,
+  "templateExcluded": true,
+  "stopBlocksLookup": true,
+  "outputRequests": 0,
+  "mutationRequests": 0,
+  "actualProPresenterAccess": false,
+  "microphoneCapture": false,
+  "normalOperatorUIWired": false,
+  "draftImplementation": true,
+  "moduleTests": 242,
+  "rangeMissingMiddleRegressionPassed": true,
+  "fullWorkflowComplete": false,
+  "releasePublished": false
+}

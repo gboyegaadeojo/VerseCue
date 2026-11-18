@@ -1,5 +1,6 @@
 'use strict';
 const {parse}=require('./parser.cjs');
+const {planSavedPassage}=require('./bible-passage-plan.cjs');
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function outputKey(data){const p=data?.presentation_index;if(p===null)return null;if(!p||typeof p.presentation_id?.uuid!=='string'||!Number.isInteger(p.index))throw Error('Output identity could not be checked');return p.presentation_id.uuid+'|'+p.index;}
 function contained(label,requested,translation){const rows=parse(label,{defaultTranslation:translation}).references;if(rows.length!==1||rows[0].valid!==true||rows[0].book!==requested.book||rows[0].verse==null)return false;const r=rows[0],start=[requested.chapter,requested.verse],end=[requested.endChapter??requested.chapter,requested.endVerse??requested.verse],a=[r.chapter,r.verse],b=[r.endChapter??r.chapter,r.endVerse??r.verse];const compare=(x,y)=>x[0]-y[0]||x[1]-y[1];return compare(a,start)>=0&&compare(b,end)<=0;}
@@ -27,9 +28,10 @@ class SavedBibleWorkflow {
    if(created.length!==1||!guard())throw Error('New saved copy was not identified; inspect ProPresenter before retrying');
    const item=created[0],inspected=await this.connector.inspect(item.uuid),p=inspected.p,slides=inspected.slides;
    if(!guard()||p.id?.uuid!==item.uuid||p.destination!=='presentation'||p.has_timeline||!String(p.id?.name??'').endsWith('('+translation+')')||!slides.length||slides.length>100||slides.some(s=>!s.enabled||typeof s.text!=='string'||!s.text.trim()||!contained(s.label,requested,translation)))throw Error('Saved passage identity/translation/cues could not be verified; review the copy manually');
+   const passagePlan=translation==='KJV'?planSavedPassage({p,slides},{uuid:item.uuid,reference,translation}):null;
    const activeAfter=outputKey(await this.connector.read('/v1/presentation/slide_index'));if(!guard()||activeAfter!==activeBefore)throw Error('Output changed during preparation; inspect ProPresenter and do not send automatically');
    this.service.log('NATIVE_BIBLE_COPY_SAVED_REVIEW');this.service.notify();
-   return {state:'saved-copy-needs-operator-review',reference,translation,library,uuid:item.uuid,name:item.name,cueCount:slides.length,clippingWarning:receipt.clippingWarning===true,workerElapsedMs:receipt.workerElapsedMs,preparedGeneration,outputRequests:0,outputObserved:false,formattingVerified:false};
+   return {state:'saved-copy-needs-operator-review',reference,translation,library,uuid:item.uuid,name:item.name,cueCount:slides.length,coverageComplete:passagePlan?.coverageComplete??false,cueIndices:passagePlan?.cueIndices??null,bibleTextVerified:false,clippingWarning:receipt.clippingWarning===true,workerElapsedMs:receipt.workerElapsedMs,preparedGeneration,outputRequests:0,outputObserved:false,formattingVerified:false};
   }finally{this.busy=false;}
  }
 }

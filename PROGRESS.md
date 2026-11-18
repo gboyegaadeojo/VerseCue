@@ -3,7 +3,7 @@
 Updated: 2026-11-18 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-DELIVERED - Selected Studio redesign implemented and merged in PR20 at30a23ce. Windows0.6.0 package built and134manifest/source files verified.227module tests and source/packaged UI, offline speech, minimized quote, fake-output, Auto and recovery checks pass. Existing backend/safety behavior retained; no actual microphone or ProPresenter access in this redesign. Matching Mac standard public runner44330987454 is queued; no Mac0.6.0 success/publication claim. P0/live-service and conversational acceptance gaps remain pending.
+WORKING - NR-009 reference-driven Bible workflow implementation draft. User requests complete fix list and a PR to replace manual library/presentation/cue selection with the intended speak-to-Bible workflow. docs51 records22 implementation/acceptance items with honest status. First slice adds bounded read-only reference lookup, internal ordered cue planning and KJV label-coverage validation in saved preparation; missing-middle-verse regression reproduced before fix.242module tests pass; trusted desktop IPC/fake-catalog and Studio regressions pass. No real ProPresenter/microphone/output accessed, no new distributable, no normal UI wiring or full workflow completion claimed. Keep PR DRAFT/unmerged while remaining work is unfinished.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -92,7 +92,7 @@ DATA-01/02: user supplied IFC Sunday-service YouTube source. Requested start1:18
 - Windows/macOS viability and representative measured turnaround.
 
 ## Exact next action
-Verify native Mac0.6.0 run44330987454, download/check matching artifact and publish current platform downloads when verified. Windows app for review: dist/VerseCue-0.6.0-win32-x64/VerseCue.exe. Preserve existing P0/field limitations. The selected UI work is complete on Windows; next functional implementation remains docs48-49 passage tracking/range/intent, not part of this visual change.
+Publish NR-009 draft implementation PR with complete RF01-22 checklist and initial tested lookup/coverage code. Continue reference-driven coordinator, verified arbitrary preparation and passage-level Confirm before replacing normal mapping UI; then context/intent/edition/speech continuity and actual acceptance. Existing0.6.0 packaged app is unchanged by this unmerged branch. Preserve all prior P0/field and platform limitations.
 
 ## Checkpoints and audit
 - 0.2.5 publication: reviewed source/tests/redacted evidence committed and pushed to private gboyegaadeojo/VerseCue main at b69280a. No private audio/transcripts/models/binaries staged.0.2.6 continuation adds generation-scoped connector reads/mappings/dispatch and an explicitly selected resident CPU worker with memory WAV requests, random loopback route, owned process cancellation and90second idle stop. Actual12second fixture requests8,015/6,825ms produced transcripts and worker shutdown was verified; no live latency or accuracy pass.129tests/source desktop smoke passed.0.2.6 packaging underway; final source/package integrity and resident packaged test remain next.

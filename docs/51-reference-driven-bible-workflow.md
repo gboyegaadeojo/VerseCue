@@ -1,0 +1,60 @@
+# Implementation PR: speak a passage, prepare its Bible, present deliberately
+
+2026-11-18 UTC. NR-009. This is the master implementation checklist for closing the gap between the requested VerseCue workflow and the current saved-cue setup. It incorporates the conversational review in docs/48-49 without replacing the original 62 FRs, 24 NFRs, safety restrictions or acceptance gates.
+
+## Required finished behavior
+
+An operator sets the ProPresenter target, pastor audio feed, installed default translation and service automation policy once. The pastor says **Hosea 1:1**. VerseCue resolves and prepares that exact passage using ProPresenter's installed Bible and existing formatting. Confirm mode provides an ordinary passage-level confirmation; explicitly enabled, verified Auto follows the agreed policy. The operator does not select a library, presentation UUID or slide cue for every passage.
+
+The Sunday Service playlist remains under normal ProPresenter/operator control. A playlist is not a Bible database or a required per-passage destination. A lower-third theme/template is not a passage. If the verified integration needs an internal saved presentation to obtain a stable trigger identity, VerseCue manages that detail transparently and with bounded, authorized storage; it does not imply ProPresenter itself requires this for normal Bible use.
+
+## Complete implementation checklist
+
+All items below are necessary for the stated end-to-end behavior or its original acceptance. An implemented metadata helper does not complete an output workflow.
+
+| ID | Fix / acceptance outcome | Draft PR status |
+|---|---|---|
+| RF-01 | One reference-driven coordinator connects detection, resolution, preparation, readiness, Confirm/Auto, dispatch and readback. No per-reference library/presentation/cue setup. | Pending; trusted read-only `resolve-candidate` entry point added as a first slice |
+| RF-02 | Load arbitrary requested references/ranges through ProPresenter's real Bible with the installed edition. Fail visibly on unsupported host/build/route; never substitute a presentation engine or fabricate an API endpoint. | Restricted Windows preparation exists; seamless end-to-end route still pending |
+| RF-03 | Verify usable Windows, macOS and same-PC/LAN capability combinations. A remote HTTP connection does not imply remote native Bible control. | Pending platform/route evidence; do not claim parity |
+| RF-04 | Manage any necessary internal saved presentation, reuse unchanged verified copies, handle renamed/duplicate/stale copies and bound storage. No manual saving each passage; no automatic deletion without authorization. | Read-only exact-copy discovery implemented; creation/reuse lifecycle pending |
+| RF-05 | Work alongside a Sunday Service playlist without changing its order, replacing songs, adding surprise items, changing the selected Look/theme or advancing unrelated material. | Pending real playlist/operator/Companion tests; no playlist writes introduced |
+| RF-06 | Distinguish candidate Bible passages from templates, lyrics and ordinary presentations. Do not infer provenance from library membership or name alone. | Exact title/edition/cue-metadata validation implemented; not independent Bible-text/provenance verification; existing broad advanced browser not yet replaced |
+| RF-07 | Internally map a verse/range to its ordered slide fragments. Cue IDs become an integration detail, not a volunteer setup task. Handle multi-slide verses and keep relative verse navigation distinct from next slide. | Metadata plan returns the full ordered cue-index sequence; multi-fragment presentation/confirmation still pending |
+| RF-08 | Prove requested range coverage, correct order and enabled nonempty cues; reject missing middle verses, unrelated/disabled cues, changed fingerprints and incomplete output. | New KJV label-coverage validator and existing native-save integration implemented. Exact text, formatting and actual output completeness remain unverified |
+| RF-09 | Show a useful, trustworthy review state and exact text/preview only from a verified permitted source. Highlight clipping/missing text instead of showing a fabricated preview. | Existing truth boundary retained; richer verified preview and formatting preflight pending |
+| RF-10 | Track current passage, edition, presentation/cue identity, fingerprint and receipt. Detect operator/Companion takeover and revalidate before relative commands. Never equate an HTTP response to physical audience output. | Pending; existing readback/safety retained |
+| RF-11 | Resolve next/previous verse, relative verse jumps, ranges, chapter boundaries, repeat/hold, corrections and translation-only requests consistently. Negated/historical/quoted commands must not become actionable navigation. | Pending docs/48-49 resolver/intent changes; relative Auto stays blocked |
+| RF-12 | Select/verify requested installed editions, distinguish AMP/AMPC, validate numbering per edition and never silently fall back to KJV. Handle unavailable Bibles with actionable guidance. | Pending; first coverage slice deliberately validates KJV only and does not certify other numbering |
+| RF-13 | Stabilize references split across audio windows, with finality/revision and utterance identity. Deduplicate repeated recognition; do not cascade multiple next-verse commands while a prior change is unresolved. | Pending; current bounded final-window recognition remains |
+| RF-14 | Carry original audio timing through recognition and decisions, invalidate stale context after dropped/truncated audio, diagnose no signal/clipping and resolve intermittent minimized ownership loss. | Pending; no silent restart or newly extended candidate lifetime workaround |
+| RF-15 | Meet measured audible-end-to-output latency targets on actual shared production hardware. Instrument capture/STT/parse/preparation/decision/connector separately. | Pending independent measurement; fixture recognition timings are not live acceptance |
+| RF-16 | Replace the normal Output settings experience with a simple connection/preparation/output-readiness setup. Move library/UUID/cue mechanics to advanced diagnostics/manual fallback. Explain Connected, Prepared, Armed, Confirm and Auto in plain language. | Pending UI wiring; current real application is unchanged in this draft slice |
+| RF-17 | Keep settings saves and readiness changes understandable: save configuration separately from deliberate output enablement, explain disarming and require intentional rearm when changes invalidate safety assumptions. | Pending UX simplification; do not silently retain or restore unsafe arming |
+| RF-18 | Define the policy for bare citations such as "Hosea 1:1" versus explicit instructions. Support Confirm first; enable only validated Auto behavior with explicit per-session consent. Quote matches always require confirmation. | Pending agreed/verified policy implementation; existing strict Auto unchanged |
+| RF-19 | Cancel on Stop, new reference/correction, target/profile/edition change, owner loss, sleep, disconnect and manual takeover. Serialize preparation/output; one accepted output write, bounded readback, no blind retry or surprise recovery. | Existing safeguards retained; coordinator-wide race acceptance pending |
+| RF-20 | Preserve listening while ProPresenter is foreground/minimized where technically supported. Eliminate avoidable focus changes; visibly disclose native automation interruptions and do not silently reacquire microphone or OS permissions. | Current native route pauses/moves focus; background arbitrary preparation remains pending |
+| RF-21 | Keep the private local API behind the same coordinator and safety rules if enabled. Do not let a custom API/MCP wrapper claim capabilities the underlying ProPresenter route has not demonstrated. | Existing private API unchanged; reference lookup is trusted desktop IPC only, no new HTTP endpoint |
+| RF-22 | Complete end-to-end personal-host then field acceptance: real installed translations, complete single/split/range passages, Sunday playlist, media and Companion coexistence, physical room/stream Looks, microphone/accent accuracy, latency, recovery, representative soak and platform builds. Update guides/downloads only with actual results. | Pending. Existing unit/build/UI evidence is retained but does not pass these gates |
+
+## What the first code slice actually does
+
+`core/bible-passage-plan.cjs` validates a canonical KJV request against an exact saved title/edition, presentation identity, non-timeline destination and bounded enabled nonempty cues. It enumerates requested verse labels, checks order and full label coverage, and returns the complete internal cue sequence. It explicitly reports `bibleTextVerified=false`, `formattingVerified=false`, `outputObserved=false` and zero output requests. Matching labels are not proof that slide text is the licensed Bible text or that every text fragment is visually complete.
+
+`core/reference-passages.cjs` performs bounded, read-only discovery across saved libraries by exact reference, checks candidate freshness/authorization and cancels on session/input/target changes. Ordinary templates are not eligible just because they appear in Default. Multiple exact copies are reported as ambiguous; no first-match guess. No match produces a preparation-needed result. The trusted desktop `resolve-candidate` handler exposes this lookup to the future coordinator; **the normal UI is not yet wired to it**.
+
+`core/saved-bible-workflow.cjs` now applies KJV label-coverage validation after native copy discovery. A missing middle verse previously passed the containment-only check; a regression reproduced that failure before the fix and now passes. Unknown translation numbering is explicitly not certified complete. No arming, mapping, cue trigger, clear, playlist/theme/Look edit or audio capture was added.
+
+## Implementation sequence and PR exit criteria
+
+1. Finish reference discovery/metadata validation (this initial slice), then integrate the coordinator and a verified exact-text/preparation receipt contract.
+2. Connect arbitrary preparation and passage-level Confirm; make the output destination a one-time setup choice, with full fragments and safe internal storage. Verify the actual host route before removing the advanced fallback.
+3. Implement live context, intent/relative navigation, edition handling and speech continuity from docs/48-49 through the same coordinator.
+4. Replace the normal technical mapping UI, make readiness/recovery clear, and preserve every safety gate.
+5. Run RF-22's real end-to-end acceptance, platform builds and existing regressions; only then mark this PR ready for review/merge and publish a matching application build.
+
+The PR stays **DRAFT** while any required end-to-end item above remains incomplete. No new distributable is published from this foundation-only branch and it is not presented as the finished requested application. Later user approvals already authorize building/testing within the recorded personal-host scope; this draft status is an honest completeness boundary, not a request to repeat permission.
+
+## Mandatory demonstration
+
+With an existing Sunday Service playlist open and ordinary media/operator activity continuing, start the authorized pastor feed. Say "Hosea 1:1"; VerseCue prepares the exact installed Bible passage without choosing a presentation/cue. Confirm once at the passage level (or exercise an explicitly enabled verified Auto policy). Verify full text, selected edition, existing theme, room/stream Looks and matching readback. Say "next verse" and verify Hosea 1:2, including a case where 1:1 spans multiple slides. Request AMP, interrupt with an explicit correction, change the live slide from Companion, disconnect/reconnect and press Stop. No unrelated playlist item, stale reference or uncertain output may be automatically triggered. Repeat on each supported platform/route and label unsupported combinations honestly.

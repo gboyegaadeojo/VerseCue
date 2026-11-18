@@ -1,0 +1,17 @@
+'use strict';
+const {titleReference,planSavedPassage}=require('./bible-passage-plan.cjs');
+class ReferencePassages {
+ constructor({connector,catalog,clock=()=>performance.now()}){Object.assign(this,{connector,catalog,clock});}
+ findCandidate(service,id){service.expire();const candidate=service.queue.find(row=>row.id===id);if(!candidate||service.stopped||service.recovery?.required||!candidate.authorized||candidate.generation!==service.generation||candidate.reference.valid!==true||candidate.reference.verse==null||candidate.reference.overLimit||candidate.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))throw Error('Choose a valid current passage before lookup');const generation=service.generation,inputEpoch=service.inputEpoch;return this.find(candidate.label,candidate.translation,{guard:()=>!service.stopped&&!service.recovery?.required&&generation===service.generation&&inputEpoch===service.inputEpoch&&service.clock()<candidate.expiresAt&&service.queue.some(row=>row.id===id)});}
+ async find(reference,translation,{guard=()=>true}={}){
+  const generation=this.connector.generation,base=this.connector.base,deadline=this.clock()+8000;
+  const check=()=>{if(!guard()||generation!==this.connector.generation||base!==this.connector.base)throw Error('Passage lookup canceled or target changed');if(this.clock()>=deadline)throw Error('Passage lookup deadline reached');};
+  check();const libraries=await this.catalog.libraries();check();if(libraries.length>10)throw Error('Too many libraries for bounded passage lookup');let inspected=0;const matches=[];
+  for(const library of libraries){const rows=await this.catalog.presentations(library.uuid);check();if(rows.length>1000)throw Error('Library exceeds bounded passage lookup size');for(const row of rows){if(titleReference(row.name,translation)!==reference)continue;if(++inspected>8)throw Error('Too many matching passage copies; review the duplicates in ProPresenter');check();const source=await this.connector.inspect(row.uuid);check();let plan;try{plan=planSavedPassage(source,{uuid:row.uuid,reference,translation});}catch(error){matches.push({state:'passage-rejected',reason:error.message});continue;}matches.push({...plan,libraryId:library.uuid});}}
+  check();const valid=matches.filter(row=>row.state==='passage-needs-review');
+  if(valid.length>1)return {state:'ambiguous-passages',reference,translation,matches:valid,outputRequests:0};
+  if(valid.length===1)return valid[0];
+  return {state:'needs-preparation',reference,translation,reason:matches.length?'No saved copy passed exact identity and complete cue coverage checks':'No exact saved passage found',outputRequests:0};
+ }
+}
+module.exports={ReferencePassages};

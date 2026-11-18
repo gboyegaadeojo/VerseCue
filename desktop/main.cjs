@@ -6,6 +6,7 @@ const {pathToFileURL}=require('node:url');
 const {Connector}=require('../core/connector.cjs');
 const {PreparedCatalog}=require('../core/prepared-catalog.cjs');
 const {SavedBibleWorkflow}=require('../core/saved-bible-workflow.cjs');
+const {ReferencePassages}=require('../core/reference-passages.cjs');
 const {Session}=require('../core/session.cjs');
 const {LocalSpeech}=require('../core/stt.cjs');
 const store=require('../core/settings.cjs');
@@ -18,6 +19,7 @@ const {PowerRecovery}=require('../core/power-recovery.cjs');
 const {GuardedAuto}=require('../core/guarded-auto.cjs');
 const connector=new Connector();const catalog=new PreparedCatalog(connector);const service=new Session(connector);const speech=new LocalSpeech();
 const automatic=new GuardedAuto(service);
+const referencePassages=new ReferencePassages({connector,catalog});
 let preparation,preparationController,savedBible,preparationOwner=null,suspensionBlocker=null;
 function updateBackgroundCapture(active){if(active&&suspensionBlocker===null)suspensionBlocker=powerSaveBlocker.start('prevent-app-suspension');if(!active&&suspensionBlocker!==null){powerSaveBlocker.stop(suspensionBlocker);suspensionBlocker=null;}}
 const capture=new CaptureLease({canStart:()=>!service.recovery?.required&&!service.stopped&&service.mode!=='paused'&&!speech.busy&&!preparation?.busy&&!savedBible?.busy,onStop:()=>{automatic.cancel();speech.cancel();updateBackgroundCapture(false);},onChange:value=>{updateBackgroundCapture(value.active);service.capture={...value,backgroundProtected:suspensionBlocker!==null&&powerSaveBlocker.isStarted(suspensionBlocker)};service.notify();}});
@@ -124,6 +126,7 @@ async function bootstrap(){
       case 'navigate':return service.navigate(payload?.id,payload?.direction);
       case 'send':return service.send(payload);
       case 'test':try{return await connector.test();}finally{service.notify();}
+      case 'resolve-candidate':return referencePassages.findCandidate(service,payload?.id);
       case 'catalog-libraries':return catalog.libraries();
       case 'catalog-presentations':return catalog.presentations(payload);
       case 'catalog-cues':return catalog.cues(payload);
