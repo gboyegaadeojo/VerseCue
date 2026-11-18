@@ -22,6 +22,8 @@ jobs:
           node scripts/test-reference-passage-ui.cjs
           node scripts/test-next-verse-ui.cjs
           node scripts/test-audio-age.cjs
+          node scripts/test-passage-copy-choice.cjs
+          node scripts/test-listening-preparation.cjs
       - name: Build pinned CPU-only local speech
         run: |
           git clone https://github.com/ggml-org/whisper.cpp.git .cache/whisper-source

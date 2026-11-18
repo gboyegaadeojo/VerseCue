@@ -1,0 +1,44 @@
+{
+  "scope": "real personal Windows ProPresenter21.4.2 helper with synthetic lease only",
+  "attempts": [
+    {
+      "at": "2026-11-18T19:52:37.463Z",
+      "reference": "Hosea 1:4",
+      "translation": "KJV",
+      "actualProPresenterAccess": true,
+      "captureLeaseOnly": true,
+      "microphoneCapture": false,
+      "requestedOutputCommands": 0,
+      "physicalOutputObserved": false,
+      "passed": false,
+      "error": "Native preparation timed out during open-save-copy-menu (input matches, generated range found); inspect ProPresenter before retrying"
+    },
+    {
+      "at": "2026-11-18T19:56:36.107Z",
+      "reference": "Hosea 1:4",
+      "translation": "KJV",
+      "actualProPresenterAccess": true,
+      "captureLeaseOnly": true,
+      "microphoneCapture": false,
+      "requestedOutputCommands": 0,
+      "physicalOutputObserved": false,
+      "passed": true,
+      "normalPassageUI": true,
+      "manualLibraryPresentationCueSelection": false,
+      "nativeCopyCreated": true,
+      "nativeWorkerMs": 11387,
+      "completeCueMetadata": true,
+      "cueCount": 2,
+      "clippingWarning": true,
+      "uncheckedConfirmationBlocked": true,
+      "outputUnchanged": true,
+      "sundayPlaylistContentsUnchanged": true,
+      "existingLeasePreserved": true,
+      "windowStayedMinimized": true,
+      "noOSMicrophoneAcquisition": true
+    }
+  ],
+  "microphoneCapture": false,
+  "outputTriggers": 0,
+  "acceptance": "PENDING: reliability, clipping, latency and field tests"
+}

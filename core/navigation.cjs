@@ -3,7 +3,7 @@
 function relativeNavigation(text,{context,now,bounds,translation,corrected=false}){
  const cleaned=String(text).toLowerCase().replace(/[.,!?;:"\u201c\u201d]/g,' ').replace(/[\u2018\u2019]/g,"'").replace(/\s+/g,' ').trim();
  const hasNavigation=/\b(?:next|previous) verse\b|\bverses? \d|\b(?:same verse|same passage|next chapter|previous chapter|go (?:back|forward) \d+ verses?)\b/.test(cleaned);
- if(/^(?:stay there|hold (?:that|it|the verse|the passage)|do not change (?:it|that)|don't change (?:it|that)|not yet|stop there)$/.test(cleaned)||hasNavigation&&/\b(?:do not|don't|not now|not yet|never)\b/.test(cleaned))return {command:{kind:'hold'},issues:[]};
+ if(/^(?:stay there|hold (?:that|it|the verse|the passage|on)|(?:do not|don't) (?:change|show|display)(?: (?:it|that|the verse|the passage))?|wait(?: please| a moment)?|not yet|stop there)$/.test(cleaned)||hasNavigation&&/\b(?:do not|don't|not now|not yet|never)\b/.test(cleaned))return {command:{kind:'hold'},issues:[]};
  if(hasNavigation&&/\b(?:he said|she said|someone said|yesterday|last week|tomorrow|imagine|if we|if you)\b/.test(cleaned))return {command:{kind:'ignored-navigation'},issues:['Navigation was discussed or quoted; no display instruction accepted']};
  let phrase=cleaned.replace(/^(?:(?:please|now|okay|and)\s+)+/,'').replace(/^(?:i meant|can we|let us|let's)\s+/,'');
  phrase=phrase.replace(/^(?:read|show|go to|turn to|look at|move to|go back to|give us|give me|have)\s+/,'').replace(/^the\s+/,'').replace(/\s+please$/,'');

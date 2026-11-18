@@ -61,7 +61,7 @@ async function bootstrap(){
   const helper=app.isPackaged?path.join(process.resourcesPath,'native','VerseCue.BibleBridge.exe'):path.join(__dirname,'../native/bin/VerseCue.BibleBridge.exe');
   let helperExists=false;try{await fs.access(helper);helperExists=true;}catch{}
   preparation=new BiblePreparation({helper:helperExists?helper:null});
-  preparationController=new PreparationController({service,connector,speech:{cancel:cancelAudio},preparation,getTranslation:()=>settings.translation});
+  preparationController=new PreparationController({service,connector,speech:{cancel:cancelAudio},cancelRecognition:()=>speech.cancel(),preparation,getTranslation:()=>settings.translation});
   savedBible=new SavedBibleWorkflow({service,connector,catalog,controller:preparationController});
   passageCoordinator=new PassageCoordinator({service,connector,resolver:referencePassages,savedBible,onChange:value=>{service.passagePreparation=value;service.notify();}});
   referencePreparation=new ReferencePreparation({service,coordinator:passageCoordinator,prepare:(id,event)=>ownedPreparation(event,()=>passageCoordinator.prepare(id)),onChange:value=>{service.referencePreparation=value;service.notify();}});
@@ -137,7 +137,7 @@ async function bootstrap(){
       case 'cancel-passage-preparation':cancelPreparation();return true;
       case 'advance-passage':automatic.cancel();return ownedPreparation(event,()=>passageCoordinator.advance(payload?.activeToken));
       case 'confirm-passage':automatic.cancel();return ownedPreparation(event,()=>passageCoordinator.confirm(payload?.reviewToken,{verified:payload?.verified===true,acknowledgeTestOutput:payload?.acknowledgeTestOutput===true}));
-      case 'prepare-passage-candidate':automatic.cancel();return ownedPreparation(event,()=>passageCoordinator.prepare(payload?.id,{acknowledgeFocusChange:payload?.acknowledgeFocusChange===true,acknowledgeCreateCopy:payload?.acknowledgeCreateCopy===true}));
+      case 'prepare-passage-candidate':automatic.cancel();return ownedPreparation(event,()=>passageCoordinator.prepare(payload?.id,{acknowledgeFocusChange:payload?.acknowledgeFocusChange===true,acknowledgeCreateCopy:payload?.acknowledgeCreateCopy===true,selectedUuid:payload?.selectedUuid??null,expectedFingerprint:payload?.expectedFingerprint??null}));
       case 'resolve-candidate':return referencePassages.findCandidate(service,payload?.id);
       case 'catalog-libraries':return catalog.libraries();
       case 'catalog-presentations':return catalog.presentations(payload);
@@ -156,7 +156,7 @@ async function bootstrap(){
     const evidence=speechEvidence(metadata,samples.length,receivedAt,service.clock());
     if(!evidence.contextUsable){service.context=null;service.queue=[];automatic.cancel();if(passageCoordinator?.review||passageCoordinator?.busy)cancelPreparation();}
     service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});const candidates=await service.ingestChecked(result.text,{authorized:true,...(evidence.windowId?{id:evidence.windowId}:{}),sourceAgeMs:evidence.sourceAgeMs??0,additionalGuard:()=>capture.owns(event.sender.id)&&epoch===service.generation});
-    if(candidates.length&&passageCoordinator?.active)cancelPreparation();
+    if(candidates.length&&(passageCoordinator?.active||passageCoordinator?.review||passageCoordinator?.busy))cancelPreparation();
     if(!evidence.timingKnown||!evidence.lossFree)for(const candidate of candidates)candidate.issues.push(!evidence.timingKnown?'Original audio timing is unavailable; review this full reference.':'Audio was dropped, clipped or its quality is unknown; review the full reference before continuing.');
     referencePreparation.consider(candidates,event);automatic.consider(candidates,{source:'local-speech',final:result.final===true,elapsedMs:result.elapsedMs,endEvidence:evidence.endEvidence,droppedSamples:metadata?.droppedSamples,endAgeMs:evidence.endAgeMs,observedAt:evidence.receivedAt});service.notify();return evidence.stale?{...result,text:'',discarded:true,reason:'Audio evidence expired during recognition. Repeat the full reference.'}:result;
   },{withEvent:true});
@@ -170,8 +170,8 @@ async function bootstrap(){
     try{
       const result=await connector.test();
       if(targetGeneration!==connector.generation)return;
-      if(result.version!==version){cancelAudio();connector.arm(false);connector.mappings.clear();service.setMode('paused');service.log('TARGET_VERSION_CHANGED','warning');}
-      else if(previous!=='connected'){cancelAudio();connector.arm(false);service.setMode('paused');service.log('LINK_RECOVERED_REARM_REQUIRED','warning');}
+      if(result.version!==version){cancelAudio();cancelPreparation();connector.arm(false);connector.mappings.clear();service.setMode('paused');service.log('TARGET_VERSION_CHANGED','warning');}
+      else if(previous!=='connected'){cancelAudio();cancelPreparation();connector.arm(false);service.setMode('paused');service.log('LINK_RECOVERED_REARM_REQUIRED','warning');}
     }catch{
       if(targetGeneration===connector.generation&&previous==='connected'){cancelAudio();connector.arm(false);service.setMode('paused');service.log('LINK_LOST','warning');}
     }finally{healthBusy=false;service.notify();}

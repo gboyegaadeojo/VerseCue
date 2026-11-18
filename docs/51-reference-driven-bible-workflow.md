@@ -108,3 +108,11 @@ Original capture age and worklet delivery delay now survive recognition; expired
 ## Route readiness and short-window diagnostic
 
 Unsupported native platform/LAN/build combinations now produce explicit manual-preparation guidance before soliciting focus/copy consent. Exact saved-passage review remains available where its API route is supported.300 module tests pass. A finite short-window CPU model diagnostic completed without changing defaults or claiming accuracy/physical latency; see [scope and measured results](54-short-window-diagnostic.md). The Mac workflow now includes the synthetic reference/next-verse/audio desktop regressions before packaging.
+
+## Copy choice, keyboard and build checkpoint
+
+Explicit duplicate-copy selection now re-resolves the chosen identity/fingerprint before review. Internally managed mappings cannot bypass passage review through legacy sends. Ctrl/Command+Enter is gated by acknowledgment and input focus. Native copy attempts are capped per app run without deletion/retry.306 module tests and source synthetic UI checks pass. Windows/Mac development verification at the earlier exact revision272e1ae is recorded separately from later code: see [build and copy-review scope](55-pr22-build-and-copy-review.md). All unmet RF01-22 exits remain required.
+
+## Authorized-input preparation checkpoint
+
+Normal Confirm preparation now retains an already active authorized input while disarming output; ordinary speech no longer expires its review. Hold/corrections/new references and all lifecycle gates remain effective, and Suggest-only cannot inherit output permission through Pause.312 module tests and synthetic minimized native-bridge/speech/target checks pass. A real Windows helper with a synthetic lease retained minimized/background ownership on explicit retry, but its11387ms worker and prior timeout leave reliability/latency unresolved. No actual mic or output was tested. See [precise behavior and evidence](56-preparation-with-authorized-input.md).
