@@ -20,6 +20,7 @@ class PassageCoordinator {
    let result=await this.resolver.findCandidate(this.service,id);check();
    if(result.state==='ambiguous-passages')return this.publish({phase:'ambiguous',...result});
    if(result.state==='needs-preparation'){
+    const readiness=this.savedBible.readiness();if(readiness.available!==true)return this.publish({phase:'manual-preparation-required',reference:c.label,translation:c.translation,reason:readiness.reason,outputRequests:0});
     if(acknowledgeFocusChange!==true||acknowledgeCreateCopy!==true)return this.publish({phase:'consent-required',reference:c.label,translation:c.translation,reason:'Preparation may move ProPresenter focus and create an internal Bible copy. Explicit session consent is required.',outputRequests:0});
     this.candidate(id);check();this.publish({phase:'preparing',reference:c.label,translation:c.translation,outputRequests:0});
     const saved=await this.savedBible.prepare(c.label,c.translation,null,guard);check();

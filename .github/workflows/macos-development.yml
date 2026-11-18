@@ -17,6 +17,11 @@ jobs:
       - name: Install pinned Electron runtime
         run: node node_modules/electron/install.js
       - run: npm test && npm run check
+      - name: Check reference-driven desktop workflow against synthetic targets
+        run: |
+          node scripts/test-reference-passage-ui.cjs
+          node scripts/test-next-verse-ui.cjs
+          node scripts/test-audio-age.cjs
       - name: Build pinned CPU-only local speech
         run: |
           git clone https://github.com/ggml-org/whisper.cpp.git .cache/whisper-source

@@ -104,3 +104,7 @@ The helper now opens the identified Bible view and selects the exact installed e
 ## Audio evidence checkpoint
 
 Original capture age and worklet delivery delay now survive recognition; expired audio is not given a new full lifetime. Known loss/clipping/cuts clear relative context, and Auto rechecks age after its grace period. New references invalidate older passage continuations across all Session callers.298 module tests and source synthetic audio/Auto/background/worklet/UI/recovery checks pass. See [audio safeguards and explicit remaining limitations](53-audio-age-and-continuity.md). No real microphone, accuracy or physical latency acceptance is inferred.
+
+## Route readiness and short-window diagnostic
+
+Unsupported native platform/LAN/build combinations now produce explicit manual-preparation guidance before soliciting focus/copy consent. Exact saved-passage review remains available where its API route is supported.300 module tests pass. A finite short-window CPU model diagnostic completed without changing defaults or claiming accuracy/physical latency; see [scope and measured results](54-short-window-diagnostic.md). The Mac workflow now includes the synthetic reference/next-verse/audio desktop regressions before packaging.

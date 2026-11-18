@@ -1,6 +1,12 @@
 'use strict';
 class PreparationController {
   constructor({service,connector,speech,preparation,getTranslation}){Object.assign(this,{service,connector,speech,preparation,getTranslation});}
+  readiness(){
+    if(!this.preparation?.available())return {available:false,reason:'Automatic Bible preparation is unavailable on this platform/build. Prepare the exact passage in ProPresenter, then enter its reference again to review the saved copy.'};
+    if(!this.connector.base||new URL(this.connector.base).hostname!=='127.0.0.1')return {available:false,reason:'Native Bible preparation must run on the ProPresenter computer. This LAN target supports saved-passage review; prepare new passages in ProPresenter first.'};
+    if(this.connector.version?.host_description!=='ProPresenter 21.4.2'||this.connector.version?.platform!=='win')return {available:false,reason:'Automatic preparation is verified only for the inspected Windows ProPresenter 21.4.2 profile. This target can use exact saved passages; its native preparation route is not verified.'};
+    return {available:true,scope:'personal-windows21.4.2-loopback-test'};
+  }
   async prepare(reference,translation,guard=()=>true,{saveCopy=false}={}){
     const {service,connector,speech,preparation}=this;
     if(!preparation?.available())throw new Error('Experimental Windows preparation helper is unavailable');

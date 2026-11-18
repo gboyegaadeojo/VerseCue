@@ -14,6 +14,7 @@ async function playlistSnapshot(connector,uuid=undefined){
 function contained(label,requested,translation){const rows=parse(label,{defaultTranslation:translation}).references;if(rows.length!==1||rows[0].valid!==true||rows[0].book!==requested.book||rows[0].verse==null)return false;const r=rows[0],start=[requested.chapter,requested.verse],end=[requested.endChapter??requested.chapter,requested.endVerse??requested.verse],a=[r.chapter,r.verse],b=[r.endChapter??r.chapter,r.endVerse??r.verse];const compare=(x,y)=>x[0]-y[0]||x[1]-y[1];return compare(a,start)>=0&&compare(b,end)<=0;}
 class SavedBibleWorkflow {
  constructor({service,connector,catalog,controller}){Object.assign(this,{service,connector,catalog,controller});this.busy=false;this.epoch=0;}
+ readiness(){return this.controller.readiness();}
  cancel(){this.epoch++;}
  prepareCandidate(id,options={}){this.service.expire();const c=this.service.queue.find(c=>c.id===id);if(!c||c.generation!==this.service.generation||!c.authorized||c.reference.valid!==true||c.reference.overLimit||c.reference.verse==null||c.issues.some(i=>/Invalid|no-show|not supported/.test(i)))throw Error('Choose a valid unexpired reference before saving a Bible copy');return this.prepare(c.label,c.translation,options.libraryId??null);}
  async prepare(reference,translation,libraryId=null,additionalGuard=()=>true){
