@@ -10,7 +10,7 @@ const fs=require('node:fs/promises');const path=require('node:path');const {spaw
   const runtime=path.join(path.dirname(require.resolve('electron/package.json')),'dist');const name=`VerseCue-${pkg.version}-${process.platform}-${process.arch}`;
   const out=path.join(root,'dist',name);await fs.mkdir(path.dirname(out),{recursive:true});
   // Refuse overwriting an existing package; never recursively delete a build.
-  await fs.mkdir(out);await fs.cp(runtime,out,{recursive:true});
+  await fs.mkdir(out);await fs.cp(runtime,out,{recursive:true,verbatimSymlinks:true});
   let resources;
   if(process.platform==='win32'){
     await fs.rename(path.join(out,'electron.exe'),path.join(out,'VerseCue.exe'));
@@ -19,7 +19,7 @@ const fs=require('node:fs/promises');const path=require('node:path');const {spaw
   }else{
     const old=path.join(out,'Electron.app'),bundle=path.join(out,'VerseCue.app');await fs.rename(old,bundle);
     resources=path.join(bundle,'Contents','Resources');const plist=path.join(bundle,'Contents','Info.plist');let xml=await fs.readFile(plist,'utf8');
-    xml=xml.replace(/(<key>CFBundleDisplayName<\/key>\s*<string>)[^<]*(<\/string>)/,'$1VerseCue$2').replace(/(<key>CFBundleName<\/key>\s*<string>)[^<]*(<\/string>)/,'$1VerseCue$2').replace(/(<key>CFBundleIdentifier<\/key>\s*<string>)[^<]*(<\/string>)/,'$1church.immanuel.versecue$2').replace('</dict>','<key>NSMicrophoneUsageDescription</key><string>VerseCue processes the selected pastor audio input locally to suggest Scripture references.</string></dict>');await fs.writeFile(plist,xml);
+    xml=xml.replace(/(<key>CFBundleDisplayName<\/key>\s*<string>)[^<]*(<\/string>)/,'$1VerseCue$2').replace(/(<key>CFBundleName<\/key>\s*<string>)[^<]*(<\/string>)/,'$1VerseCue$2').replace(/(<key>CFBundleIdentifier<\/key>\s*<string>)[^<]*(<\/string>)/,'$1church.immanuel.versecue$2').replace(/<\/dict>\s*<\/plist>\s*$/, '<key>NSMicrophoneUsageDescription</key><string>VerseCue processes the selected pastor audio input locally to suggest Scripture references.</string></dict></plist>');await fs.writeFile(plist,xml);
   }
   await fs.rm(path.join(resources,'default_app.asar'),{force:true});
   if(process.argv.includes('--with-local-speech'))await require('./bundle-local-speech.cjs').bundle(resources);

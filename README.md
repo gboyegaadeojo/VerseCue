@@ -1,51 +1,108 @@
-# VerseCue — IFC desktop companion
+# VerseCue
 
-Prepared 2026-11-17 for Immanuel Fellowship Church, Winnipeg. **Development application now implemented under explicit user approval. P0 feasibility and full service-release acceptance remain PENDING.** All original requirements are retained. Church production-host access, spending and cloud-provider selection remain unauthorized. Arbitrary ProPresenter Bible lookup, Auto and Clear remain unavailable; finite prepared test cues do not satisfy P0.
+**A Scripture assistant for the church production booth.**
 
-## Try the development application
+VerseCue listens to an authorized pastor audio feed, identifies Bible references and helps an operator review and send prepared passages to ProPresenter. Built for Immanuel Fellowship Church, it works alongside ProPresenter while ProPresenter keeps control of Bible text, themes, Looks and screens.
 
-The Windows development package is built locally under `dist/` with a verified offline speech engine/model, notices and SHA256 manifest. Extract the whole ZIP and run `VerseCue.exe` inside it. It starts in **Confirm + dry run**, does not capture audio until explicitly started, and creates no audience graphics. This unsigned package is for supervised development, not a live service.
+![VerseCue Control workspace](docs/images/versecue-control-workspace.png)
 
-For source development on Windows:
+## Download
 
-```text
-npm.cmd ci --cache .cache/npm
-node node_modules/electron/install.js
-npm.cmd start
-npm.cmd test
-npm.cmd run check
-npm.cmd run test:desktop
+**Current development version: 0.5.1.** These are supervised-test builds, not an approved live-service release.
+
+| Computer | Download | Status |
+|---|---|---|
+| Windows, Intel/AMD 64-bit | [Download Windows ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.5.1/VerseCue-0.5.1-win32-x64.zip) | Desktop, offline speech, minimized operation and guarded-Auto development checks passed |
+| Mac, Apple Silicon (M1/M2/M3/M4) | [Mac build and download status](https://github.com/gboyegaadeojo/VerseCue/releases/tag/v0.5.1) | Build process prepared; execution awaits runner-cost approval or a local Mac. No Mac binary published yet |
+
+[All release files and checksums](https://github.com/gboyegaadeojo/VerseCue/releases/tag/v0.5.1). This repository is private: downloads require a GitHub account with repository access. Do not use the automatically generated source-code ZIP as the installed application.
+
+Windows: extract the **entire ZIP**, then open **VerseCue.exe** inside the extracted folder. Keep its supporting files together. The Windows package includes the verified local speech engine and model. These builds are not signed by a trusted software publisher.
+
+Mac: the release page will identify the available architecture and exact testing status. A Windows EXE cannot run on macOS. Developer ID signing/notarization and Mac microphone/ProPresenter field acceptance are not complete.
+
+## What it does
+
+- Recognizes explicit English references, such as "John chapter three verse sixteen."
+- Shows a reference, translation, source phrase and review state in a focused operator workspace.
+- Offers manual reference entry, previous/next verse proposals, a short suggestion queue and session history.
+- Continues an explicitly started audio session while minimized, so ProPresenter can remain the main screen.
+- Optionally identifies distinctive quoted wording using a rights-cleared local passage index you import. Quoted matches always require confirmation.
+- Uses local speech recognition without a paid cloud speech subscription.
+- Provides service profiles, a compact view, connection settings and an optional private local API.
+
+## How a service workflow works
+
+1. Open VerseCue and review the ProPresenter, audio and speech indicators.
+2. In **Settings**, choose the intended ProPresenter connection, pastor audio device/channel and installed Bible translation.
+3. Start in **dry run**, authorize the selected feed and click **Start listening** in Audio & recognition.
+4. Review a detected reference, or enter one manually. Prepare and inspect the exact passage in ProPresenter.
+5. For an authorized disconnected test, verify the saved cue mapping and arm test output in **Settings / Output**. Then deliberately confirm a passage.
+
+**Preparing a passage and showing it are separate actions.** A successful request or matching readback does not prove what the congregation or livestream sees. Emergency Stop blocks further sends; ProPresenter remains available for manual operation.
+
+## First five-minute test
+
+You can test without connecting ProPresenter. If the speech indicator says **Local whisper.cpp - ready**, the bundled recognizer is already available.
+
+1. Stay in **Confirm** with the **DRY RUN** banner visible.
+2. In Overview, type **John 3:16** in the manual reference box and click **Review reference**.
+3. A reference card should appear. Within 15 seconds, click **Simulate passage**. Recent actions should show **Simulated**, with no output request.
+4. For voice input, open **Settings / Audio**, request audio permission/refresh inputs, select the microphone you are speaking into and its intended channel, then **Save setup - return to dry run**. A computer microphone is suitable for this first test if the MOTU is not connected; do not substitute an input silently during a service.
+5. Open **Audio & recognition**, check authorization for that feed and click **Start listening**. The meter should move when you speak.
+6. Say **"Please turn to John chapter three verse sixteen"**, then pause. Allow several seconds for a transcript and reference suggestion. Return to Overview to review it; suggestions expire after 15 seconds.
+7. Test **Emergency Stop**, then deliberately resume Confirm. For a background check, start the authorized input again, minimize VerseCue, speak a fresh reference and reopen it promptly to inspect the suggestion.
+
+If no meter movement appears, check the chosen device/channel and OS microphone permission. If the meter moves but recognition fails, read the status message and check Speech settings. Do not arm output to troubleshoot recognition. Actual ProPresenter display is a separate verified-cue test; this first test is simulation only.
+
+## Modes in plain language
+
+| Mode/state | What happens |
+|---|---|
+| Dry run | Recognition and review work, but output commands are simulated. Nothing is sent to ProPresenter output. This is the startup default. |
+| Confirm | An operator reviews and explicitly confirms each passage. |
+| Suggest only | References are offered for review; sending is blocked. |
+| Paused / Emergency stopped | Recognition/output are paused or blocked; deliberate recovery is required. |
+| Guarded Auto | Must be deliberately acknowledged. Eligible explicit references can simulate, or trigger complete saved cues separately verified for Auto on the armed local test target. It is not unrestricted automatic Bible lookup. |
+
+Dry run is an output safety state, separate from the selected recognition mode. Restarting does not silently enable Auto or microphone capture.
+
+## Current limits
+
+Reliable arbitrary-passage lookup and output through ProPresenter are still under investigation. Current output uses **exact, verified saved cue mappings**. Experimental native Bible preparation is Windows-only and prepare-only. Exact verse text is not available in a verified VerseCue preview; ProPresenter remains the Bible-text authority.
+
+Quoted-wording matching needs your own permitted local index. General semantic paraphrases and automatic quote display are not implemented. Held-out sermon accuracy, church Mac/M4, actual MOTU routing, physical output/Looks, Companion/media concurrency and full service acceptance remain pending. Development tests are not a claim of Sunday-service readiness.
+
+## Quick controls
+
+- **Ctrl/Cmd+K:** focus manual reference in the full workspace.
+- **Alt+1-4:** Overview, Scripture queue, Audio & recognition, Recent actions.
+- **Enter in the reference field:** review a reference; never send it.
+- **Escape:** Emergency Stop while VerseCue has focus.
+
+## Privacy and Bible content
+
+Audio is processed locally. Audio/transcripts are not recorded persistently by default; the default worker uses bounded temporary recognition files which are cleaned up after processing. No Bible translation corpus is bundled or downloaded. Import only passage text you have permission to use. The private API starts disabled and uses a session-only local token.
+
+## For developers
+
+Use a current compatible Node.js installation and the pinned dependencies in the lockfile. On Windows use npm.cmd if PowerShell blocks npm.ps1.
+
+```sh
+npm ci
+npm start
+npm test
+npm run check
+npm run test:desktop
 ```
 
-Read [running/setup, evidence and release limitations](docs/22-development-build-and-release-status.md) and [all 86 requirement implementation statuses](docs/implementation-coverage.json). Mac source/packaging is provided but native Mac speech/capture/install testing and signing are pending. No cloud service or paid API is required.
+[Contributing and PR workflow](CONTRIBUTING.md) | [Current progress](PROGRESS.md) | [Implementation coverage](docs/implementation-coverage.json) | [Setup and release evidence](docs/22-development-build-and-release-status.md) | [Workspace guide](docs/38-figma-control-workspace.md).
 
-Version 0.2.4 extends the requested [private API and experimental Windows preparation bridge](docs/23-private-api-and-experimental-bible-bridge.md) with candidate preparation and numeric KJV reference validation. The API is off at startup and uses a rotating memory-only token on loopback. [Native verification results and limits](docs/24-native-bridge-verification-and-validation.md) record three successful preparation receipts, existing clipping warnings and one separate unintended manual personal-test clear. The helper remains experimental, prepares references only and never clicks a passage live. Build it with `node scripts/build-windows-bridge.cjs` before packaging if needed. P0 and service release remain pending.
+Application improvements use focused pull requests so changes can be reviewed and reverted independently. Merging a PR updates source; it does not automatically replace an already downloaded app. Download a newer build only when its application contents/version change. Version 0.5.1 already contains merged PRs #2-4.
 
-[GPU diagnostic results](docs/25-gpu-speech-diagnostic.md) explain the CPU fallback and subsequent CUDA inference stall. Acceleration is not enabled or bundled.
+## Project documentation
 
-Source 0.2.5 adds [bounded capture during recognition](docs/26-bounded-audio-capture.md), with visible overflow/stale-audio counts and stop/restart ownership tests. The verified 0.2.4 ZIP is a prior development checkpoint; newer source is verified and packaged separately.
-
-Source0.2.6 adds [optional resident CPU recognition and target-change race protection](docs/27-resident-speech-and-target-races.md). Default CLI behavior remains available; resident mode is explicitly selected in Setup and has not met the live-service latency target.
-
-Source0.2.7 adds [local service profile snapshots](docs/29-local-service-profiles.md). The [smaller-model diagnostic](docs/28-model-size-diagnostic.md) measured faster processing with different interpretations; tiny.en remains diagnostic-only and base.en stays the default.
-
-[Previous/Next verse controls](docs/30-manual-verse-navigation.md) propose KJV references for review and handle chapter/range boundaries without changing output. Run `node scripts/audit-documentation.cjs` for the structural document/traceability/corpus/link audit.
-
-Source0.2.8 adds [exclusive audio session ownership](docs/31-exclusive-audio-session-ownership.md) across full/compact windows, including cancellation when the owner closes and protection against late input initialization after revocation.
-
-[Installed Windows speech diagnostic](docs/32-installed-windows-speech-diagnostic.md) records another tested local option; it did not justify a backend change. The [development stability protocol](docs/33-development-stability-protocol.md) records the completed three-hour0.2.8 fixture/dry-run test (360cycles, scoped pass).
-
-Source0.2.9 adds [renderer recovery and canonical target validation](docs/34-renderer-recovery-and-address-validation.md), including generation-safe health monitoring. Its current test evidence is distinct from the separate0.2.8 stability run.
-
-Version0.3.0 implements [NR-001/NR-002](NEW_REQUESTS.md): [minimized listening and opt-in quoted-Scripture identification](docs/35-background-and-quoted-scripture.md). Start the authorized audio input, then minimize VerseCue while ProPresenter remains foreground. To identify wording without a citation, import a local passage index whose use rights you acknowledge and enable quote matching for the session. The supplied “For God so loved the world that he gave…” example identifies John3:16. Quote results require desktop confirmation through the existing verified ProPresenter cue gate. No Bible text corpus is bundled, and broad semantic paraphrases/unattended quote display remain unavailable.
-
-## Start here
-1. Read the [leadership summary](docs/00-executive-summary.md) and [requirements summary](REQUIREMENTS_SUMMARY.md).
-2. Read the [P0 feasibility report and authorization-gated test procedure](docs/10-integration-feasibility-and-poc.md). Public presentation triggers do not establish arbitrary Bible lookup. Partial personal-host evidence is in docs/18–19; full P0 has not passed.
-3. Review [open risks/decisions](docs/07-risks-and-open-questions.md), [decision brief](docs/16-decision-brief.md) and [audit](docs/17-package-audit.md). Requirements and later implementation approval are recorded; missing feasibility evidence remains missing.
-4. Use [PROGRESS.md](PROGRESS.md) for current stage, pending blockers and exact next action. Resume by reading it and the relevant sections of the [authoritative master specification](VerseCue_Master_Development_Prompt_v2_Codex.md).
-
-VerseCue is intended as a small Windows/macOS companion that identifies explicit spoken references and defaults to volunteer confirmation. ProPresenter remains the only Bible/presentation/output authority, preserving IFC's existing themes, room/stream Looks and manual/Companion workflow. No standalone output workaround is in scope.
+[Start with the leadership summary](docs/00-executive-summary.md), [operator runbook](docs/13-operations-and-runbook.md), or [requirements summary](REQUIREMENTS_SUMMARY.md). The [master specification](VerseCue_Master_Development_Prompt_v2_Codex.md) is authoritative. [Assumptions](PROJECT_ASSUMPTIONS.md), [research sources](RESEARCH_SOURCES.md), [change requests](NEW_REQUESTS.md) and [historical development notes](DEVELOPMENT_HISTORY.md) remain available. The [CSV](docs/test-data/versecue-utterances.csv) and [JSON](docs/test-data/versecue-utterances.json) retain all 66 matching synthetic test proposals.
 
 ## Ordered document package
 | Order | Document | Review purpose |
@@ -69,42 +126,3 @@ VerseCue is intended as a small Windows/macOS companion that identifies explicit
 | 16 | [Decision brief](docs/16-decision-brief.md) | Compact final review and next engineering step |
 | 17 | [Package audit](docs/17-package-audit.md) | Completeness/consistency evidence and remaining verification |
 
-## Supporting artifacts
-- [PROJECT_ASSUMPTIONS.md](PROJECT_ASSUMPTIONS.md): original defaults and IFC's answered intake, no repeated questions.
-- [RESEARCH_SOURCES.md](RESEARCH_SOURCES.md): primary URLs, publishers, access dates, evidence grades and retrieval gaps.
-- [REQUIREMENTS_SUMMARY.md](REQUIREMENTS_SUMMARY.md): one-page approach and top five risks.
-- [PROGRESS.md](PROGRESS.md): stage/deliverable ledger, decisions, blockers and resume point.
-- [Utterance CSV](docs/test-data/versecue-utterances.csv) and [identical JSON](docs/test-data/versecue-utterances.json): 66 distinct proposed cases, all SYNTHETIC-TEXT. Planned accent strata are not recordings or accuracy evidence.
-- [Public API schema snapshot](docs/evidence/propresenter-openapi-2026-11-17.txt): vendor data only; provenance/hash in investigation findings. Not an application module or installed-version proof.
-- `poc/`: reserved for labelled disposable non-destructive diagnostics. Labelled read-only and explicitly armed test-trigger diagnostics now exist; see poc/README.md and docs/18 for actual runs. Future probes retain the prescribed header, run README, no secrets and read-only/dry-run defaults.
-
-## Historical baseline readiness (superseded by the development-build report)
-Known user-reported environment: ProPresenter 21, Mac mini M4, MOTU M4, English, same-PC first plus LAN companion design, Companion and existing themes/Looks/macros. Installed names: KJV, Amplified, Amplified classic, NIV, NKJV, The Message. Exact build/macOS/default edition/routing/assets remain unverified. IFC requires free operation; local STT is recommended, not benchmarked. Accepted delay targets remain unmeasured. No model/backend/framework/toolchain is finally accepted.
-
-Real accuracy/accent evidence requires consented IFC sermon excerpts and representative holdout/rehearsal material; none supplied. Current synthetic corpus tests parser design only. Full acceptance outcomes remain PENDING; limited personal Windows connector/schema observations are recorded in docs/18. Markdown diagrams are design artifacts, not a running UI.
-
-At Stage 4 STOP, IFC reviews this package and pending P0 blockers. Production implementation requires both feasibility and requirements approval; production host access/live tests, purchases, cloud choice and publishing each need explicit authorization. If no supportable arbitrary Bible route works, stop for product decision and preserve manual ProPresenter operation.
-
-## Historical requirements-review checkpoint — 2026-11-17
-IFC approved the provisional requirements baseline by replying **I approve**. Stage 4 requirements approval is recorded. **P0 remains PENDING**, so implementation is not ready; the next step is a separately authorized isolated feasibility test session. All existing host/output, purchase/cloud and GitHub/publication restrictions remain in force. See PROGRESS.md for the exact next action.
-
-## Historical personal-test and publication checkpoint
-2026-11-17: user authorized personal-host passage tests and GitHub publication. [Personal test results](docs/18-personal-propresenter-test-results.md): Windows ProPresenter 21.4.2, installed schema inspected, saved KJV John 3:16/Romans 8:28 cues triggered with preview/readback evidence. P0 still PENDING: arbitrary lookup, church Looks/physical outputs, Mac/LAN, guarded policy and real-audio performance unproved. Labelled diagnostic scripts now exist under [poc](poc/README.md); no production application code/build scaffold. Private repository: https://github.com/gboyegaadeojo/VerseCue . Historical no-publication/no-host statements are superseded only within this new authorization.
-
-
-## Historical dynamic-route test checkpoint
-[Unprepared Bible UI investigation](docs/19-dynamic-bible-ui-investigation.md) tested Philippians 4:6–7 preparation/preview, native next verse, translation selection and actual action palette. Results are partial: uncertain UI completion, stale semantic/readback identity and clipped-text warnings prevent P0 acceptance. [Sunday-service source intake](docs/test-data/sermon-source-intake.md) records requested start 1:18:10; actual link/file and permitted-use scope remain pending. No real-audio results or production application code.
-
-## Historical real sermon pilot checkpoint
-[Local sermon-audio pilot](docs/20-sermon-audio-pilot.md) used the supplied IFC service at1:18:10–1:23:10. CPU-only base.en processed300s in67.256s; real ordinal ambiguity observed, no accuracy/live-latency pass. [Four real recording clip metadata records](docs/test-data/real-recording-pilot-manifest.json) have expected labels pending independent listening; recordings/transcripts/models remain private and Git-ignored. Original synthetic corpus unchanged. New diagnostic sources are under poc/, no production application code.
-
-## Historical incremental speech timing checkpoint
-[Streaming-style replay findings](docs/21-streaming-style-replay-results.md) and [content-free measurements](docs/evidence/replay-stt-metrics.json): eight windows, current fastest tested model-resident CPU configurationmedian4.099s/max5.273s before stabilization/display. These are exploratory per-window timings, not live acceptance. P0 remains PENDING and no production application code. Local test servers stopped; private audio/transcripts stay excluded from GitHub.
-
-
-Sleep/wake recovery development: [behavior and scoped evidence](docs/36-sleep-wake-recovery.md). System power transitions pause and revoke the session; a fresh connection check and intentional resume are required. Minimized operation is unchanged.
-
-
-Guarded Auto development: [mode, eligibility and scope](docs/37-guarded-auto-mode.md). The option is enabled through an explicit acknowledgment dialog. Simulation sends zero output requests; actual test output requires complete saved cues explicitly verified for Auto. Quotes still require desktop confirmation. Source integration uses synthetic speech and a fake target; production service acceptance is pending.
-
-Figma-inspired Control workspace: [operator layout, settings and keyboard guide](docs/38-figma-control-workspace.md). Version 0.5.1 keeps technical setup in dedicated settings panels; Ctrl/Cmd+K focuses manual reference, Alt+1..4 selects the full-window workspaces. Existing live-service/P0 limitations remain applicable.
