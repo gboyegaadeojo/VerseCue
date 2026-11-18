@@ -4,7 +4,7 @@ window.workspace={
  settings(name='profiles'){for(const panel of document.querySelectorAll('[data-settings-panel]'))panel.hidden=panel.dataset.settingsPanel!==name;for(const button of document.querySelectorAll('[data-settings]'))button.setAttribute('aria-current',button.dataset.settings===name?'page':'false');}
 };
 const historyHome=document.getElementById('history').parentElement;
-const originalRoute=window.workspace.route;window.workspace.route=name=>{if(name!=='history')historyHome.append(document.getElementById('history'));originalRoute(name);};
+const originalRoute=window.workspace.route;window.workspace.route=name=>{window.studioLayout?.route(name);if(name!=='history')historyHome.append(document.getElementById('history'));originalRoute(name);};
 for(const button of document.querySelectorAll('[data-route]'))button.addEventListener('click',()=>window.workspace.route(button.dataset.route));
 for(const button of document.querySelectorAll('[data-settings]'))button.addEventListener('click',()=>window.workspace.settings(button.dataset.settings));
 for(const button of document.querySelectorAll('[data-open-settings]'))button.addEventListener('click',()=>{document.getElementById('setup').click();window.workspace.settings(button.dataset.openSettings);});

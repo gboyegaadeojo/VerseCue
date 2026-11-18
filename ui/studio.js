@@ -1,0 +1,49 @@
+'use strict';
+// Layout only: move existing controls without replacing their IDs or handlers.
+// Every status, candidate and receipt still comes from the real session.
+(()=>{
+ const make=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text)node.textContent=text;return node;};
+ const compact=new URLSearchParams(location.search).has('compact');
+ document.body.classList.add('studio');
+ const overview=document.querySelector('[data-route-panel="overview"]');
+ const review=make('div','studio-review');
+ while(overview.firstChild)review.append(overview.firstChild);
+ const detections=make('section','studio-detections');
+ const queuePanel=document.querySelector('.queue-panel');
+ detections.append(queuePanel);review.prepend(review.querySelector('.manual'));overview.append(detections,review);overview.classList.add('studio-overview');
+ const audioHome=document.querySelector('[data-route-panel="audio"]');
+ const feed=make('section','studio-feed');feed.setAttribute('aria-label','Listening workspace');
+ const audioPanel=document.querySelector('.audio-panel');
+ const heading=make('div','studio-panel-heading');heading.append(make('h2','','Listening workspace'));
+ feed.append(heading,audioPanel);
+ document.querySelector('.workspace').prepend(feed);
+ window.studioLayout={route(name){document.body.dataset.studioRoute=name;feed.hidden=compact||name!=='overview';if(name==='audio')audioHome.append(audioPanel);else feed.append(audioPanel);}};
+ document.getElementById('candidate-heading').textContent='Passage review';
+ document.querySelector('.queue-panel h2').firstChild.textContent='Detected references ';
+ document.querySelector('.queue-panel>.muted').textContent='Select to review. References expire after 15 seconds.';
+ document.querySelector('.page-heading .eyebrow').textContent='SCRIPTURE DESK';
+ document.querySelector('.page-heading>.pill').remove();
+ document.querySelector('.page-heading .muted').textContent='Listen. Review. Prepare. Present deliberately.';
+ document.querySelector('[data-route="overview"]').textContent='Scripture desk';
+ document.querySelector('.brand small').textContent='SCRIPTURE CONTROL';
+ document.querySelector('#candidate-empty .empty-symbol').remove();
+ document.querySelector('#candidate-empty h2').textContent='Waiting for a reference';
+ document.querySelector('#candidate-empty>p').textContent='Start your authorized audio feed, or enter a reference below.';
+ document.querySelector('#candidate-empty .example').textContent='Try “Hosea chapter one, verse one.”';
+ document.querySelector('.transcript>span').textContent='RECOGNIZED SPEECH';
+ document.getElementById('candidate-translation').classList.add('edition-badge');
+ document.getElementById('prepare-candidate').textContent='Prepare only';
+ document.getElementById('prepare-candidate').title='Prepare in ProPresenter without output; supervised Windows profile only';
+ document.getElementById('save-candidate').textContent='Prepare Bible copy';
+ const preparationActions=make('div','preparation-actions');
+ preparationActions.append(document.getElementById('save-candidate'),document.getElementById('prepare-candidate'));
+ document.querySelector('.output-actions').append(preparationActions,make('p','preparation-caption','Preparation never sends output. Inspect the passage in ProPresenter.'));
+ const sourceLabel=document.querySelector('.source-label');sourceLabel.textContent='RECOGNIZED WORDING';
+ document.querySelector('.inspector-heading').firstChild.textContent='PASSAGE INSPECTOR ';
+ const search=make('button','desk-search','Find a reference');search.type='button';search.setAttribute('aria-keyshortcuts','Control+K Meta+K');search.append(make('kbd','','Ctrl K'));
+ search.addEventListener('click',()=>{window.workspace.route('overview');document.getElementById('reference-input').focus();});
+ if(!compact)document.querySelector('.header-actions').prepend(search);
+ const paths={overview:'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',queue:'M8 6h13M8 12h13M8 18h13M3 6h1M3 12h1M3 18h1',audio:'M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4',history:'M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v5l3 2',connections:'M8 8h8v8H8zM12 3v5M12 16v5M3 12h5M16 12h5',settings:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8M10 3h4l1 3 3 1 3 3v4l-3 1-1 3-3 3h-4l-1-3-3-1-3-3v-4l3-1 1-3z'};
+ for(const button of document.querySelectorAll('.sidebar>button')){const key=button.dataset.route??(button.id==='setup'?'settings':'connections');const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');svg.classList.add('nav-icon');const path=document.createElementNS(svg.namespaceURI,'path');path.setAttribute('d',paths[key]);svg.append(path);button.prepend(svg);}
+ window.studioLayout.route('overview');
+})();
