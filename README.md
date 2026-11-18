@@ -106,3 +106,5 @@ Sleep/wake recovery development: [behavior and scoped evidence](docs/36-sleep-wa
 
 
 Guarded Auto development: [mode, eligibility and scope](docs/37-guarded-auto-mode.md). The option is enabled through an explicit acknowledgment dialog. Simulation sends zero output requests; actual test output requires complete saved cues explicitly verified for Auto. Quotes still require desktop confirmation. Source integration uses synthetic speech and a fake target; production service acceptance is pending.
+
+Figma-inspired Control workspace: [operator layout, settings and keyboard guide](docs/38-figma-control-workspace.md). Version 0.5.1 keeps technical setup in dedicated settings panels; Ctrl/Cmd+K focuses manual reference, Alt+1..4 selects the full-window workspaces. Existing live-service/P0 limitations remain applicable.

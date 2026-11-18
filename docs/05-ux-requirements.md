@@ -130,3 +130,7 @@ Default dark/light palettes must both meet NFR contrast; no color-only states. M
 | Stop | “Stopped — no further sends. Existing ProPresenter output remains under your control.” | Latched until intentional re-arm |
 
 Audit: all four required layouts, Sunday flow, focus/shortcuts/states/errors/accessibility and expiry semantics covered. UI state names align ADR-006 and architecture; no accidental expired send or claimed unobserved live success.
+
+## Implemented Figma Control direction (2026-11-18)
+
+IFC selected the Figma-inspired VerseCue Control reference as definitive; Apple/Meta alternatives are superseded. The implemented full/compact layout, categorized settings, shortcuts, truthful preview/readiness states and verification are specified in [the workspace implementation guide](38-figma-control-workspace.md). This supplement updates the earlier ASCII information architecture without replacing any safety, accessibility or output-verification requirement. P0 and field acceptance remain pending.

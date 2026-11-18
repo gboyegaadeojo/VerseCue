@@ -1,0 +1,121 @@
+{
+  "version": "0.5.0",
+  "at": "2026-11-18T02:09:01.764Z",
+  "regressionTests": 170,
+  "p0": "PENDING",
+  "reports": {
+    "workspace": {
+      "at": "2026-11-18T02:06:49.152Z",
+      "version": "0.5.0",
+      "passed": true,
+      "packaged": true,
+      "checks": [
+        "queue selection returns to review without output",
+        "history workspace receipts",
+        "Alt+1..4 navigation",
+        "Ctrl+K reference focus",
+        "seven isolated settings categories",
+        "connection shortcut",
+        "1280/900/640 horizontal fit",
+        "all settings at 200% fit",
+        "persistent emergency stop",
+        "zero page errors"
+      ],
+      "actualProPresenterAccess": false,
+      "microphoneCapture": false
+    },
+    "guardedAuto": {
+      "at": "2026-11-18T02:06:56.943Z",
+      "version": "0.5.0",
+      "passed": true,
+      "packaged": true,
+      "recognition": "SYNTHETIC",
+      "autoOptionEnabled": true,
+      "explicitConsentRequired": true,
+      "manualInputDidNotAutoSend": true,
+      "autoSimulationZeroWrites": true,
+      "verifiedSingleCueAutoFakeTriggers": 1,
+      "minimizedDuringAuto": true,
+      "stopCanceledPendingAuto": true,
+      "simulatedSuspendCanceledPendingAuto": true,
+      "actualComputerSleep": false,
+      "microphoneCapture": false,
+      "actualProPresenterAccess": false,
+      "physicalOutputObserved": false,
+      "accuracyScored": false
+    },
+    "backgroundQuotes": {
+      "at": "2026-11-18T02:07:08.242Z",
+      "version": "0.5.0",
+      "passed": true,
+      "packaged": true,
+      "minimized": true,
+      "syntheticSilentWorkletFrames": 29,
+      "minimizedSpeechNonempty": true,
+      "minimizedSpeechMs": 3706,
+      "quoteCandidate": "John 3:16",
+      "quoteIndex": "user-example SYNTHETIC-TEXT fixture",
+      "explicitConfirmation": true,
+      "fakeTargetTriggers": 1,
+      "actualProPresenterAccess": false,
+      "microphoneCapture": false,
+      "focusRestoredByApp": false,
+      "suspensionBlockerReleased": true,
+      "realAudioAccuracyScored": false
+    },
+    "powerRecovery": {
+      "at": "2026-11-18T02:08:07.640Z",
+      "version": "0.5.0",
+      "passed": true,
+      "packaged": true,
+      "simulatedSuspendResume": true,
+      "actualComputerSleep": false,
+      "microphoneCapture": false,
+      "actualProPresenterAccess": false,
+      "captureAndBlockerReleased": true,
+      "apiRevoked": true,
+      "dryRunRestored": true,
+      "staleCandidatesAndMappingsRejected": true,
+      "resetCannotBypassPreflight": true,
+      "freshConnectionAndIntentionalResumeRequired": true,
+      "outputRequests": 0
+    },
+    "rendererRecovery": {
+      "at": "2026-11-18T02:08:09.757Z",
+      "passed": true,
+      "packaged": true,
+      "version": "0.5.0",
+      "simulatedRendererGoneEvent": true,
+      "actualRendererCrash": false,
+      "actualReload": true,
+      "actualOwnerWindowClose": true,
+      "pausedDisarmedCaptureRevokedApiRevoked": true,
+      "microphoneCapture": false,
+      "outputRequests": 0
+    },
+    "healthRace": {
+      "at": "2026-11-18T02:08:15.642Z",
+      "passed": true,
+      "version": "0.5.0",
+      "packaged": true,
+      "cases": [
+        {
+          "oldTargetResponse": 200,
+          "newTargetIdentityPreserved": true,
+          "newCaptureNotCanceled": true,
+          "mode": "confirm"
+        },
+        {
+          "oldTargetResponse": 503,
+          "newTargetIdentityPreserved": true,
+          "newCaptureNotCanceled": true,
+          "mode": "confirm"
+        }
+      ],
+      "fakeLoopbackTargetsOnly": true,
+      "actualProPresenterAccess": false,
+      "microphoneCapture": false,
+      "outputRequests": 0
+    }
+  }
+}
