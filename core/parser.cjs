@@ -89,4 +89,4 @@ function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslat
   }
   return {references,issues,corrected,command,multiple:references.length>1};
 }
-module.exports={parse,normalize,validate,label,names,chapters,numbering};
+module.exports={parse,normalize,citationForms,validate,label,names,chapters,numbering};
