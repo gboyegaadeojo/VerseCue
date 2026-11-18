@@ -47,11 +47,11 @@ const {_electron}=require('playwright');const assert=require('node:assert/strict
     await compact.waitForFunction(()=>document.querySelector('#reference').textContent==='Romans 8:29');
     await compact.screenshot({path:'test-results/desktop-compact.png',fullPage:true});
     await compact.locator('#stop').click();await page.waitForFunction(()=>!document.querySelector('#resume').hidden);
-    await page.locator('#private-api-enable').click();
+    await page.locator('#setup').click();await page.locator('[data-settings=advanced]').click();await page.locator('#private-api-enable').click();
     const localApi=await page.evaluate(()=>window.versecue.privateApiStatus());assert.equal(localApi.value.enabled,true);assert.equal(localApi.value.allowPreparedSend,false);
     assert.equal((await fetch(`http://127.0.0.1:${localApi.value.port}/v1/status`)).status,401);
     await page.locator('#private-api-disable').click();assert.equal((await page.evaluate(()=>window.versecue.privateApiStatus())).value.enabled,false);
-    await page.evaluate(()=>window.versecue.command('resume'));
+    await page.locator('#close-settings').click();await page.evaluate(()=>window.versecue.command('resume'));
     const captureOwner=await page.evaluate(()=>window.versecue.beginAudio({authorized:true}));assert.equal(captureOwner.ok,true);
     assert.equal((await compact.evaluate(()=>window.versecue.beginAudio({authorized:true}))).ok,false);
     assert.equal((await compact.evaluate(()=>window.versecue.audio(new Array(3200).fill(0)))).ok,false);

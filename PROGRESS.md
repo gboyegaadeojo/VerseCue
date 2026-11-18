@@ -3,7 +3,7 @@
 Updated: 2026-11-18 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-WORKING - PR #1 merged; PR #2 contains sleep/wake recovery. Guarded Auto is implemented on feat/guarded-auto-mode (stacked on PR #2): enabled acknowledgment UI, silence/loss/age/intent gates, complete Auto-verified saved cues, correction grace and stop/suspend cancellation.170 regressions and synthetic minimized Auto integration passed; no real ProPresenter/microphone used. User chose the Figma-inspired VerseCue Control as definitive design. Reference PNG/HTML found in design-reference; next separate stacked UI PR will reorganize the entire operator workspace while preserving these controls. No general permission needed to continue.
+COMPLETE - Requested Figma-inspired Control redesign and spacing refinement implemented on feat/figma-control-workspace, stacked on guarded Auto PR #3 (dependent on sleep/wake PR #2). Persistent navigation, central Scripture review, contextual inspector, seven dedicated settings panels and grouped/spaced actions preserve backend safety. All170 tests passed. Packaged0.5.1 desktop/workspace/background/Auto/offline speech/power/renderer/health-race checks passed;124manifest/source files and ZIP SHA25644ad81069d404692f077c43fa140414d648a155d5d508f4dadc1ba204e73a224 verified. No actual ProPresenter or microphone access. P0/service/Mac/physical-output acceptance remains pending. Publishing focused UI PR now.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -11,6 +11,9 @@ Status vocabulary: not started / drafted / audited. Audited means checked for th
 | Document / artifact | Status | Scheduled stage |
 |---|---|---|
 | PROGRESS.md | audited | continuous |
+| docs/36-sleep-wake-recovery.md | audited | authorized improvement / PR #2 |
+| docs/37-guarded-auto-mode.md | audited | authorized improvement / PR #3 |
+| docs/38-figma-control-workspace.md | audited | authorized redesign / packaged checks passed |
 | PROJECT_ASSUMPTIONS.md | audited | 0 |
 | RESEARCH_SOURCES.md | audited | 0, maintained thereafter |
 | docs/00-executive-summary.md | audited | 3A |
@@ -88,7 +91,8 @@ DATA-01/02: user supplied IFC Sunday-service YouTube source. Requested start1:18
 - Windows/macOS viability and representative measured turnaround.
 
 ## Exact next action
-Open the focused guarded-Auto PR against fix/sleep-wake-recovery, then immediately implement the Figma-directed workspace on its own stacked branch. Preserve the user-provided design-reference files, retain all control IDs/backend gates, move technical setup into dedicated panels, visually verify and run full regressions/build. Do not stop at a routine PR boundary or merge without authorization.
+Publish the focused UI PR against feat/guarded-auto-mode, verify its remote commit and record URL. Deliver0.5.1 local executable/ZIP and screenshot for review. Preserve user design-reference files and do not infer service readiness from development checks.
+
 ## Checkpoints and audit
 - 0.2.5 publication: reviewed source/tests/redacted evidence committed and pushed to private gboyegaadeojo/VerseCue main at b69280a. No private audio/transcripts/models/binaries staged.0.2.6 continuation adds generation-scoped connector reads/mappings/dispatch and an explicitly selected resident CPU worker with memory WAV requests, random loopback route, owned process cancellation and90second idle stop. Actual12second fixture requests8,015/6,825ms produced transcripts and worker shutdown was verified; no live latency or accuracy pass.129tests/source desktop smoke passed.0.2.6 packaging underway; final source/package integrity and resident packaged test remain next.
 - Development continuation: source0.2.4 has119passing tests, KJV numeric validation and candidate preparation with race guards. Packaged0.2.4 desktop smoke and private12second speech fixture passed (9,492ms, no output); ZIP integrity verification follows archive completion. GPU20/90second inference attempts timed out after verified CUDA backend load; keep CPU implementation. Independent latency/accuracy/service acceptance remains pending. Next implementation task: bounded continuous audio capture while one worker is busy, with explicit overflow/staleness reporting and stop/restart race tests.

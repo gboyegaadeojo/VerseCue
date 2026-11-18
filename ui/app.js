@@ -15,6 +15,7 @@ function render(next){
   $('mode').value=state.mode;$('mode').disabled=state.stopped;$('resume').hidden=!state.stopped&&state.mode!=='paused';$('resume').textContent=state.stopped?'Re-arm in Confirm':'Resume in Confirm';
   $('mode-explanation').textContent=state.mode==='auto'?(state.dryRun?'AUTO SIMULATION - no ProPresenter output. Eligible explicit references simulate after a correction grace.':'AUTO TEST OUTPUT - only explicitly verified complete cues. Quotes and withheld detections need confirmation.'):'Review every passage before sending.';
   $('auto-status').textContent=state.mode==='auto'?(state.autoStatus?.reason??'Waiting for completed authorized speech'):'Auto is off.';
+  $('inspector-reference').textContent=candidate?`${candidate.label} / ${candidate.translation}`:'No reference selected';$('inspector-state').textContent=state.stopped?'Stopped':state.recovery?.required?'Preflight required':candidate?'Needs review':'Awaiting reference';$('inspector-review').textContent=candidate?(candidate.issues.join('; ')||'Reference validated; operator review required'):'Waiting for a reference';
   $('candidate-empty').hidden=Boolean(candidate);$('candidate').hidden=!candidate;
   if(candidate){
     $('reference').textContent=candidate.label;$('candidate-translation').textContent=candidate.translation;$('phrase').textContent=candidate.phrase;
@@ -26,10 +27,11 @@ function render(next){
     $('expiry').textContent=`${Math.max(0,Math.ceil((candidate.expiresAt-Date.now())/1000))}s remaining`;
   }else $('expiry').textContent='';
   $('queue-count').textContent=String(state.queue.length);
+  for(const button of $('queue').querySelectorAll('button'))button.setAttribute('aria-pressed',String(button.dataset.candidateId===selectedId));
   const queueSignature=state.queue.map(c=>c.id).join('|');
   if($('queue').dataset.signature!==queueSignature){
     $('queue').dataset.signature=queueSignature;$('queue').replaceChildren();
-    for(const c of state.queue){const row=document.createElement('div');row.className='queue-item';const b=document.createElement('button');b.textContent=`${c.label} · ${c.translation}`;b.onclick=()=>{selectedId=c.id;render(state);};row.append(b);$('queue').append(row);}
+    for(const c of state.queue){const row=document.createElement('div');row.className='queue-item';const b=document.createElement('button');b.dataset.candidateId=c.id;b.setAttribute('aria-pressed',String(c.id===selectedId));b.textContent=`${c.label} · ${c.translation}`;b.onclick=()=>{selectedId=c.id;render(state);};row.append(b);$('queue').append(row);}
   }
   const historySignature=state.history.map(c=>`${c.id}:${c.state}`).join('|');
   if($('history').dataset.signature!==historySignature){
@@ -85,7 +87,7 @@ bind('private-api-enable',async()=>{if($('private-api-prepare').checked&&!$('nat
 bind('private-api-disable',async()=>{await call('stopPrivateApi');renderPrivateApi(await call('privateApiStatus'));message('Private API stopped and token revoked.');});
 bind('private-api-token',async()=>{await call('copyPrivateApiToken');message('Session token copied to your clipboard. It is not stored in settings or diagnostics.');});
 bind('native-preparation',async()=>{if(!$('native-preparation-consent').checked)throw new Error('Acknowledge experimental focus changes first');$('native-preparation').disabled=true;message('Preparing the passage in ProPresenter. Listening is paused and output is disarmed.');try{await stopAudio();const result=await action('prepare-bible',{reference:$('native-preparation-reference').value.trim(),acknowledgeFocusChange:true});message(result.clippingWarning?'Passage prepared with a ProPresenter clipping warning. Inspect and correct formatting manually; nothing was sent live.':'Passage prepared for operator review. Formatting and physical output are not verified; nothing was sent live.');}finally{$('native-preparation').disabled=false;}});
-bind('prepare-candidate',async()=>{if(!$('native-preparation-consent').checked){$('native-preparation-panel').scrollIntoView({behavior:'smooth'});throw new Error('Enable experimental preparation for this supervised test session first');}const id=selectedId;await stopAudio();message('Preparing the reviewed candidate in ProPresenter; output is disarmed.');const result=await action('prepare-candidate',{id,acknowledgeFocusChange:true});message(`Prepared for review in ${(result.workerElapsedMs/1000).toFixed(1)}s. ${result.clippingWarning?'ProPresenter reports clipped text; inspect formatting. ':''}Nothing was sent live.`);});
+bind('prepare-candidate',async()=>{if(!$('native-preparation-consent').checked){$('setup').click();window.workspace.settings('advanced');throw new Error('Enable experimental preparation for this supervised test session first');}const id=selectedId;await stopAudio();message('Preparing the reviewed candidate in ProPresenter; output is disarmed.');const result=await action('prepare-candidate',{id,acknowledgeFocusChange:true});message(`Prepared for review in ${(result.workerElapsedMs/1000).toFixed(1)}s. ${result.clippingWarning?'ProPresenter reports clipped text; inspect formatting. ':''}Nothing was sent live.`);});
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!event.repeat){event.preventDefault();action('stop').then(stopAudio).catch(e=>message(e.message));}if(event.repeat&&(event.key==='Enter'||event.key===' '))event.preventDefault();});
 navigator.mediaDevices?.addEventListener('devicechange',async()=>{if(!listening)return;const devices=await navigator.mediaDevices.enumerateDevices();if(!devices.some(d=>d.deviceId===settings.audioDevice)){await stopAudio();await action('mode','paused');message('Selected input disconnected. Recognition paused; choose the intended input again.');}});
 api.onState(render);
