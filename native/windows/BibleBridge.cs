@@ -1,5 +1,5 @@
 // Experimental host-local ProPresenter Bible PREPARATION adapter.
-// No presentation trigger, clear, theme, Look, macro or library mutation API.
+// Explicit new-copy save is opt-in. No trigger, clear, theme, Look or macro API.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +14,12 @@ using System.Windows.Automation;
 class BibleBridge {
     [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr hWnd);
     [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr hWnd,out uint processId);
+    [DllImport("user32.dll")] static extern short GetAsyncKeyState(int key);
+    [DllImport("user32.dll")] static extern bool SetCursorPos(int x,int y);
+    [DllImport("user32.dll")] static extern IntPtr WindowFromPoint(ScreenPoint point);
+    [DllImport("user32.dll")] static extern bool SetProcessDPIAware();
+    [StructLayout(LayoutKind.Sequential)] struct ScreenPoint { public int x,y; }
     [DllImport("user32.dll",SetLastError=true)] static extern uint SendInput(uint count,Input[] inputs,int size);
     [StructLayout(LayoutKind.Sequential)] struct KeyInput { public ushort vk,scan;public uint flags,time;public UIntPtr extra; }
     [StructLayout(LayoutKind.Sequential)] struct MouseInput { public int x,y;public uint data,flags,time;public UIntPtr extra; }
@@ -21,10 +27,9 @@ class BibleBridge {
     [StructLayout(LayoutKind.Sequential)] struct Input { public uint type;public InputUnion data; }
     static Input Key(ushort vk,ushort scan,uint flags) { return new Input {type=1,data=new InputUnion {key=new KeyInput {vk=vk,scan=scan,flags=flags}}}; }
     static void InputKeys(Input[] keys) { Require(SendInput((uint)keys.Length,keys,Marshal.SizeOf(typeof(Input)))==keys.Length,"KEYBOARD_INPUT_BLOCKED"); }
-    static void SelectAll() { InputKeys(new [] {Key(0x11,0,0),Key(0x41,0,0),Key(0x41,0,2),Key(0x11,0,2)}); }
-    static void TypeReference(string reference) { var keys=new List<Input>();foreach(char c in reference){keys.Add(Key(0,c,4));keys.Add(Key(0,c,6));}InputKeys(keys.ToArray()); }
     static void EnterReference() { InputKeys(new [] {Key(0x0D,0,0),Key(0x0D,0,2)}); }
-    static void WaitValue(AutomationElement field,string expected) { var timer=Stopwatch.StartNew();while(timer.ElapsedMilliseconds<750){if(Value(field)==expected)return;Thread.Sleep(25);}Require(false,"REFERENCE_INPUT_READBACK_MISMATCH"); }
+    static void WaitValue(AutomationElement field,string expected) { var timer=Stopwatch.StartNew();while(timer.ElapsedMilliseconds<1500){if(Value(field)==expected)return;Thread.Sleep(25);}Require(false,"REFERENCE_INPUT_READBACK_MISMATCH"); }
+    static void WaitReleasedModifiers() { var timer=Stopwatch.StartNew();while(timer.ElapsedMilliseconds<1500){if((GetAsyncKeyState(0x10)&0x8000)==0&&(GetAsyncKeyState(0x11)&0x8000)==0&&(GetAsyncKeyState(0x12)&0x8000)==0)return;Thread.Sleep(20);}Require(false,"RELEASE_MODIFIER_KEYS_BEFORE_PREPARATION"); }
     static readonly JavaScriptSerializer Json = new JavaScriptSerializer();
     static readonly Stopwatch Total = Stopwatch.StartNew();
     static readonly Dictionary<string,long> Timings = new Dictionary<string,long>();
@@ -53,10 +58,48 @@ class BibleBridge {
         var names=texts.Cast<AutomationElement>().Select(e=>e.Current.Name).Where(n=>!String.IsNullOrWhiteSpace(n)).ToArray();
         Require(names.Length==1,"TRANSLATION_SELECTION_UNCERTAIN");return names[0];
     }
+    static void ClickVerifiedControl(AutomationElement element,int processId) {
+        var bounds=element.Current.BoundingRectangle;Require(!bounds.IsEmpty&&bounds.Width>1&&bounds.Height>1&&!element.Current.IsOffscreen,"SAVE_CONTROL_BOUNDS_UNAVAILABLE");
+        var point=new ScreenPoint {x=(int)(bounds.X+bounds.Width/2),y=(int)(bounds.Y+bounds.Height/2)};
+        uint owner;GetWindowThreadProcessId(WindowFromPoint(point),out owner);Require(owner==processId,"SAVE_CONTROL_OCCLUDED");
+        var hit=AutomationElement.FromPoint(new System.Windows.Point(point.x,point.y));var expected=element.GetRuntimeId();bool matches=false;
+        for(int depth=0;hit!=null&&depth<15;depth++,hit=TreeWalker.RawViewWalker.GetParent(hit))if(hit.GetRuntimeId().SequenceEqual(expected)){matches=true;break;}
+        Require(matches,"SAVE_CONTROL_HIT_TEST_MISMATCH");Require(SetCursorPos(point.x,point.y),"SAVE_CONTROL_POINTER_BLOCKED");
+        GetWindowThreadProcessId(GetForegroundWindow(),out owner);Require(owner==processId,"FOCUS_CHANGED_BEFORE_SAVE_CLICK");
+        var down=new Input {type=0,data=new InputUnion {mouse=new MouseInput {flags=2}}};var up=new Input {type=0,data=new InputUnion {mouse=new MouseInput {flags=4}}};InputKeys(new [] {down,up});
+    }
+    static void SaveBibleCopy(AutomationElement root,Process process,AutomationElement field,AutomationElement selector,string reference,string selected) {
+        Require(Canonical(Value(field))==Canonical(reference)&&SelectedTranslation(selector)==selected,"PASSAGE_CHANGED_BEFORE_SAVE");
+        uint foreground;GetWindowThreadProcessId(GetForegroundWindow(),out foreground);Require(foreground==process.Id,"FOCUS_CHANGED_BEFORE_SAVE");
+        var button=ById(root,"SaveCopyDocumentButton");Require(button!=null&&button.Current.IsEnabled&&!button.Current.IsOffscreen,"SAVE_COPY_CONTROL_UNAVAILABLE");
+        object invoke;
+        // This split control opens its menu on pointer-down rather than Invoke.
+        // Resolve and hit-test its current accessibility bounds; never use a
+        // stored screen coordinate or a keyboard shortcut for an unknown view.
+        Stage("open-save-copy-menu");ClickVerifiedControl(button,process.Id);
+        var timer=Stopwatch.StartNew();
+        while(timer.ElapsedMilliseconds<2000) {
+            var windows=AutomationElement.RootElement.FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ProcessIdProperty,process.Id));
+            var matches=new List<AutomationElement>();
+            foreach(AutomationElement window in windows) {
+                var items=window.FindAll(TreeScope.Descendants,new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.MenuItem),new PropertyCondition(AutomationElement.NameProperty,"Save As Presentation")));
+                matches.AddRange(items.Cast<AutomationElement>().Where(e=>e.Current.IsEnabled&&!e.Current.IsOffscreen));
+            }
+            Require(matches.Count<=1,"SAVE_COPY_MENU_AMBIGUOUS");
+            if(matches.Count==1) {
+                GetWindowThreadProcessId(GetForegroundWindow(),out foreground);Require(foreground==process.Id,"FOCUS_CHANGED_IN_SAVE_MENU");
+                Require(Canonical(Value(field))==Canonical(reference)&&SelectedTranslation(selector)==selected,"PASSAGE_CHANGED_IN_SAVE_MENU");
+                Require(matches[0].TryGetCurrentPattern(InvokePattern.Pattern,out invoke),"SAVE_COPY_MENU_NOT_INVOKABLE");
+                Stage("save-new-presentation-copy");((InvokePattern)invoke).Invoke();return;
+            }
+            Thread.Sleep(50);
+        }
+        throw new InvalidOperationException("SAVE_COPY_MENU_NOT_VERIFIED");
+    }
     static object Run(Dictionary<string,object> request) {
         Stage("validate-target");
         string operation=Convert.ToString(request.ContainsKey("operation")?request["operation"]:"inspect");
-        Require(operation=="inspect"||operation=="prepare","UNKNOWN_OPERATION");
+        Require(operation=="inspect"||operation=="prepare"||operation=="prepare-save","UNKNOWN_OPERATION");
         var processes=Process.GetProcessesByName("ProPresenter");Require(processes.Length==1,"ONE_PROPRESENTER_INSTANCE_REQUIRED");
         var process=processes[0];var expected=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),"Renewed Vision","ProPresenter","ProPresenter.exe");
         Require(String.Equals(Path.GetFullPath(process.MainModule.FileName),Path.GetFullPath(expected),StringComparison.OrdinalIgnoreCase),"UNEXPECTED_PROPRESENTER_EXECUTABLE");
@@ -77,10 +120,11 @@ class BibleBridge {
         Stage("focus-reference");
         Require(SetForegroundWindow(process.MainWindowHandle),"COULD_NOT_FOCUS_PROPRESENTER");
         field.SetFocus();Require(GetForegroundWindow()==process.MainWindowHandle&&field.Current.HasKeyboardFocus,"REFERENCE_FOCUS_NOT_CONFIRMED");
-        SelectAll();Require(GetForegroundWindow()==process.MainWindowHandle&&field.Current.HasKeyboardFocus,"FOCUS_CHANGED_DURING_PREPARATION");
-        // The strict alphabet/digit/colon/hyphen reference whitelist above excludes
-        // every SendKeys command metacharacter. No arbitrary keyboard API exists.
-        TypeReference(reference);WaitValue(field,reference);
+        WaitReleasedModifiers();Require(GetForegroundWindow()==process.MainWindowHandle&&field.Current.HasKeyboardFocus,"FOCUS_CHANGED_DURING_PREPARATION");
+        // Update the one validated Bible-reference control atomically. Per-key
+        // Unicode input can interact with WPF's reference completion/caret logic.
+        object editable;Require(field.TryGetCurrentPattern(ValuePattern.Pattern,out editable),"REFERENCE_NOT_EDITABLE");
+        ((ValuePattern)editable).SetValue(reference);WaitValue(field,reference);
         Require(GetForegroundWindow()==process.MainWindowHandle&&field.Current.HasKeyboardFocus,"FOCUS_CHANGED_BEFORE_ENTER");
         Stage("commit-reference");EnterReference();
         // The control view can skip WPF layout containers and return the whole
@@ -108,7 +152,9 @@ class BibleBridge {
             if(stable>=2) {
                 clipped=elements.Cast<AutomationElement>().Any(e=>(e.Cached.HelpText??"").IndexOf("clipped",StringComparison.OrdinalIgnoreCase)>=0||(e.Cached.Name??"").IndexOf("clipped",StringComparison.OrdinalIgnoreCase)>=0);
                 Stage("prepared-review");
-                return new {ok=true,state="prepared-needs-operator-review",reference=reference,translation=translation,referenceLabels=count,clippingWarning=clipped,formattingVerified=false,outputRequests=0,outputObserved=false,elapsedMs=Total.ElapsedMilliseconds,timingsMs=Timings};
+                bool saveCopy=operation=="prepare-save";
+                if(saveCopy)SaveBibleCopy(root,process,field,selector,reference,selected);
+                return new {ok=true,state="prepared-needs-operator-review",reference=reference,translation=translation,referenceLabels=count,clippingWarning=clipped,saveCopyRequested=saveCopy,formattingVerified=false,outputRequests=0,outputObserved=false,elapsedMs=Total.ElapsedMilliseconds,timingsMs=Timings};
             }
             Thread.Sleep(150);
         }
@@ -116,6 +162,7 @@ class BibleBridge {
     }
     [MTAThread] static int Main() {
         try {
+            SetProcessDPIAware();
             string input=Console.ReadLine();Require(input!=null&&input.Length<=8192,"INVALID_REQUEST_SIZE");
             var request=Json.Deserialize<Dictionary<string,object>>(input);Require(request!=null,"INVALID_REQUEST");
             Console.WriteLine(Json.Serialize(Run(request)));return 0;

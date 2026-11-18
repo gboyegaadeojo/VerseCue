@@ -25,7 +25,7 @@ function render(next){
     $('review-note').textContent=candidate.issues.join(' · ')||'Review the reference before sending.';
     $('show').textContent=state.dryRun?'Simulate passage':'Show prepared test cue';
     const blocked=state.recovery?.required||state.stopped||state.busy||candidate.generation!==state.generation||!candidate.authorized||candidate.reference.valid===false||candidate.reference.overLimit||candidate.reference.verse==null||candidate.issues.some(i=>/Invalid|no-show|not supported/.test(i));
-    $('show').disabled=blocked||!['confirm','auto'].includes(state.mode);$('prepare-candidate').disabled=blocked||!nativeAvailable;
+    $('show').disabled=blocked||!['confirm','auto'].includes(state.mode);$('prepare-candidate').disabled=blocked||!nativeAvailable;$('save-candidate').disabled=blocked||!nativeAvailable;
     $('previous-verse').disabled=blocked||candidate.translation!=='KJV';$('next-verse').disabled=blocked||candidate.translation!=='KJV';
     $('expiry').textContent=`${Math.max(0,Math.ceil((candidate.expiresAt-Date.now())/1000))}s remaining`;
   }else $('expiry').textContent='';
@@ -58,7 +58,7 @@ bind('resume',()=>action('resume'));
 bind('show',async()=>{const id=selectedId;const result=await action('send',id);message(result.state==='simulated'?'Simulated passage · zero output requests.':result.state==='readback-matched'?'ProPresenter accepted the cue; matching readback received. Physical audience/stream output is not observed.':'Completion uncertain. Inspect ProPresenter; no retry was sent.');});
 bind('reject',()=>action('reject',selectedId));
 bind('edit',()=>{const c=state.queue.find(c=>c.id===selectedId);if(c){$('reference-input').value=`${c.label} in ${c.translation}`;action('reject',c.id).catch(e=>message(e.message));$('reference-input').focus();}});
-bind('reset',async()=>{await action('reset');await stopAudio();$('transcript').textContent='No audio has been processed.';$('audio-consent').checked=false;message('Session reset. Transient references and history cleared; dry run restored.');});
+bind('reset',async()=>{await action('reset');await stopAudio();$('transcript').textContent='No audio has been processed.';$('audio-consent').checked=false;$('native-save-consent').checked=false;message('Session reset. Transient references and history cleared; dry run restored.');});
 bind('compact',()=>call('compact'));
 bind('previous-verse',async()=>{await action('navigate',{id:selectedId,direction:-1});message('Previous verse proposed for review; no output change.');});
 bind('next-verse',async()=>{await action('navigate',{id:selectedId,direction:1});message('Next verse proposed for review; no output change.');});
@@ -108,3 +108,17 @@ bind('browse-libraries',async()=>{clearSavedBrowser();const epoch=browseEpoch;se
 $('saved-library').addEventListener('change',async()=>{const id=$('saved-library').value,epoch=++browseEpoch;savedRows=[];$('map-uuid').value='';$('map-reference').value='';$('map-cue').value='0';options('saved-presentation',[],'Choose a presentation');options('saved-cue',[],'Choose a cue');setText('saved-cue-preview','');$('map-verified').checked=false;$('map-auto-verified').checked=false;if(!id)return;try{setText('saved-cue-status','Loading presentation names...');const rows=await action('catalog-presentations',id);if(epoch!==browseEpoch)return;options('saved-presentation',rows,'Choose a presentation');setText('saved-cue-status','Choose the exact saved Bible presentation.');}catch(e){if(epoch===browseEpoch)setText('saved-cue-status',e.message);}});
 $('saved-presentation').addEventListener('change',async()=>{const id=$('saved-presentation').value,epoch=++browseEpoch;savedRows=[];$('map-uuid').value='';$('map-reference').value='';$('map-cue').value='0';options('saved-cue',[],'Choose a cue');setText('saved-cue-preview','');$('map-verified').checked=false;$('map-auto-verified').checked=false;if(!id)return;try{setText('saved-cue-status','Inspecting saved cues...');const result=await action('catalog-cues',id);if(epoch!==browseEpoch)return;savedRows=result.cues;options('saved-cue',savedRows,'Choose a cue');$('map-uuid').value=id;setText('saved-cue-status','Choose the cue, then verify its exact reference, translation and appearance.');}catch(e){if(epoch===browseEpoch)setText('saved-cue-status',e.message);}});
 $('saved-cue').addEventListener('change',()=>{const cue=savedRows.find(c=>String(c.index)===$('saved-cue').value);$('map-verified').checked=false;$('map-auto-verified').checked=false;if(!cue)return;$('map-cue').value=cue.index;$('map-reference').value=cue.label;setText('saved-cue-preview',cue.text);setText('saved-cue-status','Preview read from the saved presentation. Verify text/translation/Looks in ProPresenter before mapping. Nothing was sent.');});
+
+bind('save-candidate',async()=>{
+ if(!$('native-preparation-consent').checked||!$('native-save-consent').checked){fillSettings(await call('settings'));if(!$('settings-dialog').open)$('settings-dialog').showModal();window.workspace.settings('advanced');throw new Error('Acknowledge focus changes and creation of a new saved Bible copy first');}
+ const id=selectedId,libraryId=$('saved-library').value||null;await stopAudio();message('Preparing and saving a genuine ProPresenter Bible copy. Output stays disarmed.');
+ const result=await action('prepare-save-candidate',{id,libraryId,acknowledgeFocusChange:true,acknowledgeCreateCopy:true});
+ fillSettings(await call('settings'));if(!$('settings-dialog').open)$('settings-dialog').showModal();window.workspace.settings('output');
+ options('saved-library',[result.library],'Choose a library');$('saved-library').value=result.library.uuid;
+ options('saved-presentation',[{uuid:result.uuid,name:result.name}],'Choose a presentation');$('saved-presentation').value=result.uuid;
+ const inspected=await action('catalog-cues',result.uuid);savedRows=inspected.cues;options('saved-cue',savedRows,'Choose a cue');$('map-uuid').value=result.uuid;$('map-reference').value=result.reference;$('map-translation').value=result.translation;
+ setText('saved-cue-status',String(result.cueCount)+' saved cues. Review every slide before mapping.');
+ message(result.clippingWarning?'Bible copy saved, but ProPresenter reports clipped text. Correct formatting in ProPresenter before verifying/sending. Output remains disarmed.':'Bible copy saved. Review its exact text, translation, theme and Looks, then map explicitly. Output remains disarmed; resume Confirm deliberately.',true);
+});
+
+document.addEventListener('keydown',event=>{if(event.ctrlKey&&event.shiftKey&&!event.altKey&&(event.code==='KeyP'||event.key.toLowerCase()==='p')&&!event.repeat&&!document.querySelector('dialog[open]')){event.preventDefault();if($('save-candidate').disabled||$('candidate').hidden){message('Review a valid current reference before preparing a saved Bible copy.');return;}$('save-candidate').click();}});

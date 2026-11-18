@@ -5,6 +5,7 @@ const fs=require('node:fs/promises');
 const {pathToFileURL}=require('node:url');
 const {Connector}=require('../core/connector.cjs');
 const {PreparedCatalog}=require('../core/prepared-catalog.cjs');
+const {SavedBibleWorkflow}=require('../core/saved-bible-workflow.cjs');
 const {Session}=require('../core/session.cjs');
 const {LocalSpeech}=require('../core/stt.cjs');
 const store=require('../core/settings.cjs');
@@ -17,14 +18,16 @@ const {PowerRecovery}=require('../core/power-recovery.cjs');
 const {GuardedAuto}=require('../core/guarded-auto.cjs');
 const connector=new Connector();const catalog=new PreparedCatalog(connector);const service=new Session(connector);const speech=new LocalSpeech();
 const automatic=new GuardedAuto(service);
-let preparation,preparationController,suspensionBlocker=null;
+let preparation,preparationController,savedBible,preparationOwner=null,suspensionBlocker=null;
 function updateBackgroundCapture(active){if(active&&suspensionBlocker===null)suspensionBlocker=powerSaveBlocker.start('prevent-app-suspension');if(!active&&suspensionBlocker!==null){powerSaveBlocker.stop(suspensionBlocker);suspensionBlocker=null;}}
-const capture=new CaptureLease({canStart:()=>!service.recovery?.required&&!service.stopped&&service.mode!=='paused'&&!speech.busy&&!preparation?.busy,onStop:()=>{automatic.cancel();speech.cancel();updateBackgroundCapture(false);},onChange:value=>{updateBackgroundCapture(value.active);service.capture={...value,backgroundProtected:suspensionBlocker!==null&&powerSaveBlocker.isStarted(suspensionBlocker)};service.notify();}});
+const capture=new CaptureLease({canStart:()=>!service.recovery?.required&&!service.stopped&&service.mode!=='paused'&&!speech.busy&&!preparation?.busy&&!savedBible?.busy,onStop:()=>{automatic.cancel();speech.cancel();updateBackgroundCapture(false);},onChange:value=>{updateBackgroundCapture(value.active);service.capture={...value,backgroundProtected:suspensionBlocker!==null&&powerSaveBlocker.isStarted(suspensionBlocker)};service.notify();}});
+function cancelPreparation(){savedBible?.cancel();preparation?.cancel();}
+async function ownedPreparation(event,operation){if(preparationOwner)throw new Error('Another window is preparing a Bible passage');const owner={id:event.sender.id};preparationOwner=owner;try{return await operation();}finally{if(preparationOwner===owner)preparationOwner=null;}}
 function cancelAudio(){automatic.cancel();capture.cancel();}
 async function prepareBible(reference,translation,guard=()=>true){
-  if(!preparationController)throw new Error('Preparation controller is not ready');return preparationController.prepare(reference,translation,guard);
+  if(!preparationController)throw new Error('Preparation controller is not ready');if(savedBible?.busy)throw new Error('Finish the saved-copy preparation first');return preparationController.prepare(reference,translation,guard);
 }
-const privateApi=new LocalControlAPI(service,{onStop:()=>{cancelAudio();preparation?.cancel();connector.arm(false);service.stop();},onPrepare:prepareBible,onRevoke:()=>preparation?.cancel(),onEvent:code=>{service.log(code);service.notify();}});
+const privateApi=new LocalControlAPI(service,{onStop:()=>{cancelAudio();cancelPreparation();connector.arm(false);service.stop();},onPrepare:prepareBible,onRevoke:()=>cancelPreparation(),onEvent:code=>{service.log(code);service.notify();}});
 let settings,settingsFile,profiles,mainWindow,compactWindow,healthTimer,healthBusy=false;const windows=new Set();
 const ui=pathToFileURL(path.join(__dirname,'../ui/index.html')).href;
 function trusted(e){if(!windows.has(BrowserWindow.fromWebContents(e.sender))||e.senderFrame!==e.sender.mainFrame||e.senderFrame.url.split('?')[0]!==ui)throw new Error('Untrusted caller');}
@@ -32,7 +35,7 @@ function handler(name,callback,{withEvent=false}={}){ipcMain.handle(name,async(e
 function createWindow(compact=false){
   const win=new BrowserWindow({width:compact?450:1280,height:compact?630:900,minWidth:compact?360:800,minHeight:550,title:'VerseCue',backgroundColor:'#10151d',show:false,alwaysOnTop:compact,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,backgroundThrottling:false}});
   windows.add(win);win.setMenuBarVisibility(false);win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('will-navigate',e=>e.preventDefault());const captureOwnerId=win.webContents.id;
-  const releaseUnavailableOwner=code=>{if(!capture.owns(captureOwnerId))return;cancelAudio();preparation?.cancel();privateApi.stop().catch(()=>{});connector.arm(false);service.setMode('paused');service.log(code,'warning');service.notify();};
+  const releaseUnavailableOwner=code=>{if(!capture.owns(captureOwnerId)&&preparationOwner?.id!==captureOwnerId)return;cancelAudio();cancelPreparation();privateApi.stop().catch(()=>{});connector.arm(false);service.setMode('paused');service.log(code,'warning');service.notify();};
   win.webContents.on('render-process-gone',()=>releaseUnavailableOwner('AUDIO_OWNER_RENDERER_GONE'));
   win.webContents.on('did-start-navigation',details=>{if(details.isMainFrame)releaseUnavailableOwner('AUDIO_OWNER_RELOADED');});
   win.on('closed',()=>{releaseUnavailableOwner('AUDIO_OWNER_CLOSED');windows.delete(win);if(compact)compactWindow=null;});win.once('ready-to-show',()=>win.show());win.loadURL(ui+(compact?'?compact=1':''));return win;
@@ -53,7 +56,8 @@ async function bootstrap(){
   let helperExists=false;try{await fs.access(helper);helperExists=true;}catch{}
   preparation=new BiblePreparation({helper:helperExists?helper:null});
   preparationController=new PreparationController({service,connector,speech:{cancel:cancelAudio},preparation,getTranslation:()=>settings.translation});
-  const recovery=new PowerRecovery({service,connector,cancelAudio,cancelPreparation:()=>preparation.cancel(),revokeApi:()=>privateApi.stop(),getTarget:()=>settings});
+  savedBible=new SavedBibleWorkflow({service,connector,catalog,controller:preparationController});
+  const recovery=new PowerRecovery({service,connector,cancelAudio,cancelPreparation:()=>cancelPreparation(),revokeApi:()=>privateApi.stop(),getTarget:()=>settings});
   powerMonitor.on('suspend',()=>recovery.handle('suspend'));powerMonitor.on('resume',()=>recovery.handle('resume'));
   // Optional verified offline resources are local development-package assets,
   // not downloaded or executed automatically during startup.
@@ -88,7 +92,7 @@ async function bootstrap(){
   handler('profiles-save',name=>profiles.save(name,settings));
   handler('profiles-remove',id=>profiles.remove(id));
   handler('profiles-load',async id=>{
-    cancelAudio();preparation.cancel();connector.arm(false);cancelAudio();service.setMode('paused');await privateApi.stop();
+    cancelAudio();cancelPreparation();connector.arm(false);cancelAudio();service.setMode('paused');await privateApi.stop();
     if(speech.busy)throw new Error('Recognition is stopping; retry profile load in a moment');
     const incoming=await profiles.get(id);settings=await store.save(settingsFile,incoming);connector.configure(settings.host,settings.port);speech.configure(settings.executable,settings.model,settings.speechMode);service.configure({translation:settings.translation,dryRun:true});return settings;
   });
@@ -96,20 +100,25 @@ async function bootstrap(){
   handler('private-api-start',async options=>{if(options?.allowPreparation&&!preparation.available())throw new Error('Native preparation is unavailable on this platform/build');return {...await privateApi.start(options),nativePreparationAvailable:preparation.available()};});
   handler('private-api-stop',()=>privateApi.stop());
   handler('private-api-copy-token',()=>{if(!privateApi.accepting||!privateApi.token)throw new Error('Enable the private API first');clipboard.writeText(privateApi.token);return true;});
-  handler('save-settings',async value=>{const valid=store.validateSettings(value);cancelAudio();preparation.cancel();if(speech.busy)throw new Error('Recognition is stopping; retry in a moment');settings=await store.save(settingsFile,valid);connector.configure(settings.host,settings.port);speech.configure(settings.executable,settings.model,settings.speechMode);service.configure({translation:settings.translation,dryRun:true});return settings;});
+  handler('save-settings',async value=>{const valid=store.validateSettings(value);cancelAudio();cancelPreparation();if(speech.busy)throw new Error('Recognition is stopping; retry in a moment');settings=await store.save(settingsFile,valid);connector.configure(settings.host,settings.port);speech.configure(settings.executable,settings.model,settings.speechMode);service.configure({translation:settings.translation,dryRun:true});return settings;});
   handler('choose-worker',()=>choose('worker'));handler('choose-model',()=>choose('model'));
-  handler('command',async(command,payload)=>{
+  handler('command',async(event,command,payload)=>{
     switch(command){
-      case 'ingest':if(typeof payload?.text!=='string')throw new Error('Invalid reference');return service.ingest(payload.text,{manual:true});
-      case 'mode':cancelAudio();preparation.cancel();return service.setMode(payload);
-      case 'enable-auto':if(preparation.busy)throw new Error('Finish Bible preparation before enabling Auto');automatic.cancel();speech.cancel();return service.enableAuto({acknowledged:payload?.acknowledged===true});
-      case 'stop':cancelAudio();preparation.cancel();connector.arm(false);return service.stop();
-      case 'resume':preparation.cancel();return service.resume();
-      case 'reset':cancelAudio();preparation.cancel();connector.arm(false);return service.reset();
-      case 'prepare-bible':if(payload?.acknowledgeFocusChange!==true)throw new Error('Acknowledge experimental preparation and focus change');return prepareBible(payload.reference,settings.translation);
+      case 'ingest':if(typeof payload?.text!=='string')throw new Error('Invalid reference');if(preparation.busy||savedBible?.busy)cancelPreparation();return service.ingest(payload.text,{manual:true});
+      case 'mode':cancelAudio();cancelPreparation();return service.setMode(payload);
+      case 'enable-auto':if(preparation.busy||savedBible?.busy)throw new Error('Finish Bible preparation before enabling Auto');automatic.cancel();speech.cancel();return service.enableAuto({acknowledged:payload?.acknowledged===true});
+      case 'stop':cancelAudio();cancelPreparation();connector.arm(false);return service.stop();
+      case 'resume':cancelPreparation();return service.resume();
+      case 'reset':cancelAudio();cancelPreparation();connector.arm(false);return service.reset();
+      case 'prepare-bible':if(payload?.acknowledgeFocusChange!==true)throw new Error('Acknowledge experimental preparation and focus change');return ownedPreparation(event,()=>prepareBible(payload.reference,settings.translation));
+      case 'prepare-save-candidate':{
+        if(payload?.acknowledgeFocusChange!==true||payload?.acknowledgeCreateCopy!==true)throw new Error('Acknowledge focus changes and creation of a saved Bible copy');
+        return ownedPreparation(event,()=>savedBible.prepareCandidate(payload.id,{libraryId:payload.libraryId??null}));
+      }
       case 'prepare-candidate':{
         if(payload?.acknowledgeFocusChange!==true)throw new Error('Acknowledge experimental preparation and focus change');
-        return preparationController.prepareCandidate(payload.id);
+        if(savedBible?.busy)throw new Error('Finish the saved-copy preparation first');
+        return ownedPreparation(event,()=>preparationController.prepareCandidate(payload.id));
       }
       case 'reject':return service.reject(payload);
       case 'navigate':return service.navigate(payload?.id,payload?.direction);
@@ -119,11 +128,11 @@ async function bootstrap(){
       case 'catalog-presentations':return catalog.presentations(payload);
       case 'catalog-cues':return catalog.cues(payload);
       case 'map':return connector.prepare(payload);
-      case 'dry-run':preparation.cancel();connector.arm(false);service.configure({dryRun:true,translation:settings.translation});return;
-      case 'arm':if(service.recovery?.required)throw new Error('Complete wake connection preflight and resume first');if(payload!==true)throw new Error('Explicit test-target acknowledgment required');if(preparation.busy)throw new Error('Finish or cancel Bible preparation before arming output');connector.arm(true);service.configure({dryRun:false,translation:settings.translation});return;
+      case 'dry-run':cancelPreparation();connector.arm(false);service.configure({dryRun:true,translation:settings.translation});return;
+      case 'arm':if(service.recovery?.required)throw new Error('Complete wake connection preflight and resume first');if(payload!==true)throw new Error('Explicit test-target acknowledgment required');if(preparation.busy||savedBible?.busy)throw new Error('Finish or cancel Bible preparation before arming output');connector.arm(true);service.configure({dryRun:false,translation:settings.translation});return;
       default:throw new Error('Unknown command');
     }
-  });
+  },{withEvent:true});
   handler('audio',async(event,samples,metadata)=>{
     if(!capture.owns(event.sender.id))throw new Error('This window does not own an authorized audio session');
     if(service.stopped||service.mode==='paused')throw new Error('Listening is paused');const epoch=service.generation;
@@ -132,7 +141,7 @@ async function bootstrap(){
     service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});const candidates=service.ingest(result.text,{authorized:true});automatic.consider(candidates,{source:'local-speech',final:result.final===true,elapsedMs:result.elapsedMs,endEvidence:metadata?.endEvidence,droppedSamples:metadata?.droppedSamples});return result;
   },{withEvent:true});
   handler('export-settings',async()=>{const r=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-settings.json'});if(!r.canceled){const safe={...settings,executable:'',model:'',audioDevice:''};await fs.writeFile(r.filePath,JSON.stringify(safe,null,2));return true;}return false;});
-  handler('import-settings',async()=>{const r=await dialog.showOpenDialog(mainWindow,{properties:['openFile'],filters:[{name:'JSON',extensions:['json']}]});if(r.canceled)return null;const bytes=await fs.readFile(r.filePaths[0],'utf8');if(bytes.length>16384)throw new Error('Settings file too large');const incoming=store.validateSettings(JSON.parse(bytes));incoming.executable='';incoming.model='';incoming.audioDevice='';cancelAudio();preparation.cancel();if(speech.busy)throw new Error('Stop recognition before import');settings=await store.save(settingsFile,incoming);connector.configure(settings.host,settings.port);speech.configure('','',settings.speechMode);service.reset();service.configure({translation:settings.translation});return settings;});
+  handler('import-settings',async()=>{const r=await dialog.showOpenDialog(mainWindow,{properties:['openFile'],filters:[{name:'JSON',extensions:['json']}]});if(r.canceled)return null;const bytes=await fs.readFile(r.filePaths[0],'utf8');if(bytes.length>16384)throw new Error('Settings file too large');const incoming=store.validateSettings(JSON.parse(bytes));incoming.executable='';incoming.model='';incoming.audioDevice='';cancelAudio();cancelPreparation();if(speech.busy)throw new Error('Stop recognition before import');settings=await store.save(settingsFile,incoming);connector.configure(settings.host,settings.port);speech.configure('','',settings.speechMode);service.reset();service.configure({translation:settings.translation});return settings;});
   handler('export-diagnostics',async()=>{const preview={schemaVersion:1,appVersion:app.getVersion(),platform:process.platform,p0:'PENDING',events:service.events,capabilities:service.snapshot().capabilities};const r=await dialog.showMessageBox(mainWindow,{type:'info',buttons:['Cancel','Save redacted diagnostics'],defaultId:0,message:`Export ${preview.events.length} event codes and times, app/platform versions and capability flags. No references, transcripts, audio, paths or addresses are included.`});if(r.response!==1)return false;const dest=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-diagnostics.json'});if(!dest.canceled)await fs.writeFile(dest.filePath,JSON.stringify(preview,null,2));return !dest.canceled;});
   handler('compact',()=>{if(compactWindow)compactWindow.focus();else compactWindow=createWindow(true);});
   healthTimer=setInterval(async()=>{
@@ -152,6 +161,6 @@ async function bootstrap(){
 if(!app.requestSingleInstanceLock())app.quit();else{
   app.on('second-instance',()=>{if(mainWindow){if(mainWindow.isMinimized())mainWindow.restore();mainWindow.focus();}});
   app.whenReady().then(bootstrap).catch(()=>{dialog.showErrorBox('VerseCue startup','Unable to initialize safe local settings. Check file access and restart.');app.quit();});
-  app.on('window-all-closed',()=>app.quit());app.on('before-quit',()=>{clearInterval(healthTimer);cancelAudio();preparation?.cancel();privateApi.stop().catch(()=>{});});
+  app.on('window-all-closed',()=>app.quit());app.on('before-quit',()=>{clearInterval(healthTimer);cancelAudio();cancelPreparation();privateApi.stop().catch(()=>{});});
   app.on('web-contents-created',(_event,contents)=>contents.on('will-attach-webview',event=>event.preventDefault()));
 }
