@@ -19,7 +19,9 @@
     "unitTests": 317,
     "nativeBiblePreparationVerified": false,
     "physicalOutputVerified": false,
-    "artifactChecksumIndependentlyVerified": false
+    "artifactChecksumIndependentlyVerified": true,
+    "zipBytes": 257280572,
+    "zipSha256": "e7aab89d0b4a8597d9a1beee42d53417616503cd4919383b6a17f3d8dfdcd340"
   },
   "reports": {
     "packaged-smoke": {
