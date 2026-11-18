@@ -108,6 +108,8 @@ Application improvements use focused pull requests so changes can be reviewed an
 
 ## Project documentation
 
+The unfinished reference-driven workflow is tracked in [draft PR #22](https://github.com/gboyegaadeojo/VerseCue/pull/22), with its [complete implementation checklist](docs/51-reference-driven-bible-workflow.md) and [personal-host preparation results](docs/52-native-edition-and-playlist-checks.md). These source changes are not yet a new downloadable release.
+
 [Start with the leadership summary](docs/00-executive-summary.md), [operator runbook](docs/13-operations-and-runbook.md), or [requirements summary](REQUIREMENTS_SUMMARY.md). The [master specification](VerseCue_Master_Development_Prompt_v2_Codex.md) is authoritative. [Assumptions](PROJECT_ASSUMPTIONS.md), [research sources](RESEARCH_SOURCES.md), [change requests](NEW_REQUESTS.md) and [historical development notes](DEVELOPMENT_HISTORY.md) remain available. The [CSV](docs/test-data/versecue-utterances.csv) and [JSON](docs/test-data/versecue-utterances.json) retain all 66 matching synthetic test proposals.
 
 ## Ordered document package
