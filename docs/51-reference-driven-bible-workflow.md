@@ -53,12 +53,18 @@ All items below are necessary for the stated end-to-end behavior or its original
 4. Replace the normal technical mapping UI, make readiness/recovery clear, and preserve every safety gate.
 5. Run RF-22's real end-to-end acceptance, platform builds and existing regressions; only then mark this PR ready for review/merge and publish a matching application build.
 
-The PR stays **DRAFT** while any required end-to-end item above remains incomplete. No new distributable is published from this foundation-only branch and it is not presented as the finished requested application. Later user approvals already authorize building/testing within the recorded personal-host scope; this draft status is an honest completeness boundary, not a request to repeat permission.
+The PR stays **DRAFT** while any required end-to-end item above remains incomplete. No new distributable is published from this unfinished branch and it is not presented as the finished requested application. Later user approvals already authorize building/testing within the recorded personal-host scope; this draft status is an honest completeness boundary, not a request to repeat permission.
 
 ## Mandatory demonstration
 
 With an existing Sunday Service playlist open and ordinary media/operator activity continuing, start the authorized pastor feed. Say "Hosea 1:1"; VerseCue prepares the exact installed Bible passage without choosing a presentation/cue. Confirm once at the passage level (or exercise an explicitly enabled verified Auto policy). Verify full text, selected edition, existing theme, room/stream Looks and matching readback. Say "next verse" and verify Hosea 1:2, including a case where 1:1 spans multiple slides. Request AMP, interrupt with an explicit correction, change the live slide from Companion, disconnect/reconnect and press Stop. No unrelated playlist item, stale reference or uncertain output may be automatically triggered. Repeat on each supported platform/route and label unsupported combinations honestly.
 
-## Coordinator checkpoint
+## Historical coordinator-only checkpoint
 
 The draft now includes core/passage-coordinator.cjs, a preparation-only state machine exposed through trusted desktop IPC. It reuses an exact existing passage, reports ambiguous matches, requires explicit focus/copy consent before native preparation, checks complete saved metadata and re-resolves the resulting identity before review. Native preparation still pauses/disarms; fresh review is explicitly required. The coordinator cannot map, arm or send output. Its actual phase is available in session state, and owner/Stop/target/busy safeguards are integrated in the desktop process.248module tests and the synthetic-catalog desktop IPC plus renderer-recovery checks pass. Normal operator UI and passage-level confirmation/output remain pending; this does not complete RF-01.
+
+## Normal UI and single-slide confirmation checkpoint
+
+The draft now exposes Prepare this passage and a passage review card in the real desktop UI. It shows text read from the saved ProPresenter response and requires explicit appearance and authorized-test-target consent. A single-slide passage is mapped internally by exact reference/fingerprint, then sent once through Session/Connector with bounded readback; no Library/Presentation/Cue selection is used. Old preparation tools remain available under a disclosure for manual fallback. Stale content, Stop, changed target, missing consent and multi-slide output are blocked. Manual reference replacement/dismiss/navigation cancels pending review. This is a single-slide Confirm implementation, not completion of the whole RF01-22 workflow.
+
+251module tests, the source workspace/full-compact desktop checks and the new normal UI fake-target demonstration passed. The demonstration triggered once only after both explicit consents and retained Stop; split-slide output stayed disabled. No real ProPresenter/microphone/physical output or new release was used. Multi-slide progression, editions, automatic speech-driven preparation, live context, simpler output setup and platform/field acceptance remain active work.

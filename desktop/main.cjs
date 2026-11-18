@@ -108,7 +108,7 @@ async function bootstrap(){
   handler('choose-worker',()=>choose('worker'));handler('choose-model',()=>choose('model'));
   handler('command',async(event,command,payload)=>{
     switch(command){
-      case 'ingest':if(typeof payload?.text!=='string')throw new Error('Invalid reference');if(preparation.busy||savedBible?.busy||passageCoordinator?.busy)cancelPreparation();return service.ingest(payload.text,{manual:true});
+      case 'ingest':if(typeof payload?.text!=='string')throw new Error('Invalid reference');if(preparation.busy||savedBible?.busy||passageCoordinator?.busy||passageCoordinator?.review)cancelPreparation();return service.ingest(payload.text,{manual:true});
       case 'mode':cancelAudio();cancelPreparation();return service.setMode(payload);
       case 'enable-auto':if(preparation.busy||savedBible?.busy)throw new Error('Finish Bible preparation before enabling Auto');automatic.cancel();speech.cancel();return service.enableAuto({acknowledged:payload?.acknowledged===true});
       case 'stop':cancelAudio();cancelPreparation();connector.arm(false);return service.stop();
@@ -124,10 +124,12 @@ async function bootstrap(){
         if(savedBible?.busy)throw new Error('Finish the saved-copy preparation first');
         return ownedPreparation(event,()=>preparationController.prepareCandidate(payload.id));
       }
-      case 'reject':return service.reject(payload);
-      case 'navigate':return service.navigate(payload?.id,payload?.direction);
+      case 'reject':cancelPreparation();return service.reject(payload);
+      case 'navigate':cancelPreparation();return service.navigate(payload?.id,payload?.direction);
       case 'send':return service.send(payload);
       case 'test':try{return await connector.test();}finally{service.notify();}
+      case 'cancel-passage-preparation':cancelPreparation();return true;
+      case 'confirm-passage':automatic.cancel();return ownedPreparation(event,()=>passageCoordinator.confirm(payload?.reviewToken,{verified:payload?.verified===true,acknowledgeTestOutput:payload?.acknowledgeTestOutput===true}));
       case 'prepare-passage-candidate':return ownedPreparation(event,()=>passageCoordinator.prepare(payload?.id,{acknowledgeFocusChange:payload?.acknowledgeFocusChange===true,acknowledgeCreateCopy:payload?.acknowledgeCreateCopy===true}));
       case 'resolve-candidate':return referencePassages.findCandidate(service,payload?.id);
       case 'catalog-libraries':return catalog.libraries();

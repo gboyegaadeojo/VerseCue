@@ -27,6 +27,18 @@ class Connector {
     if(!mapping.version)throw new Error('Test the target first');this.mappings.set(`${reference}|${translation}`,mapping);
     return {reference,translation,cue,prepared:true};
   }
+  async preparePassage({uuid,reference,translation,expectedFingerprint,verified,guard=()=>true}){
+    if(verified!==true)throw Error('Verify the passage text, edition and appearance before confirmation');
+    const generation=this.generation,base=this.base,version=this.version?.host_description;
+    if(!version||!guard())throw Error('Passage verification canceled or connection not tested');
+    const source=await this.inspect(uuid);
+    const plan=require('./bible-passage-plan.cjs').planSavedPassage(source,{uuid,reference,translation});
+    if(plan.fingerprint!==expectedFingerprint)throw Error('Passage changed after review; prepare it again');
+    if(!plan.singleCue)throw Error('This passage spans multiple slides; complete passage navigation is not ready yet');
+    if(generation!==this.generation||base!==this.base||version!==this.version?.host_description||!guard())throw Error('Passage verification canceled');
+    this.mappings.set(`${reference}|${translation}`,{uuid,cue:plan.cueIndices[0],reference,translation,autoVerified:false,fingerprint:plan.fingerprint,version});
+    return {reference,translation,prepared:true,cueCount:plan.cueIndices.length};
+  }
   async send(candidate,{dryRun,guard,automatic=false}){
     if(dryRun){if(!guard())throw new Error('Send canceled');return {state:'simulated',networkRequests:0};}
     const generation=this.generation,base=this.base;

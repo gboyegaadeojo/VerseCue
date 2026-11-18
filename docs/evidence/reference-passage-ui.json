@@ -1,0 +1,18 @@
+{
+  "at": "2026-11-18T15:48:52.909Z",
+  "version": "0.6.0",
+  "passed": true,
+  "normalOperatorUIWired": true,
+  "operatorLibraryPresentationCueSelection": false,
+  "previewFromSyntheticProPresenter": true,
+  "explicitAppearanceAndTargetConsent": true,
+  "fakeTargetTriggers": 1,
+  "multiSlideOutputWithheld": true,
+  "stopLatched": true,
+  "actualProPresenterAccess": false,
+  "microphoneCapture": false,
+  "draftImplementation": true,
+  "moduleTests": 251,
+  "fullWorkflowComplete": false,
+  "releasePublished": false
+}
