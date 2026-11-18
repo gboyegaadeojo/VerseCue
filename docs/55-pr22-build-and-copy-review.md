@@ -10,13 +10,15 @@ Mac standard public workflow [44378160963](https://github.com/gboyegaadeojo/Vers
 
 The [sanitized build report](evidence/pr22-build-checkpoint-272e1ae.json) records exact revision, checks and checksum. Later saved-copy/keyboard changes described below are **not** included in that older packaged checkpoint; they need their own matching verification before release.
 
-## Saved-copy choice and keyboard safeguards
-
 ## Subsequent verification
+
+The [matching aeb34c3 checkpoint report](evidence/pr22-build-checkpoint-aeb34c3.json) records the later background ownership safeguard: 317 module tests, Windows manifest verification and packaged startup/reference/next-verse/minimized-preparation/old-target-race/Auto/audio-age checks pass. Mac workflow [44391612214](https://github.com/gboyegaadeojo/VerseCue/actions/runs/44391612214) passed at the same revision, including the updated synthetic desktop checks, CPU speech build, development packaging and packaged workspace. These checks do not certify actual Mac ProPresenter integration or physical output. This is the current production-source checkpoint; the reports below preserve earlier history.
 
 Mac workflow [44388816375](https://github.com/gboyegaadeojo/VerseCue/actions/runs/44388816375) passed at revision `ca1cc3b6191a74bc89efd037dadaa54d5ca5c021`: 312 module tests, syntax, synthetic reference/next-verse/audio-age/copy-choice/minimized-preparation checks, CPU speech build, development packaging and packaged workspace. The preceding run failed because one test still used Control+Enter on Mac; the corrected test uses Command+Enter. Windows minimized-preparation testing also now waits for the initial window Show event before minimizing. These test corrections do not constitute real Mac ProPresenter or microphone acceptance.
 
-Subsequent metadata matching accepts anchored saved labels using Psalms, Song of Solomon, Revelations and typographic range dashes, while retaining the original cue label/text for review. Prose, chapter-only labels and ambiguous chapter/verse punctuation remain rejected. The requested reference and edition still require exact supported validation. All 314 module tests and syntax checks pass locally; this metadata change is newer than the Mac checkpoint above and requires matching build verification.
+Subsequent metadata matching accepts anchored saved labels using Psalms, Song of Solomon, Revelations and typographic range dashes, while retaining the original cue label/text for review. Prose, chapter-only labels and ambiguous chapter/verse punctuation remain rejected. The requested reference and edition still require exact supported validation. All 314 module tests and syntax checks pass locally; the metadata change subsequently passed matching Mac workflow 44390697615 at revision 2de6534 and Windows packaged startup/reference/copy-choice/minimized-preparation checks.
+
+## Saved-copy choice and keyboard safeguards
 
 Distinct exact saved copies now produce explicit review choices using their ProPresenter text and part count. Choosing a copy re-resolves its UUID and fingerprint before creating a fresh review. A changed/deleted copy cannot silently select another presentation. The same unchanged UUID listed twice is one identity; inconsistent reads of that UUID fail closed. No copy is deleted or first-match guess introduced.
 
