@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "applicationVersion": "0.3.0",
+  "applicationVersion": "0.3.1",
   "components": [
     {
       "name": "@electron-internal/extract-zip",

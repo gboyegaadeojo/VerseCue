@@ -37,6 +37,8 @@ The deterministic engine normalizes case/punctuation, uses a nontrivial-word inv
 
 Short/generic phrases, no-show/denial language, an explicitly different translation and ambiguous matches yield no quote candidate. Matching is suppressed for unauthorized audio, partial recognition, stopped/paused sessions or a missing/mismatched index. A successful quote appears as a review candidate with its matching method, configured translation and confirmation warning. Wording alone does not identify a translation.
 
+Uniqueness is measured only against the imported index. An incomplete index can omit competing passages, so a unique local result is not proof of a unique Bible-wide interpretation. The operator must review the reference and actual ProPresenter text.
+
 The ordinary expiry, generation, mode, stop, duplicate, exact prepared-cue mapping, version/fingerprint and uncertain-receipt gates still apply. Quote candidates cannot be sent through the private API; the desktop operator confirms them. Automatic quote display and general paraphrase recognition remain disabled pending representative intent/accuracy and hardware-in-loop acceptance. No new output engine is introduced.
 
 ## Verification and outstanding work
@@ -54,3 +56,7 @@ NR-001 extends audio continuity/compact operation and lifecycle/resource NFRs. N
 Extended source test result: the real resident worker returned a nonempty transcript from the authorized12second private recording in3,042ms while minimized. The silent worklet delivered29messages during the initial minimized interval. The quoted example and one explicitly confirmed fake-target readback passed; the window remained minimized and the suspension blocker was released on stop. This single request is not live end-to-output latency or speech/quote accuracy evidence.
 
 Packaged0.3.0 follow-up passed the same minimized import/opt-in/worklet/recognition/quote/confirmed fake-target readback/stop checks. The fixture request took3,033ms, with29silent worklet messages in the initial minimized interval. This is packaged development evidence, not a physical microphone, actual output, Mac or unattended-display acceptance pass.
+
+Review follow-up0.3.1 rejects unsupported requested languages on quote-derived references as well as explicit citations;153regression tests pass. [PR #1](https://github.com/gboyegaadeojo/VerseCue/pull/1) contains the implementation and usage notes. No merge or live-service rollout has been performed.
+
+Final0.3.1 packaged checks passed: minimized worklet29messages, private-file resident request2,896ms/nonempty, user-example John3:16 quote match and one explicit fake-target confirmed readback while still minimized; default CLI fixture request3,189ms; full desktop smoke with no renderer errors/HTTP requests. No physical microphone or real ProPresenter access occurred. Version-bound artifact evidence prevents earlier test reports from certifying a newer package. Archive creation was retried after the test app closed because its runtime snapshot file was locked; no content was changed to bypass the lock.

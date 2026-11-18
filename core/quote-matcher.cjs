@@ -30,7 +30,7 @@ class QuoteMatcher {
   }
   status(){return {translation:this.translation,passages:this.rows.length};}
   match(text,translation){
-    if(typeof text!=='string'||text.length>8192||translation!==this.translation||/\b(do not|don['’]t|not now|never show|not scripture|not a bible|wrong verse|correction|i meant)\b/i.test(text))return null;
+    if(typeof text!=='string'||text.length>8192||translation!==this.translation||/\b(do not|don['’]t|not now|never show|not scripture|not a bible|wrong verse|correction|i meant|in french|in spanish|in german|in portuguese|in arabic|in yoruba|in igbo)\b/i.test(text))return null;
     const requested=text.match(/\b(?:in|from|using)\s+(KJV|NKJV|NIV|ASV|ESV|AMP|AMPC|MSG)\b/i)?.[1]?.toUpperCase();if(requested&&requested!==translation)return null;
     const input=tokens(text).slice(-160);if(input.length<8)return null;const candidates=new Map();
     for(const word of new Set(input.filter(word=>!ignored.has(word))))for(const id of this.index.get(word)??[])candidates.set(id,(candidates.get(id)??0)+1);
