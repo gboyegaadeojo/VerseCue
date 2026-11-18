@@ -1,0 +1,23 @@
+{
+  "at": "2026-11-18T03:36:45.359Z",
+  "applicationVersion": "0.5.7",
+  "target": "personal Windows ProPresenter21.4.2",
+  "before": {
+    "reference": "John 3:16",
+    "receipt": "uncertain",
+    "connectorMs": 102,
+    "exactReadbackAfterMs": 1000
+  },
+  "after": {
+    "reference": "Romans 8:28",
+    "receipt": "readback-matched",
+    "triggerRequests": 1,
+    "readbackChecks": 3,
+    "readbackMs": 250,
+    "connectorMs": 326
+  },
+  "physicalOutputObserved": false,
+  "speechLatencyScored": false,
+  "fidelity": "Existing clipping warning; not accepted",
+  "p0": "PENDING"
+}
