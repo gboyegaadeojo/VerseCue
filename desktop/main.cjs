@@ -11,6 +11,7 @@ const {PassageCoordinator}=require('../core/passage-coordinator.cjs');
 const {ReferencePreparation}=require('../core/reference-preparation.cjs');
 const {Session}=require('../core/session.cjs');
 const {LocalSpeech}=require('../core/stt.cjs');
+const {speechEvidence}=require('../core/speech-evidence.cjs');
 const store=require('../core/settings.cjs');
 const {LocalControlAPI}=require('../core/control-api.cjs');
 const {BiblePreparation}=require('../core/bible-preparation.cjs');
@@ -111,7 +112,8 @@ async function bootstrap(){
   handler('choose-worker',()=>choose('worker'));handler('choose-model',()=>choose('model'));
   handler('command',async(event,command,payload)=>{
     switch(command){
-      case 'ingest':{if(typeof payload?.text!=='string')throw new Error('Invalid reference');if(preparation.busy||savedBible?.busy||passageCoordinator?.busy||passageCoordinator?.review)cancelPreparation();const candidates=await service.ingestChecked(payload.text,{manual:true});referencePreparation.consider(candidates,event);return candidates;}
+      case 'ingest':{if(typeof payload?.text!=='string')throw new Error('Invalid reference');if(preparation.busy||savedBible?.busy||passageCoordinator?.busy||passageCoordinator?.review||passageCoordinator?.active)cancelPreparation();const candidates=await service.ingestChecked(payload.text,{manual:true});referencePreparation.consider(candidates,event);return candidates;}
+      case 'audio-loss':{if(!capture.owns(event.sender.id)||!['overflow','stale','clipping','capture-gap'].includes(payload?.reason)||!Number.isSafeInteger(payload.samples)||payload.samples<1)throw Error('Invalid audio discontinuity');automatic.cancel();cancelPreparation();service.invalidate();if(service.mode==='auto'){connector.arm(false);service.setMode('paused');}service.log('AUDIO_LOSS_CONTEXT_RESET','warning');service.notify();return true;}
       case 'reference-preparation':if(service.stopped||service.recovery?.required)throw Error('Resume Confirm before enabling preparation');return referencePreparation.configure(payload);
       case 'mode':cancelAudio();cancelPreparation();return service.setMode(payload);
       case 'enable-auto':if(preparation.busy||savedBible?.busy)throw new Error('Finish Bible preparation before enabling Auto');automatic.cancel();speech.cancel();return service.enableAuto({acknowledged:payload?.acknowledged===true});
@@ -148,10 +150,15 @@ async function bootstrap(){
   },{withEvent:true});
   handler('audio',async(event,samples,metadata)=>{
     if(!capture.owns(event.sender.id))throw new Error('This window does not own an authorized audio session');
-    if(service.stopped||service.mode==='paused')throw new Error('Listening is paused');const epoch=service.generation;
+    if(service.stopped||service.mode==='paused')throw new Error('Listening is paused');const epoch=service.generation,receivedAt=service.clock();
     const result=await speech.transcribe(samples);
     if(epoch!==service.generation||service.stopped||service.mode==='paused')throw new Error('Stale recognition discarded');
-    service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});const candidates=await service.ingestChecked(result.text,{authorized:true,additionalGuard:()=>capture.owns(event.sender.id)&&epoch===service.generation});referencePreparation.consider(candidates,event);automatic.consider(candidates,{source:'local-speech',final:result.final===true,elapsedMs:result.elapsedMs,endEvidence:metadata?.endEvidence,droppedSamples:metadata?.droppedSamples});return result;
+    const evidence=speechEvidence(metadata,samples.length,receivedAt,service.clock());
+    if(!evidence.contextUsable){service.context=null;service.queue=[];automatic.cancel();if(passageCoordinator?.review||passageCoordinator?.busy)cancelPreparation();}
+    service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});const candidates=await service.ingestChecked(result.text,{authorized:true,...(evidence.windowId?{id:evidence.windowId}:{}),sourceAgeMs:evidence.sourceAgeMs??0,additionalGuard:()=>capture.owns(event.sender.id)&&epoch===service.generation});
+    if(candidates.length&&passageCoordinator?.active)cancelPreparation();
+    if(!evidence.timingKnown||!evidence.lossFree)for(const candidate of candidates)candidate.issues.push(!evidence.timingKnown?'Original audio timing is unavailable; review this full reference.':'Audio was dropped, clipped or its quality is unknown; review the full reference before continuing.');
+    referencePreparation.consider(candidates,event);automatic.consider(candidates,{source:'local-speech',final:result.final===true,elapsedMs:result.elapsedMs,endEvidence:evidence.endEvidence,droppedSamples:metadata?.droppedSamples,endAgeMs:evidence.endAgeMs,observedAt:evidence.receivedAt});service.notify();return evidence.stale?{...result,text:'',discarded:true,reason:'Audio evidence expired during recognition. Repeat the full reference.'}:result;
   },{withEvent:true});
   handler('export-settings',async()=>{const r=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-settings.json'});if(!r.canceled){const safe={...settings,executable:'',model:'',audioDevice:''};await fs.writeFile(r.filePath,JSON.stringify(safe,null,2));return true;}return false;});
   handler('import-settings',async()=>{const r=await dialog.showOpenDialog(mainWindow,{properties:['openFile'],filters:[{name:'JSON',extensions:['json']}]});if(r.canceled)return null;const bytes=await fs.readFile(r.filePaths[0],'utf8');if(bytes.length>16384)throw new Error('Settings file too large');const incoming=store.validateSettings(JSON.parse(bytes));incoming.executable='';incoming.model='';incoming.audioDevice='';cancelAudio();cancelPreparation();if(speech.busy)throw new Error('Stop recognition before import');settings=await store.save(settingsFile,incoming);connector.configure(settings.host,settings.port);speech.configure('','',settings.speechMode);service.reset();service.configure({translation:settings.translation});return settings;});

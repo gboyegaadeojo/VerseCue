@@ -38,9 +38,11 @@ class Session extends EventEmitter {
     }
     return this.ingest(text,options);
   }
-  ingest(text,{id=randomUUID(),revision=1,final=true,manual=false,authorized=true}={}) {
+  ingest(text,{id=randomUUID(),revision=1,final=true,manual=false,authorized=true,sourceAgeMs=0}={}) {
     this.inputEpoch=(this.inputEpoch??0)+1;
     if(this.stopped||(!manual&&this.mode==='paused'))return [];
+    if(!Number.isFinite(sourceAgeMs)||sourceAgeMs<0)throw Error('Invalid speech evidence age');
+    if(!manual&&sourceAgeMs>=15000){this.invalidate();this.interpretation={kind:'expired-speech',reason:'Recognition arrived after the audio evidence expired. Repeat the full reference.'};this.log('SPEECH_EVIDENCE_EXPIRED','warning');this.notify();return [];}
     if(typeof id!=='string'||id.length>100||!Number.isSafeInteger(revision)||revision<1)throw new Error('Invalid transcript identity');
     if((this.revisions.get(id)??0)>=revision)return [];
     this.revisions.set(id,revision);if(this.revisions.size>200)this.revisions.delete(this.revisions.keys().next().value);
@@ -58,7 +60,8 @@ class Session extends EventEmitter {
     // remote context for later relative references.
     if(parsed.references.some(r=>!r.relative)||parsed.issues.length)this.context=null;
     if(parsed.corrected)this.invalidate();
-    const candidates=parsed.references.map(r=>({id:randomUUID(),utteranceId:id,revision,reference:r,label:r.label,translation:r.translation??this.translation,phrase:text.slice(0,1000),recognition:quote?'quote':'reference',...(quote?{quoteEvidence:quote}:{}),detectedAt:this.clock(),expiresAt:this.clock()+15000,generation:this.generation,manual,authorized,state:authorized?'review':'blocked',issues:[...parsed.issues,...r.issues,...(!authorized?['Audio source not authorized']:[])]}));
+    const candidates=parsed.references.map(r=>({id:randomUUID(),utteranceId:id,revision,reference:r,label:r.label,translation:r.translation??this.translation,phrase:text.slice(0,1000),recognition:quote?'quote':'reference',...(quote?{quoteEvidence:quote}:{}),detectedAt:this.clock(),expiresAt:this.clock()+15000-(manual?0:sourceAgeMs),generation:this.generation,manual,authorized,state:authorized?'review':'blocked',issues:[...parsed.issues,...r.issues,...(!authorized?['Audio source not authorized']:[])]}));
+    if(candidates.length)this.referenceEpoch=(this.referenceEpoch??0)+1;
     this.queue.push(...candidates);this.queue=this.queue.slice(-5);this.notify();return candidates;
   }
   reject(id){this.queue=this.queue.filter(c=>c.id!==id);this.log('CANDIDATE_DISMISSED');this.notify();}

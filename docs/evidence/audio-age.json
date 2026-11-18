@@ -1,0 +1,15 @@
+{
+  "at": "2026-11-18T19:00:20.804Z",
+  "version": "0.6.0",
+  "passed": true,
+  "recognition": "SYNTHETIC",
+  "forcedCutClearedRelativeContext": true,
+  "expiredAudioNotRejuvenated": true,
+  "bufferAgeReducedCandidateLifetime": true,
+  "windowIdentityDeduplicated": true,
+  "audioLossCanceledInFlightRecognition": true,
+  "fakeTargetTriggers": 1,
+  "actualProPresenterAccess": false,
+  "microphoneCapture": false,
+  "physicalLatencyMeasured": false
+}

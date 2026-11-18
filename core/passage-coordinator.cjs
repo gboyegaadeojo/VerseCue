@@ -63,15 +63,15 @@ class PassageCoordinator {
  finishPart(plan,source,partIndex,receipt){
   if(receipt.state!=='readback-matched'){this.active=null;return this.publish({phase:'uncertain',reference:plan.reference,translation:plan.translation,...receipt});}
   const partCount=plan.cueIndices.length,token=randomUUID();
-  this.active={token,plan:structuredClone(plan),source:structuredClone(source),partIndex,epoch:this.epoch,target:this.connector.generation,base:this.connector.base,generation:this.service.generation,expiresAt:this.service.clock()+120000};
+  this.active={token,plan:structuredClone(plan),source:structuredClone(source),partIndex,epoch:this.epoch,target:this.connector.generation,base:this.connector.base,generation:this.service.generation,referenceEpoch:this.service.referenceEpoch,expiresAt:this.service.clock()+120000};
   return this.publish({phase:partIndex+1<partCount?'part-shown':'readback-matched',reference:plan.reference,translation:plan.translation,activeToken:token,partIndex,partCount,...receipt});
  }
  async advance(activeToken){
   const a=this.active,s=this.service,c=this.connector;
   if(this.busy||!a||a.token!==activeToken||a.partIndex+1>=a.plan.cueIndices.length)throw Error('No remaining verified passage part');
   const inputEpoch=s.inputEpoch;
-  const valid=()=>this.active===a&&a.epoch===this.epoch&&a.target===c.generation&&a.base===c.base&&a.generation===s.generation&&s.inputEpoch===inputEpoch&&!s.stopped&&!s.recovery?.required&&s.mode==='confirm'&&c.armed&&c.status?.state==='connected'&&s.clock()<a.expiresAt;
-  if(!valid())throw Error('Current passage ownership expired or changed; prepare again');
+  const valid=()=>this.active===a&&a.epoch===this.epoch&&a.target===c.generation&&a.base===c.base&&a.generation===s.generation&&a.referenceEpoch===s.referenceEpoch&&s.inputEpoch===inputEpoch&&!s.stopped&&!s.recovery?.required&&s.mode==='confirm'&&c.armed&&c.status?.state==='connected'&&s.clock()<a.expiresAt;
+  if(!valid()){c.arm(false);this.active=null;const reason='Current passage ownership expired or changed; prepare again';this.publish({phase:'blocked',reference:a.plan.reference,translation:a.plan.translation,reason,outputRequests:0,outputObserved:false});throw Error(reason);}
   this.acquire();
   try{
    const partIndex=a.partIndex+1,previousCue=a.plan.cueIndices[a.partIndex];

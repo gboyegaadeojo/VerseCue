@@ -6,6 +6,8 @@ function assessAuto(service,candidates,evidence={},{allowBusy=false}={}){
   if(!service.capture?.active)return {eligible:false,reason:'No authorized audio session'};
   if(evidence.source!=='local-speech'||evidence.final!==true||evidence.endEvidence!=='silence'||evidence.droppedSamples!==0)return {eligible:false,reason:'Completed, loss-free speech with silence evidence is required'};
   if(!Number.isFinite(evidence.elapsedMs)||evidence.elapsedMs>4000||evidence.elapsedMs<0)return {eligible:false,reason:'Recognition is too slow or its age is unknown'};
+  const age=evidence.endAgeMs+service.clock()-evidence.observedAt;
+  if(!Number.isFinite(evidence.endAgeMs)||!Number.isFinite(evidence.observedAt)||!Number.isFinite(age)||age<0||age>4000)return {eligible:false,reason:'Original audio timing is missing or too old for Auto'};
   if(candidates.length!==1)return {eligible:false,reason:'Only one unambiguous reference can Auto-send'};
   const c=candidates[0],r=c.reference;
   if(c.manual||!c.authorized||c.recognition!=='reference'||r.relative||r.corrected||r.valid!==true||r.numberingSystem!=='KJV'||r.verse==null||r.overLimit||c.issues.length)return {eligible:false,reason:'This reference needs operator review; quotes never Auto-send'};
