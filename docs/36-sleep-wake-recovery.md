@@ -1,0 +1,13 @@
+# Sleep/wake recovery
+
+2026-11-18 UTC, development0.3.2. Implements the sleep/wake portion of NFR-009 and related stale-command/privacy recovery controls. Minimized operation continues as requested; a system sleep/resume transition requires a fresh preflight.
+
+On Electron suspend or resume, VerseCue cancels the owned audio session and speech/native workers, releases its application-suspension blocker, revokes the private API token, disarms output, restores dry run, discards candidates/context and clears cue mappings/target identity. It enters Paused with a recovery message. Wake never opens a microphone or returns to Auto/Confirm automatically. The operator tests the configured ProPresenter connection, deliberately resumes Confirm and explicitly starts the authorized input. Old cue mappings require fresh verification. Reset, mode selection and output arming cannot bypass this recovery requirement. An emergency-stop latch is retained across power transitions.
+
+The independent power-recovery controller handles these transitions without changing OS power configuration, sleeping/locking the machine, sending a clear command or touching production outputs. Ordinary minimization is not a power event and keeps its authorized capture lease.
+
+Four unit tests verify worker/API cancellation, dry-run/paused state, stale context/mapping removal, fresh connection and intentional resume, reset/mode bypass rejection, in-flight dispatch invalidation even after a subsequent resume, emergency-stop retention and contained API-revocation errors. The full157case regression suite and syntax checks passed.
+
+The isolated source integration test emitted simulated Electron suspend/resume events against a fake loopback target. It verified capture/blocker release, API revocation, old candidate/mapping rejection, reset not bypassing preflight, and manual connection-check/resume behavior, with zero trigger requests. It did not actually sleep the computer, open a microphone or contact the installed ProPresenter. Actual Windows/Mac sleep/wake, driver recovery and representative service workload acceptance remain pending. Reproduce with `node scripts/test-power-recovery.cjs [packaged-executable]`.
+
+Primary source: [Electron powerMonitor](https://www.electronjs.org/docs/latest/api/power-monitor), accessed2026-11-18, documents suspend/resume notifications. These notifications do not by themselves prove every OS or device recovery path. The new controller's behavior is verified only within the scoped tests above. No new approval gate is introduced for continuing authorized development; merge follows the PR workflow.

@@ -1,0 +1,17 @@
+{
+  "at": "2026-11-18T01:35:21.794Z",
+  "version": "0.3.2",
+  "passed": true,
+  "packaged": false,
+  "simulatedSuspendResume": true,
+  "actualComputerSleep": false,
+  "microphoneCapture": false,
+  "actualProPresenterAccess": false,
+  "captureAndBlockerReleased": true,
+  "apiRevoked": true,
+  "dryRunRestored": true,
+  "staleCandidatesAndMappingsRejected": true,
+  "resetCannotBypassPreflight": true,
+  "freshConnectionAndIntentionalResumeRequired": true,
+  "outputRequests": 0
+}

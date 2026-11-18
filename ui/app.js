@@ -1,6 +1,6 @@
 'use strict';
 const $=id=>document.getElementById(id);const api=window.versecue;
-let state=null,settings=null,selectedId=null,listening=false,startingAudio=false,selfWindowId=null,lastLatestId=null;
+let state=null,settings=null,selectedId=null,listening=false,startingAudio=false,selfWindowId=null,lastLatestId=null,lastRecoveryRequired=false;
 if(new URLSearchParams(location.search).has('compact'))document.body.classList.add('compact');
 function message(text,setup=false){$(setup?'setup-message':'message').textContent=text;}
 async function call(method,...args){const result=await api[method](...args);if(!result.ok)throw new Error(result.error);return result.value;}
@@ -8,7 +8,7 @@ async function action(command,payload){return call('command',command,payload);}
 function bind(id,fn){$(id).addEventListener('click',()=>Promise.resolve().then(fn).catch(e=>message(e.message,$('settings-dialog').open)));}
 function render(next){
   if(next.quoteMatching)renderQuotes(next.quoteMatching,next.translation);
-  state=next;const latest=state.queue.at(-1)?.id??null;if(latest!==lastLatestId){selectedId=latest;lastLatestId=latest;}const candidate=state.queue.find(c=>c.id===selectedId)??state.queue.at(-1);selectedId=candidate?.id??null;
+  state=next;if(state.recovery?.required&&!lastRecoveryRequired)message('Sleep/wake recovery: listening and output stopped. Test the connection in Setup, then Resume in Confirm.');if(!state.recovery?.required&&lastRecoveryRequired)message('Connection preflight complete. Confirm mode restored; start the authorized input explicitly.');lastRecoveryRequired=state.recovery?.required===true;const latest=state.queue.at(-1)?.id??null;if(latest!==lastLatestId){selectedId=latest;lastLatestId=latest;}const candidate=state.queue.find(c=>c.id===selectedId)??state.queue.at(-1);selectedId=candidate?.id??null;
   $('target-banner').textContent=state.dryRun?'DRY RUN · Suggestions only affect this app. No ProPresenter output.':'ARMED TEST TARGET · Show triggers a mapped ProPresenter cue. Audience output is not independently observed.';
   $('target-banner').classList.toggle('armed',!state.dryRun);
   $('connection').textContent=state.connection.state==='connected'?state.connection.version:'Not connected';$('translation').textContent=state.translation;
@@ -18,7 +18,7 @@ function render(next){
     $('reference').textContent=candidate.label;$('candidate-translation').textContent=candidate.translation;$('phrase').textContent=candidate.phrase;
     $('review-note').textContent=candidate.issues.join(' · ')||'Review the reference before sending.';
     $('show').textContent=state.dryRun?'Simulate passage':'Show prepared test cue';
-    const blocked=state.stopped||state.busy||candidate.generation!==state.generation||!candidate.authorized||candidate.reference.valid===false||candidate.reference.overLimit||candidate.reference.verse==null||candidate.issues.some(i=>/Invalid|no-show|not supported/.test(i));
+    const blocked=state.recovery?.required||state.stopped||state.busy||candidate.generation!==state.generation||!candidate.authorized||candidate.reference.valid===false||candidate.reference.overLimit||candidate.reference.verse==null||candidate.issues.some(i=>/Invalid|no-show|not supported/.test(i));
     $('show').disabled=blocked||state.mode!=='confirm';$('prepare-candidate').disabled=blocked||!nativeAvailable;
     $('previous-verse').disabled=blocked||candidate.translation!=='KJV';$('next-verse').disabled=blocked||candidate.translation!=='KJV';
     $('expiry').textContent=`${Math.max(0,Math.ceil((candidate.expiresAt-Date.now())/1000))}s remaining`;

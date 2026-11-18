@@ -4,7 +4,7 @@ class PreparationController {
   async prepare(reference,translation,guard=()=>true){
     const {service,connector,speech,preparation}=this;
     if(!preparation?.available())throw new Error('Experimental Windows preparation helper is unavailable');
-    const blocked=()=>!guard()||service.stopped||service.busy||preparation.busy;
+    const blocked=()=>!guard()||service.stopped||service.recovery?.required||service.busy||preparation.busy;
     if(blocked())throw new Error('Stop/busy state blocks Bible preparation');
     if(!connector.base||new URL(connector.base).hostname!=='127.0.0.1')throw new Error('Experimental UI preparation requires the local loopback ProPresenter target');
     const targetGeneration=service.generation,targetBase=connector.base;

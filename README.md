@@ -100,3 +100,6 @@ IFC approved the provisional requirements baseline by replying **I approve**. St
 
 ## Historical incremental speech timing checkpoint
 [Streaming-style replay findings](docs/21-streaming-style-replay-results.md) and [content-free measurements](docs/evidence/replay-stt-metrics.json): eight windows, current fastest tested model-resident CPU configurationmedian4.099s/max5.273s before stabilization/display. These are exploratory per-window timings, not live acceptance. P0 remains PENDING and no production application code. Local test servers stopped; private audio/transcripts stay excluded from GitHub.
+
+
+Sleep/wake recovery development: [behavior and scoped evidence](docs/36-sleep-wake-recovery.md). System power transitions pause and revoke the session; a fresh connection check and intentional resume are required. Minimized operation is unchanged.
