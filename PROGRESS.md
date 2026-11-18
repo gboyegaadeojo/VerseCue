@@ -1,9 +1,9 @@
 ﻿# VerseCue progress
 
-Updated: 2026-11-17 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work.
+Updated: 2026-11-18 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-WORKING — continuous authorized development, source version0.2.8.139regression tests passed. Exclusive full/compact capture ownership and late-authorization cancellation implemented; source/packaged UI ownership/profile/navigation/200%zoom checks passed. Packaged CLI/resident private fixture requests7,751/7,767ms, zero sends;120manifest files/source/ZIP hashes verified. Prior0.2.7 source9cfd16c published. Tiny.en remains diagnostic-only; CUDA stalled. Investigating installed Windows desktop speech on private files; initial restricted runs failed at engine construction, no mic/settings changes. Native receipts remain partial with clipping; P0/service acceptance pending. No new general approval needed.
+WORKING — source0.3.0 on feat/quoted-scripture-and-background for the user's explicitly requested PR. NR-001 minimizes without throttling an authorized capture; NR-002 identifies distinctive quoted wording through a rights-acknowledged local index, opt-in/review-first.152regression cases, source desktop smoke and minimized worklet/private-file speech/explicit fake-target send passed. Real ProPresenter untouched. Prior0.2.9 recovery source published at9206521. Existing0.2.8 stability test still checked separately; not a0.3.0 release pass. P0/physical fidelity/Mac/Auto remain pending. No new general approval needed.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -60,8 +60,10 @@ Status vocabulary: not started / drafted / audited. Audited means checked for th
 | docs/30-manual-verse-navigation.md | audited | KJV reference proposal controls; range/chapter bounds;135tests/source UI passed |
 | docs/31-exclusive-audio-session-ownership.md | audited | Main-process one-owner lease;139tests, source/packaged ownership/closure checks passed |
 | docs/32-installed-windows-speech-diagnostic.md | audited | Existing Windows en-US WAV-only comparison; four texts/no parser proposals; default unchanged |
-| docs/33-development-stability-protocol.md | audited | RUNNING: scoped180minute0.2.8 fixture/dry-run test; result PENDING |
+| docs/33-development-stability-protocol.md | audited | COMPLETED scoped180minute0.2.8 fixture/dry-run test;360cycles, no failure/output; full service acceptance pending |
 | docs/34-renderer-recovery-and-address-validation.md | audited | Source0.2.9 actual reload/close and simulated renderer loss, canonical IP and fake-target races passed |
+| NEW_REQUESTS.md | audited | Authorized NR-001 background/minimized operation and NR-002 quoted wording/PR |
+| docs/35-background-and-quoted-scripture.md | audited | Implementation/rights/limits/acceptance and152passing tests; minimized source integration passed |
 
 ## Decisions made
 - User specification is authoritative; documentation first, full staged deliverables retained.
@@ -86,7 +88,7 @@ DATA-01/02: user supplied IFC Sunday-service YouTube source. Requested start1:18
 - Windows/macOS viability and representative measured turnaround.
 
 ## Exact next action
-Publish reviewed0.2.8 source/evidence, then add renderer-crash/reload capture recovery and continue remaining requirements while the scoped stability test runs. ACTIVE exec session17110:0.2.8,180minutes, run1f007748-e9c3-4034-94e4-cc3c2fb2c619, ignored report test-results/soak-1f007748-e9c3-4034-94e4-cc3c2fb2c619.json. First six cycles passed with zero output, not a completed soak. Poll at sensible intervals and report only measured elapsed time.0.2.8 ZIP checksum99be520fcb427a4972981a638cc3517037ab8647aa91cbf3c43befafc9d31e25. Windows speech ordinary-process fourWAV runs worked but yielded no parser proposals; no backend/default change. No live church access, cloud inference, system feature/driver/privacy-setting changes or purchases. Preserve all86requirements; no P0/physical fidelity/quality/performance/Mac/soak/signing pass inferred. No general approval is required for these steps.
+Complete review and publish feat/quoted-scripture-and-background, then create the user-requested PR against main. Source/package152tests/desktop/minimized worklet/private-file STT/quote/fake-target confirmation passed.0.3.0 ZIP121files,316,120,753bytes, SHA256ab7dbd93fe6040d3b4f7131f92427e4a82b6e8fce790467712d02b720bb74304. The0.2.8 three-hour run has FINISHED:360cycles/10,800,237ms/no failure or output; docs33/redacted evidence scoped to that artifact. No remaining helper-soak wait. Quote matching needs a rights-acknowledged local index and desktop confirmation; broad semantic paraphrases/Auto/physical output/Mac acceptance remain pending. No church production access, cloud inference or purchases; no additional general approval required. Do not merge the PR without the user's instruction.
 ## Checkpoints and audit
 - 0.2.5 publication: reviewed source/tests/redacted evidence committed and pushed to private gboyegaadeojo/VerseCue main at b69280a. No private audio/transcripts/models/binaries staged.0.2.6 continuation adds generation-scoped connector reads/mappings/dispatch and an explicitly selected resident CPU worker with memory WAV requests, random loopback route, owned process cancellation and90second idle stop. Actual12second fixture requests8,015/6,825ms produced transcripts and worker shutdown was verified; no live latency or accuracy pass.129tests/source desktop smoke passed.0.2.6 packaging underway; final source/package integrity and resident packaged test remain next.
 - Development continuation: source0.2.4 has119passing tests, KJV numeric validation and candidate preparation with race guards. Packaged0.2.4 desktop smoke and private12second speech fixture passed (9,492ms, no output); ZIP integrity verification follows archive completion. GPU20/90second inference attempts timed out after verified CUDA backend load; keep CPU implementation. Independent latency/accuracy/service acceptance remains pending. Next implementation task: bounded continuous audio capture while one worker is busy, with explicit overflow/staleness reporting and stop/restart race tests.

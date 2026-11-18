@@ -112,3 +112,8 @@
 - Release phase remains in each requirement. Any waiver must revise requirement/matrix/test plan and obtain IFC acceptance; no later-phase requirement silently removed. All requirement-specific acceptance cases use the full Given/When/Then or NFR method, not a mirrored implementation assertion.
 - Audit expects exactly 62 unique FR and 24 unique NFR IDs, one row and acceptance case each, every BR connected to an objective and tests, no unknown test suite or missing owner/release. Runtime pass counts remain zero.
 
+
+
+## Change requests recorded 2026-11-18
+
+NR-001 extends audio continuity/compact operation and lifecycle/resource constraints with minimized operation and session-scoped suspension protection. NR-002 advances the opt-in review portion of FR-025 with validation, intent, confirmation, connector, privacy and licensing dependencies. See [new requests](../NEW_REQUESTS.md), [feature documentation](35-background-and-quoted-scripture.md), tests/quote-matcher.test.cjs, the private-API quote rejection case and scripts/test-background-quotes.cjs. The original 86 rows remain intact; no full release acceptance is inferred.

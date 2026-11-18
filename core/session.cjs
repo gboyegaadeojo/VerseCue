@@ -3,19 +3,23 @@ const {EventEmitter}=require('node:events');
 const {randomUUID}=require('node:crypto');
 const {parse}=require('./parser.cjs');
 const kjvBounds=require('./kjv-versification.json').bounds;
+const {QuoteMatcher}=require('./quote-matcher.cjs');
 class Session extends EventEmitter {
   constructor(connector,{clock=()=>performance.timeOrigin+performance.now()}={}) {
     super();this.connector=connector;this.clock=clock;this.mode='confirm';this.stopped=false;this.dryRun=true;this.queue=[];this.history=[];this.events=[];this.generation=0;this.busy=false;this.translation='KJV';this.context=null;this.revisions=new Map();this.lastSend=null;
   }
-  snapshot(){this.expire();return {generation:this.generation,mode:this.mode,stopped:this.stopped,dryRun:this.dryRun,queue:structuredClone(this.queue),history:structuredClone(this.history),events:structuredClone(this.events),busy:this.busy,translation:this.translation,capture:this.capture?{...this.capture}:{active:false,ownerId:null},capabilities:{auto:false,arbitraryLookup:false,clear:false},connection:this.connector.status??{state:'offline'}};}
+  snapshot(){this.expire();return {generation:this.generation,mode:this.mode,stopped:this.stopped,dryRun:this.dryRun,queue:structuredClone(this.queue),history:structuredClone(this.history),events:structuredClone(this.events),busy:this.busy,translation:this.translation,quoteMatching:this.quoteStatus(),capture:this.capture?{...this.capture}:{active:false,ownerId:null},capabilities:{auto:false,arbitraryLookup:false,clear:false},connection:this.connector.status??{state:'offline'}};}
   notify(){this.emit('change',this.snapshot());}
+  quoteStatus(){return {enabled:this.quoteEnabled===true,...(this.quoteMatcher?.status()??{translation:null,passages:0})};}
+  loadQuoteIndex(document,consent){const matcher=new QuoteMatcher(document,{rightsAcknowledged:consent===true});this.invalidate();this.quoteMatcher=matcher;this.quoteEnabled=false;this.log('QUOTE_INDEX_LOADED');this.notify();return this.quoteStatus();}
+  enableQuotes(enabled){if(typeof enabled!=='boolean'||enabled&&(!this.quoteMatcher||this.quoteMatcher.translation!==this.translation))throw new Error('Import a rights-acknowledged index matching the selected translation first');this.invalidate();this.quoteEnabled=enabled;this.log(enabled?'QUOTE_MATCHING_ENABLED':'QUOTE_MATCHING_DISABLED');this.notify();return this.quoteStatus();}
   log(code,state='info',metrics=null){const safe={};for(const key of ['nativeWorkerMs','sttWorkerMs'])if(Number.isFinite(metrics?.[key])&&metrics[key]>=0&&metrics[key]<=120000)safe[key]=Math.round(metrics[key]);this.events.push({id:randomUUID(),at:this.clock(),code,state,...(Object.keys(safe).length?{metrics:safe}:{})});this.events=this.events.slice(-100);}
   invalidate(){this.generation++;this.queue=[];this.context=null;}
   expire(){this.queue=this.queue.filter(c=>c.expiresAt>this.clock());}
   setMode(mode){if(!['confirm','suggest','paused'].includes(mode))throw new Error('Auto is unavailable until integration and speech acceptance pass');this.invalidate();this.mode=mode;this.log('MODE_CHANGED');this.notify();}
   stop(){this.stopped=true;this.mode='paused';this.invalidate();this.log('EMERGENCY_STOP','warning');this.notify();}
   resume(){this.stopped=false;this.mode='confirm';this.invalidate();this.log('REARMED_CONFIRM');this.notify();}
-  configure({dryRun=true,translation='KJV'}={}){if(typeof dryRun!=='boolean'||!/^[- A-Z0-9]{2,30}$/.test(translation))throw new Error('Invalid session settings');this.invalidate();this.dryRun=dryRun;this.translation=translation;this.log('CONFIG_CHANGED');this.notify();}
+  configure({dryRun=true,translation='KJV'}={}){if(typeof dryRun!=='boolean'||!/^[- A-Z0-9]{2,30}$/.test(translation))throw new Error('Invalid session settings');this.invalidate();if(translation!==this.translation)this.quoteEnabled=false;this.dryRun=dryRun;this.translation=translation;this.log('CONFIG_CHANGED');this.notify();}
   ingest(text,{id=randomUUID(),revision=1,final=true,manual=false,authorized=true}={}) {
     if(this.stopped||(!manual&&this.mode==='paused'))return [];
     if(typeof id!=='string'||id.length>100||!Number.isSafeInteger(revision)||revision<1)throw new Error('Invalid transcript identity');
@@ -24,11 +28,16 @@ class Session extends EventEmitter {
     this.queue=this.queue.filter(c=>c.utteranceId!==id);
     if(!final){this.generation++;this.notify();return [];}
     const parsed=parse(text,{context:this.context,now:this.clock(),defaultTranslation:this.translation});
+    let quote=null;
+    if(!parsed.references.length&&!parsed.issues.length&&this.quoteEnabled&&authorized&&this.mode!=='paused'){
+      quote=this.quoteMatcher?.match(text,this.translation);
+      if(quote){parsed.references=parse(quote.reference,{defaultTranslation:this.translation}).references;parsed.issues.push('Quoted wording match; operator confirmation required. Translation is configured, not inferred from wording.');}
+    }
     // A new explicit book/reference or a failed parse cannot preserve a prior
     // remote context for later relative references.
     if(parsed.references.some(r=>!r.relative)||parsed.issues.length)this.context=null;
     if(parsed.corrected)this.invalidate();
-    const candidates=parsed.references.map(r=>({id:randomUUID(),utteranceId:id,revision,reference:r,label:r.label,translation:r.translation??this.translation,phrase:text.slice(0,1000),detectedAt:this.clock(),expiresAt:this.clock()+15000,generation:this.generation,manual,authorized,state:authorized?'review':'blocked',issues:[...parsed.issues,...r.issues,...(!authorized?['Audio source not authorized']:[])]}));
+    const candidates=parsed.references.map(r=>({id:randomUUID(),utteranceId:id,revision,reference:r,label:r.label,translation:r.translation??this.translation,phrase:text.slice(0,1000),recognition:quote?'quote':'reference',...(quote?{quoteEvidence:quote}:{}),detectedAt:this.clock(),expiresAt:this.clock()+15000,generation:this.generation,manual,authorized,state:authorized?'review':'blocked',issues:[...parsed.issues,...r.issues,...(!authorized?['Audio source not authorized']:[])]}));
     this.queue.push(...candidates);this.queue=this.queue.slice(-5);this.notify();return candidates;
   }
   reject(id){this.queue=this.queue.filter(c=>c.id!==id);this.log('CANDIDATE_DISMISSED');this.notify();}
@@ -41,10 +50,11 @@ class Session extends EventEmitter {
     if(!chapters?.[chapter-1]||verse<1||verse>chapters[chapter-1])throw new Error('Book boundary reached; choose the next book explicitly');
     this.queue=this.queue.filter(item=>item.id!==id);return this.ingest(`${reference.book} ${chapter}:${verse} in KJV`,{manual:true});
   }
-  reset(){this.invalidate();this.revisions.clear();this.history=[];this.stopped=false;this.mode='confirm';this.dryRun=true;this.lastSend=null;this.log('SESSION_RESET');this.notify();}
-  async send(id,{additionalGuard=()=>true}={}){
+  reset(){this.quoteMatcher=null;this.quoteEnabled=false;this.invalidate();this.revisions.clear();this.history=[];this.stopped=false;this.mode='confirm';this.dryRun=true;this.lastSend=null;this.log('SESSION_RESET');this.notify();}
+  async send(id,{additionalGuard=()=>true,origin='desktop'}={}){
     this.expire();const c=this.queue.find(c=>c.id===id);
     if(!c||this.stopped||this.mode!=='confirm'||this.busy||!c.authorized||c.generation!==this.generation)throw new Error('Send blocked: expired, paused, stopped, busy or invalidated');
+    if(c.recognition==='quote'&&origin!=='desktop')throw new Error('Quoted passages require confirmation in the desktop app');
     if(c.reference.verse==null||c.reference.valid===false||c.reference.overLimit||c.issues.some(i=>/Invalid|no-show|not supported/.test(i)))throw new Error('Edit this incomplete, prohibited, out-of-bounds or over-limit reference before sending');
     const key=`${c.label}|${c.translation}`;
     if(this.lastSend?.key===key&&this.clock()-this.lastSend.at<10000)throw new Error('Duplicate cooldown: wait before intentionally repeating');

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "version": "0.2.9",
+  "version": "0.3.0",
   "p0": "PENDING",
   "release": "DEVELOPMENT_ONLY",
   "requirements": [
@@ -174,10 +174,10 @@
     },
     {
       "id": "FR-025",
-      "status": "pending",
+      "status": "partial",
       "acceptance": "PENDING",
-      "evidence": "docs/22-development-build-and-release-status.md",
-      "note": "See development-build scope and original acceptance criteria; no full acceptance inferred"
+      "evidence": "docs/35-background-and-quoted-scripture.md",
+      "note": "Opt-in local partial/near-verbatim quote review implemented under NR-002; broad paraphrases/held-out accuracy pending, never Auto"
     },
     {
       "id": "FR-026",

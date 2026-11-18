@@ -33,9 +33,11 @@ Source0.2.7 adds [local service profile snapshots](docs/29-local-service-profile
 
 Source0.2.8 adds [exclusive audio session ownership](docs/31-exclusive-audio-session-ownership.md) across full/compact windows, including cancellation when the owner closes and protection against late input initialization after revocation.
 
-[Installed Windows speech diagnostic](docs/32-installed-windows-speech-diagnostic.md) records another tested local option; it did not justify a backend change. The [development stability protocol](docs/33-development-stability-protocol.md) tracks the running isolated three-hour0.2.8 fixture/dry-run test; its result is pending.
+[Installed Windows speech diagnostic](docs/32-installed-windows-speech-diagnostic.md) records another tested local option; it did not justify a backend change. The [development stability protocol](docs/33-development-stability-protocol.md) records the completed three-hour0.2.8 fixture/dry-run test (360cycles, scoped pass).
 
-Source0.2.9 adds [renderer recovery and canonical target validation](docs/34-renderer-recovery-and-address-validation.md), including generation-safe health monitoring. Its current test evidence is distinct from the ongoing0.2.8 stability run.
+Source0.2.9 adds [renderer recovery and canonical target validation](docs/34-renderer-recovery-and-address-validation.md), including generation-safe health monitoring. Its current test evidence is distinct from the separate0.2.8 stability run.
+
+Version0.3.0 implements [NR-001/NR-002](NEW_REQUESTS.md): [minimized listening and opt-in quoted-Scripture identification](docs/35-background-and-quoted-scripture.md). Start the authorized audio input, then minimize VerseCue while ProPresenter remains foreground. To identify wording without a citation, import a local passage index whose use rights you acknowledge and enable quote matching for the session. The supplied “For God so loved the world that he gave…” example identifies John3:16. Quote results require desktop confirmation through the existing verified ProPresenter cue gate. No Bible text corpus is bundled, and broad semantic paraphrases/unattended quote display remain unavailable.
 
 ## Start here
 1. Read the [leadership summary](docs/00-executive-summary.md) and [requirements summary](REQUIREMENTS_SUMMARY.md).
