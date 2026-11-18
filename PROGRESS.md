@@ -3,7 +3,7 @@
 Updated: 2026-11-18 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-WORKING - User requested a readable GitHub README and downloadable Windows/Mac builds, then first-use testing guidance. README rewritten with product purpose, modes and typed/voice dry-run walkthrough; original chronology preserved in DEVELOPMENT_HISTORY.md and full document index retained. Windows0.5.1 prerelease ZIP/checksum uploaded and release asset sizes verified. Native Apple Silicon build process prepared but NOT executed: auto-review rejected potentially billable private-repository Mac runner usage under free-use constraint. Workflow is manual-only; no CI starts on push. Mac binary pending explicit cost approval or an authorized local Mac. App runtime unchanged.
+README/WINDOWS COMPLETE; MAC EXECUTION WAITING - User requested a readable GitHub README and downloadable Windows/Mac builds, then first-use testing guidance. README rewritten with product purpose, modes and typed/voice dry-run walkthrough; original chronology preserved in DEVELOPMENT_HISTORY.md and full document index retained. Windows0.5.1 prerelease ZIP/checksum uploaded and release asset sizes verified. Native Apple Silicon build process prepared but NOT executed: auto-review rejected potentially billable private-repository Mac runner usage under free-use constraint. Workflow is manual-only; no CI starts on push. Mac binary pending explicit cost approval or an authorized local Mac. App runtime unchanged. PR #5 merged; GitHub README updated, Windows release assets uploaded, no workflow runs started. All170 tests and syntax/documentation checks passed.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -92,7 +92,7 @@ DATA-01/02: user supplied IFC Sunday-service YouTube source. Requested start1:18
 - Windows/macOS viability and representative measured turnaround.
 
 ## Exact next action
-Verify Windows prerelease ZIP/checksum upload, publish focused README/manual-only Mac packaging PR and merge the requested GitHub documentation update. Ask specifically for Mac runner-cost approval or a local Mac; do not dispatch CI until authorized. Continue helping the user run typed-reference and selected-microphone dry-run tests without requiring ProPresenter output.
+Windows prerelease ZIP/checksum verified and README/manual-only Mac packaging PR #5 merged. Ask specifically for Mac runner-cost approval or a local Mac; do not dispatch CI until authorized. Continue helping the user run typed-reference and selected-microphone dry-run tests without requiring ProPresenter output.
 
 ## Checkpoints and audit
 - 0.2.5 publication: reviewed source/tests/redacted evidence committed and pushed to private gboyegaadeojo/VerseCue main at b69280a. No private audio/transcripts/models/binaries staged.0.2.6 continuation adds generation-scoped connector reads/mappings/dispatch and an explicitly selected resident CPU worker with memory WAV requests, random loopback route, owned process cancellation and90second idle stop. Actual12second fixture requests8,015/6,825ms produced transcripts and worker shutdown was verified; no live latency or accuracy pass.129tests/source desktop smoke passed.0.2.6 packaging underway; final source/package integrity and resident packaged test remain next.
