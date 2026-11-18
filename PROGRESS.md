@@ -3,7 +3,7 @@
 Updated: 2026-11-18 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-WORKING - User requested a readable GitHub README and downloadable Windows/Mac builds, then first-use testing guidance. README rewritten with product purpose, modes and typed/voice dry-run walkthrough; original chronology preserved in DEVELOPMENT_HISTORY.md and full document index retained. Windows0.5.1 prerelease upload underway. Native Apple Silicon build process prepared but NOT executed: auto-review rejected potentially billable private-repository Mac runner usage under free-use constraint. Workflow is manual-only; no CI starts on push. Mac binary pending explicit cost approval or an authorized local Mac. App runtime unchanged.
+WORKING - User requested a readable GitHub README and downloadable Windows/Mac builds, then first-use testing guidance. README rewritten with product purpose, modes and typed/voice dry-run walkthrough; original chronology preserved in DEVELOPMENT_HISTORY.md and full document index retained. Windows0.5.1 prerelease ZIP/checksum uploaded and release asset sizes verified. Native Apple Silicon build process prepared but NOT executed: auto-review rejected potentially billable private-repository Mac runner usage under free-use constraint. Workflow is manual-only; no CI starts on push. Mac binary pending explicit cost approval or an authorized local Mac. App runtime unchanged.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.

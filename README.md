@@ -125,4 +125,3 @@ Application improvements use focused pull requests so changes can be reviewed an
 | 15 | [Implementation handoff](docs/15-implementation-handoff.md) | Post-gate repo/modules/tasks/readiness/done, no code |
 | 16 | [Decision brief](docs/16-decision-brief.md) | Compact final review and next engineering step |
 | 17 | [Package audit](docs/17-package-audit.md) | Completeness/consistency evidence and remaining verification |
-
