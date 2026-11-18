@@ -25,3 +25,4 @@ button{padding:10px 16px;line-height:1.35}input,select{padding:10px 12px;line-he
 
 /* Typography: calm technical hierarchy, readable figures and fewer heavy labels. */
 body{font-synthesis:none}button{font-weight:500}.brand h1{font-weight:600;letter-spacing:-.5px}.page-heading h2{font-weight:500;letter-spacing:-.4px}#reference{font-weight:500;letter-spacing:-1px;font-variant-numeric:tabular-nums}.sidebar button{font-weight:500;letter-spacing:.1px}.eyebrow,.status-strip span,.nav-label{font-weight:500;letter-spacing:1.1px}.status-strip strong{font-weight:500}.inspector h2,.mode-bar h2{font-weight:600}legend{font-weight:500}.pill,#expiry,dd{font-variant-numeric:tabular-nums}blockquote{font-size:18px;line-height:1.6;font-weight:400}.muted{line-height:1.55}input,select{font-weight:400}
+.output-actions kbd{border-color:var(--line);font-size:10px;color:var(--muted)}
