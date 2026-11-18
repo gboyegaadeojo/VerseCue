@@ -3,6 +3,8 @@
 Updated: 2026-11-18 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
+Merge approval received 2026-11-18 for PR #1. Record the branch/PR-only workflow in CONTRIBUTING.md, merge using an expected-head guard and a merge commit, then fast-forward local main. Application source/tests are unchanged from the verified 0.3.1 artifact; service acceptance remains pending.
+
 WORKING — PR#1 is OPEN for NR-001 minimized background listening and NR-002 quoted Scripture, branch feat/quoted-scripture-and-background. Follow-up0.3.1 has153passing tests and packaged minimized worklet/private-file recognition/quote/explicit fake-target send/stop plus desktop/CLI checks. Rights-acknowledged local index required; no bundled Bible corpus, general semantic paraphrase or automatic quote display. Real ProPresenter untouched. Scoped0.2.8 three-hour/360cycle stability run completed successfully, not certification of0.3.x or a service workload. Final patch archive verification/publication in progress; P0/physical fidelity/Mac/Auto remain pending.
 
 ## Deliverable register
