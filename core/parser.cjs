@@ -42,9 +42,10 @@ function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslat
   let s=normalize(citationForms(normalize(text))); const corrected=/\b(sorry|i meant|rather|correction|not)\b/.test(s);
   if(/\bnot\b/.test(s)&&/\bi meant\b/.test(s)) s=s.split(/\bnot\b/)[0];
   else if(/\b(sorry|rather|correction)\b/.test(s)) s=s.split(/\b(?:sorry|rather|correction)\b/).at(-1);
-  const translationAlias={'NEW KING JAMES':'NKJV','KING JAMES':'KJV','AMPLIFIED CLASSIC':'AMPC','AMPLIFIED':'AMP','THE MESSAGE':'MSG','MESSAGE':'MSG'};
-  const translationPhrase=s.match(/\b(new king james|king james|kjv|nkjv|niv|asv|esv|ampc|amp|amplified classic|amplified|the message|msg)\b/)?.[1]?.toUpperCase()??null;
-  const translation=translationAlias[translationPhrase]??translationPhrase;
+  const translationAlias={'NEW INTERNATIONAL VERSION':'NIV','NEW INTERNATIONAL':'NIV','NEW KING JAMES VERSION':'NKJV','NEW KING JAMES':'NKJV','KING JAMES VERSION':'KJV','KING JAMES':'KJV','AMPLIFIED BIBLE CLASSIC EDITION':'AMPC','AMPLIFIED CLASSIC VERSION':'AMPC','AMPLIFIED CLASSIC':'AMPC','AMPLIFIED BIBLE':'AMP','AMPLIFIED VERSION':'AMP','AMPLIFIED':'AMP','THE MESSAGE':'MSG','MESSAGE':'MSG','KJV':'KJV','NKJV':'NKJV','NIV':'NIV','ASV':'ASV','ESV':'ESV','AMPC':'AMPC','AMP':'AMP','MSG':'MSG'};
+  const translationText=s.replace(/,/g,'').replace(/\s+/g,' '),translationNames=Object.keys(translationAlias).sort((a,b)=>b.length-a.length).join('|');
+  const translationPhrase=translationText.match(new RegExp('\\b('+translationNames+')\\b','i'))?.[1]?.toUpperCase()??null;
+  const translation=translationAlias[translationPhrase]??null;
   const references=[]; const issues=[];
   const re=new RegExp(`(?<![a-z0-9])(${bookPattern})\\s+(?:chapter\\s+)?(\\d+)(?:\\s*[:.\\-]\\s*|\\s+(?:verses?\\s+)?)(\\d+)(?:\\s*(?:through|to|-)\\s*(?:verses?\\s+)?(?:(\\d+)(?:\\s*:\\s*|\\s+(?:verse\\s+)?))?(\\d+))?`,'g');
   let m;

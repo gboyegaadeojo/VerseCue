@@ -1,0 +1,30 @@
+{
+  "at": "2026-11-18T02:59:37.155Z",
+  "run": "https://github.com/gboyegaadeojo/VerseCue/actions/runs/44225363582",
+  "sha256": "449ccba360036bd7ecca08af81310e4602e593b71370f00716d062ab1cf0dd84",
+  "bytes": 256969939,
+  "localChecksumVerified": true,
+  "workspace": {
+    "at": "2026-11-18T02:45:47.762Z",
+    "version": "0.5.2",
+    "passed": true,
+    "packaged": true,
+    "checks": [
+      "queue selection returns to review without output",
+      "history workspace receipts",
+      "Alt+1..4 navigation",
+      "Ctrl+K reference focus",
+      "seven isolated settings categories",
+      "connection shortcut",
+      "1280/900/640 horizontal fit",
+      "all settings at 200% fit",
+      "persistent emergency stop",
+      "zero page errors"
+    ],
+    "actualProPresenterAccess": false,
+    "microphoneCapture": false
+  },
+  "signing": "ad-hoc; not Developer ID/notarized",
+  "actualProPresenterAccess": false,
+  "microphoneCapture": false
+}
