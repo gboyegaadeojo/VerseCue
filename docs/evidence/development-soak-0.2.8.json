@@ -1,0 +1,29 @@
+{
+  "at": "2026-11-18T00:52:24.895Z",
+  "artifactVersion": "0.2.8",
+  "result": "PASSED_SCOPED_DEVELOPMENT_SOAK",
+  "elapsedMs": 10800237,
+  "cycles": 360,
+  "ninetyMinuteCheckpointReached": true,
+  "threeHourDurationReached": true,
+  "interrupted": false,
+  "failure": false,
+  "maxCandidateCount": 1,
+  "maxHistoryCount": 20,
+  "maxEventCount": 100,
+  "fixtureRequestP50Ms": 4304,
+  "fixtureRequestP95Ms": 5797,
+  "microphoneCapture": false,
+  "propresenterConnected": false,
+  "outputRequests": 0,
+  "accuracyScored": false,
+  "liveLatencyScored": false,
+  "fullServiceAcceptance": "PENDING",
+  "limitations": [
+    "Repeated private fixture and dry-run simulation only",
+    "No physical audio, native preparation, media/Companion or audience output workload",
+    "Electron metrics exclude the external speech worker; total memory budget not accepted",
+    "Uncontrolled shared-host load",
+    "Artifact 0.2.8 does not certify later versions"
+  ]
+}

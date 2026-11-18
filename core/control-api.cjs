@@ -68,7 +68,7 @@ class LocalControlAPI {
         if(typeof body.candidateId!=='string'||typeof body.confirmReference!=='string'||body.confirm!==true)throw new ApiError(400,'Explicit candidate and matching reference confirmation required');
         this.session.expire();const c=this.session.queue.find(c=>c.id===body.candidateId);
         if(!c||body.confirmReference!==c.label)throw new ApiError(409,'Candidate expired or confirmation reference does not match');
-        const result=await this.session.send(c.id,{additionalGuard:()=>this.accepting&&this.token===authorizedToken&&this.allowPreparedSend});
+        const result=await this.session.send(c.id,{origin:'private-api',additionalGuard:()=>this.accepting&&this.token===authorizedToken&&this.allowPreparedSend});
         this.onEvent('PRIVATE_API_PREPARED_SEND');return respond(200,result);
       }
       if(url.pathname==='/v1/prepare-passage'){

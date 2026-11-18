@@ -1,5 +1,5 @@
 'use strict';
-const {app,BrowserWindow,ipcMain,dialog,session,systemPreferences,clipboard}=require('electron');
+const {app,BrowserWindow,ipcMain,dialog,session,systemPreferences,clipboard,powerSaveBlocker}=require('electron');
 const path=require('node:path');
 const fs=require('node:fs/promises');
 const {pathToFileURL}=require('node:url');
@@ -13,8 +13,9 @@ const {PreparationController}=require('../core/preparation-controller.cjs');
 const {Profiles}=require('../core/profiles.cjs');
 const {CaptureLease}=require('../core/capture-lease.cjs');
 const connector=new Connector();const service=new Session(connector);const speech=new LocalSpeech();
-let preparation,preparationController;
-const capture=new CaptureLease({canStart:()=>!service.stopped&&service.mode!=='paused'&&!speech.busy&&!preparation?.busy,onStop:()=>speech.cancel(),onChange:value=>{service.capture=value;service.notify();}});
+let preparation,preparationController,suspensionBlocker=null;
+function updateBackgroundCapture(active){if(active&&suspensionBlocker===null)suspensionBlocker=powerSaveBlocker.start('prevent-app-suspension');if(!active&&suspensionBlocker!==null){powerSaveBlocker.stop(suspensionBlocker);suspensionBlocker=null;}}
+const capture=new CaptureLease({canStart:()=>!service.stopped&&service.mode!=='paused'&&!speech.busy&&!preparation?.busy,onStop:()=>{speech.cancel();updateBackgroundCapture(false);},onChange:value=>{updateBackgroundCapture(value.active);service.capture={...value,backgroundProtected:suspensionBlocker!==null&&powerSaveBlocker.isStarted(suspensionBlocker)};service.notify();}});
 function cancelAudio(){capture.cancel();}
 async function prepareBible(reference,translation,guard=()=>true){
   if(!preparationController)throw new Error('Preparation controller is not ready');return preparationController.prepare(reference,translation,guard);
@@ -25,7 +26,7 @@ const ui=pathToFileURL(path.join(__dirname,'../ui/index.html')).href;
 function trusted(e){if(!windows.has(BrowserWindow.fromWebContents(e.sender))||e.senderFrame!==e.sender.mainFrame||e.senderFrame.url.split('?')[0]!==ui)throw new Error('Untrusted caller');}
 function handler(name,callback,{withEvent=false}={}){ipcMain.handle(name,async(e,...args)=>{try{trusted(e);return {ok:true,value:await callback(...(withEvent?[e,...args]:args))};}catch(error){return {ok:false,error:error.message};}});}
 function createWindow(compact=false){
-  const win=new BrowserWindow({width:compact?450:1280,height:compact?630:900,minWidth:compact?360:800,minHeight:550,title:'VerseCue',backgroundColor:'#10151d',show:false,alwaysOnTop:compact,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true}});
+  const win=new BrowserWindow({width:compact?450:1280,height:compact?630:900,minWidth:compact?360:800,minHeight:550,title:'VerseCue',backgroundColor:'#10151d',show:false,alwaysOnTop:compact,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,backgroundThrottling:false}});
   windows.add(win);win.setMenuBarVisibility(false);win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('will-navigate',e=>e.preventDefault());const captureOwnerId=win.webContents.id;
   const releaseUnavailableOwner=code=>{if(!capture.owns(captureOwnerId))return;cancelAudio();preparation?.cancel();privateApi.stop().catch(()=>{});connector.arm(false);service.setMode('paused');service.log(code,'warning');service.notify();};
   win.webContents.on('render-process-gone',()=>releaseUnavailableOwner('AUDIO_OWNER_RENDERER_GONE'));
@@ -66,6 +67,14 @@ async function bootstrap(){
   // Renderer needs local assets only. All ProPresenter traffic is mediated by the core.
   session.defaultSession.webRequest.onBeforeRequest((details,callback)=>callback({cancel:!details.url.startsWith('file://')&&!details.url.startsWith('devtools://')}));
   handler('state',()=>service.snapshot());handler('settings',()=>settings);
+  handler('quote-status',()=>service.quoteStatus());
+  handler('quote-enable',enabled=>service.enableQuotes(enabled));
+  handler('quote-import',async options=>{
+    if(options?.rightsAcknowledged!==true)throw new Error('Acknowledge permission to use this local passage text');
+    const result=await dialog.showOpenDialog(mainWindow,{title:'Import a local, rights-cleared passage index',properties:['openFile'],filters:[{name:'Passage index JSON',extensions:['json']}]});if(result.canceled)return service.quoteStatus();
+    const file=result.filePaths[0],stat=await fs.stat(file);if(!stat.isFile()||stat.size>16000000)throw new Error('Quote index must be a JSON file of at most 16 MB');
+    const bytes=await fs.readFile(file,'utf8');if(bytes.length>16000000)throw new Error('Quote index too large');return service.loadQuoteIndex(JSON.parse(bytes.replace(/^\uFEFF/,'')),true);
+  });
   handler('window-identity',event=>({id:event.sender.id}),{withEvent:true});
   handler('audio-start',(event,options)=>capture.acquire(event.sender.id,options?.authorized),{withEvent:true});
   handler('audio-stop',event=>capture.release(event.sender.id),{withEvent:true});
