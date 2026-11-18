@@ -12,6 +12,12 @@ The [sanitized build report](evidence/pr22-build-checkpoint-272e1ae.json) record
 
 ## Saved-copy choice and keyboard safeguards
 
+## Subsequent verification
+
+Mac workflow [44388816375](https://github.com/gboyegaadeojo/VerseCue/actions/runs/44388816375) passed at revision `ca1cc3b6191a74bc89efd037dadaa54d5ca5c021`: 312 module tests, syntax, synthetic reference/next-verse/audio-age/copy-choice/minimized-preparation checks, CPU speech build, development packaging and packaged workspace. The preceding run failed because one test still used Control+Enter on Mac; the corrected test uses Command+Enter. Windows minimized-preparation testing also now waits for the initial window Show event before minimizing. These test corrections do not constitute real Mac ProPresenter or microphone acceptance.
+
+Subsequent metadata matching accepts anchored saved labels using Psalms, Song of Solomon, Revelations and typographic range dashes, while retaining the original cue label/text for review. Prose, chapter-only labels and ambiguous chapter/verse punctuation remain rejected. The requested reference and edition still require exact supported validation. All 314 module tests and syntax checks pass locally; this metadata change is newer than the Mac checkpoint above and requires matching build verification.
+
 Distinct exact saved copies now produce explicit review choices using their ProPresenter text and part count. Choosing a copy re-resolves its UUID and fingerprint before creating a fresh review. A changed/deleted copy cannot silently select another presentation. The same unchanged UUID listed twice is one identity; inconsistent reads of that UUID fail closed. No copy is deleted or first-match guess introduced.
 
 Actual mapped-cue controls remain under Manual preparation tools; normal passage confirmation uses its own guarded action. Internally managed passage mappings cannot be reused through the legacy desktop/private-API send path without their passage-part proof. Ctrl+Enter (Command+Enter on Mac) only confirms a fully acknowledged passage or deliberately continues its next part; editing fields, held keys and incomplete acknowledgments do not send output. Normal button focus with Enter/Space remains available.
