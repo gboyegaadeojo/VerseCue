@@ -3,7 +3,7 @@
 Updated: 2026-11-18 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-WORKING - User authorized public repository for free standard Actions; all384history blobs scanned for private-path/credential patterns (zero findings), visibility changed PUBLIC, Mac run44224691206 compiled CPU speech but failed because Electron runtime was not explicitly installed. Native build fix follows separately. Citation forms/abbreviations/punctuation and clearer missing-verse text implemented on fix/preaching-reference-forms;199tests passed. Noisy user John quotation already matches with enabled index; inspector now exposes quote readiness. User requests full application and smoothness before ProPresenter tests: no host access/output during this build phase.
+WORKING - User going to bed explicitly authorizes real personal ProPresenter tests as needed to meet acceptance, superseding prior test deferral. Preserve test-only scope, current state and all safety gates; no church production, cloud, paid software, OS privacy/security changes or blind clear/retry. Computer-use skill/guidance/confirmations/API read; real running ProPresenter selected for inspection. Current0.5.5 three-hour isolated resident/private-fixture/dry-run soak started, run e144f82a-8083-41eb-9a50-646b2f269a65, exec session50847, report test-results/soak-e144f82a-8083-41eb-9a50-646b2f269a65.json. No actual PP/mic/output in soak. Real HIL results and acceptance must remain separately scoped; do not claim all criteria passed without evidence.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -92,7 +92,7 @@ DATA-01/02: user supplied IFC Sunday-service YouTube source. Requested start1:18
 - Windows/macOS viability and representative measured turnaround.
 
 ## Exact next action
-Finish citation PR validation/merge, fix native Mac runtime installation in a separate PR and rerun on public standard runner. Then implement smoothness and operator-friendly actual prepared-output setup as focused PRs; package/release new application changes. Keep arbitrary-passage, device and service acceptance honest; no ProPresenter test now.
+Inspect real ProPresenter/current output, test saved-cue real output and arbitrary preparation route using authorized isolated passages, develop/fix identified failures through focused PRs. Keep current3h soak running to completion, monitor bounded memory/counters, summarize to a version-correct evidence file (summarize-soak currently hardcodes0.2.8 and must be fixed before use). Finish pending docs PR11 (branch docs/current-platform-downloads at7a95714). Record honest individual acceptance passes/failures/blockers.
 
 ## Checkpoints and audit
 - 0.2.5 publication: reviewed source/tests/redacted evidence committed and pushed to private gboyegaadeojo/VerseCue main at b69280a. No private audio/transcripts/models/binaries staged.0.2.6 continuation adds generation-scoped connector reads/mappings/dispatch and an explicitly selected resident CPU worker with memory WAV requests, random loopback route, owned process cancellation and90second idle stop. Actual12second fixture requests8,015/6,825ms produced transcripts and worker shutdown was verified; no live latency or accuracy pass.129tests/source desktop smoke passed.0.2.6 packaging underway; final source/package integrity and resident packaged test remain next.
