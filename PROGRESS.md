@@ -3,7 +3,7 @@
 Updated: 2026-11-18 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-COMPLETE - Requested Figma-inspired Control redesign and spacing refinement implemented on feat/figma-control-workspace, stacked on guarded Auto PR #3 (dependent on sleep/wake PR #2). Persistent navigation, central Scripture review, contextual inspector, seven dedicated settings panels and grouped/spaced actions preserve backend safety. All170 tests passed. Packaged0.5.1 desktop/workspace/background/Auto/offline speech/power/renderer/health-race checks passed;124manifest/source files and ZIP SHA25644ad81069d404692f077c43fa140414d648a155d5d508f4dadc1ba204e73a224 verified. No actual ProPresenter or microphone access. P0/service/Mac/physical-output acceptance remains pending. Publishing focused UI PR now.
+COMPLETE - Requested Figma-inspired Control redesign and spacing refinement implemented on feat/figma-control-workspace, stacked on guarded Auto PR #3 (dependent on sleep/wake PR #2). Persistent navigation, central Scripture review, contextual inspector, seven dedicated settings panels and grouped/spaced actions preserve backend safety. All170 tests passed. Packaged0.5.1 desktop/workspace/background/Auto/offline speech/power/renderer/health-race checks passed;124manifest/source files and ZIP SHA25644ad81069d404692f077c43fa140414d648a155d5d508f4dadc1ba204e73a224 verified. No actual ProPresenter or microphone access. P0/service/Mac/physical-output acceptance remains pending. Focused UI PR #4 published: https://github.com/gboyegaadeojo/VerseCue/pull/4.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -91,7 +91,7 @@ DATA-01/02: user supplied IFC Sunday-service YouTube source. Requested start1:18
 - Windows/macOS viability and representative measured turnaround.
 
 ## Exact next action
-Publish the focused UI PR against feat/guarded-auto-mode, verify its remote commit and record URL. Deliver0.5.1 local executable/ZIP and screenshot for review. Preserve user design-reference files and do not infer service readiness from development checks.
+Requested redesign and spacing work are complete; PR #4 is open against feat/guarded-auto-mode. Deliver0.5.1 local executable/ZIP and screenshot for review. Future changes remain focused PRs; dependencies #2/#3 precede #4. Preserve user design-reference files and do not infer service readiness from development checks.
 
 ## Checkpoints and audit
 - 0.2.5 publication: reviewed source/tests/redacted evidence committed and pushed to private gboyegaadeojo/VerseCue main at b69280a. No private audio/transcripts/models/binaries staged.0.2.6 continuation adds generation-scoped connector reads/mappings/dispatch and an explicitly selected resident CPU worker with memory WAV requests, random loopback route, owned process cancellation and90second idle stop. Actual12second fixture requests8,015/6,825ms produced transcripts and worker shutdown was verified; no live latency or accuracy pass.129tests/source desktop smoke passed.0.2.6 packaging underway; final source/package integrity and resident packaged test remain next.
