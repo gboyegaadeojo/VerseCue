@@ -4,11 +4,11 @@
 
 VerseCue listens to an authorized pastor audio feed, identifies Bible references and helps an operator review and send prepared passages to ProPresenter. Built for Immanuel Fellowship Church, it works alongside ProPresenter while ProPresenter keeps control of Bible text, themes, Looks and screens.
 
-![VerseCue Control workspace](docs/images/versecue-control-workspace.png)
+![VerseCue Control workspace](docs/images/versecue-studio-workspace.png)
 
 ## Download
 
-**Current development version: 0.5.5.** These are supervised-test builds, not an approved live-service release.
+**Current downloadable development version: 0.5.5.** These are supervised-test builds, not an approved live-service release. Source now includes the Studio 0.6.0 workspace shown above; matching public packages are being verified.
 
 | Computer | Download | Status |
 |---|---|---|
@@ -102,7 +102,7 @@ npm run check
 npm run test:desktop
 ```
 
-[Contributing and PR workflow](CONTRIBUTING.md) | [Current progress](PROGRESS.md) | [Implementation coverage](docs/implementation-coverage.json) | [Setup and release evidence](docs/22-development-build-and-release-status.md) | [Workspace guide](docs/38-figma-control-workspace.md) | [Prepare and save a Bible copy](docs/46-native-saved-bible-preparation.md) | [Spoken next-verse plan](docs/48-spoken-next-verse-plan.md) | [Preaching workflow review](docs/49-preaching-workflow-gap-review.md).
+[Contributing and PR workflow](CONTRIBUTING.md) | [Current progress](PROGRESS.md) | [Implementation coverage](docs/implementation-coverage.json) | [Setup and release evidence](docs/22-development-build-and-release-status.md) | [Workspace guide](docs/50-premium-studio-workspace.md) | [Prepare and save a Bible copy](docs/46-native-saved-bible-preparation.md) | [Spoken next-verse plan](docs/48-spoken-next-verse-plan.md) | [Preaching workflow review](docs/49-preaching-workflow-gap-review.md).
 
 Application improvements use focused pull requests so changes can be reviewed and reverted independently. Merging a PR updates source; it does not automatically replace an already downloaded app. Download a newer build only when its application contents/version change. Version 0.5.5 includes merged PRs #2-10, including expanded citation forms, smoother updates, translated saved-cue browsing and offline IBM Plex Sans.
 

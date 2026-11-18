@@ -45,3 +45,5 @@ NR-004 delivery: [PR #4](https://github.com/gboyegaadeojo/VerseCue/pull/4), vers
 ## NR-008 - Three clickable premium UI directions
 
 2026-11-18: user supplies Pewbeam screenshot, asks for internet-researched polished and easy desktop design, then explicitly requests three clickable ideas before choosing the real application look. Built standalone Studio, Focus and Command concepts in design-review/, with synthetic local-only interactions and research notes. No production UI/backend changed; selection is pending. See [design room](design-review/README.md).
+
+NR-008 selection and implementation: user chooses Studio with Focus readability, then requests premium/non-generic styling. Version0.6.0 implements that direction in the real UI, preserving existing safety/IPC/backend behavior. See [Studio implementation](docs/50-premium-studio-workspace.md). Isolated concepts PR19 merged after selection.
