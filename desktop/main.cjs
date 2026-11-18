@@ -43,7 +43,8 @@ function createWindow(compact=false){
   win.webContents.on('did-start-navigation',details=>{if(details.isMainFrame)releaseUnavailableOwner('AUDIO_OWNER_RELOADED');});
   win.on('closed',()=>{releaseUnavailableOwner('AUDIO_OWNER_CLOSED');windows.delete(win);if(compact)compactWindow=null;});win.once('ready-to-show',()=>win.show());win.loadURL(ui+(compact?'?compact=1':''));return win;
 }
-function update(){for(const win of windows)if(!win.isDestroyed())win.webContents.send('state-update',service.snapshot());}
+let enforcingSafeCapture=false;
+function update(){if(!enforcingSafeCapture&&capture.snapshot().active&&(service.stopped||service.mode==='paused'||service.recovery?.required)){enforcingSafeCapture=true;try{cancelAudio();}finally{enforcingSafeCapture=false;}}for(const win of windows)if(!win.isDestroyed())win.webContents.send('state-update',service.snapshot());}
 service.on('change',update);
 async function choose(kind){
   if(speech.busy)throw new Error('Stop recognition before changing speech files');
@@ -108,7 +109,7 @@ async function bootstrap(){
   handler('choose-worker',()=>choose('worker'));handler('choose-model',()=>choose('model'));
   handler('command',async(event,command,payload)=>{
     switch(command){
-      case 'ingest':if(typeof payload?.text!=='string')throw new Error('Invalid reference');if(preparation.busy||savedBible?.busy||passageCoordinator?.busy||passageCoordinator?.review)cancelPreparation();return service.ingest(payload.text,{manual:true});
+      case 'ingest':if(typeof payload?.text!=='string')throw new Error('Invalid reference');if(preparation.busy||savedBible?.busy||passageCoordinator?.busy||passageCoordinator?.review)cancelPreparation();return service.ingestChecked(payload.text,{manual:true});
       case 'mode':cancelAudio();cancelPreparation();return service.setMode(payload);
       case 'enable-auto':if(preparation.busy||savedBible?.busy)throw new Error('Finish Bible preparation before enabling Auto');automatic.cancel();speech.cancel();return service.enableAuto({acknowledged:payload?.acknowledged===true});
       case 'stop':cancelAudio();cancelPreparation();connector.arm(false);return service.stop();
@@ -147,7 +148,7 @@ async function bootstrap(){
     if(service.stopped||service.mode==='paused')throw new Error('Listening is paused');const epoch=service.generation;
     const result=await speech.transcribe(samples);
     if(epoch!==service.generation||service.stopped||service.mode==='paused')throw new Error('Stale recognition discarded');
-    service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});const candidates=service.ingest(result.text,{authorized:true});automatic.consider(candidates,{source:'local-speech',final:result.final===true,elapsedMs:result.elapsedMs,endEvidence:metadata?.endEvidence,droppedSamples:metadata?.droppedSamples});return result;
+    service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});const candidates=await service.ingestChecked(result.text,{authorized:true,additionalGuard:()=>capture.owns(event.sender.id)&&epoch===service.generation});automatic.consider(candidates,{source:'local-speech',final:result.final===true,elapsedMs:result.elapsedMs,endEvidence:metadata?.endEvidence,droppedSamples:metadata?.droppedSamples});return result;
   },{withEvent:true});
   handler('export-settings',async()=>{const r=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-settings.json'});if(!r.canceled){const safe={...settings,executable:'',model:'',audioDevice:''};await fs.writeFile(r.filePath,JSON.stringify(safe,null,2));return true;}return false;});
   handler('import-settings',async()=>{const r=await dialog.showOpenDialog(mainWindow,{properties:['openFile'],filters:[{name:'JSON',extensions:['json']}]});if(r.canceled)return null;const bytes=await fs.readFile(r.filePaths[0],'utf8');if(bytes.length>16384)throw new Error('Settings file too large');const incoming=store.validateSettings(JSON.parse(bytes));incoming.executable='';incoming.model='';incoming.audioDevice='';cancelAudio();cancelPreparation();if(speech.busy)throw new Error('Stop recognition before import');settings=await store.save(settingsFile,incoming);connector.configure(settings.host,settings.port);speech.configure('','',settings.speechMode);service.reset();service.configure({translation:settings.translation});return settings;});

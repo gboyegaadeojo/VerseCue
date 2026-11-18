@@ -8,6 +8,7 @@ class PassageCoordinator {
  acquire(){if(this.busy||this.service.busy||this.service.operationOwner)throw Error('Another passage operation is in progress');this.busy=true;this.service.operationOwner=this;}
  release(){if(this.service.operationOwner===this)this.service.operationOwner=null;this.busy=false;}
  cancel(){this.epoch++;this.review=null;this.active=null;this.savedBible.cancel();this.publish({phase:'canceled',outputRequests:0});}
+ async verifySource(source,guard){if(source.reference.relative){if(!source.reference.remote||typeof this.connector.verifyContext!=='function')throw Error('Relative passage context cannot be verified');if(this.service.clock()-source.reference.verifiedAt>120000)throw Error('Relative passage context expired');await this.connector.verifyContext(source.reference.remote,guard);}}
  candidate(id){this.service.expire();const c=this.service.queue.find(row=>row.id===id);if(!c||this.service.stopped||this.service.recovery?.required||!c.authorized||c.generation!==this.service.generation||c.reference.valid!==true||c.reference.verse==null||c.reference.overLimit||c.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))throw Error('Review a valid current passage first');return c;}
  async prepare(id,{acknowledgeFocusChange=false,acknowledgeCreateCopy=false}={}){
   if(this.busy)throw Error('A passage preparation is already in progress');const c=this.candidate(id),epoch=++this.epoch,target=this.connector.generation,base=this.connector.base;this.review=null;this.active=null;this.acquire();
@@ -15,6 +16,7 @@ class PassageCoordinator {
   const check=()=>{if(!guard())throw Error('Passage preparation canceled or target changed');};
   try{
    this.publish({phase:'resolving',reference:c.label,translation:c.translation,outputRequests:0});
+   await this.verifySource(c,guard);check();
    let result=await this.resolver.findCandidate(this.service,id);check();
    if(result.state==='ambiguous-passages')return this.publish({phase:'ambiguous',...result});
    if(result.state==='needs-preparation'){
@@ -27,7 +29,7 @@ class PassageCoordinator {
     if(this.service.generation!==preparedGeneration||result.state!=='passage-needs-review'||result.uuid!==saved.uuid)throw Error('Prepared copy is ambiguous or changed; inspect ProPresenter');
     result={...result,clippingWarning:saved.clippingWarning===true,requiresFreshReview:true};
    }
-   if(result.state!=='passage-needs-review')throw Error('No exact passage is ready for review');
+   if(result.state!=='passage-needs-review'||result.reference!==c.label||result.translation!==c.translation)throw Error('No exact passage is ready for review');
    const reviewToken=randomUUID();this.review={token:reviewToken,plan:structuredClone(result),source:structuredClone(c),epoch,target,base,generation:this.service.generation,inputEpoch:this.service.inputEpoch,expiresAt:this.service.clock()+120000};
    return this.publish({...result,phase:'review-required',reviewToken,reviewGeneration:this.review.generation,reviewInputEpoch:this.review.inputEpoch,sourceCandidateId:id,bibleTextVerified:false,formattingVerified:false,outputObserved:false,outputRequests:0});
   }catch(error){this.publish({phase:guard()?'blocked':'canceled',reference:c.label,translation:c.translation,reason:error.message,outputRequests:0});throw error;}finally{this.release();}
@@ -41,7 +43,8 @@ class PassageCoordinator {
   this.acquire();
   this.publish({phase:'confirming',reference:r.plan.reference,translation:r.plan.translation});
   try{
-   await c.preparePassage({uuid:r.plan.uuid,reference:r.plan.reference,translation:r.plan.translation,expectedFingerprint:r.plan.fingerprint,verified:true,guard:valid});
+   await this.verifySource(r.source,valid);
+   await c.preparePassage({uuid:r.plan.uuid,reference:r.plan.reference,translation:r.plan.translation,expectedFingerprint:r.plan.fingerprint,verified:true,sourceContext:r.source.reference.relative?r.source.reference.remote:null,guard:valid});
    if(!valid())throw Error('Passage confirmation canceled');
    // This explicit desktop confirmation authorizes one verified test passage.
    // Apply safe session transitions before creating its fresh manual candidate.

@@ -2,25 +2,42 @@
 const {EventEmitter}=require('node:events');
 const {randomUUID}=require('node:crypto');
 const {parse}=require('./parser.cjs');
-const kjvBounds=require('./kjv-versification.json').bounds;
 const {QuoteMatcher}=require('./quote-matcher.cjs');
 class Session extends EventEmitter {
   constructor(connector,{clock=()=>performance.timeOrigin+performance.now()}={}) {
     super();this.connector=connector;this.clock=clock;this.mode='confirm';this.stopped=false;this.dryRun=true;this.queue=[];this.history=[];this.events=[];this.generation=0;this.busy=false;this.translation='KJV';this.context=null;this.revisions=new Map();this.lastSend=null;
   }
-  snapshot(){this.expire();return {inputEpoch:this.inputEpoch??0,preparation:this.passagePreparation??{phase:'idle'},recovery:this.recovery?{...this.recovery}:null,generation:this.generation,mode:this.mode,stopped:this.stopped,dryRun:this.dryRun,queue:structuredClone(this.queue),history:structuredClone(this.history),events:structuredClone(this.events),busy:this.busy,translation:this.translation,quoteMatching:this.quoteStatus(),capture:this.capture?{...this.capture}:{active:false,ownerId:null},autoStatus:this.autoStatus??null,capabilities:{auto:true,quoteAuto:false,arbitraryLookup:false,clear:false},connection:this.connector.status??{state:'offline'}};}
+  snapshot(){this.expire();return {interpretation:this.interpretation??null,inputEpoch:this.inputEpoch??0,preparation:this.passagePreparation??{phase:'idle'},recovery:this.recovery?{...this.recovery}:null,generation:this.generation,mode:this.mode,stopped:this.stopped,dryRun:this.dryRun,queue:structuredClone(this.queue),history:structuredClone(this.history),events:structuredClone(this.events),busy:this.busy,translation:this.translation,quoteMatching:this.quoteStatus(),capture:this.capture?{...this.capture}:{active:false,ownerId:null},autoStatus:this.autoStatus??null,capabilities:{auto:true,quoteAuto:false,arbitraryLookup:false,clear:false},connection:this.connector.status??{state:'offline'}};}
   notify(){this.emit('change',this.snapshot());}
   enableAuto({acknowledged=false}={}){if(acknowledged!==true)throw new Error('Explicit Auto acknowledgment is required');if(this.stopped||this.recovery?.required||this.busy)throw new Error('Resume Confirm and finish pending work before enabling Auto');if(!this.dryRun){const c=this.connector;if(!c.base||new URL(c.base).hostname!=='127.0.0.1'||!c.armed||c.status?.state!=='connected'||![...c.mappings.values()].some(map=>map.autoVerified===true))throw new Error('Auto test output requires an armed loopback target and a complete cue explicitly verified for Auto');}this.invalidate();this.mode='auto';this.autoStatus={state:'ready',reason:this.dryRun?'AUTO SIMULATION: no output requests':'AUTO TEST OUTPUT: verified complete cues only'};this.log('AUTO_EXPLICITLY_ENABLED','warning');this.notify();}
   quoteStatus(){return {enabled:this.quoteEnabled===true,...(this.quoteMatcher?.status()??{translation:null,passages:0})};}
   loadQuoteIndex(document,consent){const matcher=new QuoteMatcher(document,{rightsAcknowledged:consent===true});this.invalidate();this.quoteMatcher=matcher;this.quoteEnabled=false;this.log('QUOTE_INDEX_LOADED');this.notify();return this.quoteStatus();}
   enableQuotes(enabled){if(typeof enabled!=='boolean'||enabled&&(!this.quoteMatcher||this.quoteMatcher.translation!==this.translation))throw new Error('Import a rights-acknowledged index matching the selected translation first');this.invalidate();this.quoteEnabled=enabled;this.log(enabled?'QUOTE_MATCHING_ENABLED':'QUOTE_MATCHING_DISABLED');this.notify();return this.quoteStatus();}
   log(code,state='info',metrics=null){const safe={};for(const key of ['nativeWorkerMs','sttWorkerMs'])if(Number.isFinite(metrics?.[key])&&metrics[key]>=0&&metrics[key]<=120000)safe[key]=Math.round(metrics[key]);this.events.push({id:randomUUID(),at:this.clock(),code,state,...(Object.keys(safe).length?{metrics:safe}:{})});this.events=this.events.slice(-100);}
-  invalidate(){this.inputEpoch=(this.inputEpoch??0)+1;this.autoStatus=null;this.generation++;this.queue=[];this.context=null;}
+  invalidate(){this.interpretation=null;this.inputEpoch=(this.inputEpoch??0)+1;this.autoStatus=null;this.generation++;this.queue=[];this.context=null;}
   expire(){this.queue=this.queue.filter(c=>c.expiresAt>this.clock());}
   setMode(mode){if(!['confirm','suggest','paused'].includes(mode))throw new Error('Select a supported mode; enable Auto through its acknowledgment dialog');if(this.recovery?.required&&mode!=='paused')throw new Error('Recheck the connection after wake, then Resume in Confirm');this.invalidate();this.mode=mode;this.log('MODE_CHANGED');this.notify();}
   stop(){this.stopped=true;this.mode='paused';this.invalidate();this.log('EMERGENCY_STOP','warning');this.notify();}
   resume(){if(this.recovery?.required&&(this.recovery.phase!=='resume'||this.connector.status?.state!=='connected'||!this.connector.version))throw new Error('Test the ProPresenter connection after wake before resuming Confirm');this.recovery=null;this.stopped=false;this.mode='confirm';this.invalidate();this.log('REARMED_CONFIRM');this.notify();}
   configure({dryRun=true,translation='KJV'}={}){if(typeof dryRun!=='boolean'||!/^[- A-Z0-9]{2,30}$/.test(translation))throw new Error('Invalid session settings');this.invalidate();if(this.mode==='auto')this.mode='confirm';if(translation!==this.translation)this.quoteEnabled=false;this.dryRun=dryRun;this.translation=translation;this.log('CONFIG_CHANGED');this.notify();}
+  async ingestChecked(text,options={}){
+    const external=options.additionalGuard??(()=>true);
+    if(!external())throw Error('Reference request was revoked');
+    if(this.dryRun||options.authorized===false||this.stopped||(!options.manual&&this.mode==='paused'))return this.ingest(text,options);
+    const context=this.context,proposed=parse(text,{context,now:this.clock(),defaultTranslation:this.translation});
+    if(!proposed.references.some(r=>r.relative&&r.valid===true))return this.ingest(text,options);
+    const generation=this.generation,inputEpoch=(this.inputEpoch??0)+1;this.inputEpoch=inputEpoch;
+    const valid=()=>external()&&this.context===context&&generation===this.generation&&inputEpoch===this.inputEpoch&&!this.stopped&&!this.recovery?.required;
+    try{
+      if(!context?.remote||typeof this.connector.verifyContext!=='function')throw Error('Current passage cannot be verified against ProPresenter');
+      await this.connector.verifyContext(context.remote,valid);
+      if(!valid())throw Error('Reference context check canceled');
+    }catch(error){
+      if(!valid())throw Error('Reference context or session changed while checking');
+      this.connector.arm?.(false);this.invalidate();this.mode='paused';this.interpretation={kind:'blocked-navigation',reason:error.message};this.log('NAVIGATION_CONTEXT_LOST','warning');this.notify();return [];
+    }
+    return this.ingest(text,options);
+  }
   ingest(text,{id=randomUUID(),revision=1,final=true,manual=false,authorized=true}={}) {
     this.inputEpoch=(this.inputEpoch??0)+1;
     if(this.stopped||(!manual&&this.mode==='paused'))return [];
@@ -30,6 +47,8 @@ class Session extends EventEmitter {
     this.queue=this.queue.filter(c=>c.utteranceId!==id);
     if(!final){this.generation++;this.notify();return [];}
     const parsed=parse(text,{context:this.context,now:this.clock(),defaultTranslation:this.translation});
+    this.interpretation={kind:parsed.command?.kind??(parsed.references.length?'reference':'none'),reason:parsed.issues[0]??null};
+    if(authorized&&['hold','ignored-navigation'].includes(parsed.command?.kind)){this.queue=[];this.log(parsed.command.kind==='hold'?'HOLD_REQUESTED':'NAVIGATION_IGNORED');this.notify();return [];}
     let quote=null;
     if(!parsed.references.length&&!parsed.issues.length&&this.quoteEnabled&&authorized&&this.mode!=='paused'){
       quote=this.quoteMatcher?.match(text,this.translation);
@@ -47,10 +66,9 @@ class Session extends EventEmitter {
     this.expire();const candidate=this.queue.find(item=>item.id===id);
     if(![-1,1].includes(direction)||!candidate||this.stopped||this.busy||!candidate.authorized||candidate.generation!==this.generation||candidate.reference.valid===false||candidate.reference.overLimit||candidate.reference.verse==null||candidate.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))throw new Error('Choose a valid unexpired candidate before navigating');
     if(candidate.translation!=='KJV')throw new Error('Verified numbering is unavailable for this translation; edit the reference explicitly');
-    const reference=candidate.reference,chapters=kjvBounds[reference.book];let chapter=direction===1?(reference.endChapter??reference.chapter):reference.chapter,verse=(direction===1?(reference.endVerse??reference.verse):reference.verse)+direction;
-    if(verse<1&&chapter>1){chapter--;verse=chapters[chapter-1];}else if(verse>chapters[chapter-1]&&chapter<chapters.length){chapter++;verse=1;}
-    if(!chapters?.[chapter-1]||verse<1||verse>chapters[chapter-1])throw new Error('Book boundary reached; choose the next book explicitly');
-    this.queue=this.queue.filter(item=>item.id!==id);return this.ingest(`${reference.book} ${chapter}:${verse} in KJV`,{manual:true});
+    const proposal=parse(direction===1?'next verse':'previous verse',{context:{...candidate.reference,translation:candidate.translation,verified:true,verifiedAt:this.clock()},now:this.clock(),defaultTranslation:candidate.translation});
+    const next=proposal.references[0];if(!next||next.valid!==true)throw Error(proposal.issues[0]??'Book boundary reached; choose the next book explicitly');
+    this.queue=this.queue.filter(item=>item.id!==id);return this.ingest(next.label+' in '+candidate.translation,{manual:true});
   }
   reset(){this.quoteMatcher=null;this.quoteEnabled=false;this.invalidate();this.revisions.clear();this.history=[];this.stopped=false;this.mode=this.recovery?.required?'paused':'confirm';this.dryRun=true;this.lastSend=null;this.log('SESSION_RESET');this.notify();}
   async send(id,{additionalGuard=()=>true,origin='desktop',operationOwner=null}={}){
@@ -70,7 +88,11 @@ class Session extends EventEmitter {
     if(this.lastSend?.key===key&&this.clock()-this.lastSend.at<10000&&!continued)throw new Error('Duplicate cooldown: wait before intentionally repeating');
     this.busy=true;const gen=this.generation,mode=this.mode,inputEpoch=this.inputEpoch;this.notify();
     try {
-      const result=await this.connector.send(c,{dryRun:this.dryRun,automatic,guard:()=>!this.stopped&&this.mode===mode&&gen===this.generation&&(!automatic||inputEpoch===this.inputEpoch)&&this.clock()<c.expiresAt&&additionalGuard()});
+      const guard=()=>!this.stopped&&this.mode===mode&&gen===this.generation&&(!automatic||inputEpoch===this.inputEpoch)&&this.clock()<c.expiresAt&&additionalGuard();
+      if(c.reference.relative&&!this.dryRun){
+        try{if(!c.reference.remote||typeof this.connector.verifyContext!=='function')throw Error('Current passage context cannot be verified');await this.connector.verifyContext(c.reference.remote,guard);}catch(error){this.connector.arm?.(false);this.invalidate();this.mode='paused';throw error;}
+      }
+      const result=await this.connector.send(c,{dryRun:this.dryRun,automatic,guard});
       this.lastSend={key,at:this.clock(),partKey,state:result.state};this.queue=this.queue.filter(x=>x.id!==id);
       this.history.unshift({...c,phrase:undefined,state:result.state,at:this.clock()});this.history=this.history.slice(0,20);
       // Simulation never establishes real remote passage context.

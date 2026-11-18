@@ -58,7 +58,7 @@ class LocalControlAPI {
         object(body,['text','requestId']);
         if(typeof body.text!=='string'||body.text.length<1||body.text.length>8192||body.requestId!==undefined&&(typeof body.requestId!=='string'||!/^[-a-zA-Z0-9_]{1,80}$/.test(body.requestId)))throw new ApiError(400,'Invalid text or requestId');
         if(this.session.stopped||this.session.mode==='paused')throw new ApiError(409,'VerseCue is paused or stopped; rearm in the desktop app');
-        const candidates=this.session.ingest(body.text,{id:'api-'+(body.requestId??randomUUID()),manual:true});
+        const candidates=await this.session.ingestChecked(body.text,{id:'api-'+(body.requestId??randomUUID()),manual:true,additionalGuard:()=>this.accepting&&this.token===authorizedToken});
         this.onEvent('PRIVATE_API_REFERENCE_REVIEW');return respond(201,{state:'review-only',outputRequests:0,candidates:candidates.map(c=>({id:c.id,reference:c.label,translation:c.translation,expiresInMs:Math.max(0,Math.round(c.expiresAt-this.session.clock()))}))});
       }
       if(url.pathname==='/v1/stop'){object(body,[]);await this.onStop();this.onEvent('PRIVATE_API_EMERGENCY_STOP');return respond(200,{state:'stopped',alreadyAcceptedOutputRetracted:false});}

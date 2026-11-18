@@ -1,0 +1,14 @@
+{
+  "at": "2026-11-18T18:03:20.296Z",
+  "version": "0.6.0",
+  "passed": true,
+  "nextVerseResolvedFromActualFakeReadback": true,
+  "rangeEndUsedForNextVerse": true,
+  "operatorTakeoverBetweenReviewAndConfirmationBlocked": true,
+  "holdDidNotTrigger": true,
+  "backendPauseRevokedCaptureWithoutRendererListeningFlag": true,
+  "missingContextActionable": true,
+  "fakeTargetTriggers": 3,
+  "actualProPresenterAccess": false,
+  "microphoneCapture": false
+}

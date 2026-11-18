@@ -27,7 +27,7 @@ class Connector {
     if(!mapping.version)throw new Error('Test the target first');this.mappings.set(`${reference}|${translation}`,mapping);
     return {reference,translation,cue,prepared:true};
   }
-  async preparePassage({uuid,reference,translation,expectedFingerprint,verified,partIndex=0,expectedCurrent=null,guard=()=>true}){
+  async preparePassage({uuid,reference,translation,expectedFingerprint,verified,partIndex=0,expectedCurrent=null,sourceContext=null,guard=()=>true}){
     if(verified!==true)throw Error('Verify the passage text, edition and appearance before confirmation');
     const generation=this.generation,base=this.base,version=this.version?.host_description;
     if(!version||!guard())throw Error('Passage verification canceled or connection not tested');
@@ -39,8 +39,16 @@ class Connector {
     if(partIndex>0){const index=plan.cueIndices[partIndex-1];if(expectedCurrent?.uuid!==uuid||expectedCurrent?.index!==index)throw Error('Continuation requires the preceding verified passage part');previous={uuid,index,text:source.slides[index].text};}
     else if(expectedCurrent!==null)throw Error('Unexpected previous passage part');
     if(generation!==this.generation||base!==this.base||version!==this.version?.host_description||!guard())throw Error('Passage verification canceled');
-    this.mappings.set(`${reference}|${translation}`,{uuid,cue:plan.cueIndices[partIndex],reference,translation,autoVerified:false,fingerprint:plan.fingerprint,version,expectedCurrent:previous,passagePart:{index:partIndex,count:plan.cueIndices.length}});
+    this.mappings.set(`${reference}|${translation}`,{uuid,cue:plan.cueIndices[partIndex],reference,translation,autoVerified:false,fingerprint:plan.fingerprint,version,expectedCurrent:previous,sourceContext:partIndex===0?sourceContext:null,passagePart:{index:partIndex,count:plan.cueIndices.length}});
     return {reference,translation,prepared:true,cueCount:plan.cueIndices.length,partIndex};
+  }
+  async verifyContext(remote,guard=()=>true){
+    const generation=this.generation,base=this.base;
+    if(!remote||typeof remote.uuid!=='string'||!Number.isInteger(remote.index)||typeof remote.fingerprint!=='string')throw Error('Current passage context is incomplete');
+    const {p,slides}=await this.inspect(remote.uuid);
+    if(generation!==this.generation||base!==this.base||!guard())throw Error('Current passage context check canceled');
+    if(fingerprint(p)!==remote.fingerprint||!slides[remote.index]?.enabled||typeof slides[remote.index].text!=='string')throw Error('Current passage content changed');
+    await this.assertCurrent({uuid:remote.uuid,index:remote.index,text:slides[remote.index].text},guard);
   }
   async assertCurrent(expected,guard=()=>true){
     const generation=this.generation,base=this.base;
@@ -61,6 +69,7 @@ class Connector {
     if(v.host_description!==m.version)throw new Error('ProPresenter version changed; retest and remap');
     const {p,slides}=await this.inspect(m.uuid);
     if(fingerprint(p)!==m.fingerprint)throw new Error('Presentation changed; verify a new mapping');
+    if(m.sourceContext)await this.verifyContext(m.sourceContext,guard);
     if(m.expectedCurrent)await this.assertCurrent(m.expectedCurrent,guard);
     if(generation!==this.generation||base!==this.base||!this.armed||!guard())throw new Error('Send canceled before dispatch');
     let r;
