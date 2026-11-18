@@ -11,8 +11,8 @@ async function jsonBody(req){
   try{return JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{throw new ApiError(400,'Invalid JSON');}
 }
 class LocalControlAPI {
-  constructor(session,{onStop=()=>session.stop(),onPrepare=null,onRevoke=()=>{},onEvent=()=>{}}={}){
-    this.session=session;this.onStop=onStop;this.onPrepare=onPrepare;this.onRevoke=onRevoke;this.onEvent=onEvent;this.server=null;this.token=null;this.port=null;this.allowPreparedSend=false;this.allowPreparation=false;this.accepting=false;this.rateStart=performance.now();this.rateCount=0;
+  constructor(session,{onStop=()=>session.stop(),onPrepare=null,onReview=null,onRevoke=()=>{},onEvent=()=>{}}={}){
+    this.session=session;this.onStop=onStop;this.onPrepare=onPrepare;this.onReview=onReview;this.onRevoke=onRevoke;this.onEvent=onEvent;this.server=null;this.token=null;this.port=null;this.allowPreparedSend=false;this.allowPreparation=false;this.accepting=false;this.rateStart=performance.now();this.rateCount=0;
   }
   status(){return {enabled:this.accepting,host:'127.0.0.1',port:this.port,allowPreparedSend:this.allowPreparedSend,allowPreparation:this.allowPreparation,arbitraryLookup:false};}
   async start({port=0,allowPreparedSend=false,allowPreparation=false}={}){
@@ -49,7 +49,7 @@ class LocalControlAPI {
       if(performance.now()-this.rateStart>60000){this.rateStart=performance.now();this.rateCount=0;}
       if(url.pathname!=='/v1/stop'&&++this.rateCount>60)throw new ApiError(429,'Private API rate limit reached');
       if(req.method==='GET'&&url.pathname==='/v1/status'){
-        const s=this.session.snapshot();return respond(200,{mode:s.mode,dryRun:s.dryRun,stopped:s.stopped,busy:s.busy,candidateCount:s.queue.length,connection:s.connection.state,capabilities:{submitReferences:true,experimentalBiblePreparation:this.allowPreparation,preparedCueSend:this.allowPreparedSend,arbitraryBibleLookup:false,auto:false,clear:false,rearm:false}});
+        const s=this.session.snapshot();return respond(200,{mode:s.mode,dryRun:s.dryRun,stopped:s.stopped,busy:s.busy,candidateCount:s.queue.length,connection:s.connection.state,capabilities:{submitReferences:true,savedPassageReview:typeof this.onReview==='function',experimentalBiblePreparation:this.allowPreparation,preparedCueSend:this.allowPreparedSend,arbitraryBibleLookup:false,auto:false,clear:false,rearm:false}});
       }
       if(req.method!=='POST')throw new ApiError(404,'Unknown route');
       const body=await jsonBody(req);
@@ -62,6 +62,16 @@ class LocalControlAPI {
         this.onEvent('PRIVATE_API_REFERENCE_REVIEW');return respond(201,{state:'review-only',outputRequests:0,candidates:candidates.map(c=>({id:c.id,reference:c.label,translation:c.translation,expiresInMs:Math.max(0,Math.round(c.expiresAt-this.session.clock()))}))});
       }
       if(url.pathname==='/v1/stop'){object(body,[]);await this.onStop();this.onEvent('PRIVATE_API_EMERGENCY_STOP');return respond(200,{state:'stopped',alreadyAcceptedOutputRetracted:false});}
+      if(url.pathname==='/v1/passages/review'){
+        object(body,['candidateId']);
+        if(typeof this.onReview!=='function')throw new ApiError(501,'Saved passage review is unavailable');
+        if(typeof body.candidateId!=='string'||body.candidateId.length<1||body.candidateId.length>100)throw new ApiError(400,'Current candidateId required');
+        if(this.session.stopped||!['confirm','suggest'].includes(this.session.mode)||this.session.recovery?.required)throw new ApiError(409,'Resume Confirm or Suggest only in the desktop app before review');
+        const guard=()=>this.accepting&&this.token===authorizedToken;
+        const result=await this.onReview(body.candidateId,guard);
+        if(!guard())throw new ApiError(403,'Private API session was revoked');
+        this.onEvent('PRIVATE_API_PASSAGE_REVIEW');return respond(200,{...result,outputRequests:0,confirmationOrigin:'desktop-only'});
+      }
       if(url.pathname==='/v1/send'){
         object(body,['candidateId','confirmReference','confirm']);
         if(!this.allowPreparedSend)throw new ApiError(403,'API output is disabled; review and send from the desktop app');

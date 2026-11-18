@@ -17,10 +17,11 @@ class PassageCoordinator {
  }
  async verifySource(source,guard){if(source.reference.relative){if(!source.reference.remote||typeof this.connector.verifyContext!=='function')throw Error('Relative passage context cannot be verified');if(this.service.clock()-source.reference.verifiedAt>120000)throw Error('Relative passage context expired');await this.connector.verifyContext(source.reference.remote,guard);}}
  candidate(id){this.service.expire();const c=this.service.queue.find(row=>row.id===id);if(!c||this.service.stopped||this.service.recovery?.required||!c.authorized||c.generation!==this.service.generation||c.reference.valid!==true||c.reference.verse==null||c.reference.overLimit||c.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))throw Error('Review a valid current passage first');return c;}
- async prepare(id,{acknowledgeFocusChange=false,acknowledgeCreateCopy=false,selectedUuid=null,expectedFingerprint=null}={}){
+ async prepare(id,{acknowledgeFocusChange=false,acknowledgeCreateCopy=false,selectedUuid=null,expectedFingerprint=null,additionalGuard=()=>true}={}){
+  if(typeof additionalGuard!=='function'||!additionalGuard())throw Error('Passage review request was revoked');
   let selected=null;if(selectedUuid!==null){if(typeof selectedUuid!=='string'||typeof expectedFingerprint!=='string'||this.state.phase!=='ambiguous'||this.state.sourceCandidateId!==id)throw Error('Choose a current ambiguous passage copy');selected=this.state.matches?.find(row=>row.uuid===selectedUuid&&row.fingerprint===expectedFingerprint);if(!selected)throw Error('Selected passage copy is no longer available');}
   if(this.busy)throw Error('A passage preparation is already in progress');const c=this.candidate(id),sourceMode=this.service.mode,sourceReferenceEpoch=this.service.referenceEpoch,epoch=++this.epoch,target=this.connector.generation,base=this.connector.base;this.review=null;this.active=null;this.acquire();
-  const guard=()=>epoch===this.epoch&&target===this.connector.generation&&base===this.connector.base&&sourceReferenceEpoch===this.service.referenceEpoch&&!this.service.stopped&&!this.service.recovery?.required;
+  const guard=()=>additionalGuard()&&epoch===this.epoch&&target===this.connector.generation&&base===this.connector.base&&sourceReferenceEpoch===this.service.referenceEpoch&&!this.service.stopped&&!this.service.recovery?.required;
   const check=()=>{if(!guard())throw Error('Passage preparation canceled or target changed');};
   try{
    this.publish({phase:'resolving',reference:c.label,translation:c.translation,outputRequests:0});

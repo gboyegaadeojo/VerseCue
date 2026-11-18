@@ -32,7 +32,13 @@ function cancelAudio(){referencePreparation?.configure(false);automatic.cancel()
 async function prepareBible(reference,translation,guard=()=>true){
   if(!preparationController)throw new Error('Preparation controller is not ready');if(savedBible?.busy||passageCoordinator?.busy)throw new Error('Finish the passage preparation first');return preparationController.prepare(reference,translation,guard);
 }
-const privateApi=new LocalControlAPI(service,{onStop:()=>{cancelAudio();cancelPreparation();connector.arm(false);service.stop();},onPrepare:prepareBible,onRevoke:()=>cancelPreparation(),onEvent:code=>{service.log(code);service.notify();}});
+async function reviewApiPassage(id,guard){
+  if(!passageCoordinator||!guard())throw Error('Passage review is unavailable or revoked');
+  const owner=[...windows].find(win=>!win.isDestroyed()&&capture.owns(win.webContents.id))??mainWindow;
+  if(!owner||owner.isDestroyed()||owner.webContents.isDestroyed())throw Error('Open the VerseCue workspace to review a passage');
+  automatic.cancel();return ownedPreparation({sender:owner.webContents},()=>passageCoordinator.prepare(id,{additionalGuard:guard}));
+}
+const privateApi=new LocalControlAPI(service,{onStop:()=>{cancelAudio();cancelPreparation();connector.arm(false);service.stop();},onPrepare:prepareBible,onReview:reviewApiPassage,onRevoke:()=>cancelPreparation(),onEvent:code=>{service.log(code);service.notify();}});
 let settings,settingsFile,profiles,mainWindow,compactWindow,healthTimer,healthBusy=false;const windows=new Set();
 const ui=pathToFileURL(path.join(__dirname,'../ui/index.html')).href;
 function trusted(e){if(!windows.has(BrowserWindow.fromWebContents(e.sender))||e.senderFrame!==e.sender.mainFrame||e.senderFrame.url.split('?')[0]!==ui)throw new Error('Untrusted caller');}
