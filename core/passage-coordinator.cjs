@@ -40,7 +40,7 @@ class PassageCoordinator {
     const preparedGeneration=saved.preparedGeneration;
     result=await this.resolver.find(c.label,c.translation,{guard:()=>guard()&&this.service.generation===preparedGeneration});check();
     if(this.service.generation!==preparedGeneration||result.state!=='passage-needs-review'||result.uuid!==saved.uuid)throw Error('Prepared copy is ambiguous or changed; inspect ProPresenter');
-    result={...result,clippingWarning:saved.clippingWarning===true,requiresFreshReview:true};
+    result={...result,clippingWarning:saved.clippingWarning===true,nativeWorkerMs:saved.workerElapsedMs,nativeStageStartedAtMs:saved.nativeStageStartedAtMs??{},requiresFreshReview:true};
    }
    if(result.state!=='passage-needs-review'||result.reference!==c.label||result.translation!==c.translation)throw Error('No exact passage is ready for review');
    const reviewToken=randomUUID();this.review={token:reviewToken,sourceMode,plan:structuredClone(result),source:structuredClone(c),epoch,target,base,generation:this.service.generation,inputEpoch:this.service.inputEpoch,referenceEpoch:this.service.referenceEpoch,expiresAt:this.service.clock()+120000};

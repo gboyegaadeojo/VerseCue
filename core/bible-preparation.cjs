@@ -1,5 +1,7 @@
 'use strict';
 const {spawn}=require('node:child_process');const {parse}=require('./parser.cjs');
+const nativeStages=['validate-target','find-bible-controls','open-bible-view','open-installed-editions','select-installed-edition','focus-reference','commit-reference','verify-generated-labels','verify-translation','read-generated-snapshot','prepared-review','open-save-copy-menu','save-new-presentation-copy'];
+function stageTimes(value){if(!value||typeof value!=='object'||Array.isArray(value))return {};return Object.fromEntries(nativeStages.filter(stage=>Number.isFinite(value[stage])&&value[stage]>=0&&value[stage]<=12000).map(stage=>[stage,Math.round(value[stage])]));}
 const preparationReason=code=>({REQUESTED_EDITION_NOT_FOUND_OR_MENU_UNVERIFIED:'The requested installed Bible edition could not be selected. Check that it is installed and that the edition menu is available.',EDITION_SELECTION_NOT_VERIFIED:'ProPresenter did not confirm the requested Bible edition. Inspect its selected edition before preparing again.',BIBLE_VIEW_NOT_VERIFIED:'ProPresenter did not finish opening its Bible view. Inspect the app before preparing again.',PREPARATION_COMPLETION_NOT_VERIFIED:'The generated passage could not be verified. Inspect ProPresenter before preparing again.'}[code]??code);
 class BiblePreparation {
   constructor({helper,platform=process.platform,spawnImpl=spawn,timeoutMs=12000}={}){if(!Number.isInteger(timeoutMs)||timeoutMs<100||timeoutMs>12000)throw new Error('Invalid native helper deadline');this.timeoutMs=timeoutMs;this.helper=helper;this.platform=platform;this.spawn=spawnImpl;this.busy=false;this.child=null;this.epoch=0;}
@@ -24,7 +26,7 @@ class BiblePreparation {
         child.stdin.end(JSON.stringify({operation:saveCopy?'prepare-save':'prepare',reference,translation})+'\n');
       });
       if(epoch!==this.epoch||!guard())throw new Error('Preparation canceled; already changed preparation may remain visible in ProPresenter');
-      return {ok:true,state:'prepared-needs-operator-review',reference,translation,saveCopyRequested:saveCopy,referenceLabels:Number.isInteger(result.referenceLabels)?result.referenceLabels:null,clippingWarning:result.clippingWarning===true,outputRequests:0,workerElapsedMs:Math.round(performance.now()-started),formattingVerified:false,outputObserved:false};
+      return {ok:true,state:'prepared-needs-operator-review',reference,translation,saveCopyRequested:saveCopy,referenceLabels:Number.isInteger(result.referenceLabels)?result.referenceLabels:null,clippingWarning:result.clippingWarning===true,outputRequests:0,workerElapsedMs:Math.round(performance.now()-started),nativeStageStartedAtMs:stageTimes(result.timingsMs),formattingVerified:false,outputObserved:false};
     }finally{this.child=null;this.busy=false;}
   }
 }

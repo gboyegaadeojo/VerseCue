@@ -17,8 +17,9 @@ class PreparationController {
     const version=await connector.read('/version');
     if(version.host_description!=='ProPresenter 21.4.2'||version.platform!=='win')throw new Error('This experimental UI profile is restricted to the inspected Windows ProPresenter 21.4.2 build');
     if(blocked()||targetGeneration!==service.generation||targetBase!==connector.base)throw new Error('Preparation canceled during target validation');
-    const listeningPreserved=keepListening===true&&service.mode==='confirm'&&service.capture?.active===true&&typeof this.cancelRecognition==='function';
-    if(listeningPreserved)this.cancelRecognition();else speech.cancel();connector.arm(false);service.configure({dryRun:true,translation:this.getTranslation()});if(!listeningPreserved)service.setMode('paused');
+    const confirmPreparation=keepListening===true&&service.mode==='confirm'&&typeof this.cancelRecognition==='function';
+    const listeningPreserved=confirmPreparation&&service.capture?.active===true;
+    if(confirmPreparation)this.cancelRecognition();else speech.cancel();connector.arm(false);service.configure({dryRun:true,translation:this.getTranslation()});if(!confirmPreparation)service.setMode('paused');
     const generation=service.generation;
     const result=await preparation.prepare(reference,translation,{guard:()=>guard()&&!service.stopped&&generation===service.generation,saveCopy});
     service.log('NATIVE_BIBLE_PREPARED_REVIEW','info',{nativeWorkerMs:result.workerElapsedMs});service.notify();return {...result,preparedGeneration:generation,listeningPreserved};

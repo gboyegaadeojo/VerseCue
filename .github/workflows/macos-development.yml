@@ -27,6 +27,7 @@ jobs:
           node scripts/test-api-passage-review.cjs
           node scripts/test-citation-stabilization.cjs
           node scripts/test-detected-native-preparation.cjs
+          node scripts/test-detected-native-preparation.cjs --no-input
       - name: Build pinned CPU-only local speech
         run: |
           git clone https://github.com/ggml-org/whisper.cpp.git .cache/whisper-source

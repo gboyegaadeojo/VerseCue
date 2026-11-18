@@ -2,7 +2,7 @@
 // SYNTHETIC native helper, speech, lease and target only. No OS mic or PP UI.
 const {_electron}=require('playwright'),http=require('node:http'),path=require('node:path'),fs=require('node:fs/promises'),assert=require('node:assert/strict'),{randomUUID}=require('node:crypto');
 (async()=>{
- const executable=process.argv[2]?path.resolve(process.argv[2]):null,uuid='75631f63-da79-419c-b862-c9b8338081f9',library='5e4da747-cf19-4810-8d4d-b6fe1a7d9350';let created=false,triggers=0,creations=0;
+ const args=process.argv.slice(2),noInput=args.includes('--no-input'),executable=args.find(arg=>!arg.startsWith('--'))?path.resolve(args.find(arg=>!arg.startsWith('--'))):null,uuid='75631f63-da79-419c-b862-c9b8338081f9',library='5e4da747-cf19-4810-8d4d-b6fe1a7d9350';let created=false,triggers=0,creations=0;
  const server=http.createServer((req,res)=>{
   res.setHeader('Content-Type','application/json');
   if(req.url==='/version')return res.end(JSON.stringify({host_description:'ProPresenter 21.4.2',platform:'win'}));
@@ -30,8 +30,8 @@ const {_electron}=require('playwright'),http=require('node:http'),path=require('
   const state=async()=>(await page.evaluate(()=>window.versecue.state())).value,command=(name,payload)=>page.evaluate(({name,payload})=>window.versecue.command(name,payload),{name,payload});
   await page.evaluate(async port=>{const s=await window.versecue.settings();await window.versecue.saveSettings({...s.value,host:'127.0.0.1',port});await window.versecue.command('test');},server.address().port);
   assert.equal((await state()).referencePreparation.nativeConsent,false);
-  assert.equal((await page.evaluate(()=>window.versecue.beginAudio({authorized:true}))).ok,true);
-  const feed=async text=>{await app.evaluate((_,text)=>{global.__detectedText=text;},text);return page.evaluate(metadata=>window.versecue.audio(new Array(16000).fill(.01),metadata),{windowId:randomUUID(),timingBasis:'capture-monotonic-proxy',bufferedAgeMs:1500,windowDurationMs:1000,speechEndAgeMs:1000,endEvidence:'silence',droppedSamples:0,clippedSamples:0});};
+  if(!noInput)assert.equal((await page.evaluate(()=>window.versecue.beginAudio({authorized:true}))).ok,true);
+  const feed=async text=>{if(noInput)return command('ingest',{text});await app.evaluate((_,text)=>{global.__detectedText=text;},text);return page.evaluate(metadata=>window.versecue.audio(new Array(16000).fill(.01),metadata),{windowId:randomUUID(),timingBasis:'capture-monotonic-proxy',bufferedAgeMs:1500,windowDurationMs:1000,speechEndAgeMs:1000,endEvidence:'silence',droppedSamples:0,clippedSamples:0});};
   await feed('John chapter three verse sixteen');assert.equal(await app.evaluate(()=>global.__detectedCalls),0);assert.equal(creations,0);
   await page.locator('#setup').click();await page.locator('[data-settings=output]').click();await page.locator('#prepare-missing-detected').check();await page.locator('#close-settings').click();
   assert.equal((await state()).referencePreparation.scope,'native-with-session-consent');
@@ -39,15 +39,15 @@ const {_electron}=require('playwright'),http=require('node:http'),path=require('
   const deadline=Date.now()+5000;while(await app.evaluate(()=>global.__detectedCalls)===0){if(Date.now()>deadline)throw Error('Native scheduling did not start');await new Promise(resolve=>setTimeout(resolve,20));}
   await app.evaluate(({BrowserWindow})=>new Promise(resolve=>{const win=BrowserWindow.getAllWindows()[0];if(win.isVisible())resolve();else win.once('show',resolve);}));
   await app.evaluate(({BrowserWindow})=>new Promise(resolve=>{const win=BrowserWindow.getAllWindows()[0];win.once('minimize',resolve);win.minimize();}));
-  assert.equal((await feed('God has not forgotten us')).ok,true);
+  if(!noInput)assert.equal((await feed('God has not forgotten us')).ok,true);
   let prepared;do{prepared=await state();if(prepared.preparation.phase==='review-required')break;if(Date.now()>deadline)throw Error('Consented native review was not reached: '+JSON.stringify(prepared.preparation));await new Promise(resolve=>setTimeout(resolve,30));}while(true);
-  assert.equal(prepared.mode,'confirm');assert.equal(prepared.dryRun,true);assert.equal(prepared.capture.active,true);assert.equal(prepared.capture.backgroundProtected,true);assert.equal(prepared.preparation.reference,'John 3:16');assert.equal(creations,1);assert.equal(triggers,0);assert.equal(prepared.referencePreparation.nativeConsent,true);
+  assert.equal(prepared.mode,'confirm');assert.equal(prepared.dryRun,true);assert.equal(prepared.capture.active,!noInput);if(!noInput)assert.equal(prepared.capture.backgroundProtected,true);assert.equal(prepared.preparation.reference,'John 3:16');assert.equal(creations,1);assert.equal(triggers,0);assert.equal(prepared.referencePreparation.nativeConsent,true);
   assert.equal(await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].isMinimized()),true);
   await command('stop');assert.equal((await state()).referencePreparation.nativeConsent,false);assert.equal((await state()).capture.active,false);
   await command('resume');assert.equal((await command('reference-preparation',{enabled:true,nativePreparation:true,acknowledgeFocusChange:true,acknowledgeCreateCopy:true})).ok,true);
   assert.equal((await state()).capture.active,false);assert.equal((await state()).referencePreparation.nativeConsent,true);
   await page.reload();await page.waitForSelector('#prepare-passage',{state:'attached'});assert.equal((await state()).referencePreparation.nativeConsent,false);assert.equal((await state()).mode,'paused');
-  const report={at:new Date().toISOString(),version:await app.evaluate(({app})=>app.getVersion()),passed:true,packaged:!!executable,nativeBridge:'SYNTHETIC',offUntilExplicitOutputSetting:true,detectedMissingPassagePreparedWithoutPrepareClick:true,ordinarySpeechDidNotCancelNativeWork:true,minimizedReviewReached:true,existingInputRetained:true,stopRevokedSessionConsent:true,ownerReloadWithoutCaptureRevokedConsent:true,nativeCopyCreations:creations,outputTriggers:triggers,actualProPresenterAccess:false,microphoneCapture:false};
-  await fs.writeFile(`test-results/${executable?'packaged-':''}detected-native-preparation.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
+  const report={at:new Date().toISOString(),version:await app.evaluate(({app})=>app.getVersion()),passed:true,packaged:!!executable,nativeBridge:'SYNTHETIC',offUntilExplicitOutputSetting:true,detectedMissingPassagePreparedWithoutPrepareClick:true,ordinarySpeechDidNotCancelNativeWork:noInput?null:true,minimizedReviewReached:true,existingInputRetained:noInput?null:true,noInputManualPathVerified:noInput,stopRevokedSessionConsent:true,ownerReloadWithoutCaptureRevokedConsent:true,nativeCopyCreations:creations,outputTriggers:triggers,actualProPresenterAccess:false,microphoneCapture:false};
+  await fs.writeFile(`test-results/${executable?'packaged-':''}detected-native-preparation${noInput?'-no-input':''}.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
  }finally{await app?.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
 })().catch(error=>{console.error(error);process.exitCode=1;});
