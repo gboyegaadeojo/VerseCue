@@ -36,6 +36,58 @@
       "outputUnchanged": true,
       "sundayPlaylistContentsUnchanged": true,
       "uncheckedConfirmationBlocked": true
+    },
+    {
+      "at": "2026-11-18T23:43:13.988Z",
+      "reference": "Hosea 1:6",
+      "translation": "KJV",
+      "sourceRevision": "095f097b1684a536e1ac4186b28268ad6fc965e0",
+      "actualProPresenterAccess": true,
+      "microphoneCapture": false,
+      "requestedOutputCommands": 0,
+      "physicalOutputObserved": false,
+      "audibleEndLatencyMeasured": false,
+      "passed": true,
+      "detectedReferencePreparedWithoutPrepareClick": true,
+      "noCaptureLeaseAcquired": true,
+      "ownerWindowStayedMinimized": true,
+      "nativeWorkerMs": 10979,
+      "nativeStageStartedAtMs": {
+        "validate-target": 208,
+        "find-bible-controls": 635,
+        "focus-reference": 1555,
+        "commit-reference": 1641,
+        "verify-generated-labels": 1696,
+        "verify-translation": 2680,
+        "read-generated-snapshot": 4252,
+        "prepared-review": 5403,
+        "open-save-copy-menu": 5670,
+        "save-new-presentation-copy": 10239
+      },
+      "preparationToReviewPollMs": 11322,
+      "clippingWarning": true,
+      "cueCount": 2,
+      "completeSavedMetadata": true,
+      "newCopyCount": 1,
+      "outputUnchanged": true,
+      "sundayPlaylistContentsUnchanged": true,
+      "uncheckedConfirmationBlocked": true
+    },
+    {
+      "at": "2026-11-18T23:46:41.745Z",
+      "reference": "Hosea 1:7",
+      "translation": "KJV",
+      "sourceRevision": "9e2e72df693bf805a36d77db564684cc5b0a1ee6",
+      "actualProPresenterAccess": true,
+      "microphoneCapture": false,
+      "requestedOutputCommands": 0,
+      "physicalOutputObserved": false,
+      "audibleEndLatencyMeasured": false,
+      "passed": false,
+      "error": "Preparation not verified: SAVE_COPY_MENU_NOT_VERIFIED",
+      "outputUnchanged": true,
+      "sundayPlaylistContentsUnchanged": true,
+      "newCopyCount": 0
     }
   ]
 }
