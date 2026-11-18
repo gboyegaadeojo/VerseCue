@@ -172,6 +172,7 @@ async function bootstrap(){
       if(targetGeneration!==connector.generation)return;
       if(result.version!==version){cancelAudio();cancelPreparation();connector.arm(false);connector.mappings.clear();service.setMode('paused');service.log('TARGET_VERSION_CHANGED','warning');}
       else if(previous!=='connected'){cancelAudio();cancelPreparation();connector.arm(false);service.setMode('paused');service.log('LINK_RECOVERED_REARM_REQUIRED','warning');}
+      else if(await passageCoordinator.checkOwnership()){reviewOwnerId=null;cancelAudio();}
     }catch{
       if(targetGeneration===connector.generation&&previous==='connected'){cancelAudio();connector.arm(false);service.setMode('paused');service.log('LINK_LOST','warning');}
     }finally{healthBusy=false;service.notify();}

@@ -8,6 +8,13 @@ class PassageCoordinator {
  acquire(){if(this.busy||this.service.busy||this.service.operationOwner)throw Error('Another passage operation is in progress');this.busy=true;this.service.operationOwner=this;}
  release(){if(this.service.operationOwner===this)this.service.operationOwner=null;this.busy=false;}
  cancel(){this.epoch++;this.review=null;this.active=null;this.savedBible.cancel();this.publish({phase:'canceled',outputRequests:0});}
+ async checkOwnership(){
+  const s=this.service,c=this.connector,context=s.context,epoch=this.epoch,generation=s.generation,target=c.generation,base=c.base;
+  const valid=()=>s.context===context&&this.epoch===epoch&&s.generation===generation&&c.generation===target&&c.base===base&&!this.busy&&!s.busy&&!s.operationOwner&&!s.stopped&&!s.recovery?.required&&!s.dryRun&&s.mode!=='paused'&&c.status?.state==='connected';
+  if(!context?.verified||!context.remote||typeof c.verifyContext!=='function'||!valid())return false;
+  try{await c.verifyContext(context.remote,valid);return false;}
+  catch{if(!valid())return false;this.cancel();c.arm(false);s.setMode('paused');s.log('PASSAGE_OWNERSHIP_LOST','warning');this.publish({phase:'blocked',reason:'ProPresenter output or passage content changed, or ownership could not be verified. Resume Confirm and review the current reference again.',outputRequests:0,outputObserved:false});return true;}
+ }
  async verifySource(source,guard){if(source.reference.relative){if(!source.reference.remote||typeof this.connector.verifyContext!=='function')throw Error('Relative passage context cannot be verified');if(this.service.clock()-source.reference.verifiedAt>120000)throw Error('Relative passage context expired');await this.connector.verifyContext(source.reference.remote,guard);}}
  candidate(id){this.service.expire();const c=this.service.queue.find(row=>row.id===id);if(!c||this.service.stopped||this.service.recovery?.required||!c.authorized||c.generation!==this.service.generation||c.reference.valid!==true||c.reference.verse==null||c.reference.overLimit||c.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))throw Error('Review a valid current passage first');return c;}
  async prepare(id,{acknowledgeFocusChange=false,acknowledgeCreateCopy=false,selectedUuid=null,expectedFingerprint=null}={}){
