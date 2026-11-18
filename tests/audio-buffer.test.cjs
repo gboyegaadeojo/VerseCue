@@ -2,6 +2,7 @@
 const test=require('node:test');const assert=require('node:assert/strict');
 const {AudioWindowBuffer}=require('../ui/audio-buffer.js');
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
+test('worker windows distinguish silence completion from forced window limits',async()=>{const endings=[];const buffer=new AudioWindowBuffer({onWindow:async(_,meta)=>endings.push(meta.endEvidence)});buffer.start();for(let i=0;i<120;i++)buffer.push(new Array(1600).fill(.1),.1);await tick();buffer.push(new Array(1600).fill(.1),.1);for(let i=0;i<10;i++)buffer.push(new Array(1600).fill(0),0);await tick();buffer.stop();assert.deepEqual(endings,['window-limit','silence']);});
 test('capture retains the next bounded window while one inference is busy',async()=>{
   const windows=[],release=[];const buffer=new AudioWindowBuffer({capacity:8,onWindow:samples=>{windows.push(samples);return new Promise(resolve=>release.push(resolve));}});buffer.start();buffer.push([1,2,3,4,5,6,7,8],1);await tick();buffer.push([9,10,11,12,13,14,15,16],1);assert.equal(windows.length,1);release.shift()();await tick();assert.deepEqual(windows[1],[9,10,11,12,13,14,15,16]);release.shift()();await tick();buffer.stop();
 });
