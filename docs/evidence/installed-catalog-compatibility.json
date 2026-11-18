@@ -1,0 +1,20 @@
+{
+  "at": "2026-11-18T03:25:20.415Z",
+  "version": "0.5.6",
+  "target": "personal Windows ProPresenter21.4.2 via loopback",
+  "before": "FAILED: documented example shapes differed from installed responses",
+  "after": {
+    "readOnlyCatalogPassed": true,
+    "libraries": 1,
+    "presentations": 3,
+    "armed": false,
+    "mappings": 0,
+    "outputRequests": 0
+  },
+  "observedShapes": [
+    "flat library uuid/name/index",
+    "update_type all snapshot"
+  ],
+  "physicalOutputObserved": false,
+  "p0": "PENDING"
+}
