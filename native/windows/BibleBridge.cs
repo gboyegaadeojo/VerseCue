@@ -116,6 +116,10 @@ class BibleBridge {
             var windows=AutomationElement.RootElement.FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ProcessIdProperty,process.Id));
             var matches=new List<AutomationElement>();
             foreach(AutomationElement window in windows) {
+                // On this inspected WPF profile Save As opens a separate popup,
+                // not a descendant of the main production window. Do not walk
+                // every library/media/control subtree while waiting for it.
+                if(window.Current.NativeWindowHandle==unchecked((int)process.MainWindowHandle.ToInt64()))continue;
                 var items=window.FindAll(TreeScope.Descendants,new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.MenuItem),new PropertyCondition(AutomationElement.NameProperty,"Save As Presentation")));
                 matches.AddRange(items.Cast<AutomationElement>().Where(e=>e.Current.IsEnabled&&!e.Current.IsOffscreen));
             }

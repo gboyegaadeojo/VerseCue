@@ -5,7 +5,7 @@ const {_electron}=require('playwright'),fs=require('node:fs/promises'),path=requ
 const {titleReference}=require('../core/bible-passage-plan.cjs');
 (async()=>{
  if(!process.argv.includes('--authorized-personal-host'))throw Error('Personal-host authorization required');
- const reference=process.argv.find(arg=>arg.startsWith('--reference='))?.slice('--reference='.length)??'Hosea 1:5';if(!/^Hosea 1:[56]$/.test(reference))throw Error('Use a bounded new personal acceptance reference');
+ const reference=process.argv.find(arg=>arg.startsWith('--reference='))?.slice('--reference='.length)??'Hosea 1:5';if(!/^Hosea 1:[567]$/.test(reference))throw Error('Use a bounded new personal acceptance reference');
  const reportPath=`poc/private/acceptance-2026-11-18/detected-native-${reference.replaceAll(' ','_').replace(':','_')}.json`;
  try{await fs.access(reportPath);throw Error('Attempt already recorded; inspect it instead of blindly repeating');}catch(error){if(error.code!=='ENOENT')throw error;}
  const read=async route=>{const r=await fetch('http://127.0.0.1:1025'+route,{signal:AbortSignal.timeout(2500)});assert.equal(r.ok,true);return r.json();};
