@@ -3,7 +3,7 @@
 Updated: 2026-11-18 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-WORKING - NR-009 reference-driven Bible workflow implementation draft. User requests complete fix list and a PR to replace manual library/presentation/cue selection with the intended speak-to-Bible workflow. docs51 records22 implementation/acceptance items with honest status. First slice adds bounded read-only reference lookup, internal ordered cue planning and KJV label-coverage validation in saved preparation; missing-middle-verse regression reproduced before fix.242module tests pass; trusted desktop IPC/fake-catalog and Studio regressions pass. No real ProPresenter/microphone/output accessed, no new distributable, no normal UI wiring or full workflow completion claimed. Keep PR DRAFT/unmerged while remaining work is unfinished.
+WORKING - Active autonomous continuation goal for NR-009 / draft PR22. Normal Prepare this passage/review UI and single-slide explicit test confirmation now work against a synthetic target without Library/Presentation/Cue selection. Internal exact fingerprint mapping and existing Session/Connector dispatch/readback are used; missing consent, Stop, modified content and target changes block confirmation.251module tests and normal UI/desktop/workspace/recovery checks pass. Multi-slide output is deliberately withheld until continuation is complete. No actual PP/mic/physical output/new release from this draft. Continue authorized work without requiring user restart messages; keep PR DRAFT until full acceptance.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -92,7 +92,7 @@ DATA-01/02: user supplied IFC Sunday-service YouTube source. Requested start1:18
 - Windows/macOS viability and representative measured turnaround.
 
 ## Exact next action
-Publish NR-009 draft implementation PR with complete RF01-22 checklist and initial tested lookup/coverage code. Continue reference-driven coordinator, verified arbitrary preparation and passage-level Confirm before replacing normal mapping UI; then context/intent/edition/speech continuity and actual acceptance. Existing0.6.0 packaged app is unchanged by this unmerged branch. Preserve all prior P0/field and platform limitations.
+Implement ordered multi-slide passage continuation with current-output ownership preflight and no blind retry; then shared relative-context/range/intent behavior, edition support and speech-driven preparation. Verify single/multi-slide UI through fake targets before authorized personal-host tests. Update PR22 checklist/evidence as work advances. Existing packaged0.6.0 is unchanged until a verified new release.
 
 ## Checkpoints and audit
 - 0.2.5 publication: reviewed source/tests/redacted evidence committed and pushed to private gboyegaadeojo/VerseCue main at b69280a. No private audio/transcripts/models/binaries staged.0.2.6 continuation adds generation-scoped connector reads/mappings/dispatch and an explicitly selected resident CPU worker with memory WAV requests, random loopback route, owned process cancellation and90second idle stop. Actual12second fixture requests8,015/6,825ms produced transcripts and worker shutdown was verified; no live latency or accuracy pass.129tests/source desktop smoke passed.0.2.6 packaging underway; final source/package integrity and resident packaged test remain next.
