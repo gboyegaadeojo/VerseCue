@@ -13,11 +13,13 @@ const {PreparationController}=require('../core/preparation-controller.cjs');
 const {Profiles}=require('../core/profiles.cjs');
 const {CaptureLease}=require('../core/capture-lease.cjs');
 const {PowerRecovery}=require('../core/power-recovery.cjs');
+const {GuardedAuto}=require('../core/guarded-auto.cjs');
 const connector=new Connector();const service=new Session(connector);const speech=new LocalSpeech();
+const automatic=new GuardedAuto(service);
 let preparation,preparationController,suspensionBlocker=null;
 function updateBackgroundCapture(active){if(active&&suspensionBlocker===null)suspensionBlocker=powerSaveBlocker.start('prevent-app-suspension');if(!active&&suspensionBlocker!==null){powerSaveBlocker.stop(suspensionBlocker);suspensionBlocker=null;}}
-const capture=new CaptureLease({canStart:()=>!service.recovery?.required&&!service.stopped&&service.mode!=='paused'&&!speech.busy&&!preparation?.busy,onStop:()=>{speech.cancel();updateBackgroundCapture(false);},onChange:value=>{updateBackgroundCapture(value.active);service.capture={...value,backgroundProtected:suspensionBlocker!==null&&powerSaveBlocker.isStarted(suspensionBlocker)};service.notify();}});
-function cancelAudio(){capture.cancel();}
+const capture=new CaptureLease({canStart:()=>!service.recovery?.required&&!service.stopped&&service.mode!=='paused'&&!speech.busy&&!preparation?.busy,onStop:()=>{automatic.cancel();speech.cancel();updateBackgroundCapture(false);},onChange:value=>{updateBackgroundCapture(value.active);service.capture={...value,backgroundProtected:suspensionBlocker!==null&&powerSaveBlocker.isStarted(suspensionBlocker)};service.notify();}});
+function cancelAudio(){automatic.cancel();capture.cancel();}
 async function prepareBible(reference,translation,guard=()=>true){
   if(!preparationController)throw new Error('Preparation controller is not ready');return preparationController.prepare(reference,translation,guard);
 }
@@ -99,6 +101,7 @@ async function bootstrap(){
     switch(command){
       case 'ingest':if(typeof payload?.text!=='string')throw new Error('Invalid reference');return service.ingest(payload.text,{manual:true});
       case 'mode':cancelAudio();preparation.cancel();return service.setMode(payload);
+      case 'enable-auto':if(preparation.busy)throw new Error('Finish Bible preparation before enabling Auto');automatic.cancel();speech.cancel();return service.enableAuto({acknowledged:payload?.acknowledged===true});
       case 'stop':cancelAudio();preparation.cancel();connector.arm(false);return service.stop();
       case 'resume':preparation.cancel();return service.resume();
       case 'reset':cancelAudio();preparation.cancel();connector.arm(false);return service.reset();
@@ -117,12 +120,12 @@ async function bootstrap(){
       default:throw new Error('Unknown command');
     }
   });
-  handler('audio',async(event,samples)=>{
+  handler('audio',async(event,samples,metadata)=>{
     if(!capture.owns(event.sender.id))throw new Error('This window does not own an authorized audio session');
     if(service.stopped||service.mode==='paused')throw new Error('Listening is paused');const epoch=service.generation;
     const result=await speech.transcribe(samples);
     if(epoch!==service.generation||service.stopped||service.mode==='paused')throw new Error('Stale recognition discarded');
-    service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});service.ingest(result.text,{authorized:true});return result;
+    service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});const candidates=service.ingest(result.text,{authorized:true});automatic.consider(candidates,{source:'local-speech',final:result.final===true,elapsedMs:result.elapsedMs,endEvidence:metadata?.endEvidence,droppedSamples:metadata?.droppedSamples});return result;
   },{withEvent:true});
   handler('export-settings',async()=>{const r=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-settings.json'});if(!r.canceled){const safe={...settings,executable:'',model:'',audioDevice:''};await fs.writeFile(r.filePath,JSON.stringify(safe,null,2));return true;}return false;});
   handler('import-settings',async()=>{const r=await dialog.showOpenDialog(mainWindow,{properties:['openFile'],filters:[{name:'JSON',extensions:['json']}]});if(r.canceled)return null;const bytes=await fs.readFile(r.filePaths[0],'utf8');if(bytes.length>16384)throw new Error('Settings file too large');const incoming=store.validateSettings(JSON.parse(bytes));incoming.executable='';incoming.model='';incoming.audioDevice='';cancelAudio();preparation.cancel();if(speech.busy)throw new Error('Stop recognition before import');settings=await store.save(settingsFile,incoming);connector.configure(settings.host,settings.port);speech.configure('','',settings.speechMode);service.reset();service.configure({translation:settings.translation});return settings;});

@@ -103,3 +103,6 @@ IFC approved the provisional requirements baseline by replying **I approve**. St
 
 
 Sleep/wake recovery development: [behavior and scoped evidence](docs/36-sleep-wake-recovery.md). System power transitions pause and revoke the session; a fresh connection check and intentional resume are required. Minimized operation is unchanged.
+
+
+Guarded Auto development: [mode, eligibility and scope](docs/37-guarded-auto-mode.md). The option is enabled through an explicit acknowledgment dialog. Simulation sends zero output requests; actual test output requires complete saved cues explicitly verified for Auto. Quotes still require desktop confirmation. Source integration uses synthetic speech and a fake target; production service acceptance is pending.

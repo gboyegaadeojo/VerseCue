@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "version": "0.3.2",
+  "version": "0.4.0",
   "p0": "PENDING",
   "release": "DEVELOPMENT_ONLY",
   "requirements": [
@@ -198,7 +198,7 @@
       "status": "partial",
       "acceptance": "PENDING",
       "evidence": "docs/22-development-build-and-release-status.md",
-      "note": "Confirm implemented; Auto intentionally unavailable"
+      "note": "Confirm plus guarded Auto simulation/verified single-cue test output implemented; service acceptance pending"
     },
     {
       "id": "FR-029",

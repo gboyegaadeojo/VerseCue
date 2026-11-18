@@ -17,8 +17,8 @@ class AudioWindowBuffer {
   drain(){
     if(!this.active||this.busy||this.readyAt===null)return;
     if(this.clock()-this.readyAt>this.maxPendingAgeMs){const count=this.samples.length;this.clear();this.onDrop({reason:'stale',samples:count});return;}
-    const samples=this.samples;this.clear();this.busy=true;const epoch=this.epoch;
-    Promise.resolve().then(()=>this.active&&epoch===this.epoch?this.onWindow(samples):undefined).catch(error=>{if(this.active&&epoch===this.epoch)this.onError(error);}).finally(()=>{this.busy=false;this.drain();});
+    const samples=this.samples,endEvidence=this.silent>=16000?'silence':'window-limit';this.clear();this.busy=true;const epoch=this.epoch;
+    Promise.resolve().then(()=>this.active&&epoch===this.epoch?this.onWindow(samples,{endEvidence}):undefined).catch(error=>{if(this.active&&epoch===this.epoch)this.onError(error);}).finally(()=>{this.busy=false;this.drain();});
   }
 }
 if(typeof module!=='undefined'&&module.exports)module.exports={AudioWindowBuffer};else window.AudioWindowBuffer=AudioWindowBuffer;

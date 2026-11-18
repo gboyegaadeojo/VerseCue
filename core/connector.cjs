@@ -15,23 +15,25 @@ class Connector {
   async test(){const generation=this.generation;try{const v=await this.read('/version');if(typeof v.host_description!=='string'||!/ProPresenter/.test(v.host_description))throw new Error('Unexpected target identity');this.version=v;this.status={state:'connected',version:v.host_description};return this.status;}catch(e){if(generation===this.generation){this.armed=false;this.status={state:'offline'};}throw e;}}
   arm(value){if(value&&!this.version)throw new Error('Test connection before arming');this.armed=value===true;}
   async inspect(uuid){if(typeof uuid!=='string'||!/^[a-f0-9-]{36}$/i.test(uuid))throw new Error('Invalid presentation UUID');const raw=await this.read(`/v1/presentation/${uuid}`);const p=raw.presentation??raw;return {p,slides:(p.groups??[]).flatMap(g=>g.slides??[])};}
-  async prepare({uuid,cue,reference,translation,verified}){
+  async prepare({uuid,cue,reference,translation,verified,autoVerified=false}){
     const generation=this.generation;
     if(verified!==true)throw new Error('Verify actual Bible text, translation, theme and Looks in ProPresenter first');
     if(!Number.isInteger(cue)||cue<0||cue>10000||typeof reference!=='string'||typeof translation!=='string')throw new Error('Invalid mapping');
     const {p,slides}=await this.inspect(uuid);const s=slides[cue];
+    if(typeof autoVerified!=='boolean'||autoVerified&&slides.length!==1)throw new Error('Auto verification requires one complete, unambiguous cue in the saved presentation');
     if(p.id?.uuid!==uuid||p.destination!=='presentation'||p.has_timeline||!s?.enabled||s.label!==reference)throw new Error('Presentation identity, destination, label or cue does not match');
-    const mapping={uuid,cue,reference,translation,fingerprint:fingerprint(p),version:this.version?.host_description};
+    const mapping={uuid,cue,reference,translation,autoVerified,fingerprint:fingerprint(p),version:this.version?.host_description};
     if(generation!==this.generation)throw new Error('Target changed during mapping; verify again');
     if(!mapping.version)throw new Error('Test the target first');this.mappings.set(`${reference}|${translation}`,mapping);
     return {reference,translation,cue,prepared:true};
   }
-  async send(candidate,{dryRun,guard}){
+  async send(candidate,{dryRun,guard,automatic=false}){
     if(dryRun){if(!guard())throw new Error('Send canceled');return {state:'simulated',networkRequests:0};}
     const generation=this.generation,base=this.base;
     if(!this.armed)throw new Error('Output is disarmed');
     const m=this.mappings.get(`${candidate.label}|${candidate.translation}`);
     if(!m)throw new Error('Prepare this exact passage in ProPresenter and verify a cue mapping. Arbitrary Bible lookup is not verified.');
+    if(automatic&&m.autoVerified!==true)throw new Error('This cue has not been explicitly verified for Auto');
     const v=await this.read('/version');
     if(v.host_description!==m.version)throw new Error('ProPresenter version changed; retest and remap');
     const {p,slides}=await this.inspect(m.uuid);

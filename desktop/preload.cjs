@@ -14,7 +14,7 @@ contextBridge.exposeInMainWorld('versecue',{
   removeProfile:id=>ipcRenderer.invoke('profiles-remove',id),
   chooseWorker:()=>ipcRenderer.invoke('choose-worker'),
   chooseModel:()=>ipcRenderer.invoke('choose-model'),
-  audio:samples=>ipcRenderer.invoke('audio',samples),
+  audio:(samples,metadata)=>ipcRenderer.invoke('audio',samples,metadata),
   beginAudio:options=>ipcRenderer.invoke('audio-start',options),
   endAudio:()=>ipcRenderer.invoke('audio-stop'),
   identity:()=>ipcRenderer.invoke('window-identity'),
