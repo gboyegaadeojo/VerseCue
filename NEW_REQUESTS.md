@@ -37,3 +37,7 @@ NR-004 delivery: [PR #4](https://github.com/gboyegaadeojo/VerseCue/pull/4), vers
 ## NR-006 - Spoken next-verse navigation
 
 2026-11-18: user asks how Hosea1:1 followed by a spoken navigation command should work, then explicitly clarifies "next verse", not "next slide". Plan exact canonical verse progression with the same translation, verified current passage context, remote-state revalidation, split-slide/range/boundary semantics, deduplication and safe preparation/output. Current parser already resolves next verse from recent verified context; relative Auto remains blocked and exact destination preparation is still required. This turn requests investigation/planning, not enabling new output. Full implementation sequence and NV-001 through NV-012 acceptance cases: [spoken next-verse plan](docs/48-spoken-next-verse-plan.md). Preserve original FR/NFR baseline and approval gates.
+
+## NR-007 - Full conversational preaching workflow gap review
+
+2026-11-18: user requests a full-application review for missing capabilities around NR-006 and similar preaching commands. Source review and synthetic probes found16 prioritized work items across live passage ownership, intent/range correctness, exact preparation/coverage, platform support, speech continuity/age/loss, translation-only commands, navigation deduplication, operator UX and acceptance. See [full review](docs/49-preaching-workflow-gap-review.md). Planning/review only; no runtime or output behavior changed.
