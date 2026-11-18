@@ -3,7 +3,7 @@
 Updated: 2026-11-18 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-WORKING - Selected premium Studio UI implementation, version0.6.0. User chose Studio with Focus readability and requested less generic styling. Real listening/queue/review/inspector controls reorganized without backend changes; neutral graphite, restrained accents, local SVG icons, consistent spacing and dedicated settings.227 module tests and source desktop/workspace/font/smoothness/Auto/fake-output checks pass. Studio-specific unique-ID/audio-route/layout checks pass at1600/1280/900/640 and100%/200%. Windows134-file package built; packaged regression/archive verification in progress. No actual ProPresenter or microphone accessed for this redesign. P0/service acceptance remain pending.
+DELIVERED - Selected Studio redesign implemented and merged in PR20 at30a23ce. Windows0.6.0 package built and134manifest/source files verified.227module tests and source/packaged UI, offline speech, minimized quote, fake-output, Auto and recovery checks pass. Existing backend/safety behavior retained; no actual microphone or ProPresenter access in this redesign. Matching Mac standard public runner44330987454 is queued; no Mac0.6.0 success/publication claim. P0/live-service and conversational acceptance gaps remain pending.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -92,7 +92,7 @@ DATA-01/02: user supplied IFC Sunday-service YouTube source. Requested start1:18
 - Windows/macOS viability and representative measured turnaround.
 
 ## Exact next action
-Finish packaged0.6.0 Windows regression/archive checks, publish and merge focused premium Studio PR, then dispatch matching standard public Mac build. Preserve all prior integration/acceptance gaps and planned conversational work; this UI change does not implement docs48-49. Record precise build evidence and deliver the new Windows application path.
+Verify native Mac0.6.0 run44330987454, download/check matching artifact and publish current platform downloads when verified. Windows app for review: dist/VerseCue-0.6.0-win32-x64/VerseCue.exe. Preserve existing P0/field limitations. The selected UI work is complete on Windows; next functional implementation remains docs48-49 passage tracking/range/intent, not part of this visual change.
 
 ## Checkpoints and audit
 - 0.2.5 publication: reviewed source/tests/redacted evidence committed and pushed to private gboyegaadeojo/VerseCue main at b69280a. No private audio/transcripts/models/binaries staged.0.2.6 continuation adds generation-scoped connector reads/mappings/dispatch and an explicitly selected resident CPU worker with memory WAV requests, random loopback route, owned process cancellation and90second idle stop. Actual12second fixture requests8,015/6,825ms produced transcripts and worker shutdown was verified; no live latency or accuracy pass.129tests/source desktop smoke passed.0.2.6 packaging underway; final source/package integrity and resident packaged test remain next.
