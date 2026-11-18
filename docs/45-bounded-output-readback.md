@@ -1,0 +1,9 @@
+# Bounded confirmation after a single output trigger
+
+2026-11-18. Real personal Windows ProPresenter21.4.2 testing showed that a successful cue trigger may precede its status/readback update. Existing code sampled once after HTTP204 and reported uncertain even though correct identity/text appeared1second later. Version0.5.7 adds a bounded read-only confirmation window.
+
+After exactly one accepted trigger, the connector checks slide identity/index and text for up to1.5seconds, spacing mismatched checks by at most100ms. Individual GET deadlines use the remaining budget. Every cycle remains pinned to target generation/base, armed state and Session guard. A target/Stop/new-speech/TTL change or read failure stops confirmation; persistent mismatch returns uncertain, disarms and retains the existing pause/no-blind-retry behavior. The trigger is never repeated. Matching readback remains explicitly distinct from observed physical audience/stream output.
+
+Tests reproduce delayed status (three checks, one trigger), persistent mismatch (bounded/disarmed/no retry), and Stop during status reads (no stale successful receipt/no extra trigger). These cases failed before the code fix where appropriate and now pass. Existing connector/API/Auto/power race regressions remain required.
+
+Real routing-only rerun: Romans8:28 KJV saved cue0 on the personal instance returned readback-matched, three readback checks/250ms readback time,326ms total connector transaction. Earlier John3:16 had returned uncertain at102ms and exact readback matched1second later. These are manual-reference connector measurements under uncontrolled concurrent development load; they are not end-of-audible-reference latency acceptance and establish neither speech accuracy nor screen/Look fidelity. Existing Bible clipping warnings and unobserved physical outputs remain acceptance defects/gaps. No clear/macro/media/theme/Look mutation or trigger retry was used.

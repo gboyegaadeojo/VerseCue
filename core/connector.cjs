@@ -11,7 +11,7 @@ const fingerprint=p=>createHash('sha256').update(JSON.stringify(p)).digest('hex'
 class Connector {
   constructor({fetchImpl=fetch}={}){this.fetch=fetchImpl;this.status={state:'offline'};this.base=null;this.version=null;this.mappings=new Map();this.armed=false;this.generation=0;}
   configure(host,port){this.base=targetURL(host,port);this.generation++;this.version=null;this.armed=false;this.mappings.clear();this.status={state:'offline'};}
-  async read(path){if(!this.base)throw new Error('Configure the target first');const base=this.base,generation=this.generation;const response=await this.fetch(base+path,{redirect:'error',signal:AbortSignal.timeout(2000)});if(!response.ok)throw new Error(`ProPresenter HTTP ${response.status}`);const data=await response.text();if(generation!==this.generation||base!==this.base)throw new Error('Target changed during request; stale response discarded');if(data.length>2000000)throw new Error('Response too large');return JSON.parse(data);}
+  async read(path,{timeoutMs=2000}={}){if(!Number.isInteger(timeoutMs)||timeoutMs<1||timeoutMs>2000)throw new Error('Invalid read deadline');if(!this.base)throw new Error('Configure the target first');const base=this.base,generation=this.generation;const response=await this.fetch(base+path,{redirect:'error',signal:AbortSignal.timeout(timeoutMs)});if(!response.ok)throw new Error(`ProPresenter HTTP ${response.status}`);const data=await response.text();if(generation!==this.generation||base!==this.base)throw new Error('Target changed during request; stale response discarded');if(data.length>2000000)throw new Error('Response too large');return JSON.parse(data);}
   async test(){const generation=this.generation;try{const v=await this.read('/version');if(typeof v.host_description!=='string'||!/ProPresenter/.test(v.host_description))throw new Error('Unexpected target identity');this.version=v;this.status={state:'connected',version:v.host_description};return this.status;}catch(e){if(generation===this.generation){this.armed=false;this.status={state:'offline'};}throw e;}}
   arm(value){if(value&&!this.version)throw new Error('Test connection before arming');this.armed=value===true;}
   async inspect(uuid){if(typeof uuid!=='string'||!/^[a-f0-9-]{36}$/i.test(uuid))throw new Error('Invalid presentation UUID');const raw=await this.read(`/v1/presentation/${uuid}`);const p=raw.presentation??raw;return {p,slides:(p.groups??[]).flatMap(g=>g.slides??[])};}
@@ -43,12 +43,20 @@ class Connector {
     try{r=await this.fetch(`${this.base}/v1/presentation/${m.uuid}/${m.cue}/trigger`,{redirect:'error',signal:AbortSignal.timeout(2000)});}catch{this.armed=false;return {state:'uncertain',retry:false};}
     if(r.status!==204){this.armed=false;throw new Error(`Trigger rejected: HTTP ${r.status}; no retry`);}
     if(generation!==this.generation||base!==this.base){this.armed=false;return {state:'uncertain',outputObserved:false,retry:false};}
+    const readbackStart=performance.now(),deadline=readbackStart+1500;let checks=0;
+    const clean=s=>String(s??'').replace(/\s+/g,' ').trim();
     try{
-      const [index,slide]=await Promise.all([this.read('/v1/presentation/slide_index'),this.read('/v1/status/slide')]);
-      const clean=s=>String(s??'').replace(/\s+/g,' ').trim();
-      const match=index.presentation_index?.presentation_id?.uuid===m.uuid&&index.presentation_index?.index===m.cue&&clean(slide.current?.text)===clean(slides[m.cue].text);
-      if(!match)this.armed=false;return {state:match?'readback-matched':'uncertain',outputObserved:false,retry:false};
-    }catch{this.armed=false;return {state:'uncertain',outputObserved:false,retry:false};}
+      while(performance.now()<deadline){
+        if(generation!==this.generation||base!==this.base||!this.armed||!guard())break;
+        const timeoutMs=Math.max(1,Math.ceil(deadline-performance.now()));
+        const [index,slide]=await Promise.all([this.read('/v1/presentation/slide_index',{timeoutMs}),this.read('/v1/status/slide',{timeoutMs})]);checks++;
+        if(generation!==this.generation||base!==this.base||!this.armed||!guard())break;
+        const match=index.presentation_index?.presentation_id?.uuid===m.uuid&&index.presentation_index?.index===m.cue&&clean(slide.current?.text)===clean(slides[m.cue].text);
+        if(match)return {state:'readback-matched',outputObserved:false,retry:false,readbackChecks:checks,readbackElapsedMs:Math.round(performance.now()-readbackStart)};
+        const wait=Math.min(100,deadline-performance.now());if(wait>0)await new Promise(resolve=>setTimeout(resolve,wait));
+      }
+    }catch{}
+    this.armed=false;return {state:'uncertain',outputObserved:false,retry:false,readbackChecks:checks,readbackElapsedMs:Math.round(performance.now()-readbackStart)};
   }
 }
 module.exports={Connector,targetURL};
