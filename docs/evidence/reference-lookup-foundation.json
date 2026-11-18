@@ -1,8 +1,9 @@
 {
-  "at": "2026-11-18T15:24:06.177Z",
+  "at": "2026-11-18T15:36:23.321Z",
   "version": "0.6.0",
   "passed": true,
   "referenceDrivenLookup": true,
+  "coordinatorDesktopIPC": true,
   "operatorLibraryPresentationCueSelection": false,
   "splitCueIndicesPreserved": true,
   "templateExcluded": true,
@@ -13,7 +14,7 @@
   "microphoneCapture": false,
   "normalOperatorUIWired": false,
   "draftImplementation": true,
-  "moduleTests": 242,
+  "moduleTests": 248,
   "rangeMissingMiddleRegressionPassed": true,
   "fullWorkflowComplete": false,
   "releasePublished": false

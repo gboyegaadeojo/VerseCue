@@ -7,6 +7,7 @@ const {Connector}=require('../core/connector.cjs');
 const {PreparedCatalog}=require('../core/prepared-catalog.cjs');
 const {SavedBibleWorkflow}=require('../core/saved-bible-workflow.cjs');
 const {ReferencePassages}=require('../core/reference-passages.cjs');
+const {PassageCoordinator}=require('../core/passage-coordinator.cjs');
 const {Session}=require('../core/session.cjs');
 const {LocalSpeech}=require('../core/stt.cjs');
 const store=require('../core/settings.cjs');
@@ -20,10 +21,10 @@ const {GuardedAuto}=require('../core/guarded-auto.cjs');
 const connector=new Connector();const catalog=new PreparedCatalog(connector);const service=new Session(connector);const speech=new LocalSpeech();
 const automatic=new GuardedAuto(service);
 const referencePassages=new ReferencePassages({connector,catalog});
-let preparation,preparationController,savedBible,preparationOwner=null,suspensionBlocker=null;
+let preparation,preparationController,savedBible,passageCoordinator,preparationOwner=null,suspensionBlocker=null;
 function updateBackgroundCapture(active){if(active&&suspensionBlocker===null)suspensionBlocker=powerSaveBlocker.start('prevent-app-suspension');if(!active&&suspensionBlocker!==null){powerSaveBlocker.stop(suspensionBlocker);suspensionBlocker=null;}}
-const capture=new CaptureLease({canStart:()=>!service.recovery?.required&&!service.stopped&&service.mode!=='paused'&&!speech.busy&&!preparation?.busy&&!savedBible?.busy,onStop:()=>{automatic.cancel();speech.cancel();updateBackgroundCapture(false);},onChange:value=>{updateBackgroundCapture(value.active);service.capture={...value,backgroundProtected:suspensionBlocker!==null&&powerSaveBlocker.isStarted(suspensionBlocker)};service.notify();}});
-function cancelPreparation(){savedBible?.cancel();preparation?.cancel();}
+const capture=new CaptureLease({canStart:()=>!service.recovery?.required&&!service.stopped&&service.mode!=='paused'&&!speech.busy&&!preparation?.busy&&!savedBible?.busy&&!passageCoordinator?.busy,onStop:()=>{automatic.cancel();speech.cancel();updateBackgroundCapture(false);},onChange:value=>{updateBackgroundCapture(value.active);service.capture={...value,backgroundProtected:suspensionBlocker!==null&&powerSaveBlocker.isStarted(suspensionBlocker)};service.notify();}});
+function cancelPreparation(){if(passageCoordinator)passageCoordinator.cancel();else savedBible?.cancel();preparation?.cancel();}
 async function ownedPreparation(event,operation){if(preparationOwner)throw new Error('Another window is preparing a Bible passage');const owner={id:event.sender.id};preparationOwner=owner;try{return await operation();}finally{if(preparationOwner===owner)preparationOwner=null;}}
 function cancelAudio(){automatic.cancel();capture.cancel();}
 async function prepareBible(reference,translation,guard=()=>true){
@@ -59,6 +60,7 @@ async function bootstrap(){
   preparation=new BiblePreparation({helper:helperExists?helper:null});
   preparationController=new PreparationController({service,connector,speech:{cancel:cancelAudio},preparation,getTranslation:()=>settings.translation});
   savedBible=new SavedBibleWorkflow({service,connector,catalog,controller:preparationController});
+  passageCoordinator=new PassageCoordinator({service,connector,resolver:referencePassages,savedBible,onChange:value=>{service.passagePreparation=value;service.notify();}});
   const recovery=new PowerRecovery({service,connector,cancelAudio,cancelPreparation:()=>cancelPreparation(),revokeApi:()=>privateApi.stop(),getTarget:()=>settings});
   powerMonitor.on('suspend',()=>recovery.handle('suspend'));powerMonitor.on('resume',()=>recovery.handle('resume'));
   // Optional verified offline resources are local development-package assets,
@@ -106,7 +108,7 @@ async function bootstrap(){
   handler('choose-worker',()=>choose('worker'));handler('choose-model',()=>choose('model'));
   handler('command',async(event,command,payload)=>{
     switch(command){
-      case 'ingest':if(typeof payload?.text!=='string')throw new Error('Invalid reference');if(preparation.busy||savedBible?.busy)cancelPreparation();return service.ingest(payload.text,{manual:true});
+      case 'ingest':if(typeof payload?.text!=='string')throw new Error('Invalid reference');if(preparation.busy||savedBible?.busy||passageCoordinator?.busy)cancelPreparation();return service.ingest(payload.text,{manual:true});
       case 'mode':cancelAudio();cancelPreparation();return service.setMode(payload);
       case 'enable-auto':if(preparation.busy||savedBible?.busy)throw new Error('Finish Bible preparation before enabling Auto');automatic.cancel();speech.cancel();return service.enableAuto({acknowledged:payload?.acknowledged===true});
       case 'stop':cancelAudio();cancelPreparation();connector.arm(false);return service.stop();
@@ -126,6 +128,7 @@ async function bootstrap(){
       case 'navigate':return service.navigate(payload?.id,payload?.direction);
       case 'send':return service.send(payload);
       case 'test':try{return await connector.test();}finally{service.notify();}
+      case 'prepare-passage-candidate':return ownedPreparation(event,()=>passageCoordinator.prepare(payload?.id,{acknowledgeFocusChange:payload?.acknowledgeFocusChange===true,acknowledgeCreateCopy:payload?.acknowledgeCreateCopy===true}));
       case 'resolve-candidate':return referencePassages.findCandidate(service,payload?.id);
       case 'catalog-libraries':return catalog.libraries();
       case 'catalog-presentations':return catalog.presentations(payload);
