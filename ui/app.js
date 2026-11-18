@@ -17,7 +17,7 @@ function render(next){
     $('reference').textContent=candidate.label;$('candidate-translation').textContent=candidate.translation;$('phrase').textContent=candidate.phrase;
     $('review-note').textContent=candidate.issues.join(' · ')||'Review the reference before sending.';
     $('show').textContent=state.dryRun?'Simulate passage':'Show prepared test cue';
-    const blocked=state.stopped||state.busy||!candidate.authorized||candidate.reference.valid===false||candidate.reference.overLimit||candidate.reference.verse==null||candidate.issues.some(i=>/Invalid|no-show|not supported/.test(i));
+    const blocked=state.stopped||state.busy||candidate.generation!==state.generation||!candidate.authorized||candidate.reference.valid===false||candidate.reference.overLimit||candidate.reference.verse==null||candidate.issues.some(i=>/Invalid|no-show|not supported/.test(i));
     $('show').disabled=blocked||state.mode!=='confirm';$('prepare-candidate').disabled=blocked||!nativeAvailable;
     $('previous-verse').disabled=blocked||candidate.translation!=='KJV';$('next-verse').disabled=blocked||candidate.translation!=='KJV';
     $('expiry').textContent=`${Math.max(0,Math.ceil((candidate.expiresAt-Date.now())/1000))}s remaining`;

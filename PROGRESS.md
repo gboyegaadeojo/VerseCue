@@ -61,6 +61,7 @@ Status vocabulary: not started / drafted / audited. Audited means checked for th
 | docs/31-exclusive-audio-session-ownership.md | audited | Main-process one-owner lease;139tests, source/packaged ownership/closure checks passed |
 | docs/32-installed-windows-speech-diagnostic.md | audited | Existing Windows en-US WAV-only comparison; four texts/no parser proposals; default unchanged |
 | docs/33-development-stability-protocol.md | audited | RUNNING: scoped180minute0.2.8 fixture/dry-run test; result PENDING |
+| docs/34-renderer-recovery-and-address-validation.md | audited | Source0.2.9 actual reload/close and simulated renderer loss, canonical IP and fake-target races passed |
 
 ## Decisions made
 - User specification is authoritative; documentation first, full staged deliverables retained.

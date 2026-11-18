@@ -35,6 +35,8 @@ Source0.2.8 adds [exclusive audio session ownership](docs/31-exclusive-audio-ses
 
 [Installed Windows speech diagnostic](docs/32-installed-windows-speech-diagnostic.md) records another tested local option; it did not justify a backend change. The [development stability protocol](docs/33-development-stability-protocol.md) tracks the running isolated three-hour0.2.8 fixture/dry-run test; its result is pending.
 
+Source0.2.9 adds [renderer recovery and canonical target validation](docs/34-renderer-recovery-and-address-validation.md), including generation-safe health monitoring. Its current test evidence is distinct from the ongoing0.2.8 stability run.
+
 ## Start here
 1. Read the [leadership summary](docs/00-executive-summary.md) and [requirements summary](REQUIREMENTS_SUMMARY.md).
 2. Read the [P0 feasibility report and authorization-gated test procedure](docs/10-integration-feasibility-and-poc.md). Public presentation triggers do not establish arbitrary Bible lookup. Partial personal-host evidence is in docs/18–19; full P0 has not passed.

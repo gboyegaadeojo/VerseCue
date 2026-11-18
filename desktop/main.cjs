@@ -26,7 +26,11 @@ function trusted(e){if(!windows.has(BrowserWindow.fromWebContents(e.sender))||e.
 function handler(name,callback,{withEvent=false}={}){ipcMain.handle(name,async(e,...args)=>{try{trusted(e);return {ok:true,value:await callback(...(withEvent?[e,...args]:args))};}catch(error){return {ok:false,error:error.message};}});}
 function createWindow(compact=false){
   const win=new BrowserWindow({width:compact?450:1280,height:compact?630:900,minWidth:compact?360:800,minHeight:550,title:'VerseCue',backgroundColor:'#10151d',show:false,alwaysOnTop:compact,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true}});
-  windows.add(win);win.setMenuBarVisibility(false);win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('will-navigate',e=>e.preventDefault());const captureOwnerId=win.webContents.id;win.on('closed',()=>{capture.release(captureOwnerId);windows.delete(win);if(compact)compactWindow=null;});win.once('ready-to-show',()=>win.show());win.loadURL(ui+(compact?'?compact=1':''));return win;
+  windows.add(win);win.setMenuBarVisibility(false);win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('will-navigate',e=>e.preventDefault());const captureOwnerId=win.webContents.id;
+  const releaseUnavailableOwner=code=>{if(!capture.owns(captureOwnerId))return;cancelAudio();preparation?.cancel();privateApi.stop().catch(()=>{});connector.arm(false);service.setMode('paused');service.log(code,'warning');service.notify();};
+  win.webContents.on('render-process-gone',()=>releaseUnavailableOwner('AUDIO_OWNER_RENDERER_GONE'));
+  win.webContents.on('did-start-navigation',details=>{if(details.isMainFrame)releaseUnavailableOwner('AUDIO_OWNER_RELOADED');});
+  win.on('closed',()=>{releaseUnavailableOwner('AUDIO_OWNER_CLOSED');windows.delete(win);if(compact)compactWindow=null;});win.once('ready-to-show',()=>win.show());win.loadURL(ui+(compact?'?compact=1':''));return win;
 }
 function update(){for(const win of windows)if(!win.isDestroyed())win.webContents.send('state-update',service.snapshot());}
 service.on('change',update);
@@ -114,13 +118,14 @@ async function bootstrap(){
   handler('compact',()=>{if(compactWindow)compactWindow.focus();else compactWindow=createWindow(true);});
   healthTimer=setInterval(async()=>{
     if(!connector.version||healthBusy)return;healthBusy=true;
-    const previous=connector.status.state,version=connector.version.host_description;
+    const previous=connector.status.state,version=connector.version.host_description,targetGeneration=connector.generation;
     try{
       const result=await connector.test();
-      if(result.version!==version){connector.arm(false);connector.mappings.clear();service.setMode('paused');service.log('TARGET_VERSION_CHANGED','warning');}
-      else if(previous!=='connected'){connector.arm(false);service.setMode('paused');service.log('LINK_RECOVERED_REARM_REQUIRED','warning');}
+      if(targetGeneration!==connector.generation)return;
+      if(result.version!==version){cancelAudio();connector.arm(false);connector.mappings.clear();service.setMode('paused');service.log('TARGET_VERSION_CHANGED','warning');}
+      else if(previous!=='connected'){cancelAudio();connector.arm(false);service.setMode('paused');service.log('LINK_RECOVERED_REARM_REQUIRED','warning');}
     }catch{
-      if(previous==='connected'){cancelAudio();connector.arm(false);service.setMode('paused');service.log('LINK_LOST','warning');}
+      if(targetGeneration===connector.generation&&previous==='connected'){cancelAudio();connector.arm(false);service.setMode('paused');service.log('LINK_LOST','warning');}
     }finally{healthBusy=false;service.notify();}
   },2000);
   mainWindow=createWindow();

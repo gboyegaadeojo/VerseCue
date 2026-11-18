@@ -3,8 +3,8 @@ const {createHash}=require('node:crypto');
 function targetURL(host,port) {
   if(typeof host!=='string'||!Number.isInteger(port)||port<1||port>65535)throw new Error('Invalid host or port');
   // Literal loopback/private IPv4 only. No redirects, DNS rebinding or discovery.
-  const parts=host.split('.').map(Number);
-  if(!/^\d{1,3}(\.\d{1,3}){3}$/.test(host)||parts.some(x=>x<0||x>255)||!(parts[0]===127||parts[0]===10||(parts[0]===192&&parts[1]===168)||(parts[0]===172&&parts[1]>=16&&parts[1]<=31)))throw new Error('Use a loopback or trusted private IPv4 address');
+  const labels=host.split('.'),parts=labels.map(Number);
+  if(!/^\d{1,3}(\.\d{1,3}){3}$/.test(host)||parts.some((x,i)=>x<0||x>255||String(x)!==labels[i])||!(parts[0]===127||parts[0]===10||(parts[0]===192&&parts[1]===168)||(parts[0]===172&&parts[1]>=16&&parts[1]<=31)))throw new Error('Use a canonical loopback or trusted private IPv4 address without leading zeros');
   return `http://${host}:${port}`;
 }
 const fingerprint=p=>createHash('sha256').update(JSON.stringify(p)).digest('hex');
