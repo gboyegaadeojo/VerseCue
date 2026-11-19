@@ -13,6 +13,7 @@
 | Native-copy transaction/accounting backend | [PR27](https://github.com/gboyegaadeojo/VerseCue/pull/27), `feat/managed-native-copy-backend` | Eight files;294 module tests/syntax and matching Mac44582547322 passed. Merged at30231c9. Desktop initialization, startup inspection and native consent/reconciliation wiring remain separate. |
 | Confirm coordinator/ordered parts/preview backend | [PR28](https://github.com/gboyegaadeojo/VerseCue/pull/28), `feat/passage-coordinator-confirm` | Nine files;341 module tests/syntax and matching Mac44582729536 passed. Merged at05ee70f. New normal Auto approval and normal desktop/IPC wiring remain separate. |
 | Speech-age/citation evidence backend and context-check expiry correction | [PR29](https://github.com/gboyegaadeojo/VerseCue/pull/29), `feat/speech-age-and-citation-evidence` | Seven files;363 module tests/syntax and matching Mac44586015619 passed. Merged at72ee013. New timing regressions retained; producer/desktop/Confirm-only assembly wiring remains separate. |
+| Superseded read-only Confirm/Continue preflight correction | [PR30](https://github.com/gboyegaadeojo/VerseCue/pull/30), `fix/preserve-newer-passage-intent` | Four files;367 module tests/syntax and exact Mac44591602505 passed. Merged atc24e533. Preserves newer intent/target before output authorization; later uncertainty still pauses without retry. |
 
 ## Remaining dependency sequence
 

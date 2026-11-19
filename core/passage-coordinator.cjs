@@ -79,6 +79,13 @@ class PassageCoordinator {
    return this.publish({phase:'auto-approved',reference:r.plan.reference,translation:r.plan.translation,ownerId,outputRequests:0,outputObserved:false,bibleTextVerified:false,formattingVerified:false});
   }catch(error){const key=`${r.plan.reference}|${r.plan.translation}`;if(approvalId&&r.target===c.generation&&r.base===c.base&&c.mappings.get(key)?.approvalId===approvalId)c.mappings.delete(key);if(r.epoch===this.epoch&&r.target===c.generation&&r.base===c.base&&r.generation===s.generation&&r.referenceEpoch===s.referenceEpoch){c.arm(false);s.setMode('paused');this.review=null;this.publish({phase:'blocked',reason:error.message,outputRequests:0});}else if(r.epoch===this.epoch&&this.review===r){this.review=null;this.publish({phase:'canceled',reason:error.message,outputRequests:0});}throw error;}finally{this.release();}
  }
+ abandonSupersededPreflight(record,slot){
+  const s=this.service,c=this.connector;
+  if(s.stopped||s.recovery?.required||record.epoch===this.epoch&&record.target===c.generation&&record.base===c.base&&record.generation===s.generation&&record.referenceEpoch===s.referenceEpoch)return false;
+  if(this[slot]===record){this[slot]=null;if(this.epoch===record.epoch)this.publish({phase:'canceled',reference:record.plan.reference,translation:record.plan.translation,reason:'A newer reference or session change canceled this request.',outputRequests:0,outputObserved:false});}
+  return true;
+
+ }
  async confirm(reviewToken,{verified=false,acknowledgeTestOutput=false}={}){
   const r=this.review,s=this.service,c=this.connector;
   if(s.mode==='suggest'||r?.sourceMode==='suggest'&&s.mode!=='confirm')throw Error('Switch from Suggest only to Confirm before showing a passage');
@@ -86,7 +93,7 @@ class PassageCoordinator {
   if(r.plan.clippingWarning===true)throw Error('ProPresenter reported clipped text. Correct the formatting and prepare a fresh reviewed copy before output.');
   const valid=()=>this.review===r&&r.epoch===this.epoch&&r.target===c.generation&&r.base===c.base&&r.generation===s.generation&&r.referenceEpoch===s.referenceEpoch&&!s.stopped&&!s.recovery?.required&&s.clock()<r.expiresAt;
   if(!valid())throw Error('Prepared review expired or changed; prepare the passage again');
-  this.acquire();
+  this.acquire();let outputPhaseStarted=false;
   this.publish({phase:'confirming',reference:r.plan.reference,translation:r.plan.translation});
   try{
    await this.verifySource(r.source,valid);
@@ -94,7 +101,7 @@ class PassageCoordinator {
    if(!valid())throw Error('Passage confirmation canceled');
    // This explicit desktop confirmation authorizes one verified test passage.
    // Apply safe session transitions before creating its fresh manual candidate.
-   c.arm(true);s.configure({dryRun:false,translation:s.translation});s.resume();
+   outputPhaseStarted=true;c.arm(true);s.configure({dryRun:false,translation:s.translation});s.resume();
    const generation=s.generation;
    const [candidate]=s.ingest(`${r.plan.reference} in ${r.plan.translation}`,{manual:true});
    if(!candidate)throw Error('Confirmed passage could not be created');
@@ -104,7 +111,7 @@ class PassageCoordinator {
    const guard=()=>this.review===r&&r.epoch===this.epoch&&r.target===c.generation&&r.base===c.base&&!s.stopped&&!s.recovery?.required&&s.generation===generation&&s.referenceEpoch===sendEpoch;
    const receipt=await s.send(candidate.id,{origin:'desktop',additionalGuard:guard,operationOwner:this});
    this.review=null;return this.finishPart(r.plan,r.source,0,receipt);
-  }catch(error){c.arm(false);s.setMode('paused');this.review=null;this.active=null;this.publish({phase:'blocked',reason:error.message,outputObserved:false});throw error;}finally{this.release();}
+  }catch(error){if(!outputPhaseStarted&&this.abandonSupersededPreflight(r,'review'))throw error;c.arm(false);s.setMode('paused');this.review=null;this.active=null;this.publish({phase:'blocked',reason:error.message,outputObserved:false});throw error;}finally{this.release();}
  }
  finishPart(plan,source,partIndex,receipt){
   if(receipt.state!=='readback-matched'){this.active=null;return this.publish({phase:'uncertain',reference:plan.reference,translation:plan.translation,...receipt});}
@@ -117,13 +124,14 @@ class PassageCoordinator {
   if(this.busy||!a||a.token!==activeToken||a.partIndex+1>=a.plan.cueIndices.length)throw Error('No remaining verified passage part');
   const referenceEpoch=s.referenceEpoch;
   const valid=()=>this.active===a&&a.epoch===this.epoch&&a.target===c.generation&&a.base===c.base&&a.generation===s.generation&&a.referenceEpoch===s.referenceEpoch&&s.referenceEpoch===referenceEpoch&&!s.stopped&&!s.recovery?.required&&s.mode==='confirm'&&c.armed&&c.status?.state==='connected'&&s.clock()<a.expiresAt;
-  if(!valid()){c.arm(false);this.active=null;const reason='Current passage ownership expired or changed; prepare again';this.publish({phase:'blocked',reference:a.plan.reference,translation:a.plan.translation,reason,outputRequests:0,outputObserved:false});throw Error(reason);}
-  this.acquire();
+  if(!valid()){if(this.abandonSupersededPreflight(a,'active'))throw Error('Passage continuation canceled or changed');c.arm(false);this.active=null;const reason='Current passage ownership expired or changed; prepare again';this.publish({phase:'blocked',reference:a.plan.reference,translation:a.plan.translation,reason,outputRequests:0,outputObserved:false});throw Error(reason);}
+  this.acquire();let outputPhaseStarted=false;
   try{
    const partIndex=a.partIndex+1,previousCue=a.plan.cueIndices[a.partIndex];
    this.publish({phase:'continuing',reference:a.plan.reference,translation:a.plan.translation,partIndex,partCount:a.plan.cueIndices.length});
    await c.preparePassage({uuid:a.plan.uuid,reference:a.plan.reference,translation:a.plan.translation,expectedFingerprint:a.plan.fingerprint,verified:true,partIndex,expectedCurrent:{uuid:a.plan.uuid,index:previousCue},guard:valid});
    if(!valid())throw Error('Passage continuation canceled');
+   outputPhaseStarted=true;
    const [candidate]=s.ingest(a.plan.reference+' in '+a.plan.translation,{manual:true});
    if(!candidate)throw Error('Passage continuation could not be created');
    candidate.recognition=a.source.recognition??'reference';candidate.passagePart={uuid:a.plan.uuid,cue:a.plan.cueIndices[partIndex],previousCue,continuation:true};
@@ -131,7 +139,7 @@ class PassageCoordinator {
    const guard=()=>this.active===a&&a.epoch===this.epoch&&a.target===c.generation&&a.base===c.base&&a.generation===s.generation&&s.inputEpoch===sendEpoch&&!s.stopped&&!s.recovery?.required;
    const receipt=await s.send(candidate.id,{origin:'desktop',additionalGuard:guard,operationOwner:this});
    return this.finishPart(a.plan,a.source,partIndex,receipt);
-  }catch(error){c.arm(false);s.setMode('paused');this.active=null;this.publish({phase:'blocked',reference:a.plan.reference,translation:a.plan.translation,reason:error.message,outputObserved:false});throw error;}finally{this.release();}
+  }catch(error){if(!outputPhaseStarted&&this.abandonSupersededPreflight(a,'active'))throw error;c.arm(false);s.setMode('paused');this.active=null;this.publish({phase:'blocked',reference:a.plan.reference,translation:a.plan.translation,reason:error.message,outputObserved:false});throw error;}finally{this.release();}
  }
 }
 module.exports={PassageCoordinator};
