@@ -25,7 +25,7 @@ class Session extends EventEmitter {
     const external=options.additionalGuard??(()=>true);
     if(!external())throw Error('Reference request was revoked');
     if(this.dryRun||options.authorized===false||this.stopped||(!options.manual&&this.mode==='paused'))return this.ingest(text,options);
-    const context=this.context,proposed=parse(text,{context,now:this.clock(),defaultTranslation:this.translation});
+    const checkStartedAt=this.clock(),context=this.context,proposed=parse(text,{context,now:this.clock(),defaultTranslation:this.translation});
     if(!proposed.references.some(r=>r.relative&&r.valid===true))return this.ingest(text,options);
     const generation=this.generation,inputEpoch=(this.inputEpoch??0)+1;this.inputEpoch=inputEpoch;
     const valid=()=>external()&&this.context===context&&generation===this.generation&&inputEpoch===this.inputEpoch&&!this.stopped&&!this.recovery?.required;
@@ -37,7 +37,9 @@ class Session extends EventEmitter {
       if(!valid())throw Error('Reference context or session changed while checking');
       this.connector.arm?.(false);this.invalidate();this.mode='paused';this.interpretation={kind:'blocked-navigation',reason:error.message};this.log('NAVIGATION_CONTEXT_LOST','warning');this.notify();return [];
     }
-    return this.ingest(text,options);
+    const contextCheckMs=this.clock()-checkStartedAt;
+    if(!Number.isFinite(contextCheckMs)||contextCheckMs<0){this.connector.arm?.(false);this.setMode('paused');throw Error('Reference check timing could not be verified');}
+    return this.ingest(text,options.manual?options:{...options,sourceAgeMs:(options.sourceAgeMs??0)+contextCheckMs});
   }
   ingest(text,{id=randomUUID(),revision=1,final=true,manual=false,authorized=true,sourceAgeMs=0}={}) {
     this.inputEpoch=(this.inputEpoch??0)+1;

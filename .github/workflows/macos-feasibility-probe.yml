@@ -1,0 +1,19 @@
+name: Compile read-only Mac Bible diagnostic
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'poc/macos/**'
+      - '.github/workflows/macos-feasibility-probe.yml'
+permissions:
+  contents: read
+jobs:
+  compile:
+    runs-on: macos-15
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Compile diagnostic without running ProPresenter or requesting permissions
+        run: |
+          mkdir -p test-results/mac-probe
+          swiftc -framework AppKit -framework ApplicationServices poc/macos/InspectBibleAccessibility.swift -o test-results/mac-probe/inspect-bible
