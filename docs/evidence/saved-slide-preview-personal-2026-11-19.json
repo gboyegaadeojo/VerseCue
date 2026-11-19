@@ -1,0 +1,21 @@
+{
+  "at": "2026-11-19T00:11:53.183Z",
+  "reference": "Nahum 1:7",
+  "translation": "KJV",
+  "sourceRevision": "184887c2937507ee2c41fd8394976d1fdc9dd02f",
+  "actualProPresenterAccess": true,
+  "microphoneCapture": false,
+  "requestedOutputCommands": 0,
+  "nativePreparationRequested": false,
+  "physicalOutputObserved": false,
+  "passed": true,
+  "previewFromInstalledProPresenter": true,
+  "pngWidth": 400,
+  "pngHeight": 225,
+  "pngSha256": "763c6b8dd3dc19cecdc4f207ffd117b61a32cf4ee79d4f18f313e2aaf19a3e16",
+  "rendererHttpRequests": 0,
+  "outputUnchanged": true,
+  "sundayPlaylistContentsUnchanged": true,
+  "uncheckedConfirmationBlocked": true,
+  "appearanceOrPhysicalFidelityVerified": false
+}
