@@ -183,5 +183,10 @@ Mapping fix standard Mac44577616214 passed at05d48fc (229tests and development p
 
 Combined main plus mapping-fix regression passed234/234 module tests after preserving both progress entries. The production mapping fix is unchanged from05d48fc, whose standard Mac build/workspace passed; included native-boundary source is unchanged from merged PR23. No new actual ProPresenter/output/physical acceptance claim.
 
+2026-11-19 PR22 foundation extraction: exact saved-passage planning/lookup plus required parser/navigation/reference-epoch semantics isolated on feat/exact-saved-passage-lookup. Initial251/252 result identified the ordinary-preaching Session dependency; regression retained and required semantics extracted without Auto approval/UI/native orchestration. After PR23/25 current main integration all269 module tests and syntax pass. docs/70-exact-passage-lookup-and-intent.md records metadata-only guarantees and remaining output/field scope. Matching standard Mac job pending dispatch; no actual ProPresenter/microphone access in these tests.
+
 
 Updated-head diagnostic compile44577868254 passed atb7f4301; Swift remains unchanged while PR25 main source/progress history is incorporated. Compile-only evidence does not verify any actual Mac ProPresenter accessibility behavior.
+
+
+PR26 matching standard Mac44579298744 passed at2b68410:269 module tests, syntax, CPU speech packaging and packaged workspace. Current main synchronization adds only already-compiled Mac diagnostic/workflow and combined progress history; application foundation source is unchanged. No normal coordinator/UI/native/output/field acceptance claim.

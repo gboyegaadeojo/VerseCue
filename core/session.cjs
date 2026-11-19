@@ -30,6 +30,7 @@ class Session extends EventEmitter {
     this.queue=this.queue.filter(c=>c.utteranceId!==id);
     if(!final){this.generation++;this.notify();return [];}
     const parsed=parse(text,{context:this.context,now:this.clock(),defaultTranslation:this.translation});
+    if(authorized&&['hold','ignored-navigation'].includes(parsed.command?.kind)){this.referenceEpoch=(this.referenceEpoch??0)+1;this.queue=[];this.log(parsed.command.kind==='hold'?'HOLD_REQUESTED':'NAVIGATION_IGNORED');this.notify();return [];}
     let quote=null;
     if(!parsed.references.length&&!parsed.issues.length&&this.quoteEnabled&&authorized&&this.mode!=='paused'){
       quote=this.quoteMatcher?.match(text,this.translation);
@@ -38,8 +39,9 @@ class Session extends EventEmitter {
     // A new explicit book/reference or a failed parse cannot preserve a prior
     // remote context for later relative references.
     if(parsed.references.some(r=>!r.relative)||parsed.issues.length)this.context=null;
-    if(parsed.corrected)this.invalidate();
+    if(parsed.corrected&&(parsed.references.length||/^\s*(?:sorry\b|i meant\b|correction\b|rather\b)/i.test(text)))this.invalidate();
     const candidates=parsed.references.map(r=>({id:randomUUID(),utteranceId:id,revision,reference:r,label:r.label,translation:r.translation??this.translation,phrase:text.slice(0,1000),recognition:quote?'quote':'reference',...(quote?{quoteEvidence:quote}:{}),detectedAt:this.clock(),expiresAt:this.clock()+15000,generation:this.generation,manual,authorized,state:authorized?'review':'blocked',issues:[...parsed.issues,...r.issues,...(!authorized?['Audio source not authorized']:[])]}));
+    if(candidates.length||parsed.issues.length)this.referenceEpoch=(this.referenceEpoch??0)+1;
     this.queue.push(...candidates);this.queue=this.queue.slice(-5);this.notify();return candidates;
   }
   reject(id){this.queue=this.queue.filter(c=>c.id!==id);this.log('CANDIDATE_DISMISSED');this.notify();}

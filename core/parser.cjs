@@ -5,6 +5,7 @@ const chapters = [50,40,27,36,34,24,21,4,31,24,22,25,29,36,10,13,10,42,150,31,12
 const small = 'zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen'.split(' ');
 const tens = {twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 const kjvBounds=require('./kjv-versification.json').bounds;
+const {relativeNavigation}=require('./navigation.cjs');
 function numbering(translation){return translation==='KJV'?kjvBounds:null;}
 function normalize(text) {
   let s = String(text).toLowerCase().replace(/[–—]/g,'-');
@@ -65,18 +66,12 @@ function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslat
       references.push({book:names.find(n=>n.toLowerCase()===m[1]),chapter:+m[2],verse:m[3]?+m[3]:null,translation,relative:false,corrected});
     }
   }
-  if(!references.length && !issues.length && !/\bchapter\b/.test(s) && context?.verified && now>=context.verifiedAt && now-context.verifiedAt<=120000) {
-    let v=s.match(/\bverse\s+(\d+)\b/)?.[1];
-    if(/\bnext verse\b/.test(s))v=context.verse+1;
-    if(/\bprevious verse\b/.test(s))v=context.verse-1;
-    if(v!=null){
-      let chapter=context.chapter;v=+v;
-      const relativeBounds=bounds??numbering(translation??context.translation??defaultTranslation);
-      const chapterMax=relativeBounds?.[context.book]?.[chapter-1];
-      if(v<1){const previousMax=relativeBounds?.[context.book]?.[chapter-2];if(chapter>1&&previousMax){chapter--;v=previousMax;}else{issues.push('Previous chapter boundary is not verified');v=null;}}
-      else if(chapterMax&&v>chapterMax){chapter++;v=1;}
-      if(v!=null)references.push({...context,chapter,verse:v,endVerse:undefined,endChapter:undefined,translation:translation??context.translation,relative:true,corrected});
-    }
+  let command=null;
+  if(!references.length&&!issues.length){
+    let relativeText=translationText,relativeTranslation=context?.translation??defaultTranslation;
+    if(translationPhrase){const edition=new RegExp('\\b(?:in|from|using)\\s+(?:the\\s+)?'+translationPhrase+'\\b','i');if(edition.test(relativeText)){relativeText=relativeText.replace(edition,'').trim();relativeTranslation=translation;}}
+    const navigation=relativeNavigation(relativeText,{context,now,bounds:bounds??numbering(relativeTranslation),translation:relativeTranslation,corrected});
+    command=navigation.command??null;issues.push(...navigation.issues);if(navigation.reference)references.push(navigation.reference);
   }
   for(const r of references) {
     const selectedBounds=bounds??numbering(r.translation??(r.relative?context?.translation:null)??defaultTranslation);
@@ -92,6 +87,6 @@ function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslat
     if(/\b(in french|in spanish)\b/.test(s))r.issues.push('Requested language is not supported');
     r.label=label(r); r.autoEligible=false;
   }
-  return {references,issues,corrected,multiple:references.length>1};
+  return {references,issues,corrected,command,multiple:references.length>1};
 }
-module.exports={parse,normalize,validate,label,names,chapters,numbering};
+module.exports={parse,normalize,citationForms,validate,label,names,chapters,numbering};
