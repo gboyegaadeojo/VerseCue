@@ -208,3 +208,7 @@ Coordinator component synchronized to backend0d7f0f4 after PR26/main completion.
 ## Detected-reference scheduler extraction - 2026-11-19
 
 Added the preparation-only scheduler and17 tests as a small PR22 dependency. Explicit native session/window/target consent, latest-reference scheduling, bounded owner waiting and uncertainty inspection remain fail-closed. A newly failing regression exposed stale reference intent after owner waiting; drain now rejects changed referenceEpoch without another detection callback. All384 module tests passed; syntax checks passed. Details and pending desktop/native/platform/field evidence: docs/75-detected-reference-preparation.md. No actual ProPresenter or microphone access and no output.
+
+## Private API passage-review extraction - 2026-11-19
+
+Added capability-gated saved-passage review through a supplied coordinator hook and checked reference submission with API-session revocation. No remote focus/copy consent or passage confirmation accepted. All389 module tests and syntax pass;17 API tests include in-flight relative-context revocation with no candidate/output. Mac verification and desktop hook wiring remain pending. See docs/78-private-api-passage-review.md.
