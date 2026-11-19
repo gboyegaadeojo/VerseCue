@@ -67,3 +67,5 @@ The matching public Mac44516755386 subsequently passed at7ff7923:387 tests, sour
 ## Auto-policy checkpoint1525a66
 
 [Matching Windows evidence](evidence/pr22-build-checkpoint-1525a66.json) records394 source tests,146 manifest files and packaged default/bare Auto policy, minimized/cancellation/dialog200% and normal-passage checks. Mac44518630026 was queued at this checkpoint; do not claim success. These changes are outside the independently running7ff soak and do not complete arbitrary native Auto.
+
+Mac44518630026 ended before executing any steps: GitHub reported that no hosted macOS arm64 runner acquired the job after multiple attempts and annotated capacity constraints. This is an infrastructure failure, not a passing build or an application-test result. The standard public runner configuration is unchanged; a later committed source checkpoint will receive a fresh normal workflow run. No paid/larger runner was selected.

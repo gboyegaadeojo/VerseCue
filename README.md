@@ -73,9 +73,9 @@ Examples supported: **Revelations 1 vs 1**, **Revelation 1 and verse 1**, **Reve
 
 In **Settings / Output**, choose the exact translation for each saved-cue mapping. ProPresenter must have that edition installed; VerseCue neither downloads paid Bibles nor substitutes KJV. The inspector shows whether optional quoted-wording matching has an enabled local index.
 
-## Current limits
+## Published download limits
 
-Reliable arbitrary-passage lookup and output through ProPresenter are still under investigation. Current output uses **exact, verified saved cue mappings**. Experimental native Bible preparation is Windows-only and prepare-only. Exact verse text is not available in a verified VerseCue preview; ProPresenter remains the Bible-text authority.
+In the published download linked above, arbitrary-passage lookup and output remain under investigation. That build uses **exact, verified saved cue mappings**. Experimental native Bible preparation is Windows-only and prepare-only. Exact verse text is not available in a verified VerseCue preview; ProPresenter remains the Bible-text authority.
 
 Quoted-wording matching needs your own permitted local index. General semantic paraphrases and automatic quote display are not implemented. Held-out sermon accuracy, church Mac/M4, actual MOTU routing, physical output/Looks, Companion/media concurrency and full service acceptance remain pending. Development tests are not a claim of Sunday-service readiness.
 
@@ -91,6 +91,8 @@ Quoted-wording matching needs your own permitted local index. General semantic p
 Audio is processed locally. Audio/transcripts are not recorded persistently by default; the default worker uses bounded temporary recognition files which are cleaned up after processing. No Bible translation corpus is bundled or downloaded. Import only passage text you have permission to use. The private API starts disabled and uses a session-only local token.
 
 ## For developers
+
+Draft [PR #22](https://github.com/gboyegaadeojo/VerseCue/pull/22) adds reference-driven preparation/review/Confirm, saved-slide previews and [normal-workspace approval for guarded Auto](docs/67-normal-workspace-auto-approval.md). Its native-copy route is restricted to the inspected local Windows test profile, and its [full acceptance checklist](docs/51-reference-driven-bible-workflow.md) remains open. The linked public download is an earlier development build; current source is not a finished service release.
 
 Use a current compatible Node.js installation and the pinned dependencies in the lockfile. On Windows use npm.cmd if PowerShell blocks npm.ps1.
 

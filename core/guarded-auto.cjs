@@ -16,6 +16,7 @@ function assessAuto(service,candidates,evidence={},{allowBusy=false}={}){
   if(c.generation!==service.generation||service.clock()>=c.expiresAt)return {eligible:false,reason:'Reference expired or changed'};
   if(service.lastSend?.key===`${c.label}|${c.translation}`&&service.clock()-service.lastSend.at<10000)return {eligible:false,reason:'Repeated reference suppressed by duplicate cooldown'};
   if(!service.dryRun){const connector=service.connector,map=connector.mappings?.get(`${c.label}|${c.translation}`);if(!connector.armed||connector.status?.state!=='connected'||map?.autoVerified!==true)return {eligible:false,reason:'No complete cue explicitly verified for Auto test output'};}
+  if(!service.dryRun){const map=service.connector.mappings?.get(`${c.label}|${c.translation}`);if(map?.autoApproval===true&&map.ownerId!==service.capture.ownerId)return {eligible:false,reason:'This Auto approval belongs to another input window; review it from the owning input window'};}
   return {eligible:true,reason:service.dryRun?'Auto simulation ready; zero output requests':'Verified-cue Auto test output ready'};
 }
 class GuardedAuto {

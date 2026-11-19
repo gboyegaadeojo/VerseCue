@@ -18,8 +18,13 @@
   "mac": {
     "run": 44518630026,
     "revision": "1525a66b3d13e3e6f49ac9c4c51e5ad44cff1285",
-    "status": "queued",
-    "conclusion": null
+    "status": "completed",
+    "conclusion": "failure",
+    "jobConclusion": "cancelled",
+    "stepsExecuted": 0,
+    "cause": "Hosted macOS arm64 job was not acquired by a runner after multiple attempts; GitHub reported capacity constraints",
+    "nativeBiblePreparationVerified": false,
+    "physicalOutputVerified": false
   },
   "reports": {
     "packaged-guarded-auto": {

@@ -1,5 +1,5 @@
 'use strict';
-const {createHash}=require('node:crypto');
+const {createHash,randomUUID}=require('node:crypto');
 const {readSlideThumbnail}=require('./slide-thumbnail.cjs');
 function targetURL(host,port) {
   if(typeof host!=='string'||!Number.isInteger(port)||port<1||port>65535)throw new Error('Invalid host or port');
@@ -49,6 +49,15 @@ class Connector {
     if(generation!==this.generation||base!==this.base||version!==this.version?.host_description||!guard())throw Error('Passage verification canceled');
     this.mappings.set(`${reference}|${translation}`,{uuid,cue:plan.cueIndices[partIndex],reference,translation,autoVerified:false,fingerprint:plan.fingerprint,version,expectedCurrent:previous,sourceContext:partIndex===0?sourceContext:null,passagePart:{index:partIndex,count:plan.cueIndices.length}});
     return {reference,translation,prepared:true,cueCount:plan.cueIndices.length,partIndex};
+  }
+  async prepareAutoPassage({uuid,reference,translation,expectedFingerprint,ownerId,guard=()=>true}){
+    const generation=this.generation,base=this.base,version=this.version?.host_description;
+    if(!base||new URL(base).hostname!=='127.0.0.1'||!version||this.status?.state!=='connected'||!Number.isSafeInteger(ownerId)||ownerId<1||!guard())throw Error('Auto passage approval needs a verified loopback test target and owning window');
+    const source=await this.inspect(uuid),plan=require('./bible-passage-plan.cjs').planSavedPassage(source,{uuid,reference,translation});
+    if(plan.fingerprint!==expectedFingerprint||!plan.singleCue||!plan.numberingVerified||translation!=='KJV')throw Error('Auto approval requires the unchanged complete single-cue KJV passage');
+    if(generation!==this.generation||base!==this.base||version!==this.version?.host_description||this.status?.state!=='connected'||!guard())throw Error('Auto passage approval canceled');
+    const approvalId=randomUUID();this.mappings.set(`${reference}|${translation}`,{uuid,cue:plan.cueIndices[0],reference,translation,fingerprint:plan.fingerprint,version,autoVerified:true,autoApproval:true,approvalId,ownerId,passagePart:{index:0,count:1}});
+    return {reference,translation,approved:true,approvalId,outputRequests:0};
   }
   async verifyContext(remote,guard=()=>true){
     const generation=this.generation,base=this.base;
