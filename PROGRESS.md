@@ -208,3 +208,7 @@ Coordinator component synchronized to backend0d7f0f4 after PR26/main completion.
 ## Capture timing and continuity extraction - 2026-11-19
 
 Extracted the worklet/audio-buffer/renderer timing producer with capture identity, ordered frames, queue/delivery age and explicit gaps/clipping/input-loss handling. Added actual-processor synthetic checks at44.1/48kHz. All376 combined module tests and JavaScript syntax checks passed on Windows. No OS microphone, ProPresenter or output used. Mac verification and normal desktop recognition consumer wiring remain pending; see docs/76-capture-timing-continuity.md.
+
+## Detected-reference scheduler extraction - 2026-11-19
+
+Added the preparation-only scheduler and17 tests as a small PR22 dependency. Explicit native session/window/target consent, latest-reference scheduling, bounded owner waiting and uncertainty inspection remain fail-closed. A newly failing regression exposed stale reference intent after owner waiting; drain now rejects changed referenceEpoch without another detection callback. All384 module tests passed; syntax checks passed. Details and pending desktop/native/platform/field evidence: docs/75-detected-reference-preparation.md. No actual ProPresenter or microphone access and no output.
