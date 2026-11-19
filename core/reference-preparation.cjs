@@ -34,7 +34,7 @@ class ReferencePreparation {
  }
  async drain(){
   if(this.running)return;this.running=true;this.onChange(this.status());
-  try{while(this.pending){const work=this.pending;if(!this.enabled||work.epoch!==this.epoch||this.service.stopped||this.service.recovery?.required||this.service.mode!=='confirm'||this.service.connector.status?.state!=='connected'){this.pending=null;continue;}
+  try{while(this.pending){const work=this.pending;if(!this.enabled||work.epoch!==this.epoch||work.referenceEpoch!==this.service.referenceEpoch||this.service.stopped||this.service.recovery?.required||this.service.mode!=='confirm'||this.service.connector.status?.state!=='connected'){this.pending=null;continue;}
     if(this.nativeConsent&&(this.nativeBinding.base!==this.service.connector.base||this.nativeBinding.generation!==this.service.connector.generation)){this.configure(false);continue;}
     if(!this.canPrepare()){if(performance.now()-work.queuedAt>=2000){this.pending=null;this.reason='Another preparation is still busy. Review the latest reference before preparing again.';this.service.log('REFERENCE_PREPARATION_OWNER_BUSY','warning');continue;}if(!this.waiting){this.waiting=true;this.onChange(this.status());}await new Promise(resolve=>setTimeout(resolve,25));continue;}
     this.pending=null;this.waiting=false;if(!this.needsInspection)this.reason=null;this.onChange(this.status());

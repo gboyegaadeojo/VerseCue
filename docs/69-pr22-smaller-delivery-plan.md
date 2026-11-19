@@ -15,6 +15,9 @@
 | Speech-age/citation evidence backend and context-check expiry correction | [PR29](https://github.com/gboyegaadeojo/VerseCue/pull/29), `feat/speech-age-and-citation-evidence` | Seven files;363 module tests/syntax and matching Mac44586015619 passed. Merged at72ee013. New timing regressions retained; producer/desktop/Confirm-only assembly wiring remains separate. |
 | Superseded read-only Confirm/Continue preflight correction | [PR30](https://github.com/gboyegaadeojo/VerseCue/pull/30), `fix/preserve-newer-passage-intent` | Four files;367 module tests/syntax and exact Mac44591602505 passed. Merged atc24e533. Preserves newer intent/target before output authorization; later uncertainty still pauses without retry. |
 
+| Detected-reference scheduling and explicit native consent backend | [PR31](https://github.com/gboyegaadeojo/VerseCue/pull/31) |384 module tests/syntax and exact standard Mac44593983560 passed; merged atd99bf40. New reference-epoch waiting race corrected. Desktop wiring remains separate. |
+| Capture age/continuity producer | [PR32](https://github.com/gboyegaadeojo/VerseCue/pull/32) |376 module tests/syntax passed; standard Mac44594297897 running. No OS microphone or physical-latency claim. |
+
 ## Remaining dependency sequence
 
 1. **Session/reference intent and exact saved-passage foundation.** Keep exact edition/title, enabled nonempty ordered cue coverage, missing-middle/range checks, duplicate choice, unverified Bible origin and lookup cancellation together with the Session intent semantics they require. The first isolated run had251/252 tests passing against old main: ordinary final preaching was canceled by legacy Session correction handling. The regression was retained, and the required parser/navigation/small Session changes were included. PR26 now passes269 tests/syntax on current main. Matching Mac verification passed and the foundation is merged.
