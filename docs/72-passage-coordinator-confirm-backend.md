@@ -1,0 +1,17 @@
+# Passage coordinator and explicit Confirm backend
+
+Small dependent PR22 extraction on the managed native-copy backend. This supplies the coordinator and dispatch contracts; normal desktop/IPC/settings wiring follows separately. It does not introduce the new normal Auto-approval path.
+
+Prepare resolves the current exact reference, requires review of duplicate copies, explains unavailable native routes and requires explicit focus/copy acknowledgments before any native creation. A native receipt is re-resolved to its exact new UUID/fingerprint. Review tokens bind target, session, reference epoch and expiry; cancellation/new intent cannot silently select another copy. Known clipping blocks confirmation. Deliberate corrected-format/fresh-copy recovery resets review and never edits formatting or deletes old copies.
+
+Confirm requires appearance and authorized-test-output acknowledgments. The connector revalidates complete ordered passage metadata and maps its cue internally. Ordered continuation rotates tokens, checks preceding live UUID/index/text and never uses generic Next. Shared operation ownership prevents competing sends; legacy desktop/private-API calls cannot reuse passage-internal mappings without the validated passage/part contract. Stop, changed content/target, stale intent, operator takeover and uncertain replies block progression with no blind output retry, Clear or restore.
+
+Relative proposals and sends can read back verified remote context; a newer request discards a late check. Background ownership checks can withdraw stale passage ownership without sending output. Unknown edition numbering gives a review reason rather than silently stepping as KJV. The Session snapshot exposes preparation/interpretation/input/reference state for subsequent trusted UI wiring.
+
+The current reviewed part can request a bounded saved-slide PNG with fingerprint/target/token checks before and after retrieval. Images stay in memory and cannot mark formatting verified, clear a clipping warning or grant output consent. This is a ProPresenter saved thumbnail, not an audience renderer or physical-output proof.
+
+All341 module tests and JavaScript syntax checks pass. An intermediate extraction stopped on a CRLF boundary before the new test files were copied; that294-test baseline was not counted as coordinator verification. The complete test set then exposed a missing interpretation reason for unknown-edition navigation; that behavior was included and the regression retained. Cases cover exact Confirm/ordered parts, edition distinctions, shared operation ownership, readback uncertainty, takeover, stale/new requests, preview bounds/cancellation and clipping recovery. Tests use synthetic controllers/HTTP, not actual ProPresenter or microphone.
+
+Eight normal-Auto approval/appearance tests remain in the full integration branch for the separate Auto component; they have not been removed from the project or claimed passed by this component. The new Auto approval methods and dispatch exception are not introduced here. Existing advanced verified-cue Auto retains its earlier scope, and passage-internal mappings stay blocked from it.
+
+Actual desktop wiring, owner-close/reload IPC rules, private-API coordinator wiring, speech age/assembly, native consent/accounting initialization, new Auto approval and original hardware/platform/physical/service acceptance remain PR22 obligations. No application release or full workflow completion is claimed by this backend PR.

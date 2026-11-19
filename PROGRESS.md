@@ -187,6 +187,8 @@ Combined main plus mapping-fix regression passed234/234 module tests after prese
 
 2026-11-19 small dependent native-copy backend: feat/managed-native-copy-backend is based on the PR26 exact-passage foundation. Readiness/input-retention interfaces, current-output text+identity and playlist transaction checks,100/app attempts, injectable durable500-slot ledger/warnings/reconciliation backend extracted coherently.294 module tests and syntax pass, synthetic only. docs/71-managed-native-copy-backend.md records interfaces and remaining desktop initialization/startup inspection/consent/reconciliation/coordinator wiring; no Windows helper replacement or Mac/native/output/field completion claim. Next: open the small dependent PR and verify matching CI after its foundation is ready, then extract normal coordinator/Confirm wiring.
 
+2026-11-19 coordinator/Confirm backend extraction: feat/passage-coordinator-confirm depends on native-copy backend02164f6. Exact prepare/review/Confirm, ordered parts, shared operation owner, remote context/takeover, bounded native PNG review and explicit clipping rebuild contracts extracted with Session/Connector safeguards. Eight new normal-Auto approval/appearance tests remain intact in full integration branch for their separate component; no approveAuto method/dispatch exception introduced here. Complete341 module tests and syntax pass. Initial script stopped at CRLF boundary before tests copied (294 baseline not counted); complete tests found missing unknown-edition interpretation reason, fixed while retaining test. docs/72 records exact scope and pending desktop/private-API/speech/Auto/native initialization/field wiring. Next: open the small dependent backend PR and verify platform before wiring normal UI. No actual ProPresenter/mic/output test in this extraction.
+
 
 Updated-head diagnostic compile44577868254 passed atb7f4301; Swift remains unchanged while PR25 main source/progress history is incorporated. Compile-only evidence does not verify any actual Mac ProPresenter accessibility behavior.
 
@@ -195,3 +197,6 @@ PR26 matching standard Mac44579298744 passed at2b68410:269 module tests, syntax,
 
 
 PR27 foundation dependency merged as PR26 at693449e; retargeted this PR to main and incorporated current main with only shared progress-history conflict. Backend application/test source remains unchanged from294-test02164f6; current main adds the completed Mac diagnostic and verification history. Matching standard Mac will run on the synchronized head.
+
+
+Coordinator component synchronized to backend0d7f0f4 after PR26/main completion. Only shared PROGRESS history conflicted;341-test coordinator application/test source is unchanged. Backend matching standard Mac44582547322 is running/pending observation; coordinator gets a separate matching check after this merge. No actual ProPresenter/mic/output action.

@@ -1,5 +1,6 @@
 'use strict';
 const {createHash}=require('node:crypto');
+const {readSlideThumbnail}=require('./slide-thumbnail.cjs');
 function targetURL(host,port) {
   if(typeof host!=='string'||!Number.isInteger(port)||port<1||port>65535)throw new Error('Invalid host or port');
   // Literal loopback/private IPv4 only. No redirects, DNS rebinding or discovery.
@@ -15,6 +16,13 @@ class Connector {
   async test(){const generation=this.generation;try{const v=await this.read('/version');if(typeof v.host_description!=='string'||!/ProPresenter/.test(v.host_description))throw new Error('Unexpected target identity');this.version=v;this.status={state:'connected',version:v.host_description};return this.status;}catch(e){if(generation===this.generation){this.armed=false;this.status={state:'offline'};}throw e;}}
   arm(value){if(value&&!this.version)throw new Error('Test connection before arming');this.armed=value===true;}
   async inspect(uuid){if(typeof uuid!=='string'||!/^[a-f0-9-]{36}$/i.test(uuid))throw new Error('Invalid presentation UUID');const raw=await this.read(`/v1/presentation/${uuid}`);const p=raw.presentation??raw;return {p,slides:(p.groups??[]).flatMap(g=>g.slides??[])};}
+  async thumbnail(uuid,index,additionalGuard=()=>true){
+    if(!this.base||typeof uuid!=='string'||!/^[a-f0-9-]{36}$/i.test(uuid)||!Number.isInteger(index)||index<0||index>10000)throw Error('Invalid saved slide thumbnail request');
+    const base=this.base,generation=this.generation,guard=()=>base===this.base&&generation===this.generation&&additionalGuard();
+    if(!guard())throw Error('Slide thumbnail request canceled');
+    const response=await this.fetch(`${base}/v1/presentation/${uuid}/thumbnail/${index}?thumbnail_type=png`,{headers:{Accept:'image/png'},redirect:'error',signal:AbortSignal.timeout(2000)});
+    return readSlideThumbnail(response,guard);
+  }
   async prepare({uuid,cue,reference,translation,verified,autoVerified=false}){
     const generation=this.generation;
     if(verified!==true)throw new Error('Verify actual Bible text, translation, theme and Looks in ProPresenter first');
@@ -27,6 +35,37 @@ class Connector {
     if(!mapping.version)throw new Error('Test the target first');this.mappings.set(`${reference}|${translation}`,mapping);
     return {reference,translation,cue,prepared:true};
   }
+  async preparePassage({uuid,reference,translation,expectedFingerprint,verified,partIndex=0,expectedCurrent=null,sourceContext=null,guard=()=>true}){
+    if(verified!==true)throw Error('Verify the passage text, edition and appearance before confirmation');
+    const generation=this.generation,base=this.base,version=this.version?.host_description;
+    if(!version||!guard())throw Error('Passage verification canceled or connection not tested');
+    const source=await this.inspect(uuid);
+    const plan=require('./bible-passage-plan.cjs').planSavedPassage(source,{uuid,reference,translation});
+    if(plan.fingerprint!==expectedFingerprint)throw Error('Passage changed after review; prepare it again');
+    if(!Number.isInteger(partIndex)||partIndex<0||partIndex>=plan.cueIndices.length)throw Error('Invalid passage part');
+    let previous=null;
+    if(partIndex>0){const index=plan.cueIndices[partIndex-1];if(expectedCurrent?.uuid!==uuid||expectedCurrent?.index!==index)throw Error('Continuation requires the preceding verified passage part');previous={uuid,index,text:source.slides[index].text};}
+    else if(expectedCurrent!==null)throw Error('Unexpected previous passage part');
+    if(generation!==this.generation||base!==this.base||version!==this.version?.host_description||!guard())throw Error('Passage verification canceled');
+    this.mappings.set(`${reference}|${translation}`,{uuid,cue:plan.cueIndices[partIndex],reference,translation,autoVerified:false,fingerprint:plan.fingerprint,version,expectedCurrent:previous,sourceContext:partIndex===0?sourceContext:null,passagePart:{index:partIndex,count:plan.cueIndices.length}});
+    return {reference,translation,prepared:true,cueCount:plan.cueIndices.length,partIndex};
+  }
+  async verifyContext(remote,guard=()=>true){
+    const generation=this.generation,base=this.base;
+    if(!remote||typeof remote.uuid!=='string'||!Number.isInteger(remote.index)||typeof remote.fingerprint!=='string')throw Error('Current passage context is incomplete');
+    const {p,slides}=await this.inspect(remote.uuid);
+    if(generation!==this.generation||base!==this.base||!guard())throw Error('Current passage context check canceled');
+    if(fingerprint(p)!==remote.fingerprint||!slides[remote.index]?.enabled||typeof slides[remote.index].text!=='string')throw Error('Current passage content changed');
+    await this.assertCurrent({uuid:remote.uuid,index:remote.index,text:slides[remote.index].text},guard);
+  }
+  async assertCurrent(expected,guard=()=>true){
+    const generation=this.generation,base=this.base;
+    if(!expected||typeof expected.uuid!=='string'||!Number.isInteger(expected.index)||typeof expected.text!=='string')throw Error('Current output identity is incomplete');
+    const [index,slide]=await Promise.all([this.read('/v1/presentation/slide_index'),this.read('/v1/status/slide')]);
+    const clean=text=>String(text??'').replace(/\s+/g,' ').trim();
+    if(generation!==this.generation||base!==this.base||!guard())throw Error('Current output check canceled');
+    if(index.presentation_index?.presentation_id?.uuid!==expected.uuid||index.presentation_index?.index!==expected.index||clean(slide.current?.text)!==clean(expected.text))throw Error('Current output changed; passage continuation canceled');
+  }
   async send(candidate,{dryRun,guard,automatic=false}){
     if(dryRun){if(!guard())throw new Error('Send canceled');return {state:'simulated',networkRequests:0};}
     const generation=this.generation,base=this.base;
@@ -38,6 +77,10 @@ class Connector {
     if(v.host_description!==m.version)throw new Error('ProPresenter version changed; retest and remap');
     const {p,slides}=await this.inspect(m.uuid);
     if(fingerprint(p)!==m.fingerprint)throw new Error('Presentation changed; verify a new mapping');
+    if(m.sourceContext)await this.verifyContext(m.sourceContext,guard);
+    if(m.expectedCurrent)await this.assertCurrent(m.expectedCurrent,guard);
+
+
     const mappingCurrent=()=>this.mappings.get(mappingKey)===m;
     if(generation!==this.generation||base!==this.base||!mappingCurrent()||!this.armed||!guard())throw new Error('Send canceled before dispatch');
     let r;
@@ -53,7 +96,7 @@ class Connector {
         const [index,slide]=await Promise.all([this.read('/v1/presentation/slide_index',{timeoutMs}),this.read('/v1/status/slide',{timeoutMs})]);checks++;
         if(generation!==this.generation||base!==this.base||!mappingCurrent()||!this.armed||!guard())break;
         const match=index.presentation_index?.presentation_id?.uuid===m.uuid&&index.presentation_index?.index===m.cue&&clean(slide.current?.text)===clean(slides[m.cue].text);
-        if(match)return {state:'readback-matched',outputObserved:false,retry:false,readbackChecks:checks,readbackElapsedMs:Math.round(performance.now()-readbackStart)};
+        if(match)return {state:'readback-matched',outputObserved:false,retry:false,readbackChecks:checks,readbackElapsedMs:Math.round(performance.now()-readbackStart),presentation:{uuid:m.uuid,index:m.cue,fingerprint:m.fingerprint},part:m.passagePart??null};
         const wait=Math.min(100,deadline-performance.now());if(wait>0)await new Promise(resolve=>setTimeout(resolve,wait));
       }
     }catch{}
