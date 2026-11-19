@@ -102,7 +102,7 @@ class Connector {
       const appearance=await this.autoAppearance(m.uuid,m.cue,guard);
       if(!m.appearance||fingerprint(appearance)!==fingerprint(m.appearance)){
         if(generation===this.generation&&base===this.base&&this.mappings.get(mappingKey)===m){this.mappings.delete(mappingKey);this.armed=false;}
-        throw Error('Approved slide appearance or current Look changed; review and approve this passage again');
+        throw Object.assign(Error('Approved slide appearance or current Look changed; review and approve this passage again'),{code:'AUTO_APPEARANCE_CHANGED'});
       }
     }
     if(m.sourceContext)await this.verifyContext(m.sourceContext,guard);
