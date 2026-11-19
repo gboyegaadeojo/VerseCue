@@ -18,7 +18,7 @@
 | Detected-reference scheduling and explicit native consent backend | [PR31](https://github.com/gboyegaadeojo/VerseCue/pull/31) |384 module tests/syntax and exact standard Mac44593983560 passed; merged atd99bf40. New reference-epoch waiting race corrected. Desktop wiring remains separate. |
 | Capture age/continuity producer | [PR32](https://github.com/gboyegaadeojo/VerseCue/pull/32) |393 combined module tests/syntax and exact final Mac44594866353 passed; merged at66a1b1b. No OS microphone or physical-latency claim. |
 
-| Normal reviewed Auto backend | [PR33](https://github.com/gboyegaadeojo/VerseCue/pull/33) |401 module tests/syntax passed; Mac44595101722 running. Desktop controls/lifecycle remain separate. |
+| Normal reviewed Auto backend | [PR33](https://github.com/gboyegaadeojo/VerseCue/pull/33) |410 combined module tests/syntax and exact final Mac44595877853 passed; merged at5ea71f4. Desktop controls/lifecycle remain separate. |
 | Private API passage review | [PR34](https://github.com/gboyegaadeojo/VerseCue/pull/34) |389 module tests/syntax passed; Mac44595527863 running. Desktop hook wiring remains separate. |
 
 ## Remaining dependency sequence

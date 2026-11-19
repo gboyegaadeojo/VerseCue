@@ -324,3 +324,11 @@ PR31 integration verification: all415 module tests and syntax checks passed. PR3
 ## PR32 integration sync - 2026-11-19
 
 PR32 merged at66a1b1b after final combined393 module tests/syntax and exact standard Mac44594866353 passed. Integrated both actual-worklet synthetic tests without changing the existing capture producer behavior. Full integration checks recorded below; no actual microphone/physical-output claim.
+
+## Normal reviewed Auto backend extraction - 2026-11-19
+
+Extracted current-review, owner-bound single-cue KJV Auto approval with Look/PNG rechecks, guarded original-age speech use and separately acknowledged session bare-citation policy. Approval sends nothing; original intent/cancellation/uncertainty and private-API restrictions remain. All401 combined module tests and syntax checks passed on Windows. Hosted Mac verification and desktop controls/lifecycle wiring remain pending; see docs/77-normal-reviewed-auto-backend.md. No actual microphone/ProPresenter/output used and no arbitrary native Auto claim.
+
+## PR33 integration sync - 2026-11-19
+
+PR33 merged at5ea71f4 after final combined410 module tests/syntax and exact standard Mac44595877853 passed. Its backend matches the existing integration Auto policy/owner/appearance implementation; retained the integration navigation behavior and all prior guards. PR35 workspace dependency assembly passed415 module tests/syntax, the normal-reference desktop scenario and all19 additional source desktop scenarios against synthetic targets. No actual microphone/ProPresenter/output used; matching packaged and real-host scope remain pending.
