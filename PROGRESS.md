@@ -169,13 +169,24 @@ NR-008 design review: researched Pewbeam, official Linear design notes and Black
 
 Studio0.6.0 final Windows checkpoint:134manifest/source files verified, ZIP316422287bytes SHA256706af3f0f95e68dd6f357541e803312887a5a728db806a939ec50839e530dc0a.227module tests and source workspace/desktop/font/smoothness/output/Auto checks passed; packaged Studio/desktop/offline speech/minimized quote/output/Auto/renderer recovery checks passed. No actual mic/ProPresenter/physical output; all prior P0/conversational acceptance gaps remain. Focused PR follows, then matching standard public Mac dispatch.
 
+2026-11-19 standalone PR22 extraction: read-only Mac feasibility diagnostic isolated on chore/macos-bible-feasibility-probe directly from main. New manual standard-public-runner workflow compiles Swift only. No production Mac adapter, app focus/actions, permission prompt, text-value extraction or output. Native compiler/runtime validation is PENDING until actual job/host evidence. Full platform feasibility stays in PR22.
+
 2026-11-19 standalone PR22 extraction: fix/revoked-cue-dispatch requires the exact current mapping object before dispatch and before/after readback. Revoked/replaced preflight mappings send no trigger; post-dispatch revocation returns uncertain/disarms without retry. Two real connector/synthetic HTTP regressions extracted from the verified integration branch. All229 main-based module tests and syntax checks pass; no actual ProPresenter/output/microphone access. Full workflow acceptance remains with PR22.
+
 
 2026-11-19 standalone PR22 extraction: native process-boundary reliability fix is isolated on fix/native-preparation-boundary directly from main.232 module tests and syntax pass; docs/68-native-preparation-boundary.md records exact scope. No native UI/profile/action/deadline change or actual ProPresenter/microphone/output test. Remaining full reference-driven implementation and service/platform acceptance stay tracked by PR22.
 
+
+Mac diagnostic compilation passed on standard public macOS15 arm64 run44576539821 for unchanged Swift source f8afd75. No ProPresenter/AX runtime invocation or privacy permission changes. PR23 native boundary is now merged into main and included here only to resolve shared PROGRESS history; this diagnostic PR still adds no production native route.
 
 Mapping fix standard Mac44577616214 passed at05d48fc (229tests and development package/workspace). PR23 main update is included here with only PROGRESS conflict resolution; combined local regression result will be recorded before merge.
 
 Combined main plus mapping-fix regression passed234/234 module tests after preserving both progress entries. The production mapping fix is unchanged from05d48fc, whose standard Mac build/workspace passed; included native-boundary source is unchanged from merged PR23. No new actual ProPresenter/output/physical acceptance claim.
 
 2026-11-19 PR22 foundation extraction: exact saved-passage planning/lookup plus required parser/navigation/reference-epoch semantics isolated on feat/exact-saved-passage-lookup. Initial251/252 result identified the ordinary-preaching Session dependency; regression retained and required semantics extracted without Auto approval/UI/native orchestration. After PR23/25 current main integration all269 module tests and syntax pass. docs/70-exact-passage-lookup-and-intent.md records metadata-only guarantees and remaining output/field scope. Matching standard Mac job pending dispatch; no actual ProPresenter/microphone access in these tests.
+
+
+Updated-head diagnostic compile44577868254 passed atb7f4301; Swift remains unchanged while PR25 main source/progress history is incorporated. Compile-only evidence does not verify any actual Mac ProPresenter accessibility behavior.
+
+
+PR26 matching standard Mac44579298744 passed at2b68410:269 module tests, syntax, CPU speech packaging and packaged workspace. Current main synchronization adds only already-compiled Mac diagnostic/workflow and combined progress history; application foundation source is unchanged. No normal coordinator/UI/native/output/field acceptance claim.
