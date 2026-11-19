@@ -19,7 +19,9 @@
 | Capture age/continuity producer | [PR32](https://github.com/gboyegaadeojo/VerseCue/pull/32) |393 combined module tests/syntax and exact final Mac44594866353 passed; merged at66a1b1b. No OS microphone or physical-latency claim. |
 
 | Normal reviewed Auto backend | [PR33](https://github.com/gboyegaadeojo/VerseCue/pull/33) |410 combined module tests/syntax and exact final Mac44595877853 passed; merged at5ea71f4. Desktop controls/lifecycle remain separate. |
-| Private API passage review | [PR34](https://github.com/gboyegaadeojo/VerseCue/pull/34) |389 module tests/syntax passed; Mac44595527863 running. Desktop hook wiring remains separate. |
+| Private API passage review | [PR34](https://github.com/gboyegaadeojo/VerseCue/pull/34) |415 combined module tests/syntax and exact final Mac44597315623 passed; merged at0eb409a. Desktop hook wiring remains separate. |
+
+| Normal reference-driven desktop workspace | [PR35](https://github.com/gboyegaadeojo/VerseCue/pull/35) |415 assembled module tests/syntax and20 Windows source desktop scenarios passed; exact Mac44596961095 passed.146-file Windows review build passed; packaged scenarios running. No actual host/microphone/physical-output claim. |
 
 ## Remaining dependency sequence
 

@@ -3,7 +3,7 @@
 Updated: 2026-11-19 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-IMPLEMENTING - NR-009 / draft PR22; continuation goal active. 417 module tests pass. Normal reference-driven preparation/review/Confirm, ordered parts, safe navigation, bounded speech assembly, consented detected-native preparation, private API review and native saved-slide thumbnails are implemented. Personal Windows21.4.2 preparation/edition/minimized tests and one actual saved-passage confirmation with audience/stage screens disabled passed within their documented scope. No arbitrary Auto, live speech accuracy, physical church-theme/output fidelity, Mac native route, field acceptance or new release claim. Native preparation remains slow and can report clipping; known warnings now survive unchanged copy reuse and are backend-blocking. Original requirements and RF01-22 remain intact; keep PR draft/unmerged. Exact next actions: finish the capture producer verification, then deliver remaining Auto/private-API/native/desktop wiring under docs/69 without dropping full RF01-22/platform/service acceptance. The completed90-minute minimized fixture soak covers7ff7923 only.
+IMPLEMENTING - NR-009 / draft PR22; continuation goal active. 418 module tests pass. Normal reference-driven preparation/review/Confirm, ordered parts, safe navigation, bounded speech assembly, consented detected-native preparation, private API review and native saved-slide thumbnails are implemented. Personal Windows21.4.2 preparation/edition/minimized tests and one actual saved-passage confirmation with audience/stage screens disabled passed within their documented scope. No arbitrary Auto, live speech accuracy, physical church-theme/output fidelity, Mac native route, field acceptance or new release claim. Native preparation remains slow and can report clipping; known warnings now survive unchanged copy reuse and are backend-blocking. Original requirements and RF01-22 remain intact; keep PR draft/unmerged. Exact next actions: finish PR35 packaged/combined-head verification and merge the normal workspace, then address native timing/clipping and actual platform/service acceptance under docs/69 without dropping full RF01-22/platform/service acceptance. The completed90-minute minimized fixture soak covers7ff7923 only.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -325,6 +325,10 @@ PR31 integration verification: all415 module tests and syntax checks passed. PR3
 
 PR32 merged at66a1b1b after final combined393 module tests/syntax and exact standard Mac44594866353 passed. Integrated both actual-worklet synthetic tests without changing the existing capture producer behavior. Full integration checks recorded below; no actual microphone/physical-output claim.
 
+## Private API passage-review extraction - 2026-11-19
+
+Added capability-gated saved-passage review through a supplied coordinator hook and checked reference submission with API-session revocation. No remote focus/copy consent or passage confirmation accepted. All389 module tests and syntax pass;17 API tests include in-flight relative-context revocation with no candidate/output. Mac verification and desktop hook wiring remain pending. See docs/78-private-api-passage-review.md.
+
 ## Normal reviewed Auto backend extraction - 2026-11-19
 
 Extracted current-review, owner-bound single-cue KJV Auto approval with Look/PNG rechecks, guarded original-age speech use and separately acknowledged session bare-citation policy. Approval sends nothing; original intent/cancellation/uncertainty and private-API restrictions remain. All401 combined module tests and syntax checks passed on Windows. Hosted Mac verification and desktop controls/lifecycle wiring remain pending; see docs/77-normal-reviewed-auto-backend.md. No actual microphone/ProPresenter/output used and no arbitrary native Auto claim.
@@ -332,3 +336,7 @@ Extracted current-review, owner-bound single-cue KJV Auto approval with Look/PNG
 ## PR33 integration sync - 2026-11-19
 
 PR33 merged at5ea71f4 after final combined410 module tests/syntax and exact standard Mac44595877853 passed. Its backend matches the existing integration Auto policy/owner/appearance implementation; retained the integration navigation behavior and all prior guards. PR35 workspace dependency assembly passed415 module tests/syntax, the normal-reference desktop scenario and all19 additional source desktop scenarios against synthetic targets. No actual microphone/ProPresenter/output used; matching packaged and real-host scope remain pending.
+
+## PR34 integration sync - 2026-11-19
+
+PR34 merged at0eb409a after final combined415 module tests/syntax and exact standard Mac44597315623 passed. Integrated its actual-Session API relative-context revocation regression. PR35 source desktop/Mac44596961095 and146-file Windows review build passed; packaged Windows scenarios remain running and are not yet claimed complete. No actual microphone/ProPresenter/output used.

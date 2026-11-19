@@ -1,10 +1,10 @@
 {
-  "at": "2026-11-19T19:17:26.338Z",
+  "at": "2026-11-19T19:25:08.934Z",
   "applicationVersion": "0.6.0",
   "passed": true,
   "requiredDocuments": 16,
   "rootDocuments": 5,
-  "markdownFilesChecked": 85,
+  "markdownFilesChecked": 86,
   "relativeLinksChecked": 148,
   "functionalRequirements": 62,
   "nonfunctionalRequirements": 24,
