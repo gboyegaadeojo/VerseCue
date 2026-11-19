@@ -51,3 +51,7 @@ Native copy attempts are capped at 100 per app run, counting uncertain attempts 
 ## Timing-helper checkpoint d72ad25
 
 [Matching evidence](evidence/pr22-build-checkpoint-d72ad25.json) records371 tests,144 Windows manifest files and packaged output-edit/recovery/full desktop checks. Its helper hash720b19ce and C# source hash3a41cb06 match the finer-timing personal test. Public standard Mac [44437187705](https://github.com/gboyegaadeojo/VerseCue/actions/runs/44437187705) passed after queueing, including source tests, CPU speech package and packaged workspace. No Mac native or physical acceptance; independent artifact checksum pending. Later [managed-copy accounting](63-managed-native-copy-accounting.md) extends the earlier per-run budget with forward cross-restart slots; it is not included in this checkpoint.
+
+## Accounting/restart checkpoint e8bed42
+
+[Exact checkpoint evidence](evidence/pr22-build-checkpoint-e8bed42.json) records381 locally passing tests,145 Windows manifest files and packaged accounting/reconciliation/app restart, retained clipping, inspection, recovery, output-edit and full desktop smoke checks. Mac44439491592 failed eight clean-checkout fixture cases;44439100439 had the same parent-directory assumption. Both failures are retained. The fixture-only correction passes29 cases from a fresh working directory and requires a new Mac run; no production-source change or actual Mac native/physical acceptance is implied.

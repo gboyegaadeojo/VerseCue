@@ -35,3 +35,5 @@ Existing source synthetic recovery and uncertain-save scenarios also pass. Works
 [Sanitized source desktop report](evidence/managed-copy-ledger-source.json) records the seeded quota/reconciliation/restart result.
 
 Restart inspection follow-up: the new source desktop assertion passes and an earlier1ed6942 package fails that added assertion, demonstrating the older build lacks this follow-up. Only a matching new package may be claimed to verify it.
+
+Clean-checkout verification: Mac runs44439100439 and44439491592 failed eight new unit cases because test fixtures assumed an existing ignored test-results directory. The fixtures now create their parent directory;29 affected tests pass from a newly created empty working directory and all381 pass locally. No production behavior changed for this fix. A new matching Mac run is required before claiming the accounting slice passes there. Matching Windows e8bed42 package already passes restart inspection/accounting, recovery, output-edit and desktop smoke checks.
