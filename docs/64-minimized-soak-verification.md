@@ -23,3 +23,7 @@ New evidence filenames contain version, package-manifest hash prefix and run sta
 The90-minute run **FAILED** after5371174ms (about89.5 minutes),179 completed cycles, because its window was no longer minimized. It was not interrupted, but did not reach completion and cannot produce passing evidence. The cause of restoration is not established. [Sanitized failure evidence](evidence/minimized-soak-failure-e8bed42-2026-11-19.json) retains the result and bounded counts/zero output.
 
 It tested the Windows e8bed42 package, version0.6.0, manifest SHA-256 `4c951c11652a7ceeadc03cd552142005dd360fe1a2364443d7a0995e91884e19`. Later application changes, including saved-origin guidance, are outside that artifact. The updated harness records a safe failure code and bounded event-code/capture-state snapshot for future runs, without transcripts, paths or raw exceptions. Another complete matching run is required. Actual microphone/native preparation/media/Companion/physical-screen, representative hardware and field testing remain pending.
+
+## Fresh identified retry
+
+A new90-minute run began 2026-11-19T11:40:11.634Z using7ff7923, manifest SHA-256 `1198213a69d594122308dbe7f67d11271d547bf12d4b8b23956bf0fa45d5a7c7`. Its initial heartbeat confirms minimized background ownership andzeroOutput. It is **IN PROGRESS**, not passed. Session/report details are in PROGRESS.md; inspect the live handle and final report before updating this status. The earlier failed run is retained separately.
