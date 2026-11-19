@@ -4,6 +4,13 @@ const {planSavedPassage}=require('./bible-passage-plan.cjs');
 const {createHash}=require('node:crypto');
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function outputKey(data){const p=data?.presentation_index;if(p===null)return null;if(!p||typeof p.presentation_id?.uuid!=='string'||!Number.isInteger(p.index))throw Error('Output identity could not be checked');return p.presentation_id.uuid+'|'+p.index;}
+async function outputSnapshot(connector){
+ const [identity,slide]=await Promise.all([connector.read('/v1/presentation/slide_index'),connector.read('/v1/status/slide')]);
+ const key=outputKey(identity);
+ if(!slide||!Object.hasOwn(slide,'current')||slide.current!==null&&(typeof slide.current!=='object'||typeof slide.current.text!=='string'||slide.current.text.length>100000))throw Error('Current output text could not be checked before preparation');
+ if(key!==null&&slide.current===null)throw Error('Current output identity and text could not be checked together');
+ return createHash('sha256').update(JSON.stringify([key,slide.current?.text??null])).digest('hex');
+}
 async function playlistSnapshot(connector,uuid=undefined){
  if(uuid===undefined){const focused=await connector.read('/v1/playlist/focused');if(focused.playlist===null)return {uuid:null,fingerprint:null};uuid=focused.playlist?.uuid;}
  if(typeof uuid!=='string'||!/^[a-f0-9-]{36}$/i.test(uuid))throw Error('Service playlist identity could not be checked before preparation');
@@ -30,7 +37,7 @@ class SavedBibleWorkflow {
    // Multiple-library destination selection is not guessed or silently changed.
    if(libraries.length!==1||libraryId&&libraries[0].uuid!==libraryId)throw Error('The verified Windows save-copy profile currently requires one unambiguous library; use manual preparation for other layouts');
    const library=libraries[0],before=new Set((await this.catalog.presentations(library.uuid)).map(p=>p.uuid));
-   const activeBefore=outputKey(await this.connector.read('/v1/presentation/slide_index')),playlistBefore=await playlistSnapshot(this.connector);if(!guard())throw Error('Saved preparation canceled before UI access');
+   const activeBefore=await outputSnapshot(this.connector),playlistBefore=await playlistSnapshot(this.connector);if(!guard())throw Error('Saved preparation canceled before UI access');
    this.copyAttempts++;nativeAttempted=true;const receipt=await this.controller.prepare(reference,translation,guard,{saveCopy:true,keepListening});preparedGeneration=receipt.preparedGeneration;
    if(receipt.saveCopyRequested!==true||!Number.isInteger(preparedGeneration)||!guard())throw Error('Saved-copy completion was not verified; inspect ProPresenter before retrying');
    const deadline=performance.now()+2000;let created=[];
@@ -39,7 +46,7 @@ class SavedBibleWorkflow {
    const item=created[0],inspected=await this.connector.inspect(item.uuid),p=inspected.p,slides=inspected.slides;
    if(!guard()||p.id?.uuid!==item.uuid||p.destination!=='presentation'||p.has_timeline||!String(p.id?.name??'').endsWith('('+translation+')')||!slides.length||slides.length>100||slides.some(s=>!s.enabled||typeof s.text!=='string'||!s.text.trim()||!contained(s.label,requested,translation)))throw Error('Saved passage identity/translation/cues could not be verified; review the copy manually');
    const passagePlan=planSavedPassage({p,slides},{uuid:item.uuid,reference,translation});
-   const activeAfter=outputKey(await this.connector.read('/v1/presentation/slide_index'));if(!guard()||activeAfter!==activeBefore)throw Error('Output changed during preparation; inspect ProPresenter and do not send automatically');
+   const activeAfter=await outputSnapshot(this.connector);if(!guard()||activeAfter!==activeBefore)throw Error('Output identity or text changed during preparation; inspect ProPresenter and do not send automatically');
    if(playlistBefore.uuid){const playlistAfter=await playlistSnapshot(this.connector,playlistBefore.uuid);if(!guard()||playlistAfter.fingerprint!==playlistBefore.fingerprint)throw Error('Service playlist changed during preparation; inspect ProPresenter before continuing');}
    this.service.log('NATIVE_BIBLE_COPY_SAVED_REVIEW');this.service.notify();
    this.onPreparedCopy({uuid:item.uuid,fingerprint:passagePlan.fingerprint,clippingWarning:receipt.clippingWarning===true});
@@ -47,4 +54,4 @@ class SavedBibleWorkflow {
   }catch(error){if(nativeAttempted)this.onUncertain();throw error;}finally{this.busy=false;}
  }
 }
-module.exports={SavedBibleWorkflow,contained,outputKey,playlistSnapshot};
+module.exports={SavedBibleWorkflow,contained,outputKey,outputSnapshot,playlistSnapshot};

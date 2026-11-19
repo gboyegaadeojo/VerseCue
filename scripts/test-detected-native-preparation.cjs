@@ -2,7 +2,7 @@
 // SYNTHETIC native helper, speech, lease and target only. No OS mic or PP UI.
 const {_electron}=require('playwright'),http=require('node:http'),path=require('node:path'),fs=require('node:fs/promises'),assert=require('node:assert/strict'),{randomUUID}=require('node:crypto');
 (async()=>{
- const args=process.argv.slice(2),noInput=args.includes('--no-input'),uncertain=args.includes('--uncertain'),recover=args.includes('--recover'),clipped=args.includes('--clipped')||recover,executable=args.find(arg=>!arg.startsWith('--'))?path.resolve(args.find(arg=>!arg.startsWith('--'))):null,uuid='75631f63-da79-419c-b862-c9b8338081f9',library='5e4da747-cf19-4810-8d4d-b6fe1a7d9350';let created=false,triggers=0,creations=0;const freshUuid='b1c6194a-50d9-461f-9d27-33b388b7d8a1',createdIds=[];
+ const args=process.argv.slice(2),noInput=args.includes('--no-input'),outputEdit=args.includes('--output-edit'),uncertain=args.includes('--uncertain')||outputEdit,recover=args.includes('--recover'),clipped=args.includes('--clipped')||recover,executable=args.find(arg=>!arg.startsWith('--'))?path.resolve(args.find(arg=>!arg.startsWith('--'))):null,uuid='75631f63-da79-419c-b862-c9b8338081f9',library='5e4da747-cf19-4810-8d4d-b6fe1a7d9350';let created=false,triggers=0,creations=0;const freshUuid='b1c6194a-50d9-461f-9d27-33b388b7d8a1',createdIds=[];
  const server=http.createServer((req,res)=>{
   res.setHeader('Content-Type','application/json');
   if(req.url==='/version')return res.end(JSON.stringify({host_description:'ProPresenter 21.4.2',platform:'win'}));
@@ -12,8 +12,8 @@ const {_electron}=require('playwright'),http=require('node:http'),path=require('
   if(req.url==='/v1/playlist/focused')return res.end(JSON.stringify({playlist:null}));
   const requested=createdIds.find(id=>req.url==='/v1/presentation/'+id);if(requested)return res.end(JSON.stringify({presentation:{id:{uuid:requested,name:'John 3_16 (KJV)'},destination:'presentation',has_timeline:false,groups:[{slides:[{enabled:true,label:'John 3:16',text:'SYNTHETIC detected passage'}]}]}}));
   if(req.url.endsWith('/trigger')){triggers++;res.writeHead(204);return res.end();}
-  if(req.url.endsWith('/slide_index'))return res.end(JSON.stringify({presentation_index:null}));
-  if(req.url.endsWith('/status/slide'))return res.end(JSON.stringify({current:{text:''}}));
+  if(req.url.endsWith('/slide_index'))return res.end(JSON.stringify({presentation_index:outputEdit?{presentation_id:{uuid:'3273e659-f3fb-4b1f-8d22-747e872ff154'},index:0}:null}));
+  if(req.url.endsWith('/status/slide'))return res.end(JSON.stringify({current:{text:outputEdit?(creations?'SYNTHETIC edited live text':'SYNTHETIC original live text'):''}}));
   res.writeHead(404);res.end('{}');
  });
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const env={...process.env};delete env.ELECTRON_RUN_AS_NODE;let app;
@@ -28,7 +28,7 @@ const {_electron}=require('playwright'),http=require('node:http'),path=require('
    bridge.prototype.available=()=>true;bridge.prototype.prepare=async(reference,translation,{guard,saveCopy})=>{global.__detectedCalls++;await new Promise(resolve=>setTimeout(resolve,600));if(!guard())throw Error('Synthetic native preparation canceled');if(global.__detectedUncertain)throw Error('Synthetic uncertain save receipt');await fetch('http://127.0.0.1:'+port+'/fixture/create');return {reference,translation,saveCopyRequested:saveCopy,outputRequests:0,workerElapsedMs:600,clippingWarning:global.__detectedClip===true};};
   },server.address().port);
   await app.evaluate((_,clipped)=>{global.__detectedClip=clipped;},clipped);
-  await app.evaluate((_,uncertain)=>{global.__detectedUncertain=uncertain;},uncertain);
+  await app.evaluate((_,uncertain)=>{global.__detectedUncertain=uncertain;},uncertain&&!outputEdit);
   const state=async()=>(await page.evaluate(()=>window.versecue.state())).value,command=(name,payload)=>page.evaluate(({name,payload})=>window.versecue.command(name,payload),{name,payload});
   await page.evaluate(async port=>{const s=await window.versecue.settings();await window.versecue.saveSettings({...s.value,host:'127.0.0.1',port});await window.versecue.command('test');},server.address().port);
   assert.equal((await state()).referencePreparation.nativeConsent,false);
@@ -50,10 +50,10 @@ const {_electron}=require('playwright'),http=require('node:http'),path=require('
   if(uncertain){
    let failed;do{failed=await state();if(failed.referencePreparation.needsInspection&&!failed.referencePreparation.running)break;if(Date.now()>deadline)throw Error('Uncertain preparation did not revoke consent');await new Promise(resolve=>setTimeout(resolve,30));}while(true);
    assert.equal(failed.referencePreparation.nativeConsent,false);assert.equal(failed.referencePreparation.enabled,true);assert.equal(failed.capture.active,!noInput);assert.equal(failed.mode,'confirm');assert.equal(failed.dryRun,true);
-   await feed('John chapter three verse sixteen');await page.waitForFunction(async()=>!(await window.versecue.state()).value.referencePreparation.running);assert.equal(await app.evaluate(()=>global.__detectedCalls),1);assert.equal(creations,0);assert.equal(triggers,0);
+   await feed('John chapter three verse sixteen');await page.waitForFunction(async()=>!(await window.versecue.state()).value.referencePreparation.running);assert.equal(await app.evaluate(()=>global.__detectedCalls),1);assert.equal(creations,outputEdit?1:0);assert.equal(triggers,0);
    const choice={enabled:true,nativePreparation:true,acknowledgeFocusChange:true,acknowledgeCreateCopy:true};assert.equal((await command('reference-preparation',choice)).ok,false);
    await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].restore());await page.locator('#setup').click();await page.locator('[data-settings=output]').click();assert.match(await page.locator('#prepare-missing-detected').locator('..').innerText(),/inspected ProPresenter/);await page.locator('#prepare-missing-detected').check();assert.equal((await state()).referencePreparation.needsInspection,false);assert.equal((await state()).referencePreparation.nativeConsent,true);assert.equal(await app.evaluate(()=>global.__detectedCalls),1);await command('stop');assert.equal((await state()).referencePreparation.nativeConsent,false);
-   const report={at:new Date().toISOString(),passed:true,packaged:!!executable,nativeBridge:'SYNTHETIC',uncertainAttemptRevokedConsent:true,savedLookupRetained:true,noAutomaticRetry:true,explicitInspectionRequired:true,inspectionChoiceDidNotRetry:true,nativeAttempts:1,outputTriggers:triggers,actualProPresenterAccess:false,microphoneCapture:false};await fs.writeFile(`test-results/${executable?'packaged-':''}detected-native-preparation-uncertain.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));return;
+   const report={at:new Date().toISOString(),passed:true,packaged:!!executable,nativeBridge:'SYNTHETIC',uncertainAttemptRevokedConsent:true,liveTextEditWithUnchangedCueBlocked:outputEdit,nativeCopiesCreated:creations,savedLookupRetained:true,noAutomaticRetry:true,explicitInspectionRequired:true,inspectionChoiceDidNotRetry:true,nativeAttempts:1,outputTriggers:triggers,actualProPresenterAccess:false,microphoneCapture:false};await fs.writeFile(`test-results/${executable?'packaged-':''}detected-native-preparation-${outputEdit?'output-edit':'uncertain'}.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));return;
   }
   let prepared;do{prepared=await state();if(prepared.preparation.phase==='review-required')break;if(Date.now()>deadline)throw Error('Consented native review was not reached: '+JSON.stringify(prepared.preparation));await new Promise(resolve=>setTimeout(resolve,30));}while(true);
   assert.equal(prepared.mode,'confirm');assert.equal(prepared.dryRun,true);assert.equal(prepared.capture.active,!noInput);if(!noInput)assert.equal(prepared.capture.backgroundProtected,true);assert.equal(prepared.preparation.reference,'John 3:16');assert.equal(creations,1);assert.equal(triggers,0);assert.equal(prepared.referencePreparation.nativeConsent,true);

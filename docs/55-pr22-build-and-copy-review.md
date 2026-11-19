@@ -39,3 +39,7 @@ Native copy attempts are capped at 100 per app run, counting uncertain attempts 
 ## Window-consent checkpoint ac3d572
 
 [Matching evidence](evidence/pr22-build-checkpoint-ac3d572.json) records367 module tests,143 Windows manifest files, native helper/source identity and packaged two-window consent/recovery, uncertainty, minimized saved-lookup and normal-passage checks. Public standard Mac [44434893807](https://github.com/gboyegaadeojo/VerseCue/actions/runs/44434893807) passed the same revision including source scenarios and packaged workspace. No independent Mac artifact checksum, actual Mac native route or physical service acceptance is inferred. Later plain-language native-error guidance is outside this build.
+
+## Native-error guidance checkpoint7474567
+
+[Matching evidence](evidence/pr22-build-checkpoint-7474567.json) records368 module tests,144 manifest files and Windows packaged uncertainty/full desktop smoke checks. Public standard Mac [44435453041](https://github.com/gboyegaadeojo/VerseCue/actions/runs/44435453041) passed the matching source scenarios, CPU speech package and packaged workspace. No new Mac native/physical acceptance or independently checked artifact checksum. Later output-content coexistence checks are not included in this build.
