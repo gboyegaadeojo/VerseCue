@@ -1,4 +1,5 @@
 'use strict';
+const {citationIntent}=require('./auto-citation-policy.cjs');
 function assessAuto(service,candidates,evidence={},{allowBusy=false}={}){
   if(service.mode!=='auto'||service.stopped||service.recovery?.required)return {eligible:false,reason:'Auto is paused or not enabled'};
   if(service.operationOwner)return {eligible:false,reason:'A passage operation is in progress'};
@@ -11,7 +12,7 @@ function assessAuto(service,candidates,evidence={},{allowBusy=false}={}){
   if(candidates.length!==1)return {eligible:false,reason:'Only one unambiguous reference can Auto-send'};
   const c=candidates[0],r=c.reference;
   if(c.manual||!c.authorized||c.recognition!=='reference'||r.relative||r.corrected||r.valid!==true||r.numberingSystem!=='KJV'||r.verse==null||r.overLimit||c.issues.length)return {eligible:false,reason:'This reference needs operator review; quotes never Auto-send'};
-  if(!/\b(?:turn to|show|read|let us read|let['’]s read)\b/i.test(c.phrase)||/\b(?:he said|she said|last week|yesterday|we studied|in this song|lyrics|do not|don['’]t|not now|tomorrow)\b/i.test(c.phrase))return {eligible:false,reason:'An explicit current display/read instruction is required'};
+  if(!citationIntent(c,service.autoCitationPolicy))return {eligible:false,reason:service.autoCitationPolicy==='bare-citation'?'Only a complete bare citation or explicit current show/read instruction is eligible':'An explicit current display/read instruction is required'};
   if(c.generation!==service.generation||service.clock()>=c.expiresAt)return {eligible:false,reason:'Reference expired or changed'};
   if(service.lastSend?.key===`${c.label}|${c.translation}`&&service.clock()-service.lastSend.at<10000)return {eligible:false,reason:'Repeated reference suppressed by duplicate cooldown'};
   if(!service.dryRun){const connector=service.connector,map=connector.mappings?.get(`${c.label}|${c.translation}`);if(!connector.armed||connector.status?.state!=='connected'||map?.autoVerified!==true)return {eligible:false,reason:'No complete cue explicitly verified for Auto test output'};}

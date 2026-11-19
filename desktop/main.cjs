@@ -138,7 +138,7 @@ async function bootstrap(){
         finally{if(service.operationOwner===owner)service.operationOwner=null;service.notify();}
       });
       case 'mode':cancelAudio();cancelPreparation();return service.setMode(payload);
-      case 'enable-auto':if(preparation.busy||savedBible?.busy||passageCoordinator?.busy)throw new Error('Finish Bible preparation before enabling Auto');referencePreparation.configure(false);resetSpeechStabilization();automatic.cancel();speech.cancel();return service.enableAuto({acknowledged:payload?.acknowledged===true});
+      case 'enable-auto':if(preparation.busy||savedBible?.busy||passageCoordinator?.busy)throw new Error('Finish Bible preparation before enabling Auto');referencePreparation.configure(false);resetSpeechStabilization();automatic.cancel();speech.cancel();return service.enableAuto({acknowledged:payload?.acknowledged===true,citationPolicy:payload?.citationPolicy??'explicit-command',acknowledgeBareCitations:payload?.acknowledgeBareCitations===true});
       case 'stop':cancelAudio();cancelPreparation();connector.arm(false);return service.stop();
       case 'resume':cancelPreparation();return service.resume();
       case 'reset':cancelAudio();cancelPreparation();connector.arm(false);return service.reset();

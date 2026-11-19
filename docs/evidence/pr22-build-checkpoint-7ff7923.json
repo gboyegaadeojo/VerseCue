@@ -18,8 +18,12 @@
   "mac": {
     "run": 44516755386,
     "revision": "7ff79232990c5ab71404ccb739d33d94eb362b82",
-    "status": "in_progress",
-    "conclusion": null
+    "status": "completed",
+    "conclusion": "success",
+    "unitTests": 387,
+    "nativeBiblePreparationVerified": false,
+    "physicalOutputVerified": false,
+    "artifactChecksumIndependentlyVerified": false
   },
   "reports": {
     "packaged-managed-copy-ledger": {
