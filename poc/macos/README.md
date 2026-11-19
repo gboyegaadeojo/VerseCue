@@ -12,7 +12,20 @@ swiftc -framework AppKit -framework ApplicationServices poc/macos/InspectBibleAc
 test-results/mac-probe/inspect-bible --authorized-personal-host
 ```
 
-Do not install development tools or grant permissions automatically. The standard public Mac workflow compiles this source only; it has no ProPresenter instance and cannot prove control discovery or runtime behavior. The diagnostic is not included in an application release.
+Do not install development tools or grant permissions automatically. The standard public Mac workflow compiles and packages this source without executing it; it has no ProPresenter instance and cannot prove control discovery or runtime behavior. The diagnostic is not included in an application release.
+
+## Precompiled diagnostic artifact
+
+The **Compile read-only Mac Bible diagnostic** workflow produces a short-lived **VerseCue-Mac-ReadOnly-Probe** artifact. Download the artifact from a successful run, extract its ZIP, then extract the contained architecture-named tar.gz into a dedicated folder. The tar preserves the executable permission; no compiler installation is needed. Use only a build whose architecture matches the Mac. Artifacts expire after one day; the workflow can be run again. This is a diagnostic download, not a VerseCue application release.
+
+The archive includes this README, the executable, SOURCE_REVISION and SHA256SUMS. In that extracted folder, verify the files and run only on an explicitly authorized personal host:
+
+```sh
+shasum -a 256 --check SHA256SUMS
+./inspect-bible --authorized-personal-host
+```
+
+The adjacent archive .sha256 file verifies download integrity; neither checksum is a publisher signature or proof of safety. No Developer ID signature or notarization is claimed. If macOS blocks execution or accessibility is not already authorized, stop; do not disable Gatekeeper, remove quarantine, install tools or change privacy permissions automatically. A returned error or partial inventory is evidence of an unresolved feasibility condition, not an output authorization.
 
 Only counts, static AX role names and a small allowlist of Bible-related control hints are emitted. No window titles, arbitrary labels/identifiers, field values, Bible text, addresses, user paths, screenshots or audio are included. Titles and identifiers are inspected transiently for exact static hints; their arbitrary contents are discarded. The bounded inventory visits at most250 nodes, depth12 and32 children per node, with a3second traversal budget and150ms per-object accessibility messaging timeout. Provider errors, truncation and hash-collision skips make an empty/partial inventory inconclusive. This is not a hard process-kill deadline or a claim about every accessibility provider.
 

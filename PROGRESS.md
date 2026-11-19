@@ -246,3 +246,7 @@ A new regression failed against main: disabling/replacing queued detected work w
 ## PR36 dependency before normal-workspace merge - 2026-11-19
 
 Corrected PR35 head5346e08 passed exact Mac44627121424 including415 module tests, source desktop scenarios, CPU speech packaging and packaged workspace. A subsequent independent regression exposed scheduler cancellation of separately owned manual work while merely waiting. Incorporated PR36 head590ab3d as an explicit dependency before merging the workspace. This changes production source; previous105868f7 builds/soak do not validate the fix. Combined tests/package/Mac checks must be repeated for the new source.
+
+## Precompiled read-only Mac feasibility diagnostic - 2026-11-19
+
+Package the existing unchanged Swift accessibility inventory as a short-lived architecture-named tar.gz artifact in the standard public Mac compile workflow. Includes source revision, per-file/archive SHA256 and preserved executable mode; no compiler installation is needed on the personal Mac. Workflow never executes the probe or ProPresenter and never requests permissions. README explains exact authorized invocation, expiration, unsigned/not-notarized status and stopping at existing OS/privacy blocks. Compile/archive/artifact verification pending; no runtime/control/field feasibility claim. No production application code or output behavior changes.
