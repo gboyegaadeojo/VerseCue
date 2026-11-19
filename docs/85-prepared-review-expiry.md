@@ -1,0 +1,5 @@
+# Prepared review expiry
+
+A prepared review remains valid for two minutes. The backend now includes its existing monotonic epoch deadline in the review snapshot. The workspace checks that deadline every second while a review is visible, disables confirmation, previews, rebuild and Auto approval when expired, and instructs the operator to prepare and inspect again. This does not renew a review, extend backend authorization or send output. Backend rejection messages remain in the main operator message instead of being immediately overwritten by the review redraw.
+
+Validation: 420 module tests and syntax checks passed. The source synthetic desktop workflow advances only the renderer clock beyond the published deadline, requires the expired instruction and disabled Confirm with zero fake triggers, then restores the test clock and exercises the original confirmation, split-passage, ownership-loss and Stop assertions. This establishes UI gating; it is not real hardware or a diagnosis of any private host attempt. Matching packaged/Mac checks remain pending.
