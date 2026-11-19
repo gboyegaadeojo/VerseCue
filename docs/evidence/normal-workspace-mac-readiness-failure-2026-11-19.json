@@ -1,0 +1,17 @@
+{
+  "at": "2026-11-19T22:16:53.524Z",
+  "runId": 44598351212,
+  "revision": "f2f3575dbf15d197d0c957e8870808156c35f07d",
+  "conclusion": "failure",
+  "step": "reference-driven source desktop scenarios",
+  "scenario": "normal reviewed Auto / compact owner handoff",
+  "failure": "Readiness predicate dereferenced absent message element before compact DOM initialization",
+  "moduleTestsPassed": 415,
+  "packagingReached": false,
+  "correction": "Allow absent message element while polling readiness; all output and owner assertions retained",
+  "windowsDelayExperimentReproduced": false,
+  "delayInstrumentationRetained": false,
+  "sourceAndPackagedWindowsCorrectionPassed": true,
+  "actualProPresenterAccess": false,
+  "microphoneCapture": false
+}
