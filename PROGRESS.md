@@ -258,3 +258,7 @@ Added an opt-in, preparation-only personal-host harness for one fixed short KJV 
 ## Windows native helper source/build parity
 
 Promote the existing integration helper source and make Windows packaging compile the current C# checkout, fail on missing/failed compilation, verify source/helper hashes and bundle a build receipt. Review builds stage source instead of importing an existing helper binary. Compiler invocation and420 module tests pass; syntax/package verification follows. New receipt tests reject stale source, replaced binary and malformed/foreign metadata without raw-value leakage. No actual ProPresenter-host result or hardware/latency/appearance pass is included in this code-only change. Details: docs/82-native-helper-build-parity.md.
+
+## Exact Save As popup lookup candidate
+
+Added a bounded, exact same-process main-window/child-popup/menu/three-command profile. Unmatched topology retains the existing broad search, ambiguity/focus/reference/edition/Invoke guards and12s deadline. Added content-free branch stage names and a distinct opt-in harness case that requires the profile stage; no automatic retry of the baseline case. Windows compiler,420 module tests and syntax passed. Candidate package/CI/native validation pending; no actual personal-host outcome is published. See docs/83-exact-save-popup-candidate.md.
