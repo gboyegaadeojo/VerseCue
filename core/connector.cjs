@@ -107,6 +107,8 @@ class Connector {
     }
     if(m.sourceContext)await this.verifyContext(m.sourceContext,guard);
     if(m.expectedCurrent)await this.assertCurrent(m.expectedCurrent,guard);
+
+
     const mappingCurrent=()=>this.mappings.get(mappingKey)===m;
     if(generation!==this.generation||base!==this.base||!mappingCurrent()||!this.armed||!guard())throw new Error('Send canceled before dispatch');
     let r;
