@@ -1,0 +1,14 @@
+{
+  "at": "2026-11-19T23:37:55.517Z",
+  "reproduced": true,
+  "scope": "synthetic target and isolated desktop",
+  "trigger": "wait for background pause and hidden continuation before old click",
+  "failure": "Old locator waits for a control intentionally hidden by the safety guard",
+  "backendOnlyWaitExperimentReproduced": false,
+  "actualProPresenterAccess": false,
+  "microphoneCapture": false,
+  "failedMacRun": 44637601238,
+  "failedMacRevision": "630c3967026035144e3bbc1fd717a50bfbf6424a",
+  "correctedTest": "Wait for PASSAGE_OWNERSHIP_LOST, require hidden Continue and reject the old continuation token with no extra trigger",
+  "sourceAndPackagedCorrectionPassed": true
+}

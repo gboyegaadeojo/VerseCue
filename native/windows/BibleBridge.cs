@@ -102,6 +102,24 @@ class BibleBridge {
         GetWindowThreadProcessId(GetForegroundWindow(),out owner);Require(owner==processId,"FOCUS_CHANGED_BEFORE_SAVE_CLICK");
         var down=new Input {type=0,data=new InputUnion {mouse=new MouseInput {flags=2}}};var up=new Input {type=0,data=new InputUnion {mouse=new MouseInput {flags=4}}};InputKeys(new [] {down,up});
     }
+    static AutomationElement ExactSavePopupCommand(AutomationElementCollection windows,Process process) {
+        // Short-circuit only the complete, uniquely scoped popup profile.
+        // Different or ambiguous topology keeps the existing broad search.
+        if(windows.Count!=1)return null;
+        var main=windows[0];if(new IntPtr(main.Current.NativeWindowHandle)!=process.MainWindowHandle)return null;
+        var popups=main.FindAll(TreeScope.Children,new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Window),new PropertyCondition(AutomationElement.ProcessIdProperty,process.Id)));
+        if(popups.Count!=1||popups[0].Current.IsOffscreen||!popups[0].Current.IsEnabled)return null;
+        var menus=popups[0].FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Menu));
+        if(menus.Count!=1||menus[0].Current.IsOffscreen)return null;
+        var cache=new CacheRequest();cache.TreeScope=TreeScope.Element;
+        cache.Add(AutomationElement.NameProperty);cache.Add(AutomationElement.IsEnabledProperty);cache.Add(AutomationElement.IsOffscreenProperty);cache.Add(AutomationElement.ProcessIdProperty);
+        AutomationElementCollection items;using(cache.Activate()){items=menus[0].FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.MenuItem));}
+        if(items.Count!=3)return null;
+        var expected=new [] {"Save As Presentation","Copy to Selected Presentation","Save to Playlist"};
+        for(int index=0;index<items.Count;index++)if(items[index].Cached.Name!=expected[index]||items[index].Cached.ProcessId!=process.Id||items[index].Cached.IsOffscreen)return null;
+        if(!items[0].Cached.IsEnabled)return null;
+        return items[0];
+    }
     static void SaveBibleCopy(AutomationElement root,Process process,AutomationElement field,AutomationElement selector,string reference,string selected) {
         Require(Canonical(Value(field))==Canonical(reference)&&SelectedTranslation(selector)==selected,"PASSAGE_CHANGED_BEFORE_SAVE");
         uint foreground;GetWindowThreadProcessId(GetForegroundWindow(),out foreground);Require(foreground==process.Id,"FOCUS_CHANGED_BEFORE_SAVE");
@@ -116,9 +134,14 @@ class BibleBridge {
             Stage("find-save-copy-command");
             var windows=AutomationElement.RootElement.FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ProcessIdProperty,process.Id));
             var matches=new List<AutomationElement>();
-            foreach(AutomationElement window in windows) {
-                var items=window.FindAll(TreeScope.Descendants,new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.MenuItem),new PropertyCondition(AutomationElement.NameProperty,"Save As Presentation")));
-                matches.AddRange(items.Cast<AutomationElement>().Where(e=>e.Current.IsEnabled&&!e.Current.IsOffscreen));
+            var scoped=ExactSavePopupCommand(windows,process);
+            if(scoped!=null){Stage("save-copy-popup-profile-matched");matches.Add(scoped);}
+            else {
+                Stage("save-copy-broad-search");
+                foreach(AutomationElement window in windows) {
+                    var items=window.FindAll(TreeScope.Descendants,new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.MenuItem),new PropertyCondition(AutomationElement.NameProperty,"Save As Presentation")));
+                    matches.AddRange(items.Cast<AutomationElement>().Where(e=>e.Current.IsEnabled&&!e.Current.IsOffscreen));
+                }
             }
             Require(matches.Count<=1,"SAVE_COPY_MENU_AMBIGUOUS");
             if(matches.Count==1) {

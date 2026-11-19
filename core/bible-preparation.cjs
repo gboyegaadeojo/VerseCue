@@ -1,6 +1,6 @@
 'use strict';
 const {spawn}=require('node:child_process');const {parse}=require('./parser.cjs');
-const nativeStages=['validate-target','find-bible-controls','open-bible-view','open-installed-editions','select-installed-edition','focus-reference','commit-reference','verify-generated-labels','verify-translation','read-generated-snapshot','prepared-review','open-save-copy-menu','save-copy-menu-opened','find-save-copy-command','verify-save-copy-command','save-new-presentation-copy'];
+const nativeStages=['validate-target','find-bible-controls','open-bible-view','open-installed-editions','select-installed-edition','focus-reference','commit-reference','verify-generated-labels','verify-translation','read-generated-snapshot','prepared-review','open-save-copy-menu','save-copy-menu-opened','find-save-copy-command','save-copy-popup-profile-matched','save-copy-broad-search','verify-save-copy-command','save-new-presentation-copy'];
 function stageTimes(value){if(!value||typeof value!=='object'||Array.isArray(value))return {};return Object.fromEntries(nativeStages.filter(stage=>Number.isFinite(value[stage])&&value[stage]>=0&&value[stage]<=12000).map(stage=>[stage,Math.round(value[stage])]));}
 const {nativePreparationReason:preparationReason}=require('./native-preparation-errors.cjs');
 class BiblePreparation {

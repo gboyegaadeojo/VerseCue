@@ -412,3 +412,18 @@ Promote the existing integration helper source and make Windows packaging compil
 PR38 merged ateee328e after syntax and CLI pre-access authorization/package guard checks. PR39 merged at039fd4a after Windows compilation,420 module tests/syntax, a fresh147-file source-compiled/receipt-verified Windows build,20 packaged synthetic desktop scenarios and exact standard Mac44634715211. Promoted native source now accompanies its build path; prior binary hashes were not fresh compiler/source consistency proof. Integration423 module tests passed; syntax is rechecked after merge resolution.
 
 PR40 exact Save As popup candidate remains draft. Existing broad fallback and focus/reference/edition/Invoke/deadline guards remain. Personal-host result files remain private; automatic publication review rejected the telemetry push, and the code-only alternative excludes those files. Publication permission is pending.
+## Exact Save As popup lookup candidate
+
+Added a bounded, exact same-process main-window/child-popup/menu/three-command profile. Unmatched topology retains the existing broad search, ambiguity/focus/reference/edition/Invoke guards and12s deadline. Added content-free branch stage names and a distinct opt-in harness case that requires the profile stage; no automatic retry of the baseline case. Windows compiler,420 module tests and syntax passed. Candidate package/CI/native validation pending; no actual personal-host outcome is published. See docs/83-exact-save-popup-candidate.md.
+
+## Popup candidate build verification
+
+Head38c2925 passed420 module tests/syntax, a fresh147-file Windows package with source/helper receipt verification, and standard Mac44635751140. Personal native results are retained privately and excluded from this PR. The harness reporting label now says ownerWindowMinimizeRequested to reflect the measurement instead of implying continuous minimization; product code is unchanged by that label correction. Focused packaged regression checks follow.
+
+## Synthetic takeover-test race correction
+
+Final Mac44637601238 failed while its test tried to click Continue after external takeover. A controlled synthetic reproduction allowing the background guard to pause and hide Continue reproduced the old locator timeout. A backend-only wait did not reproduce it; that distinction is retained. The test now explicitly waits for PASSAGE_OWNERSHIP_LOST, requires Continue hidden, rejects the old continuation token and still asserts exactly4 fake triggers/paused/Stop/no page errors. Windows source and exact candidate package passed the corrected scenario. Product code did not change. New final Mac check pending; failure retained in docs/evidence/popup-ci-takeover-race-2026-11-19.json. No actual personal-host result is published.
+
+## PR40 final integration and confirmation diagnostics
+
+PR40 merged atc17f3cd after final exact c17c242 Mac run44639465385 passed. Earlier failed CI remains recorded. The exact-popup component is integrated; aggregate PR22 and full field acceptance remain incomplete. The next saved-confirmation harness records a content-free private pre-Stop state and explicit failed step, distinguishing no receipt from a rejected relative proposal. New personal-host outcomes remain private pending publication permission. Next: finish the small code-only harness PR and continue bounded workflow verification without repeating a recorded output attempt automatically.
