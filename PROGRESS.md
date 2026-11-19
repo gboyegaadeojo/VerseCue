@@ -220,3 +220,7 @@ Extracted current-review, owner-bound single-cue KJV Auto approval with Look/PNG
 ## Private API passage-review extraction - 2026-11-19
 
 Added capability-gated saved-passage review through a supplied coordinator hook and checked reference submission with API-session revocation. No remote focus/copy consent or passage confirmation accepted. All389 module tests and syntax pass;17 API tests include in-flight relative-context revocation with no candidate/output. Mac verification and desktop hook wiring remain pending. See docs/78-private-api-passage-review.md.
+
+## Normal reference-driven workspace integration - 2026-11-19
+
+Connected the normal desktop/IPC/settings workflow to the completed coordinator, scheduler, ledger, speech/citation evidence, Auto approval and private-API hooks. No per-passage Library/Presentation/Cue selection is needed in the normal path; advanced mappings remain fallback. Assembled source415 module tests/syntax and20 synthetic desktop scenarios passed, including normal Confirm/parts/keyboard/takeover, native consent/recovery, previews, ledger/restart and guarded Auto. No actual ProPresenter or OS microphone accessed. Matching packages/Mac and original physical/platform/service acceptance remain pending; see docs/79-normal-reference-passage-workspace.md.
