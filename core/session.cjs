@@ -8,7 +8,7 @@ class Session extends EventEmitter {
   constructor(connector,{clock=()=>performance.timeOrigin+performance.now()}={}) {
     super();this.connector=connector;this.clock=clock;this.mode='confirm';this.stopped=false;this.dryRun=true;this.queue=[];this.history=[];this.events=[];this.generation=0;this.busy=false;this.translation='KJV';this.context=null;this.revisions=new Map();this.lastSend=null;
   }
-  snapshot(){this.expire();return {preparation:this.passagePreparation??{phase:'idle'},interpretation:this.interpretation??null,inputEpoch:this.inputEpoch??0,referenceEpoch:this.referenceEpoch??0,recovery:this.recovery?{...this.recovery}:null,generation:this.generation,mode:this.mode,stopped:this.stopped,dryRun:this.dryRun,queue:structuredClone(this.queue),history:structuredClone(this.history),events:structuredClone(this.events),busy:this.busy,translation:this.translation,quoteMatching:this.quoteStatus(),capture:this.capture?{...this.capture}:{active:false,ownerId:null},autoStatus:this.autoStatus??null,capabilities:{auto:true,quoteAuto:false,arbitraryLookup:false,clear:false},connection:this.connector.status??{state:'offline'}};}
+  snapshot(){this.expire();return {speechStabilization:this.speechStabilization??{state:'idle'},preparation:this.passagePreparation??{phase:'idle'},interpretation:this.interpretation??null,inputEpoch:this.inputEpoch??0,referenceEpoch:this.referenceEpoch??0,recovery:this.recovery?{...this.recovery}:null,generation:this.generation,mode:this.mode,stopped:this.stopped,dryRun:this.dryRun,queue:structuredClone(this.queue),history:structuredClone(this.history),events:structuredClone(this.events),busy:this.busy,translation:this.translation,quoteMatching:this.quoteStatus(),capture:this.capture?{...this.capture}:{active:false,ownerId:null},autoStatus:this.autoStatus??null,capabilities:{auto:true,quoteAuto:false,arbitraryLookup:false,clear:false},connection:this.connector.status??{state:'offline'}};}
   notify(){this.emit('change',this.snapshot());}
   enableAuto({acknowledged=false}={}){if(acknowledged!==true)throw new Error('Explicit Auto acknowledgment is required');if(this.stopped||this.recovery?.required||this.busy)throw new Error('Resume Confirm and finish pending work before enabling Auto');if(!this.dryRun){const c=this.connector;if(!c.base||new URL(c.base).hostname!=='127.0.0.1'||!c.armed||c.status?.state!=='connected'||![...c.mappings.values()].some(map=>map.autoVerified===true))throw new Error('Auto test output requires an armed loopback target and a complete cue explicitly verified for Auto');}this.invalidate();this.mode='auto';this.autoStatus={state:'ready',reason:this.dryRun?'AUTO SIMULATION: no output requests':'AUTO TEST OUTPUT: verified complete cues only'};this.log('AUTO_EXPLICITLY_ENABLED','warning');this.notify();}
   quoteStatus(){return {enabled:this.quoteEnabled===true,...(this.quoteMatcher?.status()??{translation:null,passages:0})};}
@@ -25,7 +25,7 @@ class Session extends EventEmitter {
     const external=options.additionalGuard??(()=>true);
     if(!external())throw Error('Reference request was revoked');
     if(this.dryRun||options.authorized===false||this.stopped||(!options.manual&&this.mode==='paused'))return this.ingest(text,options);
-    const context=this.context,proposed=parse(text,{context,now:this.clock(),defaultTranslation:this.translation});
+    const checkStartedAt=this.clock(),context=this.context,proposed=parse(text,{context,now:this.clock(),defaultTranslation:this.translation});
     if(!proposed.references.some(r=>r.relative&&r.valid===true))return this.ingest(text,options);
     const generation=this.generation,inputEpoch=(this.inputEpoch??0)+1;this.inputEpoch=inputEpoch;
     const valid=()=>external()&&this.context===context&&generation===this.generation&&inputEpoch===this.inputEpoch&&!this.stopped&&!this.recovery?.required;
@@ -37,11 +37,15 @@ class Session extends EventEmitter {
       if(!valid())throw Error('Reference context or session changed while checking');
       this.connector.arm?.(false);this.invalidate();this.mode='paused';this.interpretation={kind:'blocked-navigation',reason:error.message};this.log('NAVIGATION_CONTEXT_LOST','warning');this.notify();return [];
     }
-    return this.ingest(text,options);
+    const contextCheckMs=this.clock()-checkStartedAt;
+    if(!Number.isFinite(contextCheckMs)||contextCheckMs<0){this.connector.arm?.(false);this.setMode('paused');throw Error('Reference check timing could not be verified');}
+    return this.ingest(text,options.manual?options:{...options,sourceAgeMs:(options.sourceAgeMs??0)+contextCheckMs});
   }
-  ingest(text,{id=randomUUID(),revision=1,final=true,manual=false,authorized=true}={}) {
+  ingest(text,{id=randomUUID(),revision=1,final=true,manual=false,authorized=true,sourceAgeMs=0}={}) {
     this.inputEpoch=(this.inputEpoch??0)+1;
     if(this.stopped||(!manual&&this.mode==='paused'))return [];
+    if(!Number.isFinite(sourceAgeMs)||sourceAgeMs<0)throw Error('Invalid speech evidence age');
+    if(!manual&&sourceAgeMs>=15000){this.invalidate();this.interpretation={kind:'expired-speech',reason:'Recognition arrived after the audio evidence expired. Repeat the full reference.'};this.log('SPEECH_EVIDENCE_EXPIRED','warning');this.notify();return [];}
     if(typeof id!=='string'||id.length>100||!Number.isSafeInteger(revision)||revision<1)throw new Error('Invalid transcript identity');
     if((this.revisions.get(id)??0)>=revision)return [];
     this.revisions.set(id,revision);if(this.revisions.size>200)this.revisions.delete(this.revisions.keys().next().value);
@@ -59,7 +63,7 @@ class Session extends EventEmitter {
     // remote context for later relative references.
     if(parsed.references.some(r=>!r.relative)||parsed.issues.length)this.context=null;
     if(parsed.corrected&&(parsed.references.length||/^\s*(?:sorry\b|i meant\b|correction\b|rather\b)/i.test(text)))this.invalidate();
-    const candidates=parsed.references.map(r=>({id:randomUUID(),utteranceId:id,revision,reference:r,label:r.label,translation:r.translation??this.translation,phrase:text.slice(0,1000),recognition:quote?'quote':'reference',...(quote?{quoteEvidence:quote}:{}),detectedAt:this.clock(),expiresAt:this.clock()+15000,generation:this.generation,manual,authorized,state:authorized?'review':'blocked',issues:[...parsed.issues,...r.issues,...(!authorized?['Audio source not authorized']:[])]}));
+    const candidates=parsed.references.map(r=>({id:randomUUID(),utteranceId:id,revision,reference:r,label:r.label,translation:r.translation??this.translation,phrase:text.slice(0,1000),recognition:quote?'quote':'reference',...(quote?{quoteEvidence:quote}:{}),detectedAt:this.clock(),expiresAt:this.clock()+15000-(manual?0:sourceAgeMs),generation:this.generation,manual,authorized,state:authorized?'review':'blocked',issues:[...parsed.issues,...r.issues,...(!authorized?['Audio source not authorized']:[])]}));
     if(candidates.length||parsed.issues.length)this.referenceEpoch=(this.referenceEpoch??0)+1;
     this.queue.push(...candidates);this.queue=this.queue.slice(-5);this.notify();return candidates;
   }
