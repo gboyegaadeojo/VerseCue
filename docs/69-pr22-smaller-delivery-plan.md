@@ -18,7 +18,9 @@
 | Capture age/continuity producer | [PR32](https://github.com/gboyegaadeojo/VerseCue/pull/32) |393 combined module tests/syntax and exact final Mac44594866353 passed; merged at66a1b1b. No OS microphone or physical-latency claim. |
 | Normal reviewed Auto backend | [PR33](https://github.com/gboyegaadeojo/VerseCue/pull/33) |410 combined module tests/syntax and exact final Mac44595877853 passed; merged at5ea71f4. Desktop controls/lifecycle remain separate. |
 | Private API passage review | [PR34](https://github.com/gboyegaadeojo/VerseCue/pull/34) |415 combined module tests/syntax and exact final Mac44597315623 passed; merged at0eb409a. Desktop hook wiring remains separate. |
-| Normal reference-driven desktop workspace | [PR35](https://github.com/gboyegaadeojo/VerseCue/pull/35) |415 assembled module tests/syntax and20 Windows source desktop scenarios passed; original exact Mac44596961095 passed;146-file Windows review build and20 packaged scenarios passed. Final Mac44598351212 failed a compact readiness test predicate; corrected head5346e08 Mac44627121424 running. No actual host/microphone/physical-output claim. |
+| Normal reference-driven desktop workspace | [PR35](https://github.com/gboyegaadeojo/VerseCue/pull/35) |415 assembled module tests/syntax and20 Windows source desktop scenarios passed; original105868f7 Windows/Mac checks passed; final f2f3575 Mac readiness failure retained, corrected5346e08 Mac44627121424 passed. Includes merged PR36 at32f9731:416 module tests/syntax passed; new146-file build,40 source/package scenarios and Mac44628216612 in verification. No actual host/microphone/physical-output claim. |
+
+| Scheduler cancellation ownership follow-up | [PR36](https://github.com/gboyegaadeojo/VerseCue/pull/36) | New regression failed before/fixed after;416 module tests/syntax and exact Mac44628008807 passed; merged atd4c8e95. Waiting alone cannot cancel separately owned manual work. |
 
 ## Remaining dependency sequence
 
