@@ -43,3 +43,7 @@ Native copy attempts are capped at 100 per app run, counting uncertain attempts 
 ## Native-error guidance checkpoint7474567
 
 [Matching evidence](evidence/pr22-build-checkpoint-7474567.json) records368 module tests,144 manifest files and Windows packaged uncertainty/full desktop smoke checks. Public standard Mac [44435453041](https://github.com/gboyegaadeojo/VerseCue/actions/runs/44435453041) passed the matching source scenarios, CPU speech package and packaged workspace. No new Mac native/physical acceptance or independently checked artifact checksum. Later output-content coexistence checks are not included in this build.
+
+## Output-content checkpoint d0962b0
+
+[Matching evidence](evidence/pr22-build-checkpoint-d0962b0.json) records371 module tests,144 Windows manifest files and packaged output-edit/uncertainty/recovery checks. Public standard Mac [44436283334](https://github.com/gboyegaadeojo/VerseCue/actions/runs/44436283334) passed the matching synthetic output-edit scenario and other source/package checks. The helper in this checkpoint is the earlier04773d7 hash; later Save As timing instrumentation is excluded. Independent Mac artifact checksum and real Mac/physical acceptance remain pending.
