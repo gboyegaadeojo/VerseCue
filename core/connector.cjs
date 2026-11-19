@@ -31,14 +31,15 @@ class Connector {
     if(dryRun){if(!guard())throw new Error('Send canceled');return {state:'simulated',networkRequests:0};}
     const generation=this.generation,base=this.base;
     if(!this.armed)throw new Error('Output is disarmed');
-    const m=this.mappings.get(`${candidate.label}|${candidate.translation}`);
+    const mappingKey=`${candidate.label}|${candidate.translation}`,m=this.mappings.get(mappingKey);
     if(!m)throw new Error('Prepare this exact passage in ProPresenter and verify a cue mapping. Arbitrary Bible lookup is not verified.');
     if(automatic&&m.autoVerified!==true)throw new Error('This cue has not been explicitly verified for Auto');
     const v=await this.read('/version');
     if(v.host_description!==m.version)throw new Error('ProPresenter version changed; retest and remap');
     const {p,slides}=await this.inspect(m.uuid);
     if(fingerprint(p)!==m.fingerprint)throw new Error('Presentation changed; verify a new mapping');
-    if(generation!==this.generation||base!==this.base||!this.armed||!guard())throw new Error('Send canceled before dispatch');
+    const mappingCurrent=()=>this.mappings.get(mappingKey)===m;
+    if(generation!==this.generation||base!==this.base||!mappingCurrent()||!this.armed||!guard())throw new Error('Send canceled before dispatch');
     let r;
     try{r=await this.fetch(`${this.base}/v1/presentation/${m.uuid}/${m.cue}/trigger`,{redirect:'error',signal:AbortSignal.timeout(2000)});}catch{this.armed=false;return {state:'uncertain',retry:false};}
     if(r.status!==204){this.armed=false;throw new Error(`Trigger rejected: HTTP ${r.status}; no retry`);}
@@ -47,10 +48,10 @@ class Connector {
     const clean=s=>String(s??'').replace(/\s+/g,' ').trim();
     try{
       while(performance.now()<deadline){
-        if(generation!==this.generation||base!==this.base||!this.armed||!guard())break;
+        if(generation!==this.generation||base!==this.base||!mappingCurrent()||!this.armed||!guard())break;
         const timeoutMs=Math.max(1,Math.ceil(deadline-performance.now()));
         const [index,slide]=await Promise.all([this.read('/v1/presentation/slide_index',{timeoutMs}),this.read('/v1/status/slide',{timeoutMs})]);checks++;
-        if(generation!==this.generation||base!==this.base||!this.armed||!guard())break;
+        if(generation!==this.generation||base!==this.base||!mappingCurrent()||!this.armed||!guard())break;
         const match=index.presentation_index?.presentation_id?.uuid===m.uuid&&index.presentation_index?.index===m.cue&&clean(slide.current?.text)===clean(slides[m.cue].text);
         if(match)return {state:'readback-matched',outputObserved:false,retry:false,readbackChecks:checks,readbackElapsedMs:Math.round(performance.now()-readbackStart)};
         const wait=Math.min(100,deadline-performance.now());if(wait>0)await new Promise(resolve=>setTimeout(resolve,wait));
