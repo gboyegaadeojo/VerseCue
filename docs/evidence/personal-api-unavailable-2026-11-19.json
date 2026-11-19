@@ -33,6 +33,20 @@
       "settingsChanged": false,
       "applicationRestarted": false,
       "outputRequests": 0
+    },
+    {
+      "recordedAt": "2026-11-19T22:39:27.959Z",
+      "actualProPresenterUIObserved": true,
+      "networkEnabledVisually": true,
+      "configuredPort": 1025,
+      "processResponding": true,
+      "listenerEnumerationSucceeded": true,
+      "proPresenterListenerCount": 0,
+      "configuredPortListenerCount": 0,
+      "settingsChanged": false,
+      "applicationRestarted": false,
+      "outputRequests": 0,
+      "physicalOutputVerified": false
     }
   ]
 }

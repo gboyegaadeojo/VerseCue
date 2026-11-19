@@ -19,8 +19,8 @@
 | Normal reviewed Auto backend | [PR33](https://github.com/gboyegaadeojo/VerseCue/pull/33) |410 combined module tests/syntax and exact final Mac44595877853 passed; merged at5ea71f4. Desktop controls/lifecycle delivered in PR35. |
 | Private API passage review | [PR34](https://github.com/gboyegaadeojo/VerseCue/pull/34) |415 combined module tests/syntax and exact final Mac44597315623 passed; merged at0eb409a. Desktop hook wiring delivered in PR35. |
 | Normal reference-driven desktop workspace | [PR35](https://github.com/gboyegaadeojo/VerseCue/pull/35) |415 assembled module tests/syntax and20 Windows source desktop scenarios passed; Final32f9731 includes PR36;416 module tests/syntax,20 source +20 newly packaged Windows scenarios and exact Mac44628216612 passed. Merged at7a6f1b9. Earlier failed Mac readiness check retained. No actual host/microphone/physical-output claim. |
-
 | Scheduler cancellation ownership follow-up | [PR36](https://github.com/gboyegaadeojo/VerseCue/pull/36) | New regression failed before/fixed after;416 module tests/syntax and exact Mac44628008807 passed; merged atd4c8e95. Waiting alone cannot cancel separately owned manual work. |
+| Precompiled read-only Mac diagnostic artifact | [PR37](https://github.com/gboyegaadeojo/VerseCue/pull/37) | Public compile/package44630107420 passed; archive/hash/path/mode/arm64 inspection passed without execution. Merged at73b0fa6. Actual Mac ProPresenter feasibility remains pending. |
 
 ## Dependency delivery and remaining acceptance
 

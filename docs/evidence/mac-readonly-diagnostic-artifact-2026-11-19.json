@@ -1,0 +1,23 @@
+{
+  "at": "2026-11-19T22:37:29.612Z",
+  "runId": 44630107420,
+  "event": "pull_request",
+  "headRevision": "9c76f9000f1002fd80431195586e9e40698c37b9",
+  "checkoutRevision": "6bd62332b1fc7033c85302d11edfd380d4db7dcd",
+  "archiveSha256": "a460b627bda893d921508e21012995783457ffd1c2cab0eb90bacafd7d14b4f5",
+  "architecture": "arm64",
+  "payloadChecksumsPassed": true,
+  "archivePathsVerified": [
+    "README.md",
+    "SHA256SUMS",
+    "SOURCE_REVISION",
+    "inspect-bible"
+  ],
+  "executableModePreserved": true,
+  "compiled": true,
+  "executed": false,
+  "actualMacProPresenterAccess": false,
+  "productionRouteVerified": false,
+  "permissionChanges": false,
+  "outputRequests": 0
+}

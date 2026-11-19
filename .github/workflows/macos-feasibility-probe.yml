@@ -17,3 +17,21 @@ jobs:
         run: |
           mkdir -p test-results/mac-probe
           swiftc -framework AppKit -framework ApplicationServices poc/macos/InspectBibleAccessibility.swift -o test-results/mac-probe/inspect-bible
+      - name: Package read-only diagnostic without executing it
+        run: |
+          cp poc/macos/README.md test-results/mac-probe/README.md
+          cd test-results/mac-probe
+          git rev-parse HEAD > SOURCE_REVISION
+          chmod 755 inspect-bible
+          shasum -a 256 inspect-bible README.md SOURCE_REVISION > SHA256SUMS
+          shasum -a 256 --check SHA256SUMS
+          probe_arch="$(uname -m)"
+          archive="VerseCue-Mac-ReadOnly-Probe-$probe_arch.tar.gz"
+          tar -czf "$archive" inspect-bible README.md SOURCE_REVISION SHA256SUMS
+          shasum -a 256 "$archive" > "$archive.sha256"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: VerseCue-Mac-ReadOnly-Probe
+          path: test-results/mac-probe/*.tar.gz*
+          retention-days: 1
+          if-no-files-found: error
