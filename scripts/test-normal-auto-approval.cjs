@@ -2,9 +2,11 @@
 // SYNTHETIC target, speech and authorized capture lease. No OS mic or PP access.
 const {_electron}=require('playwright'),fs=require('node:fs/promises'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict'),{randomUUID}=require('node:crypto');
 (async()=>{
- const exe=process.argv[2]?path.resolve(process.argv[2]):null,id='75631f63-da79-419c-b862-c9b8338081f9',library='5e4da747-cf19-4810-8d4d-b6fe1a7d9350';let triggers=0,app;
+ const args=process.argv.slice(2),changedLook=args.includes('--changed-look'),exe=args.find(a=>!a.startsWith('--'))?path.resolve(args.find(a=>!a.startsWith('--'))):null,id='75631f63-da79-419c-b862-c9b8338081f9',library='5e4da747-cf19-4810-8d4d-b6fe1a7d9350';let triggers=0,app,lookChanged=false;
  const server=http.createServer((req,res)=>{res.setHeader('Content-Type','application/json');
   if(req.url==='/version')return res.end(JSON.stringify({host_description:'ProPresenter SYNTHETIC normal Auto'}));
+  if(req.url==='/v1/look/current')return res.end(JSON.stringify({id:{uuid:library,name:lookChanged?'CHANGED SYNTHETIC LOOK':'SYNTHETIC'}}));
+  if(req.url.includes('/thumbnail/')){res.setHeader('Content-Type','image/png');return res.end(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a9XcAAAAASUVORK5CYII=','base64'));}
   if(req.url==='/v1/libraries')return res.end(JSON.stringify([{uuid:library,name:'SYNTHETIC'}]));
   if(req.url==='/v1/library/'+library)return res.end(JSON.stringify({update_type:'all',items:[{uuid:id,name:'John 3_16 (KJV)'}]}));
   if(req.url==='/v1/presentation/'+id)return res.end(JSON.stringify({presentation:{id:{uuid:id,name:'John 3_16 (KJV)'},destination:'presentation',has_timeline:false,groups:[{slides:[{enabled:true,label:'John 3:16',text:'SYNTHETIC reviewed complete cue'}]}]}}));
@@ -24,6 +26,10 @@ const {_electron}=require('playwright'),fs=require('node:fs/promises'),path=requ
   await page.locator('#passage-verified').check();await page.locator('#passage-test-consent').check();await page.locator('#passage-auto-consent').check();await page.locator('#approve-passage-auto').focus();await page.keyboard.press(process.platform==='darwin'?'Meta+Enter':'Control+Enter');await wait(s=>s.preparation.phase==='auto-approved');assert.equal(triggers,0);assert.equal((await state()).dryRun,false);assert.equal((await state()).mode,'confirm');assert.equal(await page.locator('#saved-library').inputValue(),'');assert.equal(await page.locator('#map-uuid').inputValue(),'');
   const manual=(await command('ingest',{text:'John 3:16'})).value[0];const denied=await command('send',manual.id);assert.equal(denied.ok,false);assert.match(denied.error,/passage-level review/);assert.equal(triggers,0);
   await page.locator('#mode').selectOption('auto');await page.locator('#auto-citation-policy').selectOption('bare-citation');await page.locator('#auto-consent').check();await page.locator('#auto-enable').click();await wait(s=>s.mode==='auto');
+  if(changedLook){
+   lookChanged=true;await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].minimize());assert.equal((await emit()).ok,true);const blocked=await wait(s=>s.mode==='paused');assert.equal(blocked.autoStatus.state,'paused');assert.equal(blocked.history.length,0);assert.equal(triggers,0);
+   const report={at:new Date().toISOString(),passed:true,packaged:!!exe,normalApprovalSentNoOutput:true,changedLookWithUnchangedPresentationBlocked:true,minimizedAtDetection:true,autoPaused:true,fakeTargetTriggers:0,actualProPresenterAccess:false,microphoneCapture:false};await fs.writeFile(`test-results/${exe?'packaged-':''}normal-auto-appearance-change.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));return;
+  }
   await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].minimize());assert.equal((await emit()).ok,true);await wait(s=>s.history[0]?.state==='readback-matched');assert.equal(triggers,1);assert.equal((await state()).capture.active,true);
   await app.evaluate(()=>global.__normalAutoText='John 3:17');assert.equal((await emit()).ok,true);assert.equal((await state()).autoStatus.state,'review');assert.equal(triggers,1);
   await page.evaluate(()=>window.versecue.endAudio());assert.equal((await state()).capture.active,false);const opened=app.waitForEvent('window');await page.evaluate(()=>window.versecue.compact());const compact=await opened;await compact.waitForFunction(()=>document.getElementById('message').textContent.length>0);await page.close();page=compact;await wait(s=>s.mode==='paused');await command('resume');assert.equal((await command('arm',true)).ok,true);assert.equal((await command('enable-auto',{acknowledged:true})).ok,false);assert.equal(triggers,1);

@@ -38,6 +38,7 @@ jobs:
           node scripts/test-guarded-auto.cjs
           node scripts/test-guarded-auto.cjs --bare-citations
           node scripts/test-normal-auto-approval.cjs
+          node scripts/test-normal-auto-approval.cjs --changed-look
       - name: Build pinned CPU-only local speech
         run: |
           git clone https://github.com/ggml-org/whisper.cpp.git .cache/whisper-source
