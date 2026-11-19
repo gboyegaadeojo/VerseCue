@@ -238,3 +238,11 @@ PR35 verification update: exact105868f7 standard Mac44596961095 passed415 module
 ## PR35 final Mac readiness race - 2026-11-19
 
 Final headf2f3575 Mac44598351212 failed during normal-Auto compact owner handoff: the test readiness predicate dereferenced a missing message element.415 module tests passed, but this run did not reach packaging. Earlier105868f7 Mac success remains scoped to that run. Added null-tolerant readiness predicates without dropping any assertions. Delayed-load Windows experiments did not reproduce the timing; temporary instrumentation was removed. Corrected source and exact105868f7 packaged normal-Auto scenarios passed on Windows, including owner-close revocation/no legacy bypass. Product source is unchanged. New exact Mac verification pending. Failure retained in docs/evidence/normal-workspace-mac-readiness-failure-2026-11-19.json.
+
+## Detected preparation cancellation ownership fix - 2026-11-19
+
+A new regression failed against main: disabling/replacing queued detected work while waiting canceled a separately owned manual review. Track actual preparation invocation separately from running/waiting; cancel only scheduler-owned work. Preserve central Stop/target/session cancellation. All416 module tests/syntax pass; Mac verification pending. No real microphone/ProPresenter/output. Existing105868f7 soak predates this fix. Details: docs/80-detected-preparation-cancellation-ownership.md.
+
+## PR36 dependency before normal-workspace merge - 2026-11-19
+
+Corrected PR35 head5346e08 passed exact Mac44627121424 including415 module tests, source desktop scenarios, CPU speech packaging and packaged workspace. A subsequent independent regression exposed scheduler cancellation of separately owned manual work while merely waiting. Incorporated PR36 head590ab3d as an explicit dependency before merging the workspace. This changes production source; previous105868f7 builds/soak do not validate the fix. Combined tests/package/Mac checks must be repeated for the new source.
