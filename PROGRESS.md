@@ -266,3 +266,7 @@ Added a bounded, exact same-process main-window/child-popup/menu/three-command p
 ## Popup candidate build verification
 
 Head38c2925 passed420 module tests/syntax, a fresh147-file Windows package with source/helper receipt verification, and standard Mac44635751140. Personal native results are retained privately and excluded from this PR. The harness reporting label now says ownerWindowMinimizeRequested to reflect the measurement instead of implying continuous minimization; product code is unchanged by that label correction. Focused packaged regression checks follow.
+
+## Synthetic takeover-test race correction
+
+Final Mac44637601238 failed while its test tried to click Continue after external takeover. A controlled synthetic reproduction allowing the background guard to pause and hide Continue reproduced the old locator timeout. A backend-only wait did not reproduce it; that distinction is retained. The test now explicitly waits for PASSAGE_OWNERSHIP_LOST, requires Continue hidden, rejects the old continuation token and still asserts exactly4 fake triggers/paused/Stop/no page errors. Windows source and exact candidate package passed the corrected scenario. Product code did not change. New final Mac check pending; failure retained in docs/evidence/popup-ci-takeover-race-2026-11-19.json. No actual personal-host result is published.
