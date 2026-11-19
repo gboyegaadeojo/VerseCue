@@ -5,9 +5,10 @@ const {_electron}=require('playwright'),fs=require('node:fs/promises'),path=requ
 const {titleReference}=require('../core/bible-passage-plan.cjs');
 (async()=>{
  if(!process.argv.includes('--authorized-personal-host'))throw Error('Personal-host authorization required');
- const reference=process.argv.find(arg=>arg.startsWith('--reference='))?.slice('--reference='.length)??'Hosea 1:5';if(!/^Hosea 1:[567]$/.test(reference))throw Error('Use a bounded new personal acceptance reference');
- const reportPath=`poc/private/acceptance-2026-11-18/detected-native-${reference.replaceAll(' ','_').replace(':','_')}.json`;
- try{await fs.access(reportPath);throw Error('Attempt already recorded; inspect it instead of blindly repeating');}catch(error){if(error.code!=='ENOENT')throw error;}
+ const reference=process.argv.find(arg=>arg.startsWith('--reference='))?.slice('--reference='.length)??'Hosea 1:5';if(!/^Hosea 1:[5678]$/.test(reference))throw Error('Use a bounded new personal acceptance reference');
+ const recordName='detected-native-'+reference.replaceAll(' ','_').replace(':','_')+'.json';
+ for(const folder of await fs.readdir('poc/private'))if(/^acceptance-\d{4}-\d{2}-\d{2}$/.test(folder)){try{await fs.access(path.join('poc/private',folder,recordName));throw Error('Attempt already recorded; inspect it instead of blindly repeating');}catch(error){if(error.code!=='ENOENT')throw error;}}
+ const reportPath=path.join('poc/private','acceptance-'+new Date().toISOString().slice(0,10),recordName);
  const read=async route=>{const r=await fetch('http://127.0.0.1:1025'+route,{signal:AbortSignal.timeout(2500)});assert.equal(r.ok,true);return r.json();};
  const version=await read('/version');assert.equal(version.host_description,'ProPresenter 21.4.2');assert.equal(version.platform,'win');
  const output=async()=>JSON.stringify(await Promise.all([read('/v1/presentation/slide_index'),read('/v1/status/slide')]));
@@ -16,7 +17,7 @@ const {titleReference}=require('../core/bible-passage-plan.cjs');
  const libraries=await read('/v1/libraries');assert.equal(libraries.length,1);const libraryRoute='/v1/library/'+libraries[0].uuid,catalog=await read(libraryRoute);
  assert.equal(catalog.items.some(item=>titleReference(item.name,'KJV')===reference),false,'Passage already exists; do not create a duplicate');
  const beforeIds=new Set(catalog.items.map(item=>item.uuid)),revision=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8',windowsHide:true}).trim();
- const sourceFiles=['core/preparation-controller.cjs','core/reference-preparation.cjs','core/bible-preparation.cjs','core/passage-coordinator.cjs','desktop/main.cjs','native/windows/BibleBridge.cs','native/bin/VerseCue.BibleBridge.exe'];
+ const sourceFiles=['core/preparation-controller.cjs','core/saved-bible-workflow.cjs','core/reference-preparation.cjs','core/bible-preparation.cjs','core/passage-coordinator.cjs','desktop/main.cjs','native/windows/BibleBridge.cs','native/bin/VerseCue.BibleBridge.exe'];
  const sourceHashes=Object.fromEntries(await Promise.all(sourceFiles.map(async file=>[file,createHash('sha256').update(await fs.readFile(file)).digest('hex')])));
  let app,report={at:new Date().toISOString(),reference,translation:'KJV',sourceRevision:revision,sourceHashes,actualProPresenterAccess:true,microphoneCapture:false,requestedOutputCommands:0,physicalOutputObserved:false,audibleEndLatencyMeasured:false};
  try{

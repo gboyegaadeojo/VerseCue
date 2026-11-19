@@ -110,9 +110,10 @@ class BibleBridge {
         // This split control opens its menu on pointer-down rather than Invoke.
         // Resolve and hit-test its current accessibility bounds; never use a
         // stored screen coordinate or a keyboard shortcut for an unknown view.
-        Stage("open-save-copy-menu");ClickVerifiedControl(button,process.Id);
+        Stage("open-save-copy-menu");ClickVerifiedControl(button,process.Id);Stage("save-copy-menu-opened");
         var timer=Stopwatch.StartNew();
         while(timer.ElapsedMilliseconds<2000) {
+            Stage("find-save-copy-command");
             var windows=AutomationElement.RootElement.FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ProcessIdProperty,process.Id));
             var matches=new List<AutomationElement>();
             foreach(AutomationElement window in windows) {
@@ -121,6 +122,7 @@ class BibleBridge {
             }
             Require(matches.Count<=1,"SAVE_COPY_MENU_AMBIGUOUS");
             if(matches.Count==1) {
+                Stage("verify-save-copy-command");
                 GetWindowThreadProcessId(GetForegroundWindow(),out foreground);Require(foreground==process.Id,"FOCUS_CHANGED_IN_SAVE_MENU");
                 Require(Canonical(Value(field))==Canonical(reference)&&SelectedTranslation(selector)==selected,"PASSAGE_CHANGED_IN_SAVE_MENU");
                 Require(matches[0].TryGetCurrentPattern(InvokePattern.Pattern,out invoke),"SAVE_COPY_MENU_NOT_INVOKABLE");
