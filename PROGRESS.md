@@ -208,3 +208,7 @@ Coordinator component synchronized to backend0d7f0f4 after PR26/main completion.
 ## Detected-reference scheduler extraction - 2026-11-19
 
 Added the preparation-only scheduler and17 tests as a small PR22 dependency. Explicit native session/window/target consent, latest-reference scheduling, bounded owner waiting and uncertainty inspection remain fail-closed. A newly failing regression exposed stale reference intent after owner waiting; drain now rejects changed referenceEpoch without another detection callback. All384 module tests passed; syntax checks passed. Details and pending desktop/native/platform/field evidence: docs/75-detected-reference-preparation.md. No actual ProPresenter or microphone access and no output.
+
+## Normal reviewed Auto backend extraction - 2026-11-19
+
+Extracted current-review, owner-bound single-cue KJV Auto approval with Look/PNG rechecks, guarded original-age speech use and separately acknowledged session bare-citation policy. Approval sends nothing; original intent/cancellation/uncertainty and private-API restrictions remain. All401 combined module tests and syntax checks passed on Windows. Hosted Mac verification and desktop controls/lifecycle wiring remain pending; see docs/77-normal-reviewed-auto-backend.md. No actual microphone/ProPresenter/output used and no arbitrary native Auto claim.

@@ -4,23 +4,24 @@ const {randomUUID}=require('node:crypto');
 const {parse}=require('./parser.cjs');
 const kjvBounds=require('./kjv-versification.json').bounds;
 const {QuoteMatcher}=require('./quote-matcher.cjs');
+const {validateAutoPolicy}=require('./auto-citation-policy.cjs');
 class Session extends EventEmitter {
   constructor(connector,{clock=()=>performance.timeOrigin+performance.now()}={}) {
-    super();this.connector=connector;this.clock=clock;this.mode='confirm';this.stopped=false;this.dryRun=true;this.queue=[];this.history=[];this.events=[];this.generation=0;this.busy=false;this.translation='KJV';this.context=null;this.revisions=new Map();this.lastSend=null;
+    super();this.connector=connector;this.clock=clock;this.mode='confirm';this.autoCitationPolicy='explicit-command';this.stopped=false;this.dryRun=true;this.queue=[];this.history=[];this.events=[];this.generation=0;this.busy=false;this.translation='KJV';this.context=null;this.revisions=new Map();this.lastSend=null;
   }
-  snapshot(){this.expire();return {speechStabilization:this.speechStabilization??{state:'idle'},preparation:this.passagePreparation??{phase:'idle'},interpretation:this.interpretation??null,inputEpoch:this.inputEpoch??0,referenceEpoch:this.referenceEpoch??0,recovery:this.recovery?{...this.recovery}:null,generation:this.generation,mode:this.mode,stopped:this.stopped,dryRun:this.dryRun,queue:structuredClone(this.queue),history:structuredClone(this.history),events:structuredClone(this.events),busy:this.busy,translation:this.translation,quoteMatching:this.quoteStatus(),capture:this.capture?{...this.capture}:{active:false,ownerId:null},autoStatus:this.autoStatus??null,capabilities:{auto:true,quoteAuto:false,arbitraryLookup:false,clear:false},connection:this.connector.status??{state:'offline'}};}
+  snapshot(){this.expire();return {speechStabilization:this.speechStabilization??{state:'idle'},referenceEpoch:this.referenceEpoch??0,referencePreparation:this.referencePreparation??{enabled:false,running:false,scope:'saved-passages-only'},interpretation:this.interpretation??null,inputEpoch:this.inputEpoch??0,preparation:this.passagePreparation??{phase:'idle'},recovery:this.recovery?{...this.recovery}:null,generation:this.generation,mode:this.mode,autoCitationPolicy:this.autoCitationPolicy,stopped:this.stopped,dryRun:this.dryRun,queue:structuredClone(this.queue),history:structuredClone(this.history),events:structuredClone(this.events),busy:this.busy,translation:this.translation,quoteMatching:this.quoteStatus(),capture:this.capture?{...this.capture}:{active:false,ownerId:null},autoStatus:this.autoStatus??null,capabilities:{auto:true,quoteAuto:false,arbitraryLookup:false,clear:false},connection:this.connector.status??{state:'offline'}};}
   notify(){this.emit('change',this.snapshot());}
-  enableAuto({acknowledged=false}={}){if(acknowledged!==true)throw new Error('Explicit Auto acknowledgment is required');if(this.stopped||this.recovery?.required||this.busy)throw new Error('Resume Confirm and finish pending work before enabling Auto');if(!this.dryRun){const c=this.connector;if(!c.base||new URL(c.base).hostname!=='127.0.0.1'||!c.armed||c.status?.state!=='connected'||![...c.mappings.values()].some(map=>map.autoVerified===true))throw new Error('Auto test output requires an armed loopback target and a complete cue explicitly verified for Auto');}this.invalidate();this.mode='auto';this.autoStatus={state:'ready',reason:this.dryRun?'AUTO SIMULATION: no output requests':'AUTO TEST OUTPUT: verified complete cues only'};this.log('AUTO_EXPLICITLY_ENABLED','warning');this.notify();}
+  enableAuto({acknowledged=false,citationPolicy='explicit-command',acknowledgeBareCitations=false,ownerId=null}={}){if(acknowledged!==true)throw new Error('Explicit Auto acknowledgment is required');const policy=validateAutoPolicy(citationPolicy,acknowledgeBareCitations);if(this.stopped||this.recovery?.required||this.busy)throw new Error('Resume Confirm and finish pending work before enabling Auto');if(!this.dryRun){const c=this.connector;if(!c.base||new URL(c.base).hostname!=='127.0.0.1'||!c.armed||c.status?.state!=='connected'||![...c.mappings.values()].some(map=>map.autoVerified===true&&(!map.autoApproval||map.ownerId===ownerId)))throw new Error('Auto test output requires an armed loopback target and a complete cue explicitly verified for Auto');}this.invalidate();this.mode='auto';this.autoCitationPolicy=policy;this.autoStatus={state:'ready',reason:this.dryRun?'AUTO SIMULATION: no output requests':'AUTO TEST OUTPUT: verified complete cues only'};this.log('AUTO_EXPLICITLY_ENABLED','warning');this.notify();}
   quoteStatus(){return {enabled:this.quoteEnabled===true,...(this.quoteMatcher?.status()??{translation:null,passages:0})};}
   loadQuoteIndex(document,consent){const matcher=new QuoteMatcher(document,{rightsAcknowledged:consent===true});this.invalidate();this.quoteMatcher=matcher;this.quoteEnabled=false;this.log('QUOTE_INDEX_LOADED');this.notify();return this.quoteStatus();}
   enableQuotes(enabled){if(typeof enabled!=='boolean'||enabled&&(!this.quoteMatcher||this.quoteMatcher.translation!==this.translation))throw new Error('Import a rights-acknowledged index matching the selected translation first');this.invalidate();this.quoteEnabled=enabled;this.log(enabled?'QUOTE_MATCHING_ENABLED':'QUOTE_MATCHING_DISABLED');this.notify();return this.quoteStatus();}
   log(code,state='info',metrics=null){const safe={};for(const key of ['nativeWorkerMs','sttWorkerMs'])if(Number.isFinite(metrics?.[key])&&metrics[key]>=0&&metrics[key]<=120000)safe[key]=Math.round(metrics[key]);this.events.push({id:randomUUID(),at:this.clock(),code,state,...(Object.keys(safe).length?{metrics:safe}:{})});this.events=this.events.slice(-100);}
   invalidate(){this.interpretation=null;this.inputEpoch=(this.inputEpoch??0)+1;this.autoStatus=null;this.generation++;this.queue=[];this.context=null;}
   expire(){this.queue=this.queue.filter(c=>c.expiresAt>this.clock());}
-  setMode(mode){if(!['confirm','suggest','paused'].includes(mode))throw new Error('Select a supported mode; enable Auto through its acknowledgment dialog');if(this.recovery?.required&&mode!=='paused')throw new Error('Recheck the connection after wake, then Resume in Confirm');this.invalidate();this.mode=mode;this.log('MODE_CHANGED');this.notify();}
-  stop(){this.stopped=true;this.mode='paused';this.invalidate();this.log('EMERGENCY_STOP','warning');this.notify();}
-  resume(){if(this.recovery?.required&&(this.recovery.phase!=='resume'||this.connector.status?.state!=='connected'||!this.connector.version))throw new Error('Test the ProPresenter connection after wake before resuming Confirm');this.recovery=null;this.stopped=false;this.mode='confirm';this.invalidate();this.log('REARMED_CONFIRM');this.notify();}
-  configure({dryRun=true,translation='KJV'}={}){if(typeof dryRun!=='boolean'||!/^[- A-Z0-9]{2,30}$/.test(translation))throw new Error('Invalid session settings');this.invalidate();if(this.mode==='auto')this.mode='confirm';if(translation!==this.translation)this.quoteEnabled=false;this.dryRun=dryRun;this.translation=translation;this.log('CONFIG_CHANGED');this.notify();}
+  setMode(mode){if(!['confirm','suggest','paused'].includes(mode))throw new Error('Select a supported mode; enable Auto through its acknowledgment dialog');if(this.recovery?.required&&mode!=='paused')throw new Error('Recheck the connection after wake, then Resume in Confirm');this.invalidate();this.mode=mode;this.autoCitationPolicy='explicit-command';this.log('MODE_CHANGED');this.notify();}
+  stop(){this.stopped=true;this.mode='paused';this.autoCitationPolicy='explicit-command';this.invalidate();this.log('EMERGENCY_STOP','warning');this.notify();}
+  resume(){if(this.recovery?.required&&(this.recovery.phase!=='resume'||this.connector.status?.state!=='connected'||!this.connector.version))throw new Error('Test the ProPresenter connection after wake before resuming Confirm');this.recovery=null;this.stopped=false;this.mode='confirm';this.autoCitationPolicy='explicit-command';this.invalidate();this.log('REARMED_CONFIRM');this.notify();}
+  configure({dryRun=true,translation='KJV'}={}){if(typeof dryRun!=='boolean'||!/^[- A-Z0-9]{2,30}$/.test(translation))throw new Error('Invalid session settings');this.invalidate();if(this.mode==='auto')this.mode='confirm';if(translation!==this.translation)this.quoteEnabled=false;this.autoCitationPolicy='explicit-command';this.dryRun=dryRun;this.translation=translation;this.log('CONFIG_CHANGED');this.notify();}
   async ingestChecked(text,options={}){
     const external=options.additionalGuard??(()=>true);
     if(!external())throw Error('Reference request was revoked');
@@ -77,7 +78,7 @@ class Session extends EventEmitter {
     if(!chapters?.[chapter-1]||verse<1||verse>chapters[chapter-1])throw new Error('Book boundary reached; choose the next book explicitly');
     this.queue=this.queue.filter(item=>item.id!==id);return this.ingest(`${reference.book} ${chapter}:${verse} in KJV`,{manual:true});
   }
-  reset(){this.quoteMatcher=null;this.quoteEnabled=false;this.invalidate();this.revisions.clear();this.history=[];this.stopped=false;this.mode=this.recovery?.required?'paused':'confirm';this.dryRun=true;this.lastSend=null;this.log('SESSION_RESET');this.notify();}
+  reset(){this.quoteMatcher=null;this.quoteEnabled=false;this.invalidate();this.revisions.clear();this.history=[];this.stopped=false;this.mode=this.recovery?.required?'paused':'confirm';this.dryRun=true;this.lastSend=null;this.autoCitationPolicy='explicit-command';this.log('SESSION_RESET');this.notify();}
   async send(id,{additionalGuard=()=>true,origin='desktop',operationOwner=null}={}){
     if(this.operationOwner&&this.operationOwner!==operationOwner)throw Error('Another passage operation is in progress');
     this.expire();const c=this.queue.find(c=>c.id===id);
@@ -89,7 +90,8 @@ class Session extends EventEmitter {
     if(c.reference.verse==null||c.reference.valid===false||c.reference.overLimit||c.issues.some(i=>/Invalid|no-show|not supported/.test(i)))throw new Error('Edit this incomplete, prohibited, out-of-bounds or over-limit reference before sending');
     const key=`${c.label}|${c.translation}`;
     const part=c.passagePart,map=this.connector.mappings?.get(key);
-    if(!this.dryRun&&map?.passagePart&&!part)throw Error('This passage requires its passage-level review confirmation; prepare it in the workspace');
+    const approvedAuto=automatic&&map?.autoApproval===true&&map.autoVerified===true&&this.capture?.active===true&&this.capture.ownerId===map.ownerId;
+    if(!this.dryRun&&map?.passagePart&&!part&&!approvedAuto)throw Error('This passage requires its passage-level review confirmation; prepare it in the workspace');
     if(part&&(origin!=='desktop'||!c.manual||part.uuid!==map?.uuid||part.cue!==map?.cue||!map?.passagePart))throw Error('Invalid passage continuation identity');
     const partKey=part?part.uuid+'|'+part.cue:null;
     const continued=part?.continuation===true&&this.lastSend?.state==='readback-matched'&&this.lastSend?.partKey===part.uuid+'|'+part.previousCue;
@@ -105,7 +107,7 @@ class Session extends EventEmitter {
       this.history.unshift({...c,phrase:undefined,state:result.state,at:this.clock()});this.history=this.history.slice(0,20);
       // Simulation never establishes real remote passage context.
       this.context=result.state==='readback-matched'?{...c.reference,translation:c.translation,verified:true,verifiedAt:this.clock(),remote:result.presentation??null,partial:result.part?result.part.index+1<result.part.count:false}:null;
-      if(result.state==='uncertain'){this.invalidate();this.mode='paused';}
+      if(result.state==='uncertain'){this.invalidate();this.mode='paused';this.autoCitationPolicy='explicit-command';}
       this.log(result.state.toUpperCase(),result.state==='uncertain'?'warning':'info');return result;
     }finally{this.busy=false;this.notify();}
   }

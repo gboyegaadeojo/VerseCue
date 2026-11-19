@@ -1,5 +1,5 @@
 'use strict';
-const {createHash}=require('node:crypto');
+const {createHash,randomUUID}=require('node:crypto');
 const {readSlideThumbnail}=require('./slide-thumbnail.cjs');
 function targetURL(host,port) {
   if(typeof host!=='string'||!Number.isInteger(port)||port<1||port>65535)throw new Error('Invalid host or port');
@@ -22,6 +22,15 @@ class Connector {
     if(!guard())throw Error('Slide thumbnail request canceled');
     const response=await this.fetch(`${base}/v1/presentation/${uuid}/thumbnail/${index}?thumbnail_type=png`,{headers:{Accept:'image/png'},redirect:'error',signal:AbortSignal.timeout(2000)});
     return readSlideThumbnail(response,guard);
+  }
+  async autoAppearance(uuid,cue,guard=()=>true){
+    const generation=this.generation,base=this.base;
+    if(!guard())throw Error('Auto appearance check canceled');
+    const [look,image]=await Promise.all([this.read('/v1/look/current'),this.thumbnail(uuid,cue,guard)]);
+    if(generation!==this.generation||base!==this.base||!guard())throw Error('Auto appearance check canceled');
+    if(!look||typeof look!=='object'||Array.isArray(look)||typeof look.id?.uuid!=='string'||!/^[a-f0-9-]{36}$/i.test(look.id.uuid))throw Error('Current ProPresenter Look could not be verified');
+    // Memory-only change receipts, not a claim about physical screen rendering.
+    return {look:fingerprint(look),thumbnail:fingerprint(image.dataUrl)};
   }
   async prepare({uuid,cue,reference,translation,verified,autoVerified=false}){
     const generation=this.generation;
@@ -50,6 +59,18 @@ class Connector {
     this.mappings.set(`${reference}|${translation}`,{uuid,cue:plan.cueIndices[partIndex],reference,translation,autoVerified:false,fingerprint:plan.fingerprint,version,expectedCurrent:previous,sourceContext:partIndex===0?sourceContext:null,passagePart:{index:partIndex,count:plan.cueIndices.length}});
     return {reference,translation,prepared:true,cueCount:plan.cueIndices.length,partIndex};
   }
+  async prepareAutoPassage({uuid,reference,translation,expectedFingerprint,ownerId,guard=()=>true}){
+    const generation=this.generation,base=this.base,version=this.version?.host_description;
+    if(!base||new URL(base).hostname!=='127.0.0.1'||!version||this.status?.state!=='connected'||!Number.isSafeInteger(ownerId)||ownerId<1||!guard())throw Error('Auto passage approval needs a verified loopback test target and owning window');
+    const source=await this.inspect(uuid),plan=require('./bible-passage-plan.cjs').planSavedPassage(source,{uuid,reference,translation});
+    if(plan.fingerprint!==expectedFingerprint||!plan.singleCue||!plan.numberingVerified||translation!=='KJV')throw Error('Auto approval requires the unchanged complete single-cue KJV passage');
+    const appearance=await this.autoAppearance(uuid,plan.cueIndices[0],guard);
+    const rechecked=await this.inspect(uuid),secondAppearance=await this.autoAppearance(uuid,plan.cueIndices[0],guard);
+    if(fingerprint(rechecked.p)!==plan.fingerprint||fingerprint(appearance)!==fingerprint(secondAppearance))throw Error('Passage appearance or current Look changed during approval; review it again');
+    if(generation!==this.generation||base!==this.base||version!==this.version?.host_description||this.status?.state!=='connected'||!guard())throw Error('Auto passage approval canceled');
+    const approvalId=randomUUID();this.mappings.set(`${reference}|${translation}`,{uuid,cue:plan.cueIndices[0],reference,translation,fingerprint:plan.fingerprint,version,autoVerified:true,autoApproval:true,approvalId,ownerId,appearance,passagePart:{index:0,count:1}});
+    return {reference,translation,approved:true,approvalId,outputRequests:0};
+  }
   async verifyContext(remote,guard=()=>true){
     const generation=this.generation,base=this.base;
     if(!remote||typeof remote.uuid!=='string'||!Number.isInteger(remote.index)||typeof remote.fingerprint!=='string')throw Error('Current passage context is incomplete');
@@ -77,6 +98,13 @@ class Connector {
     if(v.host_description!==m.version)throw new Error('ProPresenter version changed; retest and remap');
     const {p,slides}=await this.inspect(m.uuid);
     if(fingerprint(p)!==m.fingerprint)throw new Error('Presentation changed; verify a new mapping');
+    if(automatic&&m.autoApproval){
+      const appearance=await this.autoAppearance(m.uuid,m.cue,guard);
+      if(!m.appearance||fingerprint(appearance)!==fingerprint(m.appearance)){
+        if(generation===this.generation&&base===this.base&&this.mappings.get(mappingKey)===m){this.mappings.delete(mappingKey);this.armed=false;}
+        throw Object.assign(Error('Approved slide appearance or current Look changed; review and approve this passage again'),{code:'AUTO_APPEARANCE_CHANGED'});
+      }
+    }
     if(m.sourceContext)await this.verifyContext(m.sourceContext,guard);
     if(m.expectedCurrent)await this.assertCurrent(m.expectedCurrent,guard);
 
