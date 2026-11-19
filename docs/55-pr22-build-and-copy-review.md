@@ -63,3 +63,7 @@ The corrected public Mac run [44439857729](https://github.com/gboyegaadeojo/Vers
 [Matching Windows evidence](evidence/pr22-build-checkpoint-7ff7923.json) records387 source tests,145 manifest files and packaged origin/restart/accounting, normal passage and native recovery checks. Public Mac44516755386 and a fresh minimized soak remain in progress at this checkpoint; no success is inferred. Earlier failed soak and unknown intermittent storage failure remain documented.
 
 The matching public Mac44516755386 subsequently passed at7ff7923:387 tests, source scenarios, CPU speech package and packaged workspace. Actual native Mac ProPresenter and physical acceptance remain unverified. The independent7ff minimized soak remains in progress; later Auto-policy source changes are excluded from that artifact.
+
+## Auto-policy checkpoint1525a66
+
+[Matching Windows evidence](evidence/pr22-build-checkpoint-1525a66.json) records394 source tests,146 manifest files and packaged default/bare Auto policy, minimized/cancellation/dialog200% and normal-passage checks. Mac44518630026 was queued at this checkpoint; do not claim success. These changes are outside the independently running7ff soak and do not complete arbitrary native Auto.
