@@ -27,7 +27,7 @@ const citationStabilizer=new CitationStabilizer({onExpire:()=>{service.speechSta
 function resetSpeechStabilization(){citationStabilizer.reset();service.speechStabilization={state:'idle'};}
 const automatic=new GuardedAuto(service);
 let nativeCopyLedger=null;
-const referencePassages=new ReferencePassages({connector,catalog,knownClipping:(base,id,fingerprint)=>nativeCopyLedger?.knownClipping(base,id,fingerprint)===true});
+const referencePassages=new ReferencePassages({connector,catalog,knownClipping:(base,id,fingerprint)=>nativeCopyLedger?.knownClipping(base,id,fingerprint)===true,knownNativeCopy:(base,id,fingerprint)=>nativeCopyLedger?.hasVerifiedCopy(base,id,fingerprint)===true});
 let preparation,preparationController,savedBible,passageCoordinator,referencePreparation,reviewOwnerId=null,preparationOwner=null,suspensionBlocker=null;
 function updateBackgroundCapture(active){if(active&&suspensionBlocker===null)suspensionBlocker=powerSaveBlocker.start('prevent-app-suspension');if(!active&&suspensionBlocker!==null){powerSaveBlocker.stop(suspensionBlocker);suspensionBlocker=null;}}
 const capture=new CaptureLease({canStart:()=>!service.recovery?.required&&!service.stopped&&service.mode!=='paused'&&!speech.busy&&!preparation?.busy&&!savedBible?.busy&&!passageCoordinator?.busy,onStop:()=>{resetSpeechStabilization();automatic.cancel();speech.cancel();updateBackgroundCapture(false);},onChange:value=>{updateBackgroundCapture(value.active);service.capture={...value,backgroundProtected:suspensionBlocker!==null&&powerSaveBlocker.isStarted(suspensionBlocker)};service.notify();}});

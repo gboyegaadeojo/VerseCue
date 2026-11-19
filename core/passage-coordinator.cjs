@@ -50,7 +50,7 @@ class PassageCoordinator {
     result=await this.resolver.find(c.label,c.translation,{guard:()=>guard()&&this.service.generation===preparedGeneration});check();
     if(result.state==='ambiguous-passages'){const fresh=result.matches.filter(row=>row.uuid===saved.uuid&&row.fingerprint===saved.fingerprint);if(fresh.length!==1)throw Error('Fresh saved copy changed or could not be identified');result=fresh[0];}
     if(this.service.generation!==preparedGeneration||result.state!=='passage-needs-review'||result.uuid!==saved.uuid||result.fingerprint!==saved.fingerprint)throw Error('Prepared copy is ambiguous or changed; inspect ProPresenter');
-    result={...result,clippingWarning:saved.clippingWarning===true,nativeWorkerMs:saved.workerElapsedMs,nativeStageStartedAtMs:saved.nativeStageStartedAtMs??{},requiresFreshReview:true};
+    result={...result,bibleOrigin:'native-save-this-operation',clippingWarning:saved.clippingWarning===true,nativeWorkerMs:saved.workerElapsedMs,nativeStageStartedAtMs:saved.nativeStageStartedAtMs??{},requiresFreshReview:true};
    }
    if(result.state!=='passage-needs-review'||result.reference!==c.label||result.translation!==c.translation)throw Error('No exact passage is ready for review');
    const reviewToken=randomUUID();this.review={token:reviewToken,sourceMode,plan:structuredClone(result),source:structuredClone(c),epoch,target,base,generation:this.service.generation,inputEpoch:this.service.inputEpoch,referenceEpoch:this.service.referenceEpoch,expiresAt:this.service.clock()+120000};

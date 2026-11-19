@@ -14,14 +14,14 @@ class NativeCopyLedger{
   }catch(error){if(error.code==='ENOENT'){this.rows=[];this.failure=null;}else this.failure='Managed-copy accounting could not be verified. Use saved passages or prepare manually; the existing ledger was kept.';}
   finally{this.loaded=true;this.busy=false;}return this.status();
  }
- status(){const remaining=Math.max(0,this.limit-this.rows.length);return {accountingVerified:this.loaded&&!this.failure,available:this.loaded&&!this.failure&&!this.busy&&remaining>0,managedCopies:this.rows.filter(row=>row.state==='verified').length,uncertainReservations:this.rows.filter(row=>row.state==='reserved').length,managedCopySlotsRemaining:remaining,managedCopyLimit:this.limit,reason:!this.loaded?'Managed-copy accounting is loading.':this.failure??(this.busy?'Managed-copy accounting is busy.':remaining===0?'The managed-copy limit across app restarts was reached. Reuse saved passages or manage copies in ProPresenter; no content was deleted.':null)};}
+ status(){const remaining=Math.max(0,this.limit-this.rows.length);return {accountingVerified:this.loaded&&!this.failure,storageFailureCode:this.failure?this.storageFailureCode??'UNKNOWN':null,available:this.loaded&&!this.failure&&!this.busy&&remaining>0,managedCopies:this.rows.filter(row=>row.state==='verified').length,uncertainReservations:this.rows.filter(row=>row.state==='reserved').length,managedCopySlotsRemaining:remaining,managedCopyLimit:this.limit,reason:!this.loaded?'Managed-copy accounting is loading.':this.failure??(this.busy?'Managed-copy accounting is busy.':remaining===0?'The managed-copy limit across app restarts was reached. Reuse saved passages or manage copies in ProPresenter; no content was deleted.':null)};}
  targetKey(base){if(typeof base!=='string'||!/^http:\/\/127\.0\.0\.1:[1-9][0-9]{0,4}$/.test(base)||Number(base.split(':').at(-1))>65535)throw Error('Managed native copies require the verified local target');return createHash('sha256').update(base).digest('hex');}
  async persist(rows){
-  await fs.mkdir(path.dirname(this.file),{recursive:true});const temp=this.file+'.'+randomUUID()+'.tmp';
+  const temp=this.file+'.'+randomUUID()+'.tmp';
   // Never discard an uncertain ledger or automatically reset accounting.
-  let created=false;try{const handle=await fs.open(temp,'wx',0o600);created=true;try{await handle.writeFile(JSON.stringify({schemaVersion:1,rows}));await handle.sync();}finally{await handle.close();}
+  let created=false;try{await fs.mkdir(path.dirname(this.file),{recursive:true});const handle=await fs.open(temp,'wx',0o600);created=true;try{await handle.writeFile(JSON.stringify({schemaVersion:1,rows}));await handle.sync();}finally{await handle.close();}
    await fs.rename(temp,this.file);this.rows=rows;
-  }catch(error){if(created)await fs.unlink(temp).catch(()=>{});throw error;}
+  }catch(error){this.storageFailureCode=['ENOSPC','EACCES','EPERM','EBUSY','EIO','ENOENT','EROFS','EISDIR'].includes(error.code)?error.code:'UNKNOWN';if(created)await fs.unlink(temp).catch(()=>{});throw error;}
  }
  async reserve(base){
   const target=this.targetKey(base),status=this.status();if(!status.available)throw Error(status.reason??'Managed-copy accounting is unavailable');this.busy=true;
@@ -35,6 +35,7 @@ class NativeCopyLedger{
   catch{this.failure='The copy may exist, but its accounting could not be saved. Inspect ProPresenter and local storage; no retry was sent.';throw Error(this.failure);}finally{this.busy=false;}
  }
  knownClipping(base,id,fingerprint){let target;try{target=this.targetKey(base);}catch{return false;}return this.rows.some(row=>row.target===target&&row.state==='verified'&&row.uuid===id&&row.fingerprint===fingerprint&&row.clippingWarning===true);}
+ hasVerifiedCopy(base,id,fingerprint){let target;try{target=this.targetKey(base);}catch{return false;}return this.rows.some(row=>row.target===target&&row.state==='verified'&&row.uuid===id&&row.fingerprint===fingerprint);}
  async reconcile(base,existingIds,guard=()=>true){
   if(this.busy||!this.loaded||this.failure)throw Error('Managed-copy accounting is unavailable');const target=this.targetKey(base);
   if(!(existingIds instanceof Set)||existingIds.size>10000||[...existingIds].some(id=>!uuid(id))||!guard())throw Error('A complete current catalog is required to reconcile managed copies');
