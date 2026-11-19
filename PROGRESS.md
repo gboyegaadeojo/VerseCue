@@ -224,3 +224,13 @@ Added capability-gated saved-passage review through a supplied coordinator hook 
 ## Normal reference-driven workspace integration - 2026-11-19
 
 Connected the normal desktop/IPC/settings workflow to the completed coordinator, scheduler, ledger, speech/citation evidence, Auto approval and private-API hooks. No per-passage Library/Presentation/Cue selection is needed in the normal path; advanced mappings remain fallback. Assembled source415 module tests/syntax and20 synthetic desktop scenarios passed, including normal Confirm/parts/keyboard/takeover, native consent/recovery, previews, ledger/restart and guarded Auto. No actual ProPresenter or OS microphone accessed. Matching packages/Mac and original physical/platform/service acceptance remain pending; see docs/79-normal-reference-passage-workspace.md.
+
+## Private API passage-review extraction - 2026-11-19
+
+Added capability-gated saved-passage review through a supplied coordinator hook and checked reference submission with API-session revocation. No remote focus/copy consent or passage confirmation accepted. All389 module tests and syntax pass;17 API tests include in-flight relative-context revocation with no candidate/output. Mac verification and desktop hook wiring remain pending. See docs/78-private-api-passage-review.md.
+
+## Normal reviewed Auto backend extraction - 2026-11-19
+
+Extracted current-review, owner-bound single-cue KJV Auto approval with Look/PNG rechecks, guarded original-age speech use and separately acknowledged session bare-citation policy. Approval sends nothing; original intent/cancellation/uncertainty and private-API restrictions remain. All401 combined module tests and syntax checks passed on Windows. Hosted Mac verification and desktop controls/lifecycle wiring remain pending; see docs/77-normal-reviewed-auto-backend.md. No actual microphone/ProPresenter/output used and no arbitrary native Auto claim.
+
+PR35 verification update: exact105868f7 standard Mac44596961095 passed415 module tests/syntax, all source desktop scenarios, CPU speech packaging and packaged workspace. Its Windows146-file source-matching review build passed all20 packaged synthetic desktop scenarios. No actual ProPresenter or OS microphone/physical-output acceptance claimed.
