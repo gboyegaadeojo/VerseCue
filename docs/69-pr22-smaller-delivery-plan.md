@@ -16,7 +16,10 @@
 | Superseded read-only Confirm/Continue preflight correction | [PR30](https://github.com/gboyegaadeojo/VerseCue/pull/30), `fix/preserve-newer-passage-intent` | Four files;367 module tests/syntax and exact Mac44591602505 passed. Merged atc24e533. Preserves newer intent/target before output authorization; later uncertainty still pauses without retry. |
 
 | Detected-reference scheduling and explicit native consent backend | [PR31](https://github.com/gboyegaadeojo/VerseCue/pull/31) |384 module tests/syntax and exact standard Mac44593983560 passed; merged atd99bf40. New reference-epoch waiting race corrected. Desktop wiring remains separate. |
-| Capture age/continuity producer | [PR32](https://github.com/gboyegaadeojo/VerseCue/pull/32) |376 module tests/syntax passed; standard Mac44594297897 running. No OS microphone or physical-latency claim. |
+| Capture age/continuity producer | [PR32](https://github.com/gboyegaadeojo/VerseCue/pull/32) |393 combined module tests/syntax and exact final Mac44594866353 passed; merged at66a1b1b. No OS microphone or physical-latency claim. |
+
+| Normal reviewed Auto backend | [PR33](https://github.com/gboyegaadeojo/VerseCue/pull/33) |401 module tests/syntax passed; Mac44595101722 running. Desktop controls/lifecycle remain separate. |
+| Private API passage review | [PR34](https://github.com/gboyegaadeojo/VerseCue/pull/34) |389 module tests/syntax passed; Mac44595527863 running. Desktop hook wiring remains separate. |
 
 ## Remaining dependency sequence
 
