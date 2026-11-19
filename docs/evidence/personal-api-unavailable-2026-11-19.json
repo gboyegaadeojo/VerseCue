@@ -1,0 +1,27 @@
+{
+  "at": "2026-11-19T17:12:50.060Z",
+  "scope": "Read-only personal Windows host inspection",
+  "actualProPresenterUIObserved": true,
+  "bibleViewReference": "Hosea 1:1",
+  "installedEditionObserved": "KJV",
+  "generatedSlidesWithClippingWarnings": true,
+  "networkEnabledVisually": true,
+  "configuredPort": 1025,
+  "configuredPortListening": false,
+  "propresenterProcessCount": 1,
+  "loopbackVersionRequest": "FAILED",
+  "observedPrivateAddressVersionRequest": "FAILED",
+  "settingsChanged": false,
+  "themeChanged": false,
+  "passagePrepared": false,
+  "nativeCopyCreated": false,
+  "outputRequests": 0,
+  "applicationRestarted": false,
+  "physicalOutputVerified": false,
+  "limitations": [
+    "Initial occluded-window screenshot showed another app; no actions or claims based on it",
+    "Fresh activation verified the selected ProPresenter window",
+    "Settings window close required fresh screenshot coordinates after accessibility element had no cached bounds",
+    "API host/version and independent disabled-screen preflight could not be established; no output test attempted"
+  ]
+}
