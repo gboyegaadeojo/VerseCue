@@ -71,7 +71,7 @@ async function bootstrap(){
   let helperExists=false;try{await fs.access(helper);helperExists=true;}catch{}
   preparation=new BiblePreparation({helper:helperExists?helper:null});
   preparationController=new PreparationController({service,connector,speech:{cancel:cancelAudio},cancelRecognition:()=>{resetSpeechStabilization();speech.cancel();},preparation,getTranslation:()=>settings.translation});
-  savedBible=new SavedBibleWorkflow({service,connector,catalog,controller:preparationController});
+  savedBible=new SavedBibleWorkflow({service,connector,catalog,controller:preparationController,onPreparedCopy:receipt=>referencePassages.rememberNativeCopy(receipt)});
   passageCoordinator=new PassageCoordinator({service,connector,resolver:referencePassages,savedBible,onChange:value=>{service.passagePreparation=value;service.notify();}});
   referencePreparation=new ReferencePreparation({service,coordinator:passageCoordinator,nativeReadiness:()=>savedBible.readiness(),prepare:(id,event,options)=>ownedPreparation(event,()=>passageCoordinator.prepare(id,options)),onChange:value=>{service.referencePreparation=value;service.notify();}});
   const recovery=new PowerRecovery({service,connector,cancelAudio,cancelPreparation:()=>cancelPreparation(),revokeApi:()=>privateApi.stop(),getTarget:()=>settings});

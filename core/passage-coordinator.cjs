@@ -60,6 +60,7 @@ class PassageCoordinator {
   const r=this.review,s=this.service,c=this.connector;
   if(s.mode==='suggest'||r?.sourceMode==='suggest'&&s.mode!=='confirm')throw Error('Switch from Suggest only to Confirm before showing a passage');
   if(this.busy||!r||r.token!==reviewToken||verified!==true||acknowledgeTestOutput!==true)throw Error('Review the prepared passage and acknowledge the authorized test output first');
+  if(r.plan.clippingWarning===true)throw Error('ProPresenter reported clipped text. Correct the formatting and prepare a fresh reviewed copy before output.');
   const valid=()=>this.review===r&&r.epoch===this.epoch&&r.target===c.generation&&r.base===c.base&&r.generation===s.generation&&r.referenceEpoch===s.referenceEpoch&&!s.stopped&&!s.recovery?.required&&s.clock()<r.expiresAt;
   if(!valid())throw Error('Prepared review expired or changed; prepare the passage again');
   this.acquire();
