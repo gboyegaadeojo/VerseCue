@@ -1,0 +1,129 @@
+{
+  "at": "2026-11-19T19:15:55.196Z",
+  "cases": [
+    {
+      "test": "test-next-verse-ui.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-audio-age.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-passage-copy-choice.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-listening-preparation.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-api-passage-review.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-citation-stabilization.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-detected-native-preparation.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-detected-native-preparation.cjs --no-input",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-detected-native-preparation.cjs --clipped",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-detected-native-preparation.cjs --recover",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-detected-native-preparation.cjs --uncertain",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-detected-native-preparation.cjs --output-edit",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-slide-preview.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-saved-lookup-speech.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-managed-copy-ledger.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-guarded-auto.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-guarded-auto.cjs --bare-citations",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-normal-auto-approval.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-normal-auto-approval.cjs --changed-look",
+      "status": 0,
+      "error": null
+    }
+  ],
+  "complete": true,
+  "passed": true,
+  "actualProPresenterAccess": false,
+  "microphoneCapture": false,
+  "normalReferenceScenario": {
+    "at": "2026-11-19T19:14:00.197Z",
+    "version": "0.6.0",
+    "passed": true,
+    "packaged": false,
+    "normalOperatorUIWired": true,
+    "unrecordedBibleOriginDisclosed": true,
+    "deliberateKeyboardConfirmation": true,
+    "uncheckedKeyboardOutputBlocked": true,
+    "unsupportedNativeRouteExplainedBeforeConsent": true,
+    "operatorLibraryPresentationCueSelection": false,
+    "previewFromSyntheticProPresenter": true,
+    "explicitAppearanceAndTargetConsent": true,
+    "fakeTargetTriggers": 4,
+    "preparedReviewZoomChecked": true,
+    "multiSlideContinuation": true,
+    "operatorTakeoverBlockedBeforeTrigger": true,
+    "stopLatched": true,
+    "actualProPresenterAccess": false,
+    "microphoneCapture": false
+  },
+  "moduleTests": 415,
+  "syntaxPassed": true,
+  "scope": "unpackaged assembled source with synthetic targets and isolated input leases",
+  "sourceDigestSha256": "170dbd418ac782123a6f17c49f7b84775f152f00fef7021936d25a54a74eb4c0"
+}

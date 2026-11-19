@@ -2,7 +2,6 @@
 const {EventEmitter}=require('node:events');
 const {randomUUID}=require('node:crypto');
 const {parse}=require('./parser.cjs');
-const kjvBounds=require('./kjv-versification.json').bounds;
 const {QuoteMatcher}=require('./quote-matcher.cjs');
 const {validateAutoPolicy}=require('./auto-citation-policy.cjs');
 class Session extends EventEmitter {
@@ -73,10 +72,9 @@ class Session extends EventEmitter {
     this.expire();const candidate=this.queue.find(item=>item.id===id);
     if(![-1,1].includes(direction)||!candidate||this.stopped||this.busy||!candidate.authorized||candidate.generation!==this.generation||candidate.reference.valid===false||candidate.reference.overLimit||candidate.reference.verse==null||candidate.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))throw new Error('Choose a valid unexpired candidate before navigating');
     if(candidate.translation!=='KJV')throw new Error('Verified numbering is unavailable for this translation; edit the reference explicitly');
-    const reference=candidate.reference,chapters=kjvBounds[reference.book];let chapter=direction===1?(reference.endChapter??reference.chapter):reference.chapter,verse=(direction===1?(reference.endVerse??reference.verse):reference.verse)+direction;
-    if(verse<1&&chapter>1){chapter--;verse=chapters[chapter-1];}else if(verse>chapters[chapter-1]&&chapter<chapters.length){chapter++;verse=1;}
-    if(!chapters?.[chapter-1]||verse<1||verse>chapters[chapter-1])throw new Error('Book boundary reached; choose the next book explicitly');
-    this.queue=this.queue.filter(item=>item.id!==id);return this.ingest(`${reference.book} ${chapter}:${verse} in KJV`,{manual:true});
+    const proposal=parse(direction===1?'next verse':'previous verse',{context:{...candidate.reference,translation:candidate.translation,verified:true,verifiedAt:this.clock()},now:this.clock(),defaultTranslation:candidate.translation});
+    const next=proposal.references[0];if(!next||next.valid!==true)throw Error(proposal.issues[0]??'Book boundary reached; choose the next book explicitly');
+    this.queue=this.queue.filter(item=>item.id!==id);return this.ingest(next.label+' in '+candidate.translation,{manual:true});
   }
   reset(){this.quoteMatcher=null;this.quoteEnabled=false;this.invalidate();this.revisions.clear();this.history=[];this.stopped=false;this.mode=this.recovery?.required?'paused':'confirm';this.dryRun=true;this.lastSend=null;this.autoCitationPolicy='explicit-command';this.log('SESSION_RESET');this.notify();}
   async send(id,{additionalGuard=()=>true,origin='desktop',operationOwner=null}={}){
