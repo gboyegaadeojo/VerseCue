@@ -13,3 +13,7 @@ Auto defaults to explicit current show/read instructions. A separately acknowled
 All401 combined module tests and syntax checks pass on Windows. Coverage includes owner matching, zero-output approval, denied bypasses, target/reference races, unstable appearance, changed Look/PNG, Stop, bare-policy grammar/reset and aging during correction grace. Existing PR29 timing and PR30 preflight regression coverage is retained. Matching hosted Mac verification is pending. These synthetic API checks are not physical-rendering proof: metadata/cache timing is non-atomic, and appearance differences can conservatively require review. No actual ProPresenter, microphone or physical output was used.
 
 No arbitrary newly created passage gains Auto approval. Native preparation remains too slow and may clip under current personal-host evidence. Desktop/IPC/control dialog/lifecycle wiring, platform/native/installed-edition/shared-hardware and full-service acceptance remain PR22 work. This PR is not a release.
+
+## Verification update - 2026-11-19
+
+PR33 merged at5ea71f4. Final combined head5fdf61a passed410 module tests/syntax and standard Mac44595877853. Normal workspace wiring is tracked in PR35. Original real-host/platform/service limitations remain.

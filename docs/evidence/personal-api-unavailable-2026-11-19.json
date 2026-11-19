@@ -23,5 +23,16 @@
     "Fresh activation verified the selected ProPresenter window",
     "Settings window close required fresh screenshot coordinates after accessibility element had no cached bounds",
     "API host/version and independent disabled-screen preflight could not be established; no output test attempted"
+  ],
+  "readOnlyRechecks": [
+    {
+      "at": "2026-11-19T19:26:51.922Z",
+      "loopbackVersionRequest": "FAILED",
+      "configuredPortListening": false,
+      "uiObservedDuringRecheck": false,
+      "settingsChanged": false,
+      "applicationRestarted": false,
+      "outputRequests": 0
+    }
   ]
 }

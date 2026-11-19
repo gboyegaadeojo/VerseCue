@@ -340,3 +340,15 @@ PR33 merged at5ea71f4 after final combined410 module tests/syntax and exact stan
 ## PR34 integration sync - 2026-11-19
 
 PR34 merged at0eb409a after final combined415 module tests/syntax and exact standard Mac44597315623 passed. Integrated its actual-Session API relative-context revocation regression. PR35 source desktop/Mac44596961095 and146-file Windows review build passed; packaged Windows scenarios remain running and are not yet claimed complete. No actual microphone/ProPresenter/output used.
+
+## Packaged workspace verification and three-hour soak - 2026-11-19
+
+PR35 initial105868f7 passed415 module tests/syntax,20 Windows source scenarios and20 packaged scenarios in its146-file source-matching review build. Standard Mac44596961095 passed source/module checks, CPU speech packaging and packaged workspace. After main synchronization production core/desktop/ui/legal bytes remain identical (digest170dbd418ac782123a6f17c49f7b84775f152f00fef7021936d25a54a74eb4c0); final headf2f3575 Mac44598351212 remains running. PR35 is still draft/unmerged pending final verification.
+
+Started three-hour minimized soak session31497, run cb717602-640b-4e0a-8fcc-aab71e4c51b4, report test-results/soak-cb717602-640b-4e0a-8fcc-aab71e4c51b4.json, on the105868f7 Windows package manifest e5d76747a3216e8adb96d0b90fc915512028a47cd9593fb3feaf459f7c42d1d1. First cycle passed; completion is NOT claimed. Repeated authorized private fixture/resident CPU and dry-run only, no microphone/ProPresenter/physical output. A fresh read-only personal API recheck at19:26:51Z still failed and found zero listeners on1025; no restart or output attempted.
+
+## Continuation after approval-service usage failure - 2026-11-19
+
+The19:28 GitHub status command was not executed because automatic approval review hit its usage limit; it was not an unsafe-action verdict. After elapsed time and resumed user instruction, elevated status checks worked again. Final f2f3575 Mac44598351212 actually FAILED its compact-window readiness predicate after415 module tests; it did not reach packaging. Earlier Mac105868f7 success remains separately scoped. PR35 head5346e08 corrects only the test predicate, retains all owner/output checks and passed source/package normal-Auto tests on Windows; Mac44627121424 is running. Windows delayed-load experiments did not reproduce the timing and were removed. PR35 remains draft/unmerged.
+
+Soak session31497 was revalidated live after the interruption:333 cycles/9,964,461ms, minimized throughout, no failure/interruption and zero output. Subsequent heartbeat339 reached10,143,915ms. It has NOT completed180 minutes; do not summarize it as passed yet. No replacement soak was started.
