@@ -78,6 +78,7 @@ async function bootstrap(){
   savedBible=new SavedBibleWorkflow({service,connector,catalog,controller:preparationController,ledger:nativeCopyLedger,onPreparedCopy:receipt=>referencePassages.rememberNativeCopy(receipt),onUncertain:()=>referencePreparation?.revokeNative()});
   passageCoordinator=new PassageCoordinator({service,connector,resolver:referencePassages,savedBible,onChange:value=>{service.passagePreparation=value;service.notify();}});
   referencePreparation=new ReferencePreparation({service,coordinator:passageCoordinator,nativeReadiness:()=>savedBible.readiness(),canPrepare:()=>!preparationOwner&&!passageCoordinator.busy&&!savedBible.busy&&!preparation.busy&&!service.busy&&!service.operationOwner,prepare:(id,event,options)=>ownedPreparation(event,()=>passageCoordinator.prepare(id,options)),onChange:value=>{service.referencePreparation=value;service.notify();}});
+  if(nativeCopyLedger.status().uncertainReservations>0)referencePreparation.revokeNative();
   const recovery=new PowerRecovery({service,connector,cancelAudio,cancelPreparation:()=>cancelPreparation(),revokeApi:()=>privateApi.stop(),getTarget:()=>settings});
   powerMonitor.on('suspend',()=>recovery.handle('suspend'));powerMonitor.on('resume',()=>recovery.handle('resume'));
   // Optional verified offline resources are local development-package assets,

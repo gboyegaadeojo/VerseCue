@@ -1,11 +1,12 @@
 {
-  "at": "2026-11-19T01:40:32.228Z",
+  "at": "2026-11-19T01:45:02.362Z",
   "passed": true,
   "packaged": false,
   "seededSyntheticEntries": 500,
   "quotaBlockedBeforeNativeAccess": true,
   "reconciliationReleasedOnlyMissingVerifiedCopies": 498,
   "uncertainReservationRetained": true,
+  "restartRequiresExplicitInspection": true,
   "knownClippingBlockedAfterActualAppRestart": true,
   "noBibleTextOrTargetAddressInLedger": true,
   "nativeCreations": 1,
