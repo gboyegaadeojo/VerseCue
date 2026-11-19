@@ -65,11 +65,26 @@ class PassageCoordinator {
   const [candidate]=s.ingest(`${r.plan.reference} in ${r.plan.translation}`,{manual:true});if(!candidate)throw Error('Fresh passage intent could not be created');candidate.recognition=r.source.recognition??'reference';
   return this.prepare(candidate.id,{forceNative:true,acknowledgeFocusChange:true,acknowledgeCreateCopy:true});
  }
+ async approveAuto(reviewToken,{verified=false,acknowledgeTestOutput=false,acknowledgeAuto=false,ownerId=null}={}){
+  const r=this.review,s=this.service,c=this.connector;
+  if(this.busy||!r||r.token!==reviewToken||verified!==true||acknowledgeTestOutput!==true||acknowledgeAuto!==true||!Number.isSafeInteger(ownerId)||ownerId<1)throw Error('Review the passage and acknowledge appearance, test target and Auto approval first');
+  if(!c.base||new URL(c.base).hostname!=='127.0.0.1'||c.status?.state!=='connected')throw Error('Auto test approval requires a connected ProPresenter on this computer through loopback');
+  if(s.mode!=='confirm'||r.sourceMode!=='confirm'||r.source.recognition==='quote'||r.source.reference.relative||!r.plan.singleCue||!r.plan.numberingVerified||r.plan.translation!=='KJV'||r.plan.clippingWarning===true)throw Error('Auto approval needs an unclipped complete single-cue KJV reference reviewed in Confirm');
+  if(s.capture?.active&&s.capture.ownerId!==ownerId)throw Error('Approve Auto from the window that owns the authorized input');
+  const valid=()=>this.review===r&&r.epoch===this.epoch&&r.target===c.generation&&r.base===c.base&&r.generation===s.generation&&r.referenceEpoch===s.referenceEpoch&&!s.stopped&&!s.recovery?.required&&s.clock()<r.expiresAt;
+  if(!valid())throw Error('Prepared review expired or changed; prepare the passage again');
+  this.acquire();let approvalId=null;this.publish({phase:'approving-auto',reference:r.plan.reference,translation:r.plan.translation,outputRequests:0});
+  try{const approval=await c.prepareAutoPassage({uuid:r.plan.uuid,reference:r.plan.reference,translation:r.plan.translation,expectedFingerprint:r.plan.fingerprint,ownerId,guard:valid});approvalId=approval.approvalId;if(!valid())throw Error('Auto passage approval canceled');
+   c.arm(true);s.configure({dryRun:false,translation:s.translation});this.review=null;this.active=null;s.log('PASSAGE_AUTO_APPROVED','warning');
+   return this.publish({phase:'auto-approved',reference:r.plan.reference,translation:r.plan.translation,ownerId,outputRequests:0,outputObserved:false,bibleTextVerified:false,formattingVerified:false});
+  }catch(error){const key=`${r.plan.reference}|${r.plan.translation}`;if(approvalId&&r.target===c.generation&&r.base===c.base&&c.mappings.get(key)?.approvalId===approvalId)c.mappings.delete(key);if(r.epoch===this.epoch&&r.target===c.generation&&r.base===c.base&&r.generation===s.generation&&r.referenceEpoch===s.referenceEpoch){c.arm(false);s.setMode('paused');this.review=null;this.publish({phase:'blocked',reason:error.message,outputRequests:0});}else if(r.epoch===this.epoch&&this.review===r){this.review=null;this.publish({phase:'canceled',reason:error.message,outputRequests:0});}throw error;}finally{this.release();}
+ }
  abandonSupersededPreflight(record,slot){
   const s=this.service,c=this.connector;
   if(s.stopped||s.recovery?.required||record.epoch===this.epoch&&record.target===c.generation&&record.base===c.base&&record.generation===s.generation&&record.referenceEpoch===s.referenceEpoch)return false;
   if(this[slot]===record){this[slot]=null;if(this.epoch===record.epoch)this.publish({phase:'canceled',reference:record.plan.reference,translation:record.plan.translation,reason:'A newer reference or session change canceled this request.',outputRequests:0,outputObserved:false});}
   return true;
+
  }
  async confirm(reviewToken,{verified=false,acknowledgeTestOutput=false}={}){
   const r=this.review,s=this.service,c=this.connector;
