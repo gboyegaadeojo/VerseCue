@@ -1,0 +1,13 @@
+# Speech age and bounded citation evidence
+
+Small main-based PR22 component. It adds backend evidence/assembly contracts; microphone/worklet transport and desktop recognition/coordinator wiring follow separately. No microphone, output or speech provider starts when these modules are loaded.
+
+Speech evidence validates durations from capture metadata without subtracting renderer and backend wall clocks. Queue/capture age plus the full recognition duration reduce candidate lifetime. Missing/inconsistent timing, dropped/clipped samples and forced cuts cannot establish usable relative context. The timing basis is a conservative capture proxy, not measured audible-reference end or live latency acceptance.
+
+Session accepts explicit source age, rejects expired speech and never gives it a new15second lifetime after processing. Relative context checks now deduct their own elapsed time as well. Three new regressions first failed against the earlier implementation: a2second check renewed TTL, speech that expired during that check still produced a candidate, and a backwards check clock was accepted. The check now preserves the original speech deadline, discards newly expired speech, and pauses/disarms if check timing is invalid. Deliberate manual review retains a fresh lifetime. Newer reference/session guards still prevent a late check from changing newer state.
+
+The citation stabilizer accepts only bounded adjacent grammar fragments under matching capture session, sequence, scope and edition. It holds at most three parts, preserves oldest audio age, expires after15seconds and does not concatenate arbitrary sermon prose. Partials, loss, resets, unrelated/invalid tails and duplicate windows cannot produce a new stitched command. Assembled results carry explicit provenance for the caller's Confirm-only rule; the module never sends output or enables Auto. Desktop wiring must keep that rule and lifecycle resets when consuming the contract.
+
+The initial extracted full suite passed360 tests. With the three new context-timing regressions and correction,363 module tests passed; after moving the timing start ahead of relative parsing, all15 affected evidence/live-context cases passed again. JavaScript syntax checks passed. Matching standard Mac verification runs on the committed source before merge. Tests are synthetic metadata/text/HTTP, not pastor/accent, physical input, ProPresenter or screen latency evidence.
+
+Normal capture transport, speech-provider event wiring, native-preparation scheduler, UI/IPC lifecycle handling, new Auto policy and all original field/platform/physical acceptance remain in PR22. This component does not claim end-to-end speech aging is active on main until the producer and consumer wiring are delivered.
