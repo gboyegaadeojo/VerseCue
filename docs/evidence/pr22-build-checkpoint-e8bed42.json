@@ -147,5 +147,16 @@
     "Synthetic Windows package targets and capture leases only",
     "No actual Mac native Bible or physical/service acceptance",
     "Mac failure retained; Windows pass does not certify Mac"
-  ]
+  ],
+  "correctedMac": {
+    "run": 44439857729,
+    "revision": "a4bcdf4a5a2191fd6dbe7c684a626c3e7d084a5d",
+    "conclusion": "success",
+    "unitTests": 381,
+    "productionSourceMatchesWindows": true,
+    "correction": "Test-fixture parent directory initialization only; prior failures retained above",
+    "nativeBiblePreparationVerified": false,
+    "physicalOutputVerified": false,
+    "artifactChecksumIndependentlyVerified": false
+  }
 }
