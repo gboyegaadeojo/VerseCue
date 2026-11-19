@@ -19,3 +19,11 @@ body{font-synthesis:none}button,input,select{font-size:13px;font-weight:400;bord
 
 #continue-passage{width:100%;min-height:46px;margin-top:12px}
 #passage-ready-reference{display:block;overflow-wrap:anywhere}.passage-workflow .consent{overflow-wrap:anywhere}
+/* Read-only saved-slide preview. Text review and output consent remain separate. */
+.saved-preview-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0}
+.saved-preview-controls[hidden]{display:none}
+.saved-preview-controls select{flex:1;min-width:0;max-width:100%}
+.saved-preview-controls button{white-space:normal}
+#saved-slide-preview{margin:0 0 14px;padding:10px;background:#080b10;border:1px solid var(--line);border-radius:6px}
+#saved-slide-image{display:block;width:100%;max-height:300px;object-fit:contain}
+#saved-slide-preview figcaption{margin-top:8px;font-size:11px;color:var(--muted);line-height:1.5}

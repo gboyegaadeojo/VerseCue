@@ -145,6 +145,7 @@ async function bootstrap(){
       case 'test':try{return await connector.test();}finally{service.notify();}
       case 'cancel-passage-preparation':cancelPreparation();return true;
       case 'advance-passage':automatic.cancel();return ownedPreparation(event,()=>passageCoordinator.advance(payload?.activeToken));
+      case 'passage-thumbnail':return passageCoordinator.thumbnail(payload?.reviewToken,payload?.partIndex);
       case 'confirm-passage':automatic.cancel();return ownedPreparation(event,()=>passageCoordinator.confirm(payload?.reviewToken,{verified:payload?.verified===true,acknowledgeTestOutput:payload?.acknowledgeTestOutput===true}));
       case 'prepare-passage-candidate':automatic.cancel();return ownedPreparation(event,()=>passageCoordinator.prepare(payload?.id,{acknowledgeFocusChange:payload?.acknowledgeFocusChange===true,acknowledgeCreateCopy:payload?.acknowledgeCreateCopy===true,selectedUuid:payload?.selectedUuid??null,expectedFingerprint:payload?.expectedFingerprint??null}));
       case 'resolve-candidate':return referencePassages.findCandidate(service,payload?.id);

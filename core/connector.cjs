@@ -1,5 +1,6 @@
 'use strict';
 const {createHash}=require('node:crypto');
+const {readSlideThumbnail}=require('./slide-thumbnail.cjs');
 function targetURL(host,port) {
   if(typeof host!=='string'||!Number.isInteger(port)||port<1||port>65535)throw new Error('Invalid host or port');
   // Literal loopback/private IPv4 only. No redirects, DNS rebinding or discovery.
@@ -15,6 +16,13 @@ class Connector {
   async test(){const generation=this.generation;try{const v=await this.read('/version');if(typeof v.host_description!=='string'||!/ProPresenter/.test(v.host_description))throw new Error('Unexpected target identity');this.version=v;this.status={state:'connected',version:v.host_description};return this.status;}catch(e){if(generation===this.generation){this.armed=false;this.status={state:'offline'};}throw e;}}
   arm(value){if(value&&!this.version)throw new Error('Test connection before arming');this.armed=value===true;}
   async inspect(uuid){if(typeof uuid!=='string'||!/^[a-f0-9-]{36}$/i.test(uuid))throw new Error('Invalid presentation UUID');const raw=await this.read(`/v1/presentation/${uuid}`);const p=raw.presentation??raw;return {p,slides:(p.groups??[]).flatMap(g=>g.slides??[])};}
+  async thumbnail(uuid,index,additionalGuard=()=>true){
+    if(!this.base||typeof uuid!=='string'||!/^[a-f0-9-]{36}$/i.test(uuid)||!Number.isInteger(index)||index<0||index>10000)throw Error('Invalid saved slide thumbnail request');
+    const base=this.base,generation=this.generation,guard=()=>base===this.base&&generation===this.generation&&additionalGuard();
+    if(!guard())throw Error('Slide thumbnail request canceled');
+    const response=await this.fetch(`${base}/v1/presentation/${uuid}/thumbnail/${index}?thumbnail_type=png`,{headers:{Accept:'image/png'},redirect:'error',signal:AbortSignal.timeout(2000)});
+    return readSlideThumbnail(response,guard);
+  }
   async prepare({uuid,cue,reference,translation,verified,autoVerified=false}){
     const generation=this.generation;
     if(verified!==true)throw new Error('Verify actual Bible text, translation, theme and Looks in ProPresenter first');

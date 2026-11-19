@@ -1,5 +1,6 @@
 'use strict';
 const {randomUUID}=require('node:crypto');
+const {planSavedPassage}=require('./bible-passage-plan.cjs');
 // Reference preparation and explicit desktop confirmation. Output uses the
 // existing Session/Connector guards; no generic Next, Clear or blind retry.
 class PassageCoordinator {
@@ -16,6 +17,14 @@ class PassageCoordinator {
   catch{if(!valid())return false;this.cancel();c.arm(false);s.setMode('paused');s.log('PASSAGE_OWNERSHIP_LOST','warning');this.publish({phase:'blocked',reason:'ProPresenter output or passage content changed, or ownership could not be verified. Resume Confirm and review the current reference again.',outputRequests:0,outputObserved:false});return true;}
  }
  async verifySource(source,guard){if(source.reference.relative){if(!source.reference.remote||typeof this.connector.verifyContext!=='function')throw Error('Relative passage context cannot be verified');if(this.service.clock()-source.reference.verifiedAt>120000)throw Error('Relative passage context expired');await this.connector.verifyContext(source.reference.remote,guard);}}
+ async thumbnail(reviewToken,partIndex){
+  const r=this.review,s=this.service,c=this.connector;
+  const valid=()=>this.review===r&&r?.token===reviewToken&&r.epoch===this.epoch&&r.target===c.generation&&r.base===c.base&&r.generation===s.generation&&r.referenceEpoch===s.referenceEpoch&&!this.busy&&!s.stopped&&!s.recovery?.required&&s.clock()<r.expiresAt;
+  if(this.thumbnailBusy||!r||!Number.isInteger(partIndex)||partIndex<0||partIndex>=r.plan.cueIndices.length||!valid())throw Error('Choose a current reviewed passage part before loading its preview');
+  this.thumbnailBusy=true;
+  const check=async()=>{if(!valid())throw Error('Slide preview expired or changed');const inspected=await c.inspect(r.plan.uuid);if(!valid())throw Error('Slide preview expired or changed');const plan=planSavedPassage(inspected,{uuid:r.plan.uuid,reference:r.plan.reference,translation:r.plan.translation});if(plan.fingerprint!==r.plan.fingerprint){this.review=null;c.arm(false);s.context=null;this.publish({phase:'blocked',reason:'Saved passage changed. Prepare it again before review or output.',outputRequests:0});throw Error('Saved passage changed; prepare again');}};
+  try{await check();const image=await c.thumbnail(r.plan.uuid,r.plan.cueIndices[partIndex],valid);await check();return {...image,reviewToken,partIndex,source:'ProPresenter saved-slide thumbnail',physicalOutputObserved:false,formattingVerified:false,outputRequests:0};}finally{this.thumbnailBusy=false;}
+ }
  candidate(id){this.service.expire();const c=this.service.queue.find(row=>row.id===id);if(!c||this.service.stopped||this.service.recovery?.required||!c.authorized||c.generation!==this.service.generation||c.reference.valid!==true||c.reference.verse==null||c.reference.overLimit||c.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))throw Error('Review a valid current passage first');return c;}
  async prepare(id,{acknowledgeFocusChange=false,acknowledgeCreateCopy=false,selectedUuid=null,expectedFingerprint=null,additionalGuard=()=>true}={}){
   if(typeof additionalGuard!=='function'||!additionalGuard())throw Error('Passage review request was revoked');

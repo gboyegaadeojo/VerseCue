@@ -112,6 +112,8 @@ The unfinished reference-driven workflow is tracked in [draft PR #22](https://gi
 
 Development now includes [bounded citation assembly across speech windows](docs/57-cross-window-citation-stabilization.md) and [coordinator-backed private API review](docs/23-private-api-and-experimental-bible-bridge.md). These remain subject to the draft's real-service and platform acceptance requirements.
 
+Passage review can also load [saved-slide thumbnails supplied by ProPresenter](docs/59-saved-slide-preview.md). They help inspection and do not certify live screen output or remove clipping warnings.
+
 [Start with the leadership summary](docs/00-executive-summary.md), [operator runbook](docs/13-operations-and-runbook.md), or [requirements summary](REQUIREMENTS_SUMMARY.md). The [master specification](VerseCue_Master_Development_Prompt_v2_Codex.md) is authoritative. [Assumptions](PROJECT_ASSUMPTIONS.md), [research sources](RESEARCH_SOURCES.md), [change requests](NEW_REQUESTS.md) and [historical development notes](DEVELOPMENT_HISTORY.md) remain available. The [CSV](docs/test-data/versecue-utterances.csv) and [JSON](docs/test-data/versecue-utterances.json) retain all 66 matching synthetic test proposals.
 
 ## Ordered document package
