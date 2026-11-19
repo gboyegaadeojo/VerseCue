@@ -262,3 +262,7 @@ Promote the existing integration helper source and make Windows packaging compil
 ## Exact Save As popup lookup candidate
 
 Added a bounded, exact same-process main-window/child-popup/menu/three-command profile. Unmatched topology retains the existing broad search, ambiguity/focus/reference/edition/Invoke guards and12s deadline. Added content-free branch stage names and a distinct opt-in harness case that requires the profile stage; no automatic retry of the baseline case. Windows compiler,420 module tests and syntax passed. Candidate package/CI/native validation pending; no actual personal-host outcome is published. See docs/83-exact-save-popup-candidate.md.
+
+## Popup candidate build verification
+
+Head38c2925 passed420 module tests/syntax, a fresh147-file Windows package with source/helper receipt verification, and standard Mac44635751140. Personal native results are retained privately and excluded from this PR. The harness reporting label now says ownerWindowMinimizeRequested to reflect the measurement instead of implying continuous minimization; product code is unchanged by that label correction. Focused packaged regression checks follow.
