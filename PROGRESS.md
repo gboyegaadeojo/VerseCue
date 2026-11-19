@@ -220,3 +220,7 @@ Added capability-gated saved-passage review through a supplied coordinator hook 
 ## Normal reviewed Auto backend extraction - 2026-11-19
 
 Extracted current-review, owner-bound single-cue KJV Auto approval with Look/PNG rechecks, guarded original-age speech use and separately acknowledged session bare-citation policy. Approval sends nothing; original intent/cancellation/uncertainty and private-API restrictions remain. All401 combined module tests and syntax checks passed on Windows. Hosted Mac verification and desktop controls/lifecycle wiring remain pending; see docs/77-normal-reviewed-auto-backend.md. No actual microphone/ProPresenter/output used and no arbitrary native Auto claim.
+
+## Detected preparation cancellation ownership fix - 2026-11-19
+
+A new regression failed against main: disabling/replacing queued detected work while waiting canceled a separately owned manual review. Track actual preparation invocation separately from running/waiting; cancel only scheduler-owned work. Preserve central Stop/target/session cancellation. All416 module tests/syntax pass; Mac verification pending. No real microphone/ProPresenter/output. Existing105868f7 soak predates this fix. Details: docs/80-detected-preparation-cancellation-ownership.md.
