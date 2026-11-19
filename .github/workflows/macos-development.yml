@@ -29,6 +29,8 @@ jobs:
           node scripts/test-detected-native-preparation.cjs
           node scripts/test-detected-native-preparation.cjs --no-input
           node scripts/test-detected-native-preparation.cjs --clipped
+          node scripts/test-detected-native-preparation.cjs --recover
+          node scripts/test-detected-native-preparation.cjs --uncertain
           node scripts/test-slide-preview.cjs
       - name: Build pinned CPU-only local speech
         run: |

@@ -26,7 +26,7 @@ class PassageCoordinator {
   try{await check();const image=await c.thumbnail(r.plan.uuid,r.plan.cueIndices[partIndex],valid);await check();return {...image,reviewToken,partIndex,source:'ProPresenter saved-slide thumbnail',physicalOutputObserved:false,formattingVerified:false,outputRequests:0};}finally{this.thumbnailBusy=false;}
  }
  candidate(id){this.service.expire();const c=this.service.queue.find(row=>row.id===id);if(!c||this.service.stopped||this.service.recovery?.required||!c.authorized||c.generation!==this.service.generation||c.reference.valid!==true||c.reference.verse==null||c.reference.overLimit||c.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))throw Error('Review a valid current passage first');return c;}
- async prepare(id,{acknowledgeFocusChange=false,acknowledgeCreateCopy=false,selectedUuid=null,expectedFingerprint=null,additionalGuard=()=>true}={}){
+ async prepare(id,{acknowledgeFocusChange=false,acknowledgeCreateCopy=false,selectedUuid=null,expectedFingerprint=null,additionalGuard=()=>true,forceNative=false}={}){
   if(typeof additionalGuard!=='function'||!additionalGuard())throw Error('Passage review request was revoked');
   let selected=null;if(selectedUuid!==null){if(typeof selectedUuid!=='string'||typeof expectedFingerprint!=='string'||this.state.phase!=='ambiguous'||this.state.sourceCandidateId!==id)throw Error('Choose a current ambiguous passage copy');selected=this.state.matches?.find(row=>row.uuid===selectedUuid&&row.fingerprint===expectedFingerprint);if(!selected)throw Error('Selected passage copy is no longer available');}
   if(this.busy)throw Error('A passage preparation is already in progress');const c=this.candidate(id),sourceMode=this.service.mode,sourceReferenceEpoch=this.service.referenceEpoch,epoch=++this.epoch,target=this.connector.generation,base=this.connector.base;this.review=null;this.active=null;this.acquire();
@@ -35,7 +35,7 @@ class PassageCoordinator {
   try{
    this.publish({phase:'resolving',reference:c.label,translation:c.translation,outputRequests:0});
    await this.verifySource(c,guard);check();
-   let result=await this.resolver.findCandidate(this.service,id);check();
+   let result=forceNative?{state:'needs-preparation'}:await this.resolver.findCandidate(this.service,id);check();
    if(result.state==='ambiguous-passages'){
     if(!selected)return this.publish({phase:'ambiguous',...result,sourceCandidateId:id});
     const matches=result.matches.filter(row=>row.uuid===selected.uuid&&row.fingerprint===selected.fingerprint);if(matches.length!==1)throw Error('Selected passage copy changed; find the passage again');result=matches[0];
@@ -45,16 +45,25 @@ class PassageCoordinator {
     if(acknowledgeFocusChange!==true||acknowledgeCreateCopy!==true)return this.publish({phase:'consent-required',reference:c.label,translation:c.translation,reason:'Preparation may move ProPresenter focus and create an internal Bible copy. Explicit session consent is required.',outputRequests:0});
     this.candidate(id);check();this.publish({phase:'preparing',reference:c.label,translation:c.translation,outputRequests:0});
     const saved=await this.savedBible.prepare(c.label,c.translation,null,guard,{keepListening:true});check();
-    if(saved.coverageComplete!==true||!Number.isInteger(saved.preparedGeneration)||this.service.generation!==saved.preparedGeneration)throw Error('Complete passage preparation could not be verified');
+    if(saved.coverageComplete!==true||!Number.isInteger(saved.preparedGeneration)||this.service.generation!==saved.preparedGeneration||typeof saved.fingerprint!=='string'||!/^[a-f0-9]{64}$/.test(saved.fingerprint))throw Error('Complete passage preparation could not be verified');
     const preparedGeneration=saved.preparedGeneration;
     result=await this.resolver.find(c.label,c.translation,{guard:()=>guard()&&this.service.generation===preparedGeneration});check();
-    if(this.service.generation!==preparedGeneration||result.state!=='passage-needs-review'||result.uuid!==saved.uuid)throw Error('Prepared copy is ambiguous or changed; inspect ProPresenter');
+    if(result.state==='ambiguous-passages'){const fresh=result.matches.filter(row=>row.uuid===saved.uuid&&row.fingerprint===saved.fingerprint);if(fresh.length!==1)throw Error('Fresh saved copy changed or could not be identified');result=fresh[0];}
+    if(this.service.generation!==preparedGeneration||result.state!=='passage-needs-review'||result.uuid!==saved.uuid||result.fingerprint!==saved.fingerprint)throw Error('Prepared copy is ambiguous or changed; inspect ProPresenter');
     result={...result,clippingWarning:saved.clippingWarning===true,nativeWorkerMs:saved.workerElapsedMs,nativeStageStartedAtMs:saved.nativeStageStartedAtMs??{},requiresFreshReview:true};
    }
    if(result.state!=='passage-needs-review'||result.reference!==c.label||result.translation!==c.translation)throw Error('No exact passage is ready for review');
    const reviewToken=randomUUID();this.review={token:reviewToken,sourceMode,plan:structuredClone(result),source:structuredClone(c),epoch,target,base,generation:this.service.generation,inputEpoch:this.service.inputEpoch,referenceEpoch:this.service.referenceEpoch,expiresAt:this.service.clock()+120000};
    return this.publish({...result,phase:'review-required',reviewToken,reviewGeneration:this.review.generation,reviewSourceMode:sourceMode,reviewInputEpoch:this.review.inputEpoch,reviewReferenceEpoch:this.review.referenceEpoch,sourceCandidateId:id,bibleTextVerified:false,formattingVerified:false,outputObserved:false,outputRequests:0});
   }catch(error){this.publish({phase:guard()?'blocked':'canceled',reference:c.label,translation:c.translation,reason:error.message,outputRequests:0});throw error;}finally{this.release();}
+ }
+ async rebuildClipped(reviewToken,{formattingCorrected=false,acknowledgeFocusChange=false,acknowledgeCreateCopy=false}={}){
+  const r=this.review,s=this.service,c=this.connector;
+  if(this.busy||s.busy||s.operationOwner||!r||r.token!==reviewToken||r.plan.clippingWarning!==true||r.epoch!==this.epoch||r.target!==c.generation||r.base!==c.base||r.generation!==s.generation||r.referenceEpoch!==s.referenceEpoch||s.stopped||s.recovery?.required||s.mode!=='confirm'||s.clock()>=r.expiresAt)throw Error('Review the current clipped passage in Confirm before rebuilding');
+  if(formattingCorrected!==true||acknowledgeFocusChange!==true||acknowledgeCreateCopy!==true)throw Error('Confirm the Bible formatting correction and one fresh copy/focus change first');
+  const readiness=this.savedBible.readiness();if(readiness.available!==true)throw Error(readiness.reason??'Native preparation is unavailable');
+  const [candidate]=s.ingest(`${r.plan.reference} in ${r.plan.translation}`,{manual:true});if(!candidate)throw Error('Fresh passage intent could not be created');candidate.recognition=r.source.recognition??'reference';
+  return this.prepare(candidate.id,{forceNative:true,acknowledgeFocusChange:true,acknowledgeCreateCopy:true});
  }
  async confirm(reviewToken,{verified=false,acknowledgeTestOutput=false}={}){
   const r=this.review,s=this.service,c=this.connector;

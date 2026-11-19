@@ -71,9 +71,9 @@ async function bootstrap(){
   let helperExists=false;try{await fs.access(helper);helperExists=true;}catch{}
   preparation=new BiblePreparation({helper:helperExists?helper:null});
   preparationController=new PreparationController({service,connector,speech:{cancel:cancelAudio},cancelRecognition:()=>{resetSpeechStabilization();speech.cancel();},preparation,getTranslation:()=>settings.translation});
-  savedBible=new SavedBibleWorkflow({service,connector,catalog,controller:preparationController,onPreparedCopy:receipt=>referencePassages.rememberNativeCopy(receipt)});
+  savedBible=new SavedBibleWorkflow({service,connector,catalog,controller:preparationController,onPreparedCopy:receipt=>referencePassages.rememberNativeCopy(receipt),onUncertain:()=>referencePreparation?.revokeNative()});
   passageCoordinator=new PassageCoordinator({service,connector,resolver:referencePassages,savedBible,onChange:value=>{service.passagePreparation=value;service.notify();}});
-  referencePreparation=new ReferencePreparation({service,coordinator:passageCoordinator,nativeReadiness:()=>savedBible.readiness(),prepare:(id,event,options)=>ownedPreparation(event,()=>passageCoordinator.prepare(id,options)),onChange:value=>{service.referencePreparation=value;service.notify();}});
+  referencePreparation=new ReferencePreparation({service,coordinator:passageCoordinator,nativeReadiness:()=>savedBible.readiness(),canPrepare:()=>!preparationOwner&&!passageCoordinator.busy&&!savedBible.busy&&!preparation.busy&&!service.busy&&!service.operationOwner,prepare:(id,event,options)=>ownedPreparation(event,()=>passageCoordinator.prepare(id,options)),onChange:value=>{service.referencePreparation=value;service.notify();}});
   const recovery=new PowerRecovery({service,connector,cancelAudio,cancelPreparation:()=>cancelPreparation(),revokeApi:()=>privateApi.stop(),getTarget:()=>settings});
   powerMonitor.on('suspend',()=>recovery.handle('suspend'));powerMonitor.on('resume',()=>recovery.handle('resume'));
   // Optional verified offline resources are local development-package assets,
@@ -146,6 +146,7 @@ async function bootstrap(){
       case 'cancel-passage-preparation':cancelPreparation();return true;
       case 'advance-passage':automatic.cancel();return ownedPreparation(event,()=>passageCoordinator.advance(payload?.activeToken));
       case 'passage-thumbnail':return passageCoordinator.thumbnail(payload?.reviewToken,payload?.partIndex);
+      case 'rebuild-clipped-passage':automatic.cancel();return ownedPreparation(event,()=>passageCoordinator.rebuildClipped(payload?.reviewToken,{formattingCorrected:payload?.formattingCorrected===true,acknowledgeFocusChange:payload?.acknowledgeFocusChange===true,acknowledgeCreateCopy:payload?.acknowledgeCreateCopy===true}));
       case 'confirm-passage':automatic.cancel();return ownedPreparation(event,()=>passageCoordinator.confirm(payload?.reviewToken,{verified:payload?.verified===true,acknowledgeTestOutput:payload?.acknowledgeTestOutput===true}));
       case 'prepare-passage-candidate':automatic.cancel();return ownedPreparation(event,()=>passageCoordinator.prepare(payload?.id,{acknowledgeFocusChange:payload?.acknowledgeFocusChange===true,acknowledgeCreateCopy:payload?.acknowledgeCreateCopy===true,selectedUuid:payload?.selectedUuid??null,expectedFingerprint:payload?.expectedFingerprint??null}));
       case 'resolve-candidate':return referencePassages.findCandidate(service,payload?.id);
