@@ -2,7 +2,7 @@
 // Session-only, preparation-only scheduling. This never arms or sends output.
 class ReferencePreparation {
  constructor({service,coordinator,prepare,canPrepare=()=>true,nativeReadiness=()=>({available:false,reason:'Native preparation is unavailable'}),onChange=()=>{}}){Object.assign(this,{service,coordinator,prepare,canPrepare,nativeReadiness,onChange});this.enabled=false;this.nativeConsent=false;this.needsInspection=false;this.reason=null;this.pending=null;this.running=false;this.waiting=false;this.epoch=0;}
- status(){return {enabled:this.enabled,running:this.running,waiting:this.waiting,scope:this.nativeConsent?'native-with-session-consent':'saved-passages-only',nativeConsent:this.nativeConsent,needsInspection:this.needsInspection,reason:this.reason,nativeReadiness:this.nativeReadiness()};}
+ status(){return {enabled:this.enabled,running:this.running,waiting:this.waiting,scope:this.nativeConsent?'native-with-session-consent':'saved-passages-only',nativeConsent:this.nativeConsent,nativeOwnerId:this.nativeConsent?this.nativeOwnerId:null,needsInspection:this.needsInspection,reason:this.reason,nativeReadiness:this.nativeReadiness()};}
  revokeNative(){this.nativeConsent=false;this.nativeBinding=null;this.nativeOwnerId=null;this.needsInspection=true;this.reason='Native preparation did not finish verification. Inspect ProPresenter before enabling missing-passage preparation again.';this.service.log('NATIVE_PREPARATION_INSPECTION_REQUIRED','warning');this.onChange(this.status());}
  owns(ownerId){return this.nativeConsent&&this.nativeOwnerId===ownerId;}
  configure(value,ownerId=null){
@@ -39,7 +39,8 @@ class ReferencePreparation {
     if(!this.canPrepare()){if(performance.now()-work.queuedAt>=2000){this.pending=null;this.reason='Another preparation is still busy. Review the latest reference before preparing again.';this.service.log('REFERENCE_PREPARATION_OWNER_BUSY','warning');continue;}if(!this.waiting){this.waiting=true;this.onChange(this.status());}await new Promise(resolve=>setTimeout(resolve,25));continue;}
     this.pending=null;this.waiting=false;if(!this.needsInspection)this.reason=null;this.onChange(this.status());
     this.activeReferenceEpoch=work.referenceEpoch;
-    try{await this.prepare(work.id,work.owner,this.nativeConsent?{acknowledgeFocusChange:true,acknowledgeCreateCopy:true}:{});}catch(error){if(work.epoch===this.epoch){this.service.log('REFERENCE_PREPARATION_BLOCKED','warning');}}
+    const ownerId=Number.isSafeInteger(work.owner)?work.owner:work.owner?.sender?.id;
+    try{await this.prepare(work.id,work.owner,this.owns(ownerId)?{acknowledgeFocusChange:true,acknowledgeCreateCopy:true}:{});}catch(error){if(work.epoch===this.epoch){this.service.log('REFERENCE_PREPARATION_BLOCKED','warning');}}
    }}finally{this.waiting=false;this.running=false;this.onChange(this.status());}
  }
 }

@@ -31,3 +31,7 @@ Native copy attempts are capped at 100 per app run, counting uncertain attempts 
 ## Recovery build checkpoint e27272d
 
 [Matching build evidence](evidence/pr22-build-checkpoint-e27272d.json) records365 module tests, the143-file isolated Windows manifest, native-helper/source identity and packaged recovery/uncertainty/no-input/normal-passage checks. Public standard Mac workflow [44433224123](https://github.com/gboyegaadeojo/VerseCue/actions/runs/44433224123) passed at the same revision, including both new recovery scenarios, CPU speech packaging and the packaged workspace. The Mac artifact has not been independently downloaded/checksummed for this checkpoint. These checks do not verify actual Mac native Bible control or physical service output, and this branch is still unpublished. Subsequent saved-lookup continuity changes are outside this exact-revision build.
+
+## Lookup-continuity checkpoint eba514c
+
+[Matching evidence](evidence/pr22-build-checkpoint-eba514c.json) records366 passing module tests,143 Windows manifest files and packaged minimized saved-lookup/speech, next-verse and full desktop smoke checks. Public standard Mac [44434020906](https://github.com/gboyegaadeojo/VerseCue/actions/runs/44434020906) passed at that exact revision with the new delayed-lookup scenario, existing source checks, CPU speech packaging and packaged workspace. Independent Mac artifact checksum and actual Mac native/physical output remain unverified. Later window-consent isolation changes require their own matching checks.
