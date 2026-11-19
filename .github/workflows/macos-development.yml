@@ -34,6 +34,7 @@ jobs:
           node scripts/test-detected-native-preparation.cjs --output-edit
           node scripts/test-slide-preview.cjs
           node scripts/test-saved-lookup-speech.cjs
+          node scripts/test-managed-copy-ledger.cjs
       - name: Build pinned CPU-only local speech
         run: |
           git clone https://github.com/ggml-org/whisper.cpp.git .cache/whisper-source

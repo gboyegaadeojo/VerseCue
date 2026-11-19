@@ -6,9 +6,9 @@
 
 Native preparation could report clipping and block its review, but a later lookup of the same unchanged saved copy had only the ordinary presentation metadata. That lookup could lose the known warning. Normal confirmation now rejects a known clipped plan in the backend as well as disabling its button. Checking both appearance/target acknowledgments or calling trusted IPC cannot bypass that rejection.
 
-After a fully verified native save transaction, the workflow records positive clipping evidence by target address, saved UUID and presentation fingerprint. Normal saved lookup attaches it to the same unchanged copy, including after same-target settings reconfiguration. The record contains no Bible text, transcript, audio or image and remains only in memory for the app run, bounded to100 entries alongside the100 native-attempt budget. It is not a general clipping detector or persistent presentation history.
+After a fully verified native save transaction, the workflow records positive clipping evidence by target address, saved UUID and presentation fingerprint. Normal saved lookup attaches it to the same unchanged copy, including after same-target settings reconfiguration. The record contains no Bible text, transcript, audio or image in an app-run memory cache bounded to100 entries alongside the100 native-attempt budget. New managed native copies also retain exact positive warnings in the separate [cross-restart accounting ledger](63-managed-native-copy-accounting.md); earlier untracked warnings are not imported. It is not a general clipping detector or persistent presentation history.
 
-Different targets or changed fingerprints are not claimed to share that warning. They still require ordinary review and retain `formattingVerified=false`. Unknown/not-verified never means formatting is clean. A restart requires the usual fresh operator review; this memory does not certify old copies safe.
+Different targets or changed fingerprints are not claimed to share that warning. They still require ordinary review and retain `formattingVerified=false`. Unknown/not-verified never means formatting is clean. A restart retains exact positive warnings for newly managed ledger entries and still requires fresh operator review. Earlier untracked copies may have no retained warning; absence never certifies them safe.
 
 ## Recovery
 

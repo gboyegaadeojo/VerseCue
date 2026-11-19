@@ -6,6 +6,7 @@ const {pathToFileURL}=require('node:url');
 const {Connector}=require('../core/connector.cjs');
 const {PreparedCatalog}=require('../core/prepared-catalog.cjs');
 const {SavedBibleWorkflow}=require('../core/saved-bible-workflow.cjs');
+const {NativeCopyLedger}=require('../core/native-copy-ledger.cjs');
 const {ReferencePassages}=require('../core/reference-passages.cjs');
 const {PassageCoordinator}=require('../core/passage-coordinator.cjs');
 const {ReferencePreparation}=require('../core/reference-preparation.cjs');
@@ -25,7 +26,8 @@ const connector=new Connector();const catalog=new PreparedCatalog(connector);con
 const citationStabilizer=new CitationStabilizer({onExpire:()=>{service.speechStabilization={state:'expired',reason:'Incomplete reference expired. Repeat the full book, chapter and verse.'};service.notify();}});
 function resetSpeechStabilization(){citationStabilizer.reset();service.speechStabilization={state:'idle'};}
 const automatic=new GuardedAuto(service);
-const referencePassages=new ReferencePassages({connector,catalog});
+let nativeCopyLedger=null;
+const referencePassages=new ReferencePassages({connector,catalog,knownClipping:(base,id,fingerprint)=>nativeCopyLedger?.knownClipping(base,id,fingerprint)===true});
 let preparation,preparationController,savedBible,passageCoordinator,referencePreparation,reviewOwnerId=null,preparationOwner=null,suspensionBlocker=null;
 function updateBackgroundCapture(active){if(active&&suspensionBlocker===null)suspensionBlocker=powerSaveBlocker.start('prevent-app-suspension');if(!active&&suspensionBlocker!==null){powerSaveBlocker.stop(suspensionBlocker);suspensionBlocker=null;}}
 const capture=new CaptureLease({canStart:()=>!service.recovery?.required&&!service.stopped&&service.mode!=='paused'&&!speech.busy&&!preparation?.busy&&!savedBible?.busy&&!passageCoordinator?.busy,onStop:()=>{resetSpeechStabilization();automatic.cancel();speech.cancel();updateBackgroundCapture(false);},onChange:value=>{updateBackgroundCapture(value.active);service.capture={...value,backgroundProtected:suspensionBlocker!==null&&powerSaveBlocker.isStarted(suspensionBlocker)};service.notify();}});
@@ -71,7 +73,9 @@ async function bootstrap(){
   let helperExists=false;try{await fs.access(helper);helperExists=true;}catch{}
   preparation=new BiblePreparation({helper:helperExists?helper:null});
   preparationController=new PreparationController({service,connector,speech:{cancel:cancelAudio},cancelRecognition:()=>{resetSpeechStabilization();speech.cancel();},preparation,getTranslation:()=>settings.translation});
-  savedBible=new SavedBibleWorkflow({service,connector,catalog,controller:preparationController,onPreparedCopy:receipt=>referencePassages.rememberNativeCopy(receipt),onUncertain:()=>referencePreparation?.revokeNative()});
+  nativeCopyLedger=new NativeCopyLedger(path.join(app.getPath('userData'),'native-copy-ledger.json'));await nativeCopyLedger.load();
+  if(nativeCopyLedger.failure)service.log('NATIVE_COPY_LEDGER_UNVERIFIED','warning');
+  savedBible=new SavedBibleWorkflow({service,connector,catalog,controller:preparationController,ledger:nativeCopyLedger,onPreparedCopy:receipt=>referencePassages.rememberNativeCopy(receipt),onUncertain:()=>referencePreparation?.revokeNative()});
   passageCoordinator=new PassageCoordinator({service,connector,resolver:referencePassages,savedBible,onChange:value=>{service.passagePreparation=value;service.notify();}});
   referencePreparation=new ReferencePreparation({service,coordinator:passageCoordinator,nativeReadiness:()=>savedBible.readiness(),canPrepare:()=>!preparationOwner&&!passageCoordinator.busy&&!savedBible.busy&&!preparation.busy&&!service.busy&&!service.operationOwner,prepare:(id,event,options)=>ownedPreparation(event,()=>passageCoordinator.prepare(id,options)),onChange:value=>{service.referencePreparation=value;service.notify();}});
   const recovery=new PowerRecovery({service,connector,cancelAudio,cancelPreparation:()=>cancelPreparation(),revokeApi:()=>privateApi.stop(),getTarget:()=>settings});
@@ -124,6 +128,14 @@ async function bootstrap(){
       case 'ingest':{if(typeof payload?.text!=='string')throw new Error('Invalid reference');resetSpeechStabilization();if(preparation.busy||savedBible?.busy||passageCoordinator?.busy||passageCoordinator?.review||passageCoordinator?.active)cancelPreparation();const candidates=await service.ingestChecked(payload.text,{manual:true});referencePreparation.consider(candidates,event);return candidates;}
       case 'audio-loss':{if(!capture.owns(event.sender.id)||!['overflow','stale','clipping','capture-gap'].includes(payload?.reason)||!Number.isSafeInteger(payload.samples)||payload.samples<1)throw Error('Invalid audio discontinuity');resetSpeechStabilization();automatic.cancel();cancelPreparation();service.invalidate();if(service.mode==='auto'){connector.arm(false);service.setMode('paused');}service.log('AUDIO_LOSS_CONTEXT_RESET','warning');service.notify();return true;}
       case 'reference-preparation':if(service.stopped||service.recovery?.required)throw Error('Resume Confirm before enabling preparation');return referencePreparation.configure(payload,event.sender.id);
+      case 'reconcile-native-copies':return ownedPreparation(event,async()=>{
+        if(service.busy||service.operationOwner||service.stopped||service.recovery?.required)throw Error('Resume Confirm and finish pending operations before checking managed copies');
+        const owner={},target=connector.generation,base=connector.base,generation=service.generation,deadline=performance.now()+8000;nativeCopyLedger.targetKey(base);service.operationOwner=owner;
+        const valid=()=>!event.sender.isDestroyed()&&connector.generation===target&&connector.base===base&&service.generation===generation&&!service.stopped&&!service.recovery?.required&&performance.now()<deadline;
+        const check=()=>{if(!valid())throw Error('Managed-copy catalog check canceled or expired');};
+        try{const libraries=await catalog.libraries();check();if(libraries.length>10)throw Error('Too many libraries for a complete bounded copy check');const ids=new Set();for(const library of libraries){const rows=await catalog.presentations(library.uuid);check();if(rows.length>1000)throw Error('Library exceeds the bounded managed-copy check');for(const row of rows)ids.add(row.uuid);}check();const result=await nativeCopyLedger.reconcile(base,ids,valid);service.log('NATIVE_COPY_LEDGER_RECONCILED');return result;}
+        finally{if(service.operationOwner===owner)service.operationOwner=null;service.notify();}
+      });
       case 'mode':cancelAudio();cancelPreparation();return service.setMode(payload);
       case 'enable-auto':if(preparation.busy||savedBible?.busy||passageCoordinator?.busy)throw new Error('Finish Bible preparation before enabling Auto');referencePreparation.configure(false);resetSpeechStabilization();automatic.cancel();speech.cancel();return service.enableAuto({acknowledged:payload?.acknowledged===true});
       case 'stop':cancelAudio();cancelPreparation();connector.arm(false);return service.stop();
