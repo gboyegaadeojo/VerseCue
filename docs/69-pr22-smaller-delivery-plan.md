@@ -23,7 +23,10 @@
 | Precompiled read-only Mac diagnostic artifact | [PR37](https://github.com/gboyegaadeojo/VerseCue/pull/37) | Public compile/package44630107420 passed; archive/hash/path/mode/arm64 inspection passed without execution. Merged at73b0fa6. Actual Mac ProPresenter feasibility remains pending. |
 | Bounded opt-in preparation harness | [PR38](https://github.com/gboyegaadeojo/VerseCue/pull/38) | Syntax and pre-access CLI guards passed; code-only merged ateee328e. No new personal-host result published. |
 | Native helper source/build parity | [PR39](https://github.com/gboyegaadeojo/VerseCue/pull/39) |420 tests/syntax, source-compiled147-file Windows package,20 packaged synthetic scenarios and Mac44634715211 passed; merged at039fd4a. |
-| Exact Save As popup lookup candidate | [PR40](https://github.com/gboyegaadeojo/VerseCue/pull/40) | Compiler/420 tests/syntax passed; package/CI verification continuing. Draft; no runtime/performance/appearance pass claimed. |
+| Exact Save As popup lookup candidate | [PR40](https://github.com/gboyegaadeojo/VerseCue/pull/40) | 420 tests/syntax, fresh147-file Windows package, focused packaged synthetic checks and final Mac44639465385 passed; merged atc17f3cd. No public personal-host performance/appearance acceptance claim. |
+
+| Bounded saved-confirmation diagnostic harness | [PR41](https://github.com/gboyegaadeojo/VerseCue/pull/41) | Syntax and pre-access authorization guards passed; merged at418fe08. Content-free private failure snapshots; no hardware pass claimed. |
+| Visible prepared-review expiry | [PR42](https://github.com/gboyegaadeojo/VerseCue/pull/42) | Draft d544069;420 tests/syntax, source and exact packaged confirmation/expiry, packaged next-verse and normal-Auto synthetic checks passed. Exact Mac44641806049 running. |
 
 ## Dependency delivery and remaining acceptance
 

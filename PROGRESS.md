@@ -427,3 +427,7 @@ Final Mac44637601238 failed while its test tried to click Continue after externa
 ## PR40 final integration and confirmation diagnostics
 
 PR40 merged atc17f3cd after final exact c17c242 Mac run44639465385 passed. Earlier failed CI remains recorded. The exact-popup component is integrated; aggregate PR22 and full field acceptance remain incomplete. The next saved-confirmation harness records a content-free private pre-Stop state and explicit failed step, distinguishing no receipt from a rejected relative proposal. New personal-host outcomes remain private pending publication permission. Next: finish the small code-only harness PR and continue bounded workflow verification without repeating a recorded output attempt automatically.
+
+## Review-expiry correction in progress
+
+PR41 merged at418fe08 and integrated. PR42 d544069 exposes the existing two-minute review deadline, disables expired actions and preserves Confirm errors in the operator message.420 module tests/syntax, source and exact147-file Windows packaged expiry/confirmation, packaged next-verse and normal-Auto synthetic checks passed. Standard Mac44641806049 is running; PR42 remains draft pending that result. No private actual-host result is published and no field acceptance is claimed. Next: inspect that exact CI run, merge only if its checks pass, then continue preparation/confirmation acceptance within scope.
