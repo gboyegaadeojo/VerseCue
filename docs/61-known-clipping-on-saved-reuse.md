@@ -31,3 +31,7 @@ Additional synthetic desktop checks: `--recover` verifies exact fresh-copy selec
 ## Saved lookup during ordinary speech
 
 A separate follow-up fixes the earlier read-only resolver using the all-input epoch: ordinary final preaching could cancel an in-progress saved lookup before it reached review. Lookup now follows the reference epoch as the coordinator already does, with original generation, expiry, target and candidate-presence checks retained. A new reference/hold/correction, partial revision, dismissal, expiry, Stop, mode or edition change still cancels it. A failing regression reproduced both the ordinary-speech interruption and missing intent guard before correction.366 module tests, syntax and the synthetic minimized desktop delayed-lookup/speech test pass; zero native preparation or output is used by that desktop test. The e27272d packages precede this follow-up.
+
+## Native failure guidance
+
+Native adapter failures now explain edition selection, unavailable Bible workspace, focus/input loss, target verification and Save As uncertainty in plain language. Save failures explicitly ask the operator to inspect for an open menu or new copy; they never assert that no side effect occurred. Unknown helper error content is replaced with generic inspection guidance rather than echoed.368 module tests and syntax pass, including a single-attempt boundary regression for known/unknown failures. No native command, timeout, output authority or retry policy changed.

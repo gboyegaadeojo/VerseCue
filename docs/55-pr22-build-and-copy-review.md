@@ -35,3 +35,7 @@ Native copy attempts are capped at 100 per app run, counting uncertain attempts 
 ## Lookup-continuity checkpoint eba514c
 
 [Matching evidence](evidence/pr22-build-checkpoint-eba514c.json) records366 passing module tests,143 Windows manifest files and packaged minimized saved-lookup/speech, next-verse and full desktop smoke checks. Public standard Mac [44434020906](https://github.com/gboyegaadeojo/VerseCue/actions/runs/44434020906) passed at that exact revision with the new delayed-lookup scenario, existing source checks, CPU speech packaging and packaged workspace. Independent Mac artifact checksum and actual Mac native/physical output remain unverified. Later window-consent isolation changes require their own matching checks.
+
+## Window-consent checkpoint ac3d572
+
+[Matching evidence](evidence/pr22-build-checkpoint-ac3d572.json) records367 module tests,143 Windows manifest files, native helper/source identity and packaged two-window consent/recovery, uncertainty, minimized saved-lookup and normal-passage checks. Public standard Mac [44434893807](https://github.com/gboyegaadeojo/VerseCue/actions/runs/44434893807) passed the same revision including source scenarios and packaged workspace. No independent Mac artifact checksum, actual Mac native route or physical service acceptance is inferred. Later plain-language native-error guidance is outside this build.
