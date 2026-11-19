@@ -1,0 +1,122 @@
+{
+  "at": "2026-11-19T19:24:20.123Z",
+  "revision": "105868f725479cb9f61ce7527541b84f9ac4d8b9",
+  "manifestFilesVerified": 146,
+  "buildAt": "2026-11-19T19:21:05.349Z",
+  "cases": [
+    {
+      "test": "test-reference-passage-ui.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-next-verse-ui.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-audio-age.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-passage-copy-choice.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-listening-preparation.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-api-passage-review.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-citation-stabilization.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-detected-native-preparation.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-detected-native-preparation.cjs --no-input",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-detected-native-preparation.cjs --clipped",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-detected-native-preparation.cjs --recover",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-detected-native-preparation.cjs --uncertain",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-detected-native-preparation.cjs --output-edit",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-slide-preview.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-saved-lookup-speech.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-managed-copy-ledger.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-guarded-auto.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-guarded-auto.cjs --bare-citations",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-normal-auto-approval.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "test": "test-normal-auto-approval.cjs --changed-look",
+      "status": 0,
+      "error": null
+    }
+  ],
+  "complete": true,
+  "passed": true,
+  "packaged": true,
+  "actualProPresenterAccess": false,
+  "microphoneCapture": false,
+  "mac": {
+    "runId": 44596961095,
+    "revision": "105868f725479cb9f61ce7527541b84f9ac4d8b9",
+    "conclusion": "success",
+    "realProPresenter": false,
+    "realMicrophone": false
+  },
+  "sourceDigestSha256": "170dbd418ac782123a6f17c49f7b84775f152f00fef7021936d25a54a74eb4c0",
+  "productionSourceUnchangedAfterMainSync": true
+}

@@ -3,7 +3,7 @@
 Updated: 2026-11-19 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-IMPLEMENTING - NR-009 / draft PR22; continuation goal active. 419 module tests pass. Normal reference-driven preparation/review/Confirm, ordered parts, safe navigation, bounded speech assembly, consented detected-native preparation, private API review and native saved-slide thumbnails are implemented. Personal Windows21.4.2 preparation/edition/minimized tests and one actual saved-passage confirmation with audience/stage screens disabled passed within their documented scope. No arbitrary Auto, live speech accuracy, physical church-theme/output fidelity, Mac native route, field acceptance or new release claim. Native preparation remains slow and can report clipping; known warnings now survive unchanged copy reuse and are backend-blocking. Original requirements and RF01-22 remain intact; keep PR draft/unmerged. Exact next actions: finish PR35 packaged/combined-head verification and merge the normal workspace, then address native timing/clipping and actual platform/service acceptance under docs/69 without dropping full RF01-22/platform/service acceptance. The completed90-minute minimized fixture soak covers7ff7923 only.
+IMPLEMENTING - NR-009 / draft PR22; continuation goal active. 419 module tests pass. Normal reference-driven preparation/review/Confirm, ordered parts, safe navigation, bounded speech assembly, consented detected-native preparation, private API review and native saved-slide thumbnails are implemented. Personal Windows21.4.2 preparation/edition/minimized tests and one actual saved-passage confirmation with audience/stage screens disabled passed within their documented scope. No arbitrary Auto, live speech accuracy, physical church-theme/output fidelity, Mac native route, field acceptance or new release claim. Native preparation remains slow and can report clipping; known warnings now survive unchanged copy reuse and are backend-blocking. Original requirements and RF01-22 remain intact; keep PR draft/unmerged. Exact next actions: normal workspace and dependencies are merged through PR35/36; address native timing/clipping, personal API availability and actual platform/service acceptance under docs/69 without dropping full RF01-22/platform/service acceptance. The completed90-minute minimized fixture soak covers7ff7923 only.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -325,6 +325,18 @@ PR31 integration verification: all415 module tests and syntax checks passed. PR3
 
 PR32 merged at66a1b1b after final combined393 module tests/syntax and exact standard Mac44594866353 passed. Integrated both actual-worklet synthetic tests without changing the existing capture producer behavior. Full integration checks recorded below; no actual microphone/physical-output claim.
 
+## Normal reviewed Auto backend extraction - 2026-11-19
+
+Extracted current-review, owner-bound single-cue KJV Auto approval with Look/PNG rechecks, guarded original-age speech use and separately acknowledged session bare-citation policy. Approval sends nothing; original intent/cancellation/uncertainty and private-API restrictions remain. All401 combined module tests and syntax checks passed on Windows. Hosted Mac verification and desktop controls/lifecycle wiring remain pending; see docs/77-normal-reviewed-auto-backend.md. No actual microphone/ProPresenter/output used and no arbitrary native Auto claim.
+
+## Private API passage-review extraction - 2026-11-19
+
+Added capability-gated saved-passage review through a supplied coordinator hook and checked reference submission with API-session revocation. No remote focus/copy consent or passage confirmation accepted. All389 module tests and syntax pass;17 API tests include in-flight relative-context revocation with no candidate/output. Mac verification and desktop hook wiring remain pending. See docs/78-private-api-passage-review.md.
+
+## Normal reference-driven workspace integration - 2026-11-19
+
+Connected the normal desktop/IPC/settings workflow to the completed coordinator, scheduler, ledger, speech/citation evidence, Auto approval and private-API hooks. No per-passage Library/Presentation/Cue selection is needed in the normal path; advanced mappings remain fallback. Assembled source415 module tests/syntax and20 synthetic desktop scenarios passed, including normal Confirm/parts/keyboard/takeover, native consent/recovery, previews, ledger/restart and guarded Auto. No actual ProPresenter or OS microphone accessed. Matching packages/Mac and original physical/platform/service acceptance remain pending; see docs/79-normal-reference-passage-workspace.md.
+
 ## Private API passage-review extraction - 2026-11-19
 
 Added capability-gated saved-passage review through a supplied coordinator hook and checked reference submission with API-session revocation. No remote focus/copy consent or passage confirmation accepted. All389 module tests and syntax pass;17 API tests include in-flight relative-context revocation with no candidate/output. Mac verification and desktop hook wiring remain pending. See docs/78-private-api-passage-review.md.
@@ -353,6 +365,12 @@ The19:28 GitHub status command was not executed because automatic approval revie
 
 Soak session31497 was revalidated live after the interruption:333 cycles/9,964,461ms, minimized throughout, no failure/interruption and zero output. Subsequent heartbeat339 reached10,143,915ms. It has NOT completed180 minutes; do not summarize it as passed yet. No replacement soak was started.
 
+PR35 verification update: exact105868f7 standard Mac44596961095 passed415 module tests/syntax, all source desktop scenarios, CPU speech packaging and packaged workspace. Its Windows146-file source-matching review build passed all20 packaged synthetic desktop scenarios. No actual ProPresenter or OS microphone/physical-output acceptance claimed.
+
+## PR35 final Mac readiness race - 2026-11-19
+
+Final headf2f3575 Mac44598351212 failed during normal-Auto compact owner handoff: the test readiness predicate dereferenced a missing message element.415 module tests passed, but this run did not reach packaging. Earlier105868f7 Mac success remains scoped to that run. Added null-tolerant readiness predicates without dropping any assertions. Delayed-load Windows experiments did not reproduce the timing; temporary instrumentation was removed. Corrected source and exact105868f7 packaged normal-Auto scenarios passed on Windows, including owner-close revocation/no legacy bypass. Product source is unchanged. New exact Mac verification pending. Failure retained in docs/evidence/normal-workspace-mac-readiness-failure-2026-11-19.json.
+
 ## Detected preparation cancellation ownership fix - 2026-11-19
 
 A new regression failed against main: disabling/replacing queued detected work while waiting canceled a separately owned manual review. Track actual preparation invocation separately from running/waiting; cancel only scheduler-owned work. Preserve central Stop/target/session cancellation. All416 module tests/syntax pass; Mac verification pending. No real microphone/ProPresenter/output. Existing105868f7 soak predates this fix. Details: docs/80-detected-preparation-cancellation-ownership.md.
@@ -360,3 +378,13 @@ A new regression failed against main: disabling/replacing queued detected work w
 ## PR36 integration sync - 2026-11-19
 
 PR36 merged atd4c8e95 after416 combined module tests/syntax and exact standard Mac44628008807 passed. The independent regression first failed, then verified queued scheduler cancellation preserves separately owned manual work while owned in-flight work still cancels. Full integration419-test verification follows. PR35 includes the fix at32f9731 and repeats all source/package scenarios and exact Mac44628216612; no older package/soak is treated as evidence for the fix.
+
+## PR36 dependency before normal-workspace merge - 2026-11-19
+
+Corrected PR35 head5346e08 passed exact Mac44627121424 including415 module tests, source desktop scenarios, CPU speech packaging and packaged workspace. A subsequent independent regression exposed scheduler cancellation of separately owned manual work while merely waiting. Incorporated PR36 head590ab3d as an explicit dependency before merging the workspace. This changes production source; previous105868f7 builds/soak do not validate the fix. Combined tests/package/Mac checks must be repeated for the new source.
+
+## PR35 normal-workspace merge and completed scoped soak - 2026-11-19
+
+PR35 merged at7a6f1b9 with PR36 already included. Final32f9731 passed416 combined module tests/syntax,20 source and20 newly packaged Windows synthetic desktop scenarios, and exact standard Mac44628216612 including CPU speech packaging and packaged workspace. The146-file build matches current32f9731 application source. Integrated normal UI/IPC/settings/capture consumer/API/Auto lifecycle wiring into main; no normal per-passage Library/Presentation/Cue setup. Prior Mac readiness failure and corrected run remain in evidence. This is not a release or aggregate22 acceptance.
+
+Soak session31497 TERMINAL SUCCESS:10804224ms/361cycles, minimized throughout, no interruption/failure, zero output. Content-free summary docs/evidence/development-soak-0.6.0-e5d76747-20261119T192740497Z.json passed. Scope remains105868f7 private fixture/resident CPU/dry-run only, excludes later PR36, real microphone/native preparation/ProPresenter/media/Companion/physical output and live latency/accuracy. No replacement soak started.

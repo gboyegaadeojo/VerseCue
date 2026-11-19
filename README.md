@@ -31,7 +31,15 @@ Mac: extract the ZIP and move **VerseCue.app** to Applications. The package is f
 - Uses local speech recognition without a paid cloud speech subscription.
 - Provides service profiles, a compact view, connection settings and an optional private local API.
 
-## How a service workflow works
+## New reference-driven workspace (unreleased source)
+
+The development source replaces normal per-passage Library/Presentation/Cue setup. Connect your authorized test target, enter or detect a reference, click **Prepare passage**, review the exact saved text/preview, then explicitly **Confirm**. Split passages offer ordered continuation. Technical cue mappings remain an advanced fallback.
+
+Settings / Output separates detected-reference preparation consent from output approval. Restricted native preparation can create a missing passage in the installed ProPresenter Bible, may change focus and requires review; unavailable routes explain their limitations. Eligible reviewed single-cue KJV passages have a separate guarded Auto approval. This is not unrestricted new-passage Auto or a live-service release.
+
+See [the workspace guide](docs/79-normal-reference-passage-workspace.md) for workflow, test scope and remaining limitations. The downloads above retain their earlier behavior until a matching release is accepted.
+
+## How the current download works
 
 1. Open VerseCue and review the ProPresenter, audio and speech indicators.
 2. In **Settings**, choose the intended ProPresenter connection, pastor audio device/channel and installed Bible translation.
