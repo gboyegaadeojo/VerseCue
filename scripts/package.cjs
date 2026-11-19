@@ -5,6 +5,11 @@ const fs=require('node:fs/promises');const path=require('node:path');const {spaw
 (async()=>{
   const root=path.resolve(__dirname,'..');const pkg=require('../package.json');
   if(!['win32','darwin'].includes(process.platform))throw new Error('Build on Windows or macOS for that native package');
+  if(process.platform==='win32'){
+    if(process.arch!=='x64')throw Error('Windows native preparation packaging currently requires x64');
+    const compiled=spawnSync(process.execPath,[path.join(root,'scripts/build-windows-bridge.cjs')],{cwd:root,encoding:'utf8',windowsHide:true,timeout:30000});
+    if(compiled.error||compiled.status!==0)throw Error('Windows helper compilation failed: '+(compiled.error?.message||compiled.stderr||compiled.stdout));
+  }
   // On macOS the executable lives inside Electron.app/Contents/MacOS; copying
   // its parent would omit the app bundle, frameworks and resources.
   const runtime=path.join(path.dirname(require.resolve('electron/package.json')),'dist');const name=`VerseCue-${pkg.version}-${process.platform}-${process.arch}`;
@@ -24,7 +29,10 @@ const fs=require('node:fs/promises');const path=require('node:path');const {spaw
   await fs.rm(path.join(resources,'default_app.asar'),{force:true});
   if(process.argv.includes('--with-local-speech'))await require('./bundle-local-speech.cjs').bundle(resources);
   const nativeHelper=path.join(root,'native/bin/VerseCue.BibleBridge.exe');
-  if(process.platform==='win32'&&await fs.access(nativeHelper).then(()=>true,()=>false)){await fs.mkdir(path.join(resources,'native'));await fs.copyFile(nativeHelper,path.join(resources,'native','VerseCue.BibleBridge.exe'));}
+  if(process.platform==='win32'){
+    require('./native-build-receipt.cjs').verifyNativeBuild(JSON.parse(await fs.readFile(nativeHelper+'.build.json','utf8')),await fs.readFile(path.join(root,'native/windows/BibleBridge.cs')),await fs.readFile(nativeHelper));
+    await fs.mkdir(path.join(resources,'native'));await fs.copyFile(nativeHelper,path.join(resources,'native','VerseCue.BibleBridge.exe'));await fs.copyFile(nativeHelper+'.build.json',path.join(resources,'native','VerseCue.BibleBridge.exe.build.json'));
+  }
   const app=path.join(resources,'app');await fs.mkdir(app,{recursive:true});
   for(const dir of ['desktop','core','ui','legal'])await fs.cp(path.join(root,dir),path.join(app,dir),{recursive:true});
   await fs.writeFile(path.join(app,'package.json'),JSON.stringify({name:pkg.name,productName:pkg.productName,version:pkg.version,main:pkg.main,description:pkg.description,author:pkg.author},null,2));

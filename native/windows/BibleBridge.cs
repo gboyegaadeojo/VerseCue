@@ -54,9 +54,43 @@ class BibleBridge {
         return selectors[0];
     }
     static string SelectedTranslation(AutomationElement selector) {
-        var texts=selector.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text));
-        var names=texts.Cast<AutomationElement>().Select(e=>e.Current.Name).Where(n=>!String.IsNullOrWhiteSpace(n)).ToArray();
+        var cache=new CacheRequest();cache.TreeScope=TreeScope.Element;cache.TreeFilter=Automation.RawViewCondition;cache.Add(AutomationElement.NameProperty);
+        AutomationElementCollection texts;using(cache.Activate()){texts=selector.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text));}
+        var names=texts.Cast<AutomationElement>().Select(e=>e.Cached.Name).Where(n=>!String.IsNullOrWhiteSpace(n)).ToArray();
         Require(names.Length==1,"TRANSLATION_SELECTION_UNCERTAIN");return names[0];
+    }
+    static AutomationElement OpenBibleView(AutomationElement root,Process process) {
+        var header=ById(root,"bibleViewerHeader");if(header!=null)return header;
+        var button=ById(root,"MAIN_MENU_VIEW_BIBLES_title");
+        Require(button!=null&&button.Current.IsEnabled&&!button.Current.IsOffscreen,"BIBLE_VIEW_CONTROL_UNAVAILABLE");
+        Stage("open-bible-view");ClickVerifiedControl(button,process.Id);
+        var timer=Stopwatch.StartNew();while(timer.ElapsedMilliseconds<2000){header=ById(root,"bibleViewerHeader");if(header!=null)return header;Thread.Sleep(50);}
+        throw new InvalidOperationException("BIBLE_VIEW_NOT_VERIFIED");
+    }
+    static void SelectTranslation(AutomationElement root,Process process,AutomationElement selector,string expected) {
+        if(SelectedTranslation(selector)==expected)return;
+        Stage("open-installed-editions");ClickVerifiedControl(selector,process.Id);
+        var timer=Stopwatch.StartNew();bool selected=false;
+        while(timer.ElapsedMilliseconds<2000) {
+            uint foreground;GetWindowThreadProcessId(GetForegroundWindow(),out foreground);Require(foreground==process.Id,"FOCUS_CHANGED_DURING_EDITION_SELECTION");
+            var windows=AutomationElement.RootElement.FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ProcessIdProperty,process.Id));
+            var matches=new List<AutomationElement>();
+            foreach(AutomationElement window in windows) {
+                // The installed-edition popup exposes visible text rather than
+                // the MenuItem profile used by Save As. Match the exact edition
+                // name, prefer its visible text leaf, and hit-test before input.
+                var items=window.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.NameProperty,expected));
+                var visible=items.Cast<AutomationElement>().Where(e=>e.Current.IsEnabled&&!e.Current.IsOffscreen).ToArray();
+                var leaves=visible.Where(e=>e.Current.ControlType==ControlType.Text).ToArray();
+                matches.AddRange(leaves.Length>0?leaves:visible);
+            }
+            Require(matches.Count<=1,"INSTALLED_EDITION_AMBIGUOUS");
+            if(matches.Count==1){Stage("select-installed-edition");ClickVerifiedControl(matches[0],process.Id);selected=true;break;}
+            Thread.Sleep(50);
+        }
+        if(!selected){uint foreground;GetWindowThreadProcessId(GetForegroundWindow(),out foreground);if(foreground==process.Id)InputKeys(new [] {Key(0x1B,0,0),Key(0x1B,0,2)});throw new InvalidOperationException("REQUESTED_EDITION_NOT_FOUND_OR_MENU_UNVERIFIED");}
+        timer.Restart();while(timer.ElapsedMilliseconds<1500){if(SelectedTranslation(selector)==expected)return;Thread.Sleep(50);}
+        throw new InvalidOperationException("EDITION_SELECTION_NOT_VERIFIED");
     }
     static void ClickVerifiedControl(AutomationElement element,int processId) {
         var bounds=element.Current.BoundingRectangle;Require(!bounds.IsEmpty&&bounds.Width>1&&bounds.Height>1&&!element.Current.IsOffscreen,"SAVE_CONTROL_BOUNDS_UNAVAILABLE");
@@ -76,9 +110,10 @@ class BibleBridge {
         // This split control opens its menu on pointer-down rather than Invoke.
         // Resolve and hit-test its current accessibility bounds; never use a
         // stored screen coordinate or a keyboard shortcut for an unknown view.
-        Stage("open-save-copy-menu");ClickVerifiedControl(button,process.Id);
+        Stage("open-save-copy-menu");ClickVerifiedControl(button,process.Id);Stage("save-copy-menu-opened");
         var timer=Stopwatch.StartNew();
         while(timer.ElapsedMilliseconds<2000) {
+            Stage("find-save-copy-command");
             var windows=AutomationElement.RootElement.FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ProcessIdProperty,process.Id));
             var matches=new List<AutomationElement>();
             foreach(AutomationElement window in windows) {
@@ -87,6 +122,7 @@ class BibleBridge {
             }
             Require(matches.Count<=1,"SAVE_COPY_MENU_AMBIGUOUS");
             if(matches.Count==1) {
+                Stage("verify-save-copy-command");
                 GetWindowThreadProcessId(GetForegroundWindow(),out foreground);Require(foreground==process.Id,"FOCUS_CHANGED_IN_SAVE_MENU");
                 Require(Canonical(Value(field))==Canonical(reference)&&SelectedTranslation(selector)==selected,"PASSAGE_CHANGED_IN_SAVE_MENU");
                 Require(matches[0].TryGetCurrentPattern(InvokePattern.Pattern,out invoke),"SAVE_COPY_MENU_NOT_INVOKABLE");
@@ -100,23 +136,34 @@ class BibleBridge {
         Stage("validate-target");
         string operation=Convert.ToString(request.ContainsKey("operation")?request["operation"]:"inspect");
         Require(operation=="inspect"||operation=="prepare"||operation=="prepare-save","UNKNOWN_OPERATION");
+        string reference=null,translation=null;
+        if(operation!="inspect") {
+            Require(request.Count==3&&request.ContainsKey("reference")&&request.ContainsKey("translation"),"INVALID_PREPARE_REQUEST");
+            reference=Convert.ToString(request["reference"]);translation=Convert.ToString(request["translation"]);
+            Require(reference.Length<=100&&Regex.IsMatch(reference,@"^[1-3]?[A-Za-z ]+ [1-9][0-9]{0,2}:[1-9][0-9]{0,2}(-([1-9][0-9]{0,2}:)?[1-9][0-9]{0,2})?$"),"INVALID_REFERENCE_SHAPE");
+            Require(Translations.ContainsKey(translation),"UNSUPPORTED_REQUESTED_TRANSLATION");
+        }
         var processes=Process.GetProcessesByName("ProPresenter");Require(processes.Length==1,"ONE_PROPRESENTER_INSTANCE_REQUIRED");
         var process=processes[0];var expected=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),"Renewed Vision","ProPresenter","ProPresenter.exe");
         Require(String.Equals(Path.GetFullPath(process.MainModule.FileName),Path.GetFullPath(expected),StringComparison.OrdinalIgnoreCase),"UNEXPECTED_PROPRESENTER_EXECUTABLE");
         Require(process.MainWindowHandle!=IntPtr.Zero,"PROPRESENTER_WINDOW_UNAVAILABLE");
         var root=AutomationElement.FromHandle(process.MainWindowHandle);Require(root.Current.IsEnabled&&!root.Current.IsOffscreen,"PROPRESENTER_NOT_READY");
+        // Inspection remains read-only. Preparation has explicit application
+        // consent for focus changes, opening Bibles and exact edition selection.
+        if(operation!="inspect"){Require(SetForegroundWindow(process.MainWindowHandle),"COULD_NOT_FOCUS_PROPRESENTER");WaitReleasedModifiers();}
         Stage("find-bible-controls");
-        var header=ById(root,"bibleViewerHeader");Require(header!=null,"OPEN_BIBLES_VIEW_IN_PROPRESENTER");
+        var header=operation=="inspect"?ById(root,"bibleViewerHeader"):OpenBibleView(root,process);Require(header!=null,"OPEN_BIBLES_VIEW_IN_PROPRESENTER");
+        // Restrict control discovery to the observed Bible viewer, rather than
+        // traversing unrelated library, media, stage and production controls.
+        var bibleControls=TreeWalker.RawViewWalker.GetParent(header);Require(bibleControls!=null,"BIBLE_VIEW_CONTAINER_MISSING");
         var container=ById(header,"ReferenceTextBox");Require(container!=null,"REFERENCE_CONTAINER_MISSING");
         var edits=container.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Edit));
         Require(edits.Count==1,"REFERENCE_INPUT_AMBIGUOUS");var field=edits[0];
         Require(field.Current.IsEnabled&&!field.Current.IsOffscreen,"REFERENCE_INPUT_NOT_READY");
-        var selector=TranslationSelector(root);string selected=SelectedTranslation(selector);
+        var selector=TranslationSelector(bibleControls);string selected=SelectedTranslation(selector);
         if(operation=="inspect")return new {ok=true,state="inspection-only",translationDisplayName=selected,reference=Value(field),outputRequests=0};
-        Require(request.Count==3&&request.ContainsKey("reference")&&request.ContainsKey("translation"),"INVALID_PREPARE_REQUEST");
-        string reference=Convert.ToString(request["reference"]),translation=Convert.ToString(request["translation"]);
-        Require(reference.Length<=100&&Regex.IsMatch(reference,@"^[1-3]?[A-Za-z ]+ [1-9][0-9]{0,2}:[1-9][0-9]{0,2}(-([1-9][0-9]{0,2}:)?[1-9][0-9]{0,2})?$"),"INVALID_REFERENCE_SHAPE");
-        Require(Translations.ContainsKey(translation)&&Translations[translation]==selected,"SELECT_REQUESTED_TRANSLATION_MANUALLY");
+        SelectTranslation(root,process,selector,Translations[translation]);selected=SelectedTranslation(selector);
+        Require(Translations[translation]==selected,"REQUESTED_EDITION_NOT_VERIFIED");
         Stage("focus-reference");
         Require(SetForegroundWindow(process.MainWindowHandle),"COULD_NOT_FOCUS_PROPRESENTER");
         field.SetFocus();Require(GetForegroundWindow()==process.MainWindowHandle&&field.Current.HasKeyboardFocus,"REFERENCE_FOCUS_NOT_CONFIRMED");
@@ -136,24 +183,27 @@ class BibleBridge {
         while(watch.ElapsedMilliseconds<5000) {
             Stage("verify-translation");
             Require(SelectedTranslation(selector)==selected,"TRANSLATION_CHANGED_DURING_PREPARATION");
-            // Cache properties once per provider snapshot. Reading Current.Name
-            // individually on hundreds of elements incurs cross-process calls.
+            // Query only citation text during readiness polling. Enumerating
+            // every layout/image node made a provider snapshot block long enough
+            // to consume the bounded worker deadline on newly generated slides.
             AutomationElementCollection elements;
             var cache=new CacheRequest();cache.TreeScope=TreeScope.Element;cache.TreeFilter=Automation.RawViewCondition;
-            cache.Add(AutomationElement.NameProperty);cache.Add(AutomationElement.HelpTextProperty);cache.Add(AutomationElement.ControlTypeProperty);
+            cache.Add(AutomationElement.NameProperty);
             Stage("read-generated-snapshot");
-            using(cache.Activate()) { elements=bible.FindAll(TreeScope.Descendants,Condition.TrueCondition); }
-            var labels=elements.Cast<AutomationElement>().Where(e=>e.Cached.ControlType==ControlType.Text).Select(e=>e.Cached.Name).ToArray();
+            using(cache.Activate()) { elements=bible.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text)); }
+            var labels=elements.Cast<AutomationElement>().Select(e=>e.Cached.Name).ToArray();
             string expectedReference=Canonical(reference);
             bool rangeFound=labels.Any(n=>Canonical(n)==expectedReference||Canonical(n).StartsWith(expectedReference+" ",StringComparison.OrdinalIgnoreCase));count=labels.Count(n=>Regex.IsMatch(n??"",@"^[1-3]?[A-Za-z ]+ [1-9][0-9]*:[1-9][0-9]*"));
             bool fieldMatches=Canonical(Value(field))==expectedReference;
             Console.Error.WriteLine(Json.Serialize(new {stage="verify-check",elapsedMs=Total.ElapsedMilliseconds,fieldMatches=fieldMatches,rangeFound=rangeFound,elementCount=elements.Count,labelCount=count}));Console.Error.Flush();
             stable=fieldMatches&&rangeFound&&count>0?stable+1:0;
             if(stable>=2) {
-                clipped=elements.Cast<AutomationElement>().Any(e=>(e.Cached.HelpText??"").IndexOf("clipped",StringComparison.OrdinalIgnoreCase)>=0||(e.Cached.Name??"").IndexOf("clipped",StringComparison.OrdinalIgnoreCase)>=0);
+                var warningCache=new CacheRequest();warningCache.TreeScope=TreeScope.Element;warningCache.Add(AutomationElement.NameProperty);warningCache.Add(AutomationElement.HelpTextProperty);
+                AutomationElementCollection warnings;using(warningCache.Activate()){warnings=bible.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Image));}
+                clipped=warnings.Cast<AutomationElement>().Any(e=>(e.Cached.HelpText??"").IndexOf("clipped",StringComparison.OrdinalIgnoreCase)>=0||(e.Cached.Name??"").IndexOf("clipped",StringComparison.OrdinalIgnoreCase)>=0);
                 Stage("prepared-review");
                 bool saveCopy=operation=="prepare-save";
-                if(saveCopy)SaveBibleCopy(root,process,field,selector,reference,selected);
+                if(saveCopy)SaveBibleCopy(bible,process,field,selector,reference,selected);
                 return new {ok=true,state="prepared-needs-operator-review",reference=reference,translation=translation,referenceLabels=count,clippingWarning=clipped,saveCopyRequested=saveCopy,formattingVerified=false,outputRequests=0,outputObserved=false,elapsedMs=Total.ElapsedMilliseconds,timingsMs=Timings};
             }
             Thread.Sleep(150);

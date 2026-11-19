@@ -254,3 +254,7 @@ Package the existing unchanged Swift accessibility inventory as a short-lived ar
 ## Bounded native-preparation test harness
 
 Added an opt-in, preparation-only personal-host harness for one fixed short KJV reference in a verified Windows review package. It reserves a private attempt record, rejects an existing passage/record and requires independent disabled-screen checks and Computer Use activation. It never sends output, acquires a microphone or changes formatting/Looks/playlists. JavaScript syntax checked; no hardware/latency/appearance pass claimed. Personal-host result files remain ignored/private and are excluded from this code-only PR.
+
+## Windows native helper source/build parity
+
+Promote the existing integration helper source and make Windows packaging compile the current C# checkout, fail on missing/failed compilation, verify source/helper hashes and bundle a build receipt. Review builds stage source instead of importing an existing helper binary. Compiler invocation and420 module tests pass; syntax/package verification follows. New receipt tests reject stale source, replaced binary and malformed/foreign metadata without raw-value leakage. No actual ProPresenter-host result or hardware/latency/appearance pass is included in this code-only change. Details: docs/82-native-helper-build-parity.md.
