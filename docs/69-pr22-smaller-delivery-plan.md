@@ -1,0 +1,29 @@
+# Deliver PR22 as smaller reviewable changes
+
+2026-11-19. The user requests smaller PRs that can finish independently. PR22 remains the full integration and original acceptance tracker. Extracted PRs must state their actual scope; merging a reliability fix or diagnostic does not pass the whole application, platform, latency or service requirements.
+
+## Extracted changes
+
+| Piece | PR / branch | Dependency and evidence |
+|---|---|---|
+| Native helper response validation, external cancellation and safe recovery guidance | [PR23](https://github.com/gboyegaadeojo/VerseCue/pull/23), `fix/native-preparation-boundary` | Based directly on main;232 module tests/syntax and standard Mac44576351481 passed. Merged at9d6f185. No native UI behavior/deadline/output expansion. |
+| Read-only Mac accessibility feasibility inventory | [PR24](https://github.com/gboyegaadeojo/VerseCue/pull/24), `chore/macos-bible-feasibility-probe` | Based on main; unchanged Swift compiled on standard Mac44576539821. Merge with updated main resolved only shared progress history. Updated headb7f4301 compile44577868254 passed. After incorporating PR25 progress history, head5408ce6 compile44579335812 is queued; Swift source unchanged. No production native route or real-host feasibility claim. |
+| Revoked/replaced cue mapping dispatch and readback protection | [PR25](https://github.com/gboyegaadeojo/VerseCue/pull/25), `fix/revoked-cue-dispatch` | Based directly on original main;229 module tests/syntax passed. Standard Mac44577616214 passed; after current-main incorporation all234 combined tests passed. Merged atb12db50. No retry or new output permission. |
+| Exact saved-passage lookup and required reference intent | [PR26](https://github.com/gboyegaadeojo/VerseCue/pull/26), `feat/exact-saved-passage-lookup` | Ten files,148 additions/15 deletions. Required Session dependency extracted without removing the failing regression;269 combined module tests/syntax pass. Matching Mac44579298744 queued. No coordinator/UI/native/output wiring. |
+
+## Remaining dependency sequence
+
+1. **Session/reference intent and exact saved-passage foundation.** Keep exact edition/title, enabled nonempty ordered cue coverage, missing-middle/range checks, duplicate choice, unverified Bible origin and lookup cancellation together with the Session intent semantics they require. The first isolated run had251/252 tests passing against old main: ordinary final preaching was canceled by legacy Session correction handling. The regression was retained, and the required parser/navigation/small Session changes were included. PR26 now passes269 tests/syntax on current main. Matching Mac verification remains pending.
+2. **Speech age, continuity and citation assembly.** Original audio timing, window identity, loss/cut handling and bounded adjacent fragments; finality, revision, expiry and Confirm-only assembled results. Separate from output approval.
+3. **Passage coordinator and normal Confirm workspace.** Normal reference review/preview, internal cue identities, deliberate Confirm, ordered continuation, current-output ownership and manual takeover. Depends on the foundation and safe dispatcher; preserve acknowledgments and private-API restrictions.
+4. **Consented native preparation and managed-copy lifecycle.** Restricted verified Windows preparation, retained authorized input, window/target focus-copy consent, uncertainty/rebuild behavior, durable quotas/warnings and reconciliation. No format repair, automatic deletion or unsupported Mac/LAN claims. Default-off controls remain until explicit session choices.
+5. **Guarded Auto policy and normal approval.** Explicit bare-citation policy, owner-bound reviewed single-cue approvals, Look/image/metadata rechecks and strict original speech-age/Stop/loss/correction controls. Depends on the coordinator and ownership foundations. Arbitrary new native Auto remains blocked by actual timing/formatting evidence.
+6. **Actual integration acceptance and release.** New-reference/range/split/edition, microphone/accent, minimized use, media/Companion, room/stream Looks, physical output, shared-hardware latency, Mac/native/LAN and full-service acceptance. Publish matching Windows/Mac downloads only for the resulting accepted scope.
+
+These are dependency boundaries, not permission to omit any RF-01–22 or the original62FR/24NFR. Additional small PRs may separate an independently verifiable part within a boundary. Each PR needs a problem/result description, concrete tests and limitations, relevant documentation/progress, and a clear base/dependency. Do not publish an untested historical checkpoint with known later fixes missing merely to divide the diff.
+
+## Integration and reversibility
+
+Preserve the existing PR22 integration branch and its evidence. Merge completed standalone pieces into main, then merge current main back into the integration branch while preserving all progress entries. Do not rewrite or force-push published history. Keep the original full exit checklist in PR22; link each completed smaller PR to the requirements it advances. PR22 is not merged simply because a subset of children passed.
+
+The current personal ProPresenter API has no listener on its visibly configured port, so real integration tests are temporarily unavailable. Offline implementation and public standard-runner checks continue. Existing authorizations for personal tests/pushes/merges remain; no new live church host, paid service, permission changes or production output is authorized by this split.
