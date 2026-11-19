@@ -250,3 +250,7 @@ Corrected PR35 head5346e08 passed exact Mac44627121424 including415 module tests
 ## Precompiled read-only Mac feasibility diagnostic - 2026-11-19
 
 Package the existing unchanged Swift accessibility inventory as a short-lived architecture-named tar.gz artifact in the standard public Mac compile workflow. Includes source revision, per-file/archive SHA256 and preserved executable mode; no compiler installation is needed on the personal Mac. Workflow never executes the probe or ProPresenter and never requests permissions. README explains exact authorized invocation, expiration, unsigned/not-notarized status and stopping at existing OS/privacy blocks. Compile/archive/artifact verification pending; no runtime/control/field feasibility claim. No production application code or output behavior changes.
+
+## Bounded native-preparation test harness
+
+Added an opt-in, preparation-only personal-host harness for one fixed short KJV reference in a verified Windows review package. It reserves a private attempt record, rejects an existing passage/record and requires independent disabled-screen checks and Computer Use activation. It never sends output, acquires a microphone or changes formatting/Looks/playlists. JavaScript syntax checked; no hardware/latency/appearance pass claimed. Personal-host result files remain ignored/private and are excluded from this code-only PR.
