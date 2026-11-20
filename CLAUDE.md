@@ -1,6 +1,6 @@
 # VerseCue ? resume here
 
-Checkpoint: 2026-11-20 22:09 UTC. Implementation is active. P0 and full service acceptance remain pending.
+Checkpoint: 2026-11-20 22:18 UTC. Implementation is active. P0 and full service acceptance remain pending.
 
 Read [AGENTS.md](AGENTS.md), the entire [master specification](VerseCue_Master_Development_Prompt_v2_Codex.md), [HANDOFF.md](HANDOFF.md), [PROGRESS.md](PROGRESS.md), [NEW_REQUESTS.md](NEW_REQUESTS.md), [remaining work](docs/107-remaining-work-and-acceptance.md) and the complete original audit. Inspect actual repository/CI before relying on this checkpoint.
 
@@ -35,3 +35,7 @@ After an interruption, PR66 all31 packaged scenarios were observed terminal succ
 ## Readability work in progress ? 22:09 UTC
 
 Root6fb29a5 includes merged PR66 and passes537 modules/syntax/inventory. All old jobs are terminal. feat/booth-readability worktree is updated through66 and has uncommitted booth.css + stylesheet link, layout-only placement of passage before manual/session controls, inspector priority, and deliberate manual-review heading focus. Dedicated measured-size/fit/no-send test passed; screenshots were inspected and the first layout was corrected because the main action was too low. Existing Studio source routing/layout test passed. A sequential workspace/smoothness/module/check batch remains live in37384; poll it. No PR/build/Mac yet for readability. Keep all real hardware/platform/service gates open.
+
+## Latest readability checkpoint ? 22:18 UTC
+
+Rootfb25e94 integrates66 with537 module/check pass. Uncommitted booth-readability is based on main d9faf6a. Dedicated measured readability/manual-focus/compact test, Studio routing and smoothness tests passed; unchanged workspace test initially failed because the sticky footer covered Stop at200%/640px, then passed after normal-flow footer fix. Module534/check pass. A last dedicated UI run15084 is live to add explicit checkbox-label rectangle assertions/report fields; poll it. Previous37384/18398/13505 jobs are terminal. Docs111 is authored locally. Next finish this test, open small PR67, then full32 source/package/Mac verification. No real input/output or full accessibility claim.

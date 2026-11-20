@@ -745,3 +745,7 @@ Exact9d2735bd passes534 module/check, all31 source scenarios,152-file Windows re
 ## Readability verification checkpoint ? 22:09 UTC
 
 PR66 integration passes537 modules/syntax/inventory. Booth readability is locally implemented and measured size/fit/manual-no-send plus legacy Studio routing checks pass. Actual visual review prompted moving passage above manual/setup content and keeping primary action in view at1280x900. Sequential workspace/smoothness/module/check37384 remains live; no PR/build/Mac yet for this component. Real booth-distance and screen-reader acceptance remain pending.
+
+## Readability safety correction ? 22:18 UTC
+
+Legacy workspace test found sticky footer intercepting Emergency Stop at narrow200% zoom; normal-flow footer fix passed the unchanged test. Studio routing, smoothness, measured readability/manual-no-send/compact and534 branch modules/check pass. Last dedicated checkbox-label geometry run15084 is live. Docs111 authored; no PR/build/Mac yet. Original physical booth/screen-reader/field acceptance remains open.

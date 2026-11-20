@@ -97,3 +97,7 @@ PR66 exact9d2735bd passed all31 source/31 packaged Windows scenarios,534 modules
 ## Readability implementation ? 2026-11-20 22:09 UTC
 
 Root6fb29a5 integrates66 and passes537 modules/check. Uncommitted feat/booth-readability is based on main d9faf6a. Booth stylesheet establishes18px body/controls and44px targets, preserves Studio palette/font, and layout puts current passage before manual/setup content. Deliberate manual submit scrolls/focuses the reference heading without output; speech does not steal focus. Dedicated measured sizes/fit/no-send test and existing Studio routing test pass; visual screenshots inspected. Initial text-only enlargement put primary action too low and was corrected before acceptance. Sequential workspace/smoothness/module/check session37384 remains live. Next inspect result, finish regression/compact checks and docs, then own PR and exact-source build/Mac verification.
+
+## Readability checks ? 2026-11-20 22:18 UTC
+
+Rootfb25e94 is through66 with537 modules/check. The unreadability-first layout was corrected so current passage precedes manual/session options; deliberate manual review focuses the heading, not output. Measured sizes/fit/compact and existing Studio/smoothness pass. Existing workspace test exposed footer-over-Stop at640px/200%; normal-flow footer fix passed that same unchanged test.534 branch module/check pass. Final explicit checkbox-label geometry UI run15084 is live; all older jobs terminal. Local docs111 describes scope. No feature PR/build/Mac yet; after this test open PR and run full32 source/package/Mac.
