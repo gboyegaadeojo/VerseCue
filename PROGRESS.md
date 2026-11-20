@@ -396,3 +396,7 @@ Earlier8a960f4 passed28 source scenarios and Mac44785647620, and its151-file Win
 ## Mac parent-alias correction
 
 Initial PR65 e233de3 passed30 Windows source scenarios and152-file review receipts, but Mac44794215980 failed because normal parent aliases changed realpath. Canonicalizing the configured parent now preserves strict scratch-root/child refusal; an explicit parent-alias/linked-root regression passes. Ten focused groups plus531 modules/syntax/inventory pass. A new exact-head Windows/source/package/Mac cycle is required; retain old failure and reports without claiming them for changed source.
+
+## Safe input-test implementation completed locally
+
+2026-11-20. feat/safe-input-test adds an explicitly consented saved-input meter check without Whisper. Backend purpose/ownership and10-second expiry prevent test audio from reaching recognition; frontend avoids speech buffering, closes capture on Stop/expiry/reset, and protects a new test from old permission rejection. Three new focused groups plus534 branch modules/syntax/inventory pass. Extended source desktop scenario passes consent/meter/denial/expiry/Stop/pending permission/two-window/reset/fit with zero recognitions and no real input/output. Full current-head source/package/Mac verification remains before merge. See docs/110-safe-input-test.md.
