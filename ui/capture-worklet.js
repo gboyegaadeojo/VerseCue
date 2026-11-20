@@ -5,8 +5,9 @@ class Capture extends AudioWorkletProcessor {
     const channels=inputs[0];if(!channels?.length)return true;
     const input=channels[this.channel];if(!input){this.port.postMessage({error:'Selected pastor channel is unavailable · choose the correct channel'});return false;}
     const ratio=sampleRate/16000;
-    for(let i=0;i<input.length;i++,this.position++)if(this.position>=this.nextSample){const sample=input[i];this.buffer.push(sample);this.energy+=sample*sample;this.peak=Math.max(this.peak,Math.abs(sample));this.nextSample+=ratio;}
-    if(this.buffer.length>=1600){this.port.postMessage({samples:this.buffer,sampleOffset:this.emittedSamples,capturedAtContextSeconds:(currentFrame+input.length)/sampleRate,rms:Math.sqrt(this.energy/this.buffer.length),peak:this.peak});this.emittedSamples+=this.buffer.length;this.buffer=[];this.energy=0;this.peak=0;}
+    for(let i=0;i<input.length;i++,this.position++)if(this.position>=this.nextSample){const sample=input[i];this.buffer.push(sample);this.energy+=sample*sample;this.peak=Math.max(this.peak,Math.abs(sample));this.nextSample+=ratio;
+    if(this.buffer.length===1600){this.port.postMessage({samples:this.buffer,sampleOffset:this.emittedSamples,capturedAtContextSeconds:(currentFrame+i+1)/sampleRate,rms:Math.sqrt(this.energy/this.buffer.length),peak:this.peak});this.emittedSamples+=this.buffer.length;this.buffer=[];this.energy=0;this.peak=0;}
+    }
     return true;
   }
 }
