@@ -1,93 +1,62 @@
 # VerseCue development handoff
 
-Checked: 2026-11-20 22:55 UTC. [CLAUDE.md](CLAUDE.md) is the short current checkpoint; [PROGRESS.md](PROGRESS.md) retains history. This handoff supports Codex, Claude Code and human developers in the same workspace. It does not transfer the previous chat, credentials or runtime permissions automatically.
+Checked: 2026-11-20 23:50 UTC. Read [CLAUDE.md](CLAUDE.md) for the short current checkpoint and [PROGRESS.md](PROGRESS.md) for history. Main has stable links to this maintained integration-branch handoff.
 
-## Start here
+## Start safely
 
-1. Read the entire [master specification](VerseCue_Master_Development_Prompt_v2_Codex.md), then [agent instructions](AGENTS.md), CLAUDE.md, PROGRESS.md, [new requests](NEW_REQUESTS.md) and [remaining work](docs/107-remaining-work-and-acceptance.md).
-2. Inspect git status --short, git branch --show-current, git log -1, git worktree list and actual CI/process state. Saved status alone does not prove a process is live. Never restart solely because observation timed out.
-3. Consult the complete [original86-row audit](docs/99-original-requirement-evidence-audit.md), [RF01-22 map](docs/90-pr22-acceptance-state.md) and original acceptance plan. This handoff does not replace or waive requirements.
-4. Continue independent authorized implementation through small PRs. Merge completed components after relevant checks. Aggregate [PR22](https://github.com/gboyegaadeojo/VerseCue/pull/22) remains draft until its full scope is satisfied.
+Read the entire [master specification](VerseCue_Master_Development_Prompt_v2_Codex.md), [AGENTS.md](AGENTS.md), [NEW_REQUESTS.md](NEW_REQUESTS.md), [remaining work](docs/107-remaining-work-and-acceptance.md), [original86-row audit](docs/99-original-requirement-evidence-audit.md), [RF01-22 map](docs/90-pr22-acceptance-state.md) and original acceptance plan. Do not replace requirements with this handoff.
 
-## Current repository
+Inspect git status, branch/head, worktrees and actual process/CI state. A status file does not prove a job remains live. Preserve unrelated files; use small PRs and explicit staged paths. Never force-push, wipe test-results or restart based only on an observation timeout.
 
-Public repository: https://github.com/gboyegaadeojo/VerseCue.
+## Repository and completed work
+
+Public repository: https://github.com/gboyegaadeojo/VerseCue. Aggregate PR22 remains open/draft.
 
 | Location | Checked state |
 | --- | --- |
-| Main | d9faf6a, through PR66;534 modules |
-| Root | feat/reference-driven-bible-workflow,52cc803 before this checkpoint;537 modules including three integration-only historical soak-summary tests |
-| Active component | Draft [PR67](https://github.com/gboyegaadeojo/VerseCue/pull/67), feat/booth-readability, test-results/pr-split/booth-readability |
-| Exact PR67 head | 5bfb90513b9b61ae113b79204049008276313e84 |
-| Unrelated local material | Existing untracked design-reference/; preserve it |
+| Main |2d93e73, through PR67 app changes and PR68 docs pointers;534 modules|
+| Root |feat/reference-driven-bible-workflow,412cdc2 before this checkpoint;537 module/check pass on its app source, later changes docs only|
+| Active code |feat/labeled-recognition-evaluation; test-results/pr-split/labeled-recognition-evaluation; uncommitted offline tool|
+| Unrelated material |Existing untracked design-reference/; preserve|
 
-Source0.6.0 remains unreleased. Downloadable0.5.5 is an older supervised-test build. Review packages are neither releases nor installed replacements.
+Source0.6.0 is unreleased. Published0.5.5 is an older supervised-test download. Review packages do not replace installed apps or establish service readiness.
 
-## Active operation: verify PR67
+PR62 passage policy passed514 modules/28 source+packaged/Mac44787486654. PR63 introduced handoff docs. PR64 input information passed521 modules/29 source+packaged/Mac44791701176. PR65 scratch recovery corrected d2f6ac25 passed531 modules/30 source+packaged/Mac44794893453; retain initial parent-alias failure44794215980 historically. PR66 input test9d2735bd passed534 modules/31 source+packaged/Mac44800662569.
 
-Read docs/111-booth-readability-and-review-priority.md in the active worktree. After merge it will also exist in root docs/.
+PR67 exact5bfb90513b9b61ae113b79204049008276313e84 passed534 modules/check, measured typography/targets/checkbox labels/compact/manual-no-send, existing Studio/workspace/smoothness, all32 source+32 packaged Windows scenarios,153-file current-source/native receipts and Mac44828146007. Initial footer-over-Stop at640px/200% was reproduced and corrected using the unchanged regression. All jobs are terminal. PR68 docs-only830e1dd merged at2d93e73 after audit; main entry points now direct fresh agents to current active work.
 
-The component restores18px base/control text and44px action targets while preserving Studio colors/font/backend. Current passage precedes manual/session options; deliberate manual review scrolls/focuses the heading without sending. Speech retains input focus. Initial visual review caught a primary action pushed too low and layout was corrected. The unchanged workspace test exposed footer-over-Stop at640px/200%; the normal-flow footer fix passed that same test.
+## Active evaluator work
 
-534 module/check, measured typography/rectangles/checkbox-label/compact/manual-no-send tests and existing Studio/workspace/smoothness checks passed. Full current verification:
+Two offline scripts, tests/recognition-evaluation.test.cjs, docs112, a synthetic JSON example and diagnostic-checks workflow are uncommitted in the active worktree.10 focused synthetic groups (including BOM input) plus544 full modules/check pass; the synthetic example reports zero real held-out clips. No actual recordings were scored.
 
-- Windows source32: session34951 is terminal success; all32 passed.
-- Windows review build: session81089 is terminal success;153 packaged files match exact source and native receipt verified.
-- [Mac44828146007](https://github.com/gboyegaadeojo/VerseCue/actions/runs/44828146007): completed successfully at the exact head. No new dispatch is needed.
-- Packaged32 suite39252 is live. Poll it and merge only when current-head evidence passes. Read-only personal checks95264/7532 are terminal, recorded only privately; no actual native preparation is running. Integrate root after verified merge and update progress/audit/PR22/checkpoints.
+The evaluator separates source/split groups, requires real consent/review attestations and artifact hashes, rejects duplicate audio/split leakage, counts exact citation/edition/sequence matches and nominal Wilson intervals, and writes new reports only under ignored test-results/recognition-evaluation. It does not verify ground truth, verse legality/availability, live timing, sermon-hour false positives, display fidelity or service acceptance.
 
-These are synthetic software checks, not physical booth, screen-reader, real speech, native Mac ProPresenter or field acceptance.
+Its attempt to merge main68 was blocked only by the generated documentation audit JSON. Archive that one generated report into ignored test-results, restore only that file to HEAD, merge origin/main and preserve all new code. Re-run audit/progress, commit a small PR, then inspect its public standard-runner Windows/Mac ARM/Intel diagnostic jobs. Repo PUBLIC was just verified and the workflow skips private repos to preserve free-use constraints. No new app bundle or32-case GUI rerun is needed for these unbundled diagnostic-only scripts; assess changes if scope expands.
 
-## Recently completed
+## Next actual integration work
 
-| PR | Scope | Evidence before merge |
-| --- | --- | --- |
-|62|Passage limits1-50; default10 and independent Auto ceiling|514 modules,28 source/28 packaged Windows,151-file receipt, Mac44787486654|
-|63|Agent handoff/backlog|Documentation audit; no app code|
-|64|Input format/ranges, channel/device validation, permission guidance|521 modules,29 source/29 packaged,151-file receipt, Mac44791701176|
-|65|App-owned interrupted CLI WAV recovery|Corrected d2f6ac25:531 modules,30 source/30 packaged,152-file receipt, Mac44794893453. Initial Mac44794215980 failed on parent aliases and is retained historically.|
-|66|Ten-second meter-only Setup test with backend purpose/ownership/expiry|9d2735bd:534 modules,31 source/31 packaged,152-file receipt, Mac44800662569|
+The personal read-only prerequisite checks are terminal and records remain ignored/private. Computer Use list_apps timed out twice; documented JS reset/initialization/retry returned execution timeouts and kernel resets. No target selection or input was sent. Do not continue Windows UI actions until that helper recovers. Skill, guidance/API/confirmations were read; use node_repl + @oai/sky with actual returned windows and one observation-derived action per refresh. No guessed handles, PS UIA helpers, security/privacy changes or permission-dialog automation.
 
-All these component jobs are terminal. Do not poll old handles or repeat unchanged successful checks without a new concern. Original service gates remain open.
+Once tooling/prerequisites permit, prioritize Windows fresh-reference preparation speed/clipping and the full real-host fidelity matrix. Native testing needs fresh independent Audience=false and Stage=false observations. No actual native operation or output was attempted in this continuation. Do not publish new personal-host telemetry without specific authorization.
+
+A separate diagnostic bug is not fixed yet: soak-desktop, test-background-quotes, test-local-speech, test-packaged-speech and test-resident-speech still slice up to12 seconds, conflicting with the runtime10-second/160000-sample contract. Repair bounds and current capture/age/ownership semantics before running or claiming new replay/soak evidence. No long soak is active.
+
+Existing sermon pilot/spot-check/replay scripts are throwaway diagnostics, explicitly without independent labels/accuracy scores. The user already supplied the source and4690s start; [source intake](docs/test-data/sermon-source-intake.md) records it. Do not ask for source/timestamp again, manufacture labels from captions/model output or relabel synthetic cases as real. Formal consent/review/held-out evidence still matters.
 
 ## Commands and evidence
 
-Use PowerShell and npm.cmd on Windows. Standard checks: npm.cmd test; npm.cmd run check; node scripts/audit-documentation.cjs. The audit writes docs/evidence/documentation-consistency-audit.json; review intended changes. Structural consistency and dependency inventory checks are not runtime/release or independent security/license approval.
+Use npm.cmd on Windows. Standard checks: npm.cmd test; npm.cmd run check; node scripts/audit-documentation.cjs. The audit modifies docs/evidence/documentation-consistency-audit.json and proves structure only. Dependency inventory is not independent legal/security approval.
 
-Isolated worktrees use root node_modules via NODE_PATH. Existing private speech assets are root poc/private/tools/whisper-bin-x64.zip and poc/private/models/ggml-base.en.bin. Do not publish them. node scripts/build-review-package.cjs creates an isolated exact-source Windows package/native receipt under ignored test-results; it does not replace the installed application.
+Isolated worktrees use root node_modules via NODE_PATH. Review builds: node scripts/build-review-package.cjs, using existing root private whisper-bin-x64.zip and ggml-base.en.bin assets; never publish them. Source/package helpers in worktree test-results derive cases from the checked-out macos-development workflow. Reports are settings-source-workflows.json, settings-packaged-workflows.json, review-package.json and scenario reports. Match exact revision/runtime source.
 
-This workspace has copied sequential helpers in the active worktree's test-results/: run-source-workflows.cjs and run-packaged-workflows.cjs. They derive commands from the checked-out .github/workflows/macos-development.yml. Reports are settings-source-workflows.json, settings-packaged-workflows.json, review-package.json and scenario-specific reports. Match revision/source before relying on them. The package report provides its executable.
+A fresh clone lacks ignored assets, worktrees and reports. Run the listed workflow commands or reconstruct orchestration after inspecting source. Do not recreate processes from old notes. Source then packaged GUI suites run sequentially; CI is independent. Mac software/package CI does not prove installed ProPresenter on Mac.
 
-A fresh clone may lack these ignored helpers, reports and assets. Run the workflow's listed node commands sequentially or recreate orchestration after inspecting it. Never recreate old processes solely from a status note. Run source then packaged GUI suites sequentially to avoid focus/artifact races. CI may run independently. Mac CI proves its software/package scope; it does not run installed ProPresenter.
+## Authorization and acceptance
 
-## Authorization and external dependencies
+The user approved provisional implementation, routine builds/tests, public GitHub and small completed-component merges. Personal Windows test output is authorized only with disabled Audience/Stage independently observed before/during. No church production output, paid service/purchase, OS security/privacy/ACL change, blind uncertain-output retry, Clear/deletion or automatic restoration.
 
-The user approved provisional architecture/requirements implementation, routine local builds/tests, public GitHub, small PRs and completed component merges. Personal Windows ProPresenter output is authorized only with Audience=false and Stage=false independently observed before/during output. Church production output is not authorized. No paid services/purchases, OS security/privacy/ACL changes, blind unknown-result retries, ProPresenter Clear/deletion or automatic cue restoration.
+Unanswered specific matters remain publication of new personal-host telemetry, an authorized Mac/native accessibility test profile, and separately named Text Down test styles for clipping investigation. Continue unaffected work without repeating questions; silence is not approval. Automatic review previously rejected new host telemetry publication without specific permission. Never commit/delete all test-results: it contains private evidence and active worktrees.
 
-Specific unanswered matters: authorization to publish new sanitized personal-host telemetry; access to an authorized real Mac/native accessibility test profile; permission for separately named test styles VerseCue Test Verse / VerseCue Test Reference with Text Down for clipping investigation. Continue unaffected work without repeating questions. Silence does not authorize dependent actions.
+P0 remains PENDING: route/fidelity/translation/platform/timing evidence and IFC approval are incomplete. Historical personal Windows21.4.2 evidence has scope and speed/clipping limitations; it does not establish six IFC editions, native Mac/LAN parity, physical room/stream outputs, real speech accuracy or service readiness. Preserve every original threshold, priority and release gate. ProPresenter owns themes/Looks/playlists; these are preservation tests, not new editors.
 
-Keep actual-host telemetry/audio/screenshots/private logs ignored. Automatic review previously rejected new host telemetry publication without specific permission. Never commit or delete the entire test-results directory: it contains private evidence and active worktrees.
-
-P0 remains PENDING: route/fidelity/translation/platform/timing evidence and IFC approval are incomplete. Historical personal Windows21.4.2 preparation/edition/minimized/limited-output evidence has scope and known speed/clipping limitations. It does not prove all six IFC editions, physical room/stream outputs, Mac parity or service readiness. Preserve original thresholds and release priorities.
-
-## After PR67
-
-Use docs/107 and the complete original audit rather than narrowing success to existing tests. Software remains for speech preview/reliability, native Mac integration and privacy/distribution follow-ups. Real acceptance includes exact edition/range/context fidelity; preservation of themes/Looks/playlist/manual/Companion operation; input hardware; latency/long sessions; labeled sermons; physical outputs; volunteer and screen-reader tasks. ProPresenter owns its themes/Looks/playlists: these are preservation checks, not editors to build in VerseCue.
-
-Refresh CLAUDE.md about every10 minutes during active work, after merges/build checkpoints and before interruption. Keep this file and PROGRESS.md current. Record exact evidence, one concrete next action and actual live handles. Never claim the whole application accepted because a component merged.
-
-## Immediate priority after the package check
-
-After verified PR67 merge/integration, inspect the authorized personal ProPresenter configuration using the computer-use skill (already read along with guidance/API/confirmations). Use node_repl + @oai/sky, returned app/window selection, fresh observations and one action per refresh. No input has run yet; wait for package GUI completion to avoid focus races. Keep personal records private. No security/privacy setting changes, production output, Clear, blind retry or restoration. Native testing still requires fresh independent Audience=false/Stage=false observations.
-
-If actual HIL depends on user/external state, continue independent software work. Current sermon pilot/spot-check/replay scripts are throwaway diagnostics and explicitly unscored, with no independent audible-end/accuracy labels. A strict labeled-recognition scorer would support the remaining acceptance work; real labels/consent/held-out coverage must remain genuine rather than inferred from captions or model output. The supplied source/timestamp and clips are already recorded in docs/test-data/sermon-source-intake.md; do not ask for them again.
-
-## Independent evaluation tool draft - 2026-11-20 23:07 UTC
-
-feat/labeled-recognition-evaluation in test-results/pr-split/labeled-recognition-evaluation is based on main through66. Two uncommitted scripts draft offline scoring of supplied canonical citation/edition proposals, separated by source/split; real rows need explicit authorization and review artifacts, duplicate audio/split leakage is rejected, and reporting is private/no-overwrite with nominal Wilson95 bounds and explicit no-service-acceptance flags. Latest syntax check77914 is live. No tests/docs/PR or actual scoring yet. Existing pilot/replay data remain unlabeled. Preserve this work while completing PR67 package and personal configuration inspection.
-
-## Authoritative current checkpoint - 2026-11-20 23:27 UTC
-
-PR67 merged atba4ca31; root7129ee6 passes537 modules/check/audit. All verification handles terminal. Computer Use list_apps timed out twice, then reset initialization/retry returned js execution timeout/kernel reset; no app selection/input was sent. ProPresenter UI work remains pending helper recovery; no security/privacy changes, output, screenshots or native operation occurred. Private read-only records remain ignored.
-
-The evaluator draft now has10 passing focused synthetic groups; code/tests remain uncommitted, no real data scored, no docs/full-module/Mac check/PR yet. A new docs/active-work-handoff-link worktree is being created in session62562 to fix stale main entry points. Separately, five legacy replay/soak scripts retain12-second limits despite the runtime10-second bound; no repair started. Complete bounded replay/ownership/timing alignment before running or claiming a new long soak. See the refreshed CLAUDE.md for exact next actions.
+Refresh the current checkpoint about every10 minutes while active, after merges/build checkpoints and before interruption. Keep exact next actions and actual live handles. Another agent needs its own credentials/runtime permissions; the conversation and handles do not transfer automatically.

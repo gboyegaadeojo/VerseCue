@@ -784,3 +784,7 @@ PR67 integration passes537 modules/syntax/inventory and structural audit; all so
 ## Main handoff entry points merged - 23:43 UTC
 
 PR68 documentation-only830e1dd merged at2d93e73 after structural audit and file review. Main CLAUDE/HANDOFF point to maintained active-branch notes; root retains its detailed live checkpoint. Both progress histories are preserved. All original required documents/requirements/corpus remain. No app source or output authorization changed.
+
+## Current handoff and evaluator verification - 23:50 UTC
+
+Main68/root412cdc2 documentation integration is complete; app source remains534 main/537 integration modules with previous source32/package32/Mac evidence. Evaluator10 focused groups and544 module/check pass, including BOM input; synthetic example has zero real scored clips. New workflow has public-repo guard and standard Windows/Mac ARM/Intel targets; no PR/CI yet. Archive/restore only generated audit JSON before merging current main into evaluator. Replay12s/10s mismatch remains unstarted. All old jobs terminal; no Windows UI action or actual native/output operation was sent.
