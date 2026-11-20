@@ -81,3 +81,7 @@ Next task: implement a10-second explicitly consented meter-only selected-input t
 ## Safe input test implementation ? 2026-11-20 19:11 UTC
 
 Root12ca1c0 includes65 and passes534 modules/syntax/inventory. Prepared feat/safe-input-test is updated through65 and now contains uncommitted implementation: capture-purpose lease with ten-second backend expiry, recognition denial for test leases, meter-only capture without speech buffering, saved-input/consent Setup controls, Stop/expiry/reset handling and old-permission epoch protection. Initial synthetic desktop test and three focused module additions pass. Extended UI/module/check session44050 is live. No PR/build/Mac verification yet. No actual microphone or ProPresenter used.
+
+## PR66 verification ? 2026-11-20 19:18 UTC
+
+Safe input test is now draft PR66 at9d2735bde8cc3e1570722b14029093d5f80befd9.534 module/check and extended synthetic UI pass.152-file Windows review/native receipts pass. Source31 suite35260 is live; Mac44800662569 is in_progress; build68094 terminal success. Run packaged31 after source completion. All previous PR64/65 handles are terminal. Root950827d is current before this checkpoint commit.
