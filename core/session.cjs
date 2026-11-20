@@ -118,20 +118,21 @@ class Session extends EventEmitter {
     const cooldownKey=this.referenceKey(c),priorSend=this.recentSends.get(cooldownKey),manualResend=origin==='desktop'&&c.manual===true&&['simulated','readback-matched'].includes(priorSend?.state);
     if(!priorSend&&this.recentSends.size>=200)throw Error('Duplicate cooldown tracking is full; wait or reset the session deliberately');
     if(this.duplicateSend(c)&&!continued&&!manualResend)throw new Error('Duplicate cooldown: wait or explicitly review a successful passage again');
-    this.busy=true;const gen=this.generation,mode=this.mode,inputEpoch=this.inputEpoch;this.notify();
+    this.busy=true;const gen=this.generation,mode=this.mode,inputEpoch=this.inputEpoch,resetEpoch=this.resetEpoch;this.notify();
     try {
       const guard=()=>!this.stopped&&this.mode===mode&&gen===this.generation&&(!automatic||inputEpoch===this.inputEpoch)&&this.clock()<c.expiresAt&&additionalGuard();
       if(c.reference.relative&&!this.dryRun){
-        try{if(!c.reference.remote||typeof this.connector.verifyContext!=='function')throw Error('Current passage context cannot be verified');await this.connector.verifyContext(c.reference.remote,guard);}catch(error){this.connector.arm?.(false);this.invalidate();this.mode='paused';throw error;}
+        try{if(!c.reference.remote||typeof this.connector.verifyContext!=='function')throw Error('Current passage context cannot be verified');await this.connector.verifyContext(c.reference.remote,guard);}catch(error){if(this.resetEpoch===resetEpoch){this.connector.arm?.(false);this.invalidate();this.mode='paused';}throw error;}
       }
       const result=await this.connector.send(c,{dryRun:this.dryRun,automatic,guard});
+      if(this.resetEpoch!==resetEpoch){this.log('PREVIOUS_SESSION_RECEIPT_UNCERTAIN','warning');return {state:'uncertain',reason:'A previous-session command finished after reset. Inspect ProPresenter; no retry or clear was sent.'};}
       this.lastSend={key,at:this.clock(),partKey,state:result.state};this.rememberCooldown(this.recentSends,cooldownKey,{at:this.clock(),state:result.state});this.queue=this.queue.filter(x=>x.id!==id);
       this.history.unshift({...c,phrase:undefined,state:result.state,at:this.clock()});this.history=this.history.slice(0,20);
       // Simulation never establishes real remote passage context.
       this.context=result.state==='readback-matched'?{...c.reference,translation:c.translation,verified:true,verifiedAt:this.clock(),remote:result.presentation??null,partial:result.part?result.part.index+1<result.part.count:false}:null;
       if(result.state==='uncertain'){this.invalidate();this.mode='paused';this.autoCitationPolicy='explicit-command';}
       this.log(result.state.toUpperCase(),result.state==='uncertain'?'warning':'info');return result;
-    }finally{this.busy=false;this.notify();}
+    }catch(error){if(this.resetEpoch!==resetEpoch){this.log('PREVIOUS_SESSION_COMMAND_ENDED','warning');throw Error('A previous-session operation ended after reset. Inspect ProPresenter if output was accepted; no retry or clear was sent.');}throw error;}finally{this.busy=false;this.notify();}
   }
 }
 module.exports={Session};
