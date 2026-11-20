@@ -3,7 +3,7 @@
 Updated: 2026-11-20 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-IMPLEMENTING — aggregate draft PR22. Components through PR65 are merged to main and integrated locally. PR62 exact58d0c5a7 passed514 module tests,28 Windows source/28 packaged scenarios, fresh151-file review receipt and Mac44787486654. Integration verification is being recorded below. P0 remains PENDING; no full-service, physical-output, Mac-native, speech-accuracy or new-release acceptance claim. See CLAUDE.md for the current resume point and docs/107-remaining-work-and-acceptance.md for the plain-English backlog. Next: finish PR65 interrupted speech scratch recovery, including the macOS parent-path alias correction and exact-head verification.
+IMPLEMENTING — aggregate draft PR22. Components through PR66 are merged to main and integrated locally. PR62 exact58d0c5a7 passed514 module tests,28 Windows source/28 packaged scenarios, fresh151-file review receipt and Mac44787486654. Integration verification is being recorded below. P0 remains PENDING; no full-service, physical-output, Mac-native, speech-accuracy or new-release acceptance claim. See CLAUDE.md for the current resume point and docs/107-remaining-work-and-acceptance.md for the plain-English backlog. Next: finish PR65 interrupted speech scratch recovery, including the macOS parent-path alias correction and exact-head verification.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -741,3 +741,7 @@ Exact9d2735bd passes534 module/check, all31 source scenarios,152-file Windows re
 ## PR66 merged after verified completion
 
 2026-11-20 22:01 UTC. PR66 exact9d2735bd merged atd9faf6a after534 modules/syntax/inventory,31 source and31 packaged Windows scenarios,152-file exact-source/native receipts and Mac44800662569 passed. All feature jobs are terminal; aggregate integration verification follows. Readability branch contains only uncommitted booth.css and its stylesheet link, not a finished redesign or acceptance pass.
+
+## Readability verification checkpoint ? 22:09 UTC
+
+PR66 integration passes537 modules/syntax/inventory. Booth readability is locally implemented and measured size/fit/manual-no-send plus legacy Studio routing checks pass. Actual visual review prompted moving passage above manual/setup content and keeping primary action in view at1280x900. Sequential workspace/smoothness/module/check37384 remains live; no PR/build/Mac yet for this component. Real booth-distance and screen-reader acceptance remain pending.

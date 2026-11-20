@@ -4,13 +4,13 @@ Updated: 2026-11-20. Read [the handoff](../HANDOFF.md) for exact branches, evide
 
 ## Finish the current component
 
-PR62's adjustable passage limit is implemented and all current Windows source/package and macOS checks passed at its exact recorded head. It is merged at2cc9ec4 and integrated; root passes517 module tests. PR63 handoff and PR64 selected-input information are also merged; root passes524 module tests. PR65 interrupted-speech cleanup is under verification. Aggregate PR22 stays draft. No new release is ready merely because this component passes.
+Components through PR66 are merged: adjustable passage limits, coding-agent handoff, selected-input format/validation, interrupted speech scratch recovery and a ten-second meter-only input test. Main passes534 module tests; integration passes537. Booth readability is the active independent component. Aggregate PR22 stays draft, and service acceptance/new release remain pending.
 
 ## Software to build or strengthen
 
 | Work | What the operator should gain | Requirements / next evidence |
 | --- | --- | --- |
-| Clearer microphone setup | See what the selected input actually reports; understand an unavailable channel or permission error instead of silently listening to another input | FR-001/002/003/005/007/008. PR64 reported format/channel validation and guidance is merged. Actual hardware mapping plus the dedicated input-test/loopback prerequisites still need work. |
+| Clearer microphone setup | See what the selected input actually reports; understand an unavailable channel or permission error instead of silently listening to another input | FR-001/002/003/005/007/008. PR64 reported format/channel validation and PR66 bounded meter-only test are merged. Actual hardware mapping, permission/hotplug and loopback prerequisite verification remain. |
 | Better speech recognition feedback | Read a rolling preview with provisional speech clearly different from a confirmed citation; diagnose missed or corrected references | FR-009/010/012/017/019/020/024/025. Current final-chunk recognition and deterministic parsing do not establish true streaming partials or real accent accuracy. Add tested confusion handling from labeled evidence. |
 | Real macOS ProPresenter preparation | Use the actual installed Bible workflow on Mac with the same safeguards | FR-044 and RF03/platform matrix. Native route remains unimplemented/unverified; requires an authorized Mac accessibility profile. Mac CI is insufficient. |
 | Live-service accessibility | Read important states from the booth, use deliberate keyboard actions, and operate with a screen reader | FR-026/027/030/031/061, NFR-015. Assess dense controls against required booth text/target sizes; test focus, emergency stop, NVDA/VoiceOver and volunteer tasks. Preserve the approved professional workspace direction. |

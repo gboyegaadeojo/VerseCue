@@ -93,3 +93,7 @@ Exact9d2735bd passes534 modules/check,31 source Windows scenarios,152-file exact
 ## PR66 completion after interruption ? 22:01 UTC
 
 PR66 exact9d2735bd passed all31 source/31 packaged Windows scenarios,534 modules/check,152-file exact-source/native receipts and exact Mac44800662569 (rechecked). Merged atd9faf6a. Root integration in progress; all prior job handles terminal. Readability worktree has only uncommitted booth.css and stylesheet link; merge current main while preserving this local work, then measure/render it before claiming improvement. No actual platform/service acceptance or release.
+
+## Readability implementation ? 2026-11-20 22:09 UTC
+
+Root6fb29a5 integrates66 and passes537 modules/check. Uncommitted feat/booth-readability is based on main d9faf6a. Booth stylesheet establishes18px body/controls and44px targets, preserves Studio palette/font, and layout puts current passage before manual/setup content. Deliberate manual submit scrolls/focuses the reference heading without output; speech does not steal focus. Dedicated measured sizes/fit/no-send test and existing Studio routing test pass; visual screenshots inspected. Initial text-only enlargement put primary action too low and was corrected before acceptance. Sequential workspace/smoothness/module/check session37384 remains live. Next inspect result, finish regression/compact checks and docs, then own PR and exact-source build/Mac verification.
