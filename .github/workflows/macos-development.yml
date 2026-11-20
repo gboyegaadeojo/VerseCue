@@ -19,6 +19,7 @@ jobs:
       - run: npm test && npm run check
       - name: Check reference-driven desktop workflow against synthetic targets
         run: |
+          node scripts/test-booth-readability.cjs
           node scripts/test-safe-input-test.cjs
           node scripts/test-speech-scratch-recovery.cjs
           node scripts/test-audio-input-information-ui.cjs
