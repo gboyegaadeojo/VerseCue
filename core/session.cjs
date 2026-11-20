@@ -6,9 +6,9 @@ const {QuoteMatcher}=require('./quote-matcher.cjs');
 const {validateAutoPolicy}=require('./auto-citation-policy.cjs');
 class Session extends EventEmitter {
   constructor(connector,{clock=()=>performance.timeOrigin+performance.now()}={}) {
-    super();this.connector=connector;this.clock=clock;this.mode='confirm';this.autoCitationPolicy='explicit-command';this.stopped=false;this.dryRun=true;this.queue=[];this.history=[];this.events=[];this.generation=0;this.resetEpoch=0;this.busy=false;this.translation='KJV';this.context=null;this.revisions=new Map();this.lastSend=null;this.duplicateCooldownSeconds=10;this.recentDetections=new Map();this.recentSends=new Map();
+    super();this.connector=connector;this.clock=clock;this.mode='confirm';this.autoCitationPolicy='explicit-command';this.stopped=false;this.dryRun=true;this.queue=[];this.history=[];this.events=[];this.generation=0;this.resetEpoch=0;this.busy=false;this.translation='KJV';this.context=null;this.revisions=new Map();this.lastSend=null;this.duplicateCooldownSeconds=10;this.maxPassageVerses=10;this.recentDetections=new Map();this.recentSends=new Map();
   }
-  snapshot(){this.expire();return {resetEpoch:this.resetEpoch,settingsRecoveryRequired:this.settingsRecoveryRequired===true,speechStabilization:this.speechStabilization??{state:'idle'},referenceEpoch:this.referenceEpoch??0,referencePreparation:this.referencePreparation??{enabled:false,running:false,scope:'saved-passages-only'},interpretation:this.interpretation??null,inputEpoch:this.inputEpoch??0,preparation:this.passagePreparation??{phase:'idle'},recovery:this.recovery?{...this.recovery}:null,generation:this.generation,mode:this.mode,autoCitationPolicy:this.autoCitationPolicy,stopped:this.stopped,dryRun:this.dryRun,queue:structuredClone(this.queue),history:structuredClone(this.history),events:structuredClone(this.events),busy:this.busy,translation:this.translation,quoteMatching:this.quoteStatus(),capture:this.capture?{...this.capture}:{active:false,ownerId:null},autoStatus:this.autoStatus??null,capabilities:{auto:true,quoteAuto:false,arbitraryLookup:false,clear:false},connection:this.connector.status??{state:'offline'}};}
+  snapshot(){this.expire();return {resetEpoch:this.resetEpoch,maxPassageVerses:this.maxPassageVerses,settingsRecoveryRequired:this.settingsRecoveryRequired===true,speechStabilization:this.speechStabilization??{state:'idle'},referenceEpoch:this.referenceEpoch??0,referencePreparation:this.referencePreparation??{enabled:false,running:false,scope:'saved-passages-only'},interpretation:this.interpretation??null,inputEpoch:this.inputEpoch??0,preparation:this.passagePreparation??{phase:'idle'},recovery:this.recovery?{...this.recovery}:null,generation:this.generation,mode:this.mode,autoCitationPolicy:this.autoCitationPolicy,stopped:this.stopped,dryRun:this.dryRun,queue:structuredClone(this.queue),history:structuredClone(this.history),events:structuredClone(this.events),busy:this.busy,translation:this.translation,quoteMatching:this.quoteStatus(),capture:this.capture?{...this.capture}:{active:false,ownerId:null},autoStatus:this.autoStatus??null,capabilities:{auto:true,quoteAuto:false,arbitraryLookup:false,clear:false},connection:this.connector.status??{state:'offline'}};}
   notify(){this.emit('change',this.snapshot());}
   enableAuto({acknowledged=false,citationPolicy='explicit-command',acknowledgeBareCitations=false,ownerId=null}={}){if(acknowledged!==true)throw new Error('Explicit Auto acknowledgment is required');const policy=validateAutoPolicy(citationPolicy,acknowledgeBareCitations);if(this.stopped||this.recovery?.required||this.busy)throw new Error('Resume Confirm and finish pending work before enabling Auto');if(!this.dryRun){const c=this.connector;if(!c.base||new URL(c.base).hostname!=='127.0.0.1'||!c.armed||c.status?.state!=='connected'||![...c.mappings.values()].some(map=>map.autoVerified===true&&(!map.autoApproval||map.ownerId===ownerId)))throw new Error('Auto test output requires an armed loopback target and a complete cue explicitly verified for Auto');}this.invalidate();this.mode='auto';this.autoCitationPolicy=policy;this.autoStatus={state:'ready',reason:this.dryRun?'AUTO SIMULATION: no output requests':'AUTO TEST OUTPUT: verified complete cues only'};this.log('AUTO_EXPLICITLY_ENABLED','warning');this.notify();}
   quoteStatus(){return {enabled:this.quoteEnabled===true,...(this.quoteMatcher?.status()??{translation:null,passages:0})};}
@@ -20,7 +20,7 @@ class Session extends EventEmitter {
   setMode(mode){if(!['confirm','suggest','paused'].includes(mode))throw new Error('Select a supported mode; enable Auto through its acknowledgment dialog');if(this.recovery?.required&&mode!=='paused')throw new Error('Recheck the connection after wake, then Resume in Confirm');this.invalidate();this.mode=mode;this.autoCitationPolicy='explicit-command';this.log('MODE_CHANGED');this.notify();}
   stop(){this.stopped=true;this.mode='paused';this.autoCitationPolicy='explicit-command';this.invalidate();this.log('EMERGENCY_STOP','warning');this.notify();}
   resume(){if(this.recovery?.required&&(this.recovery.phase!=='resume'||this.connector.status?.state!=='connected'||!this.connector.version))throw new Error('Test the ProPresenter connection after wake before resuming Confirm');this.recovery=null;this.stopped=false;this.mode='confirm';this.autoCitationPolicy='explicit-command';this.invalidate();this.log('REARMED_CONFIRM');this.notify();}
-  configure({dryRun=true,translation='KJV',duplicateCooldownSeconds=this.duplicateCooldownSeconds}={}){if(typeof dryRun!=='boolean'||!/^[- A-Z0-9]{2,30}$/.test(translation))throw new Error('Invalid session settings');if(!Number.isSafeInteger(duplicateCooldownSeconds)||duplicateCooldownSeconds<1||duplicateCooldownSeconds>300)throw Error('Invalid duplicate cooldown');this.duplicateCooldownSeconds=duplicateCooldownSeconds;this.invalidate();if(this.mode==='auto')this.mode='confirm';if(translation!==this.translation)this.quoteEnabled=false;this.autoCitationPolicy='explicit-command';this.dryRun=dryRun;this.translation=translation;this.log('CONFIG_CHANGED');this.notify();}
+  configure({dryRun=true,translation='KJV',duplicateCooldownSeconds=this.duplicateCooldownSeconds,maxPassageVerses=this.maxPassageVerses}={}){if(typeof dryRun!=='boolean'||!/^[- A-Z0-9]{2,30}$/.test(translation))throw new Error('Invalid session settings');if(!Number.isSafeInteger(duplicateCooldownSeconds)||duplicateCooldownSeconds<1||duplicateCooldownSeconds>300)throw Error('Invalid duplicate cooldown');if(!Number.isSafeInteger(maxPassageVerses)||maxPassageVerses<1||maxPassageVerses>50)throw Error('Invalid passage verse limit');this.maxPassageVerses=maxPassageVerses;this.duplicateCooldownSeconds=duplicateCooldownSeconds;this.invalidate();if(this.mode==='auto')this.mode='confirm';if(translation!==this.translation)this.quoteEnabled=false;this.autoCitationPolicy='explicit-command';this.dryRun=dryRun;this.translation=translation;this.log('CONFIG_CHANGED');this.notify();}
   resetDetectionCooldown(){this.recentDetections.clear();}
   referenceKey(candidate){const r=candidate.reference;return JSON.stringify([r.book,r.chapter,r.verse,r.endChapter??r.chapter,r.endVerse??r.verse,candidate.translation]);}
   pruneCooldown(map){const now=this.clock();for(const [key,value] of map)if(now-value.at>=this.duplicateCooldownSeconds*1000)map.delete(key);}
@@ -30,7 +30,7 @@ class Session extends EventEmitter {
     const external=options.additionalGuard??(()=>true);
     if(!external())throw Error('Reference request was revoked');
     if(this.dryRun||options.authorized===false||this.stopped||(!options.manual&&this.mode==='paused'))return this.ingest(text,options);
-    const checkStartedAt=this.clock(),context=this.context,proposed=parse(text,{context,now:this.clock(),defaultTranslation:this.translation});
+    const checkStartedAt=this.clock(),context=this.context,proposed=parse(text,{context,now:this.clock(),defaultTranslation:this.translation,maxVerses:this.maxPassageVerses});
     if(!proposed.references.some(r=>r.relative&&r.valid===true))return this.ingest(text,options);
     const generation=this.generation,inputEpoch=(this.inputEpoch??0)+1;this.inputEpoch=inputEpoch;
     const valid=()=>external()&&this.context===context&&generation===this.generation&&inputEpoch===this.inputEpoch&&!this.stopped&&!this.recovery?.required;
@@ -56,13 +56,13 @@ class Session extends EventEmitter {
     this.revisions.set(id,revision);if(this.revisions.size>200)this.revisions.delete(this.revisions.keys().next().value);
     this.queue=this.queue.filter(c=>c.utteranceId!==id);
     if(!final){this.generation++;this.notify();return [];}
-    const parsed=parse(text,{context:this.context,now:this.clock(),defaultTranslation:this.translation});
+    const parsed=parse(text,{context:this.context,now:this.clock(),defaultTranslation:this.translation,maxVerses:this.maxPassageVerses});
     this.interpretation={kind:parsed.command?.kind??(parsed.references.length?'reference':'none'),reason:parsed.issues[0]??null};
     if(authorized&&['hold','ignored-navigation'].includes(parsed.command?.kind)){this.referenceEpoch=(this.referenceEpoch??0)+1;this.queue=[];this.log(parsed.command.kind==='hold'?'HOLD_REQUESTED':'NAVIGATION_IGNORED');this.notify();return [];}
     let quote=null;
     if(!parsed.references.length&&!parsed.issues.length&&this.quoteEnabled&&authorized&&this.mode!=='paused'){
       quote=this.quoteMatcher?.match(text,this.translation);
-      if(quote){parsed.references=parse(quote.reference,{defaultTranslation:this.translation}).references;parsed.issues.push('Quoted wording match; operator confirmation required. Translation is configured, not inferred from wording.');}
+      if(quote){parsed.references=parse(quote.reference,{defaultTranslation:this.translation,maxVerses:this.maxPassageVerses}).references;parsed.issues.push('Quoted wording match; operator confirmation required. Translation is configured, not inferred from wording.');}
     }
     // A new explicit book/reference or a failed parse cannot preserve a prior
     // remote context for later relative references.
@@ -93,7 +93,7 @@ class Session extends EventEmitter {
     this.expire();const candidate=this.queue.find(item=>item.id===id);
     if(![-1,1].includes(direction)||!candidate||this.stopped||this.busy||!candidate.authorized||candidate.generation!==this.generation||candidate.reference.valid===false||candidate.reference.overLimit||candidate.reference.verse==null||candidate.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))throw new Error('Choose a valid unexpired candidate before navigating');
     if(candidate.translation!=='KJV')throw new Error('Verified numbering is unavailable for this translation; edit the reference explicitly');
-    const proposal=parse(direction===1?'next verse':'previous verse',{context:{...candidate.reference,translation:candidate.translation,verified:true,verifiedAt:this.clock()},now:this.clock(),defaultTranslation:candidate.translation});
+    const proposal=parse(direction===1?'next verse':'previous verse',{context:{...candidate.reference,translation:candidate.translation,verified:true,verifiedAt:this.clock()},now:this.clock(),defaultTranslation:candidate.translation,maxVerses:this.maxPassageVerses});
     const next=proposal.references[0];if(!next||next.valid!==true)throw Error(proposal.issues[0]??'Book boundary reached; choose the next book explicitly');
     this.queue=this.queue.filter(item=>item.id!==id);return this.ingest(next.label+' in '+candidate.translation,{manual:true});
   }
@@ -107,6 +107,8 @@ class Session extends EventEmitter {
     if(this.recovery?.required)throw new Error('Connection preflight is required after wake');
     if(c.recognition==='quote'&&origin!=='desktop')throw new Error('Quoted passages require confirmation in the desktop app');
     if(c.reference.verse==null||c.reference.valid===false||c.reference.overLimit||c.issues.some(i=>/Invalid|no-show|not supported/.test(i)))throw new Error('Edit this incomplete, prohibited, out-of-bounds or over-limit reference before sending');
+    if(c.reference.rangeLength>this.maxPassageVerses||c.reference.rangeLength===null&&c.reference.endChapter&&c.reference.endChapter!==c.reference.chapter)throw Error('The passage cannot be bounded within the configured verse limit');
+    if(c.reference.rangeLength>10&&(origin!=='desktop'||this.mode!=='confirm'))throw Error('Extended ranges require desktop Confirm mode');
     const key=`${c.label}|${c.translation}`;
     const part=c.passagePart,map=this.connector.mappings?.get(key);
     const approvedAuto=automatic&&map?.autoApproval===true&&map.autoVerified===true&&this.capture?.active===true&&this.capture.ownerId===map.ownerId;

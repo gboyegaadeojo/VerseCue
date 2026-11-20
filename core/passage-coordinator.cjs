@@ -23,7 +23,7 @@ class PassageCoordinator {
   const valid=()=>this.review===r&&r?.token===reviewToken&&r.epoch===this.epoch&&r.target===c.generation&&r.base===c.base&&r.generation===s.generation&&r.referenceEpoch===s.referenceEpoch&&!this.busy&&!s.stopped&&!s.recovery?.required&&s.clock()<r.expiresAt;
   if(this.thumbnailBusy||!r||!Number.isInteger(partIndex)||partIndex<0||partIndex>=r.plan.cueIndices.length||!valid())throw Error('Choose a current reviewed passage part before loading its preview');
   this.thumbnailBusy=true;
-  const check=async()=>{if(!valid())throw Error('Slide preview expired or changed');const inspected=await c.inspect(r.plan.uuid);if(!valid())throw Error('Slide preview expired or changed');const plan=planSavedPassage(inspected,{uuid:r.plan.uuid,reference:r.plan.reference,translation:r.plan.translation});if(plan.fingerprint!==r.plan.fingerprint){this.review=null;c.arm(false);s.context=null;this.publish({phase:'blocked',reason:'Saved passage changed. Prepare it again before review or output.',outputRequests:0});throw Error('Saved passage changed; prepare again');}};
+  const check=async()=>{if(!valid())throw Error('Slide preview expired or changed');const inspected=await c.inspect(r.plan.uuid);if(!valid())throw Error('Slide preview expired or changed');const plan=planSavedPassage(inspected,{uuid:r.plan.uuid,reference:r.plan.reference,translation:r.plan.translation,maxVerses:r.plan.maxVerses??10});if(plan.fingerprint!==r.plan.fingerprint){this.review=null;c.arm(false);s.context=null;this.publish({phase:'blocked',reason:'Saved passage changed. Prepare it again before review or output.',outputRequests:0});throw Error('Saved passage changed; prepare again');}};
   try{await check();const image=await c.thumbnail(r.plan.uuid,r.plan.cueIndices[partIndex],valid);await check();return {...image,reviewToken,partIndex,source:'ProPresenter saved-slide thumbnail',physicalOutputObserved:false,formattingVerified:false,outputRequests:0};}finally{this.thumbnailBusy=false;}
  }
  candidate(id){this.service.expire();const c=this.service.queue.find(row=>row.id===id);if(!c||this.service.stopped||this.service.recovery?.required||!c.authorized||c.generation!==this.service.generation||c.reference.valid!==true||c.reference.verse==null||c.reference.overLimit||c.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))throw Error('Review a valid current passage first');return c;}
@@ -68,9 +68,10 @@ class PassageCoordinator {
  }
  async approveAuto(reviewToken,{verified=false,acknowledgeTestOutput=false,acknowledgeAuto=false,ownerId=null}={}){
   const r=this.review,s=this.service,c=this.connector;
+  if((r?.plan.coveredVerses?.length??0)>10&&s.mode!=='confirm')throw Error('Extended ranges require desktop Confirm mode');
   if(this.busy||!r||r.token!==reviewToken||verified!==true||acknowledgeTestOutput!==true||acknowledgeAuto!==true||!Number.isSafeInteger(ownerId)||ownerId<1)throw Error('Review the passage and acknowledge appearance, test target and Auto approval first');
   if(!c.base||new URL(c.base).hostname!=='127.0.0.1'||c.status?.state!=='connected')throw Error('Auto test approval requires a connected ProPresenter on this computer through loopback');
-  if(s.mode!=='confirm'||r.sourceMode!=='confirm'||r.source.recognition==='quote'||r.source.reference.relative||!r.plan.singleCue||!r.plan.numberingVerified||r.plan.translation!=='KJV'||r.plan.clippingWarning===true)throw Error('Auto approval needs an unclipped complete single-cue KJV reference reviewed in Confirm');
+  if(s.mode!=='confirm'||r.sourceMode!=='confirm'||r.source.recognition==='quote'||r.source.reference.relative||!r.plan.singleCue||(r.plan.coveredVerses?.length??Infinity)>10||!r.plan.numberingVerified||r.plan.translation!=='KJV'||r.plan.clippingWarning===true)throw Error('Auto approval needs an unclipped complete single-cue KJV reference reviewed in Confirm');
   if(s.capture?.active&&s.capture.ownerId!==ownerId)throw Error('Approve Auto from the window that owns the authorized input');
   const valid=()=>this.review===r&&r.epoch===this.epoch&&r.target===c.generation&&r.base===c.base&&r.generation===s.generation&&r.referenceEpoch===s.referenceEpoch&&!s.stopped&&!s.recovery?.required&&s.clock()<r.expiresAt;
   if(!valid())throw Error('Prepared review expired or changed; prepare the passage again');
@@ -98,7 +99,7 @@ class PassageCoordinator {
   this.publish({phase:'confirming',reference:r.plan.reference,translation:r.plan.translation});
   try{
    await this.verifySource(r.source,valid);
-   await c.preparePassage({uuid:r.plan.uuid,reference:r.plan.reference,translation:r.plan.translation,expectedFingerprint:r.plan.fingerprint,verified:true,sourceContext:r.source.reference.relative?r.source.reference.remote:null,guard:valid});
+   await c.preparePassage({uuid:r.plan.uuid,reference:r.plan.reference,translation:r.plan.translation,maxVerses:r.plan.maxVerses??10,expectedFingerprint:r.plan.fingerprint,verified:true,sourceContext:r.source.reference.relative?r.source.reference.remote:null,guard:valid});
    if(!valid())throw Error('Passage confirmation canceled');
    // This explicit desktop confirmation authorizes one verified test passage.
    // Apply safe session transitions before creating its fresh manual candidate.
@@ -119,10 +120,10 @@ class PassageCoordinator {
   const partCount=plan.cueIndices.length,token=randomUUID();
   const context=this.service.context;
   if(context?.verified&&context.remote?.uuid===plan.uuid&&context.remote.index===plan.cueIndices[partIndex]&&context.remote.fingerprint===plan.fingerprint){
-   const current=metadataReference(plan.cues?.[partIndex]?.label,plan.translation);
+   const current=metadataReference(plan.cues?.[partIndex]?.label,plan.translation,{maxVerses:plan.maxVerses??10});
    if(!current)this.service.context=null;
    else{const compare=(a,b)=>a[0]-b[0]||a[1]-b[1],start=[current.chapter,current.verse],end=[current.endChapter??current.chapter,current.endVerse??current.verse],multi=compare(start,end)!==0;
-    const overlap=multi&&plan.cues.slice(partIndex+1).some(cue=>{const next=metadataReference(cue.label,plan.translation);if(!next)return true;if(next.book!==current.book)return false;return compare([next.chapter,next.verse],end)<=0&&compare([next.endChapter??next.chapter,next.endVerse??next.verse],start)>=0;});
+    const overlap=multi&&plan.cues.slice(partIndex+1).some(cue=>{const next=metadataReference(cue.label,plan.translation,{maxVerses:plan.maxVerses??10});if(!next)return true;if(next.book!==current.book)return false;return compare([next.chapter,next.verse],end)<=0&&compare([next.endChapter??next.chapter,next.endVerse??next.verse],start)>=0;});
     // Keep whole-passage context for explicit repeats, but bind relative verse
     // navigation to this exact readback cue without renewing ownership or age.
     this.service.context={...context,displayedReference:current,displayedRangeAmbiguous:overlap};
@@ -141,7 +142,7 @@ class PassageCoordinator {
   try{
    const partIndex=a.partIndex+1,previousCue=a.plan.cueIndices[a.partIndex];
    this.publish({phase:'continuing',reference:a.plan.reference,translation:a.plan.translation,partIndex,partCount:a.plan.cueIndices.length});
-   await c.preparePassage({uuid:a.plan.uuid,reference:a.plan.reference,translation:a.plan.translation,expectedFingerprint:a.plan.fingerprint,verified:true,partIndex,expectedCurrent:{uuid:a.plan.uuid,index:previousCue},guard:valid});
+   await c.preparePassage({uuid:a.plan.uuid,reference:a.plan.reference,translation:a.plan.translation,maxVerses:a.plan.maxVerses??10,expectedFingerprint:a.plan.fingerprint,verified:true,partIndex,expectedCurrent:{uuid:a.plan.uuid,index:previousCue},guard:valid});
    if(!valid())throw Error('Passage continuation canceled');
    outputPhaseStarted=true;
    const [candidate]=s.ingest(a.plan.reference+' in '+a.plan.translation,{manual:true});
