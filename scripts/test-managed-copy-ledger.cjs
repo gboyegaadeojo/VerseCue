@@ -1,11 +1,11 @@
 'use strict';
-const {apiJSON,apiResponse}=require('./synthetic-presentation.cjs');
+const {apiFixture,apiJSON,apiResponse}=require('./synthetic-presentation.cjs');
 // SYNTHETIC target/helper and a seeded isolated test-user-data ledger only.
 const {_electron}=require('playwright'),fs=require('node:fs/promises'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict'),{randomUUID,createHash}=require('node:crypto'),{planSavedPassage}=require('../core/bible-passage-plan.cjs');
 (async()=>{
  const executable=process.argv[2]?path.resolve(process.argv[2]):null,library='5e4da747-cf19-4810-8d4d-b6fe1a7d9350',first='75631f63-da79-419c-b862-c9b8338081f9',second='b1c6194a-50d9-461f-9d27-33b388b7d8a1',userData=path.resolve('test-results','managed-copies-'+randomUUID());let creations=0,triggers=0,app;
  const presentation=(uuid,verse)=>({id:{uuid,name:`Hosea 1_${verse} (KJV)`},destination:'presentation',has_timeline:false,groups:[{slides:[{enabled:true,label:`Hosea 1:${verse}`,text:'SYNTHETIC saved text '+verse}]}]});
- const original=presentation(first,1),plan=planSavedPassage({p:original,slides:original.groups[0].slides},{uuid:first,reference:'Hosea 1:1',translation:'KJV'});
+ const original=apiFixture(presentation(first,1)),plan=planSavedPassage({p:original,slides:original.groups[0].slides},{uuid:first,reference:'Hosea 1:1',translation:'KJV'});
  const server=http.createServer((req,res)=>{res.setHeader('Content-Type','application/json');
   if(req.url==='/version')return res.end(apiJSON({host_description:'ProPresenter 21.4.2',platform:'win'}));
   if(req.url==='/fixture/create'){creations++;return res.end('{}');}
