@@ -1,6 +1,6 @@
 # VerseCue development handoff
 
-Updated: 2026-11-20 18:10 UTC. Use [CLAUDE.md](CLAUDE.md) for the most recent short checkpoint. This file is intended for Claude Code, Codex or a human developer opening the same repository.
+Updated: 2026-11-20 18:16 UTC. Use [CLAUDE.md](CLAUDE.md) for the most recent short checkpoint. This file is intended for Claude Code, Codex or a human developer opening the same repository.
 
 ## Start without losing context
 
@@ -15,8 +15,8 @@ Public repository: https://github.com/gboyegaadeojo/VerseCue. Aggregate [PR22](h
 
 | Location | State at checkpoint |
 | --- | --- |
-| Root | `feat/reference-driven-bible-workflow`, `3e849c5a7fbaea5433539df8e329aae77c0d3b98`; 517 module tests passed after integration |
-| Main | `2cc9ec42a90b3a868622e9273918a1f680b1609a`; PRs through62 merged; 514 module tests |
+| Root | `feat/reference-driven-bible-workflow`, `6a750b5 (checkpoint before integrating documentation PR63)`; 517 module tests passed after integration |
+| Main | `0e319b3 (main after documentation PR63)`; PRs through62 merged; 514 module tests |
 | PR62 worktree | `test-results/pr-split/passage-range-policy-core`; branch `feat/passage-range-policy-core`; head `58d0c5a764b5af9bdb5b70634169296345c17eed` |
 | Next worktree | `test-results/pr-split/audio-input-information`; branch `feat/audio-input-information`; clean, based on main through61; research only |
 
@@ -30,7 +30,7 @@ Exact head58d0c5a7 passed514 module tests, syntax/inventory,28 Windows source sc
 
 Reports are ignored files in the PR62 worktree: `test-results/settings-source-workflows.json`, `settings-packaged-workflows.json`, `review-package.json`, `passage-range-ui.json`, `packaged-passage-range-ui.json`. Inspect before relying on them. Earlier head8a960f4 reports are historical, not current-head evidence.
 
-PR62 merged at2cc9ec4 after exact-head checks and is integrated into root. Root now passes517 module tests (three integration-only soak-summary tests). Next: finish the handoff documentation PR, then the prepared audio-input feature.
+PR62 merged at2cc9ec4 after exact-head checks and is integrated into root. Root now passes517 module tests (three integration-only soak-summary tests). Next: PR63 is merged; continue the prepared audio-input feature.
 
 ## Next feature: explain and validate the selected microphone
 
