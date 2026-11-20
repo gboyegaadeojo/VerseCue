@@ -16,8 +16,13 @@ function relativeNavigation(text,{context,now,bounds,translation,corrected=false
  else if(/^(?:next|previous) chapter$/.test(phrase))kind=phrase.startsWith('next')?'next-chapter':'previous-chapter';
  if(!kind)return hasNavigation?{command:{kind:'ignored-navigation'},issues:['Ambiguous navigation wording; use an explicit reference or a clear next/previous verse instruction']}:{issues:[]};
  if(!context?.verified||!Number.isFinite(context.verifiedAt)||now<context.verifiedAt||now-context.verifiedAt>120000||!Number.isInteger(context.verse))return {command:{kind:'navigation'},issues:['Current passage context is not verified or has expired; specify the book, chapter and verse']};
+ const wholePassageRepeat=kind==='same'&&/\bpassage\b/.test(phrase);
+ if(context.displayedReference!==undefined&&!wholePassageRepeat){const shown=context.displayedReference;if(!shown||shown.valid!==true||shown.book!==context.book||!Number.isInteger(shown.chapter)||!Number.isInteger(shown.verse))return {command:{kind:'navigation'},issues:['The displayed reference could not be verified; specify the full reference']};context={...context,book:shown.book,chapter:shown.chapter,verse:shown.verse,endChapter:shown.endChapter,endVerse:shown.endVerse,label:shown.label};}
+ const crossChapter=(context.endChapter??context.chapter)!==context.chapter;
+ if(context.displayedRangeAmbiguous===true&&!wholePassageRepeat&&(['next','previous','same'].includes(kind)||crossChapter&&['jump','next-chapter','previous-chapter'].includes(kind)))return {command:{kind:'navigation'},issues:['The displayed cue is only part of a multi-verse range; specify the full reference for the verse you want']};
  if(distance<1||distance>10)return {command:{kind:'navigation'},issues:['Relative navigation is limited to one through ten verses']};
  const r={...context,translation:translation??context.translation,relative:true,corrected,navigationKind:kind};
+ delete r.displayedReference;delete r.displayedRangeAmbiguous;
  if(kind==='same')return {command:{kind:'navigation'},reference:r,issues:[]};
  r.endVerse=undefined;r.endChapter=undefined;
  if(kind==='jump'){r.chapter=context.endChapter??context.chapter;r.verse=+match[1];r.endVerse=match[2]?+match[2]:undefined;}

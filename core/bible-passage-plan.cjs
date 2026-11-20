@@ -17,4 +17,4 @@ function planSavedPassage(source,{uuid,reference,translation}){
  if(expected.some(label=>!covered.has(label)))throw Error('Saved passage coverage is incomplete');
  return {state:'passage-needs-review',bibleOrigin:'unverified-saved-presentation',reference,translation,uuid,fingerprint:createHash('sha256').update(JSON.stringify(p)).digest('hex'),cueIndices:slides.map((_,index)=>index),cues:slides.map((slide,index)=>({index,label:slide.label,text:slide.text})),singleCue:slides.length===1,coveredVerses:expected,coverageComplete:true,numberingVerified:!!numbering(translation),coverageBasis:numbering(translation)?'verified-numbering-and-saved-labels':'explicit-same-chapter-saved-labels',bibleTextVerified:false,formattingVerified:false,outputObserved:false,outputRequests:0};
 }
-module.exports={planSavedPassage,titleReference,verses};
+module.exports={planSavedPassage,titleReference,verses,metadataReference};
