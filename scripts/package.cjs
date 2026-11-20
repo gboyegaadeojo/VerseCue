@@ -3,7 +3,7 @@
 // for local development packaging; this does not create a signed service release.
 const fs=require('node:fs/promises');const path=require('node:path');const {spawnSync}=require('node:child_process');const crypto=require('node:crypto');
 (async()=>{
-  const root=path.resolve(__dirname,'..');const pkg=require('../package.json');
+  const root=path.resolve(__dirname,'..');const pkg=require('../package.json');require('./dependency-inventory.cjs').verify(root);
   if(!['win32','darwin'].includes(process.platform))throw new Error('Build on Windows or macOS for that native package');
   if(process.platform==='win32'){
     if(process.arch!=='x64')throw Error('Windows native preparation packaging currently requires x64');
