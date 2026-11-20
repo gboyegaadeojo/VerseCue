@@ -9,12 +9,13 @@ function assessAuto(service,candidates,evidence={},{allowBusy=false}={}){
   if(!Number.isFinite(evidence.elapsedMs)||evidence.elapsedMs>4000||evidence.elapsedMs<0)return {eligible:false,reason:'Recognition is too slow or its age is unknown'};
   const age=evidence.endAgeMs+service.clock()-evidence.observedAt;
   if(!Number.isFinite(evidence.endAgeMs)||!Number.isFinite(evidence.observedAt)||!Number.isFinite(age)||age<0||age>4000)return {eligible:false,reason:'Original audio timing is missing or too old for Auto'};
+  if(!candidates.length&&service.interpretation?.kind==='duplicate-reference')return {eligible:false,reason:service.interpretation.reason};
   if(candidates.length!==1)return {eligible:false,reason:'Only one unambiguous reference can Auto-send'};
   const c=candidates[0],r=c.reference;
   if(c.manual||!c.authorized||c.recognition!=='reference'||r.relative||r.corrected||r.valid!==true||r.numberingSystem!=='KJV'||r.verse==null||r.overLimit||c.issues.length)return {eligible:false,reason:'This reference needs operator review; quotes never Auto-send'};
   if(!citationIntent(c,service.autoCitationPolicy))return {eligible:false,reason:service.autoCitationPolicy==='bare-citation'?'Only a complete bare citation or explicit current show/read instruction is eligible':'An explicit current display/read instruction is required'};
   if(c.generation!==service.generation||service.clock()>=c.expiresAt)return {eligible:false,reason:'Reference expired or changed'};
-  if(service.lastSend?.key===`${c.label}|${c.translation}`&&service.clock()-service.lastSend.at<10000)return {eligible:false,reason:'Repeated reference suppressed by duplicate cooldown'};
+  if(service.duplicateSend(c))return {eligible:false,reason:'Repeated reference suppressed by duplicate cooldown'};
   if(!service.dryRun){const connector=service.connector,map=connector.mappings?.get(`${c.label}|${c.translation}`);if(!connector.armed||connector.status?.state!=='connected'||map?.autoVerified!==true)return {eligible:false,reason:'No complete cue explicitly verified for Auto test output'};}
   if(!service.dryRun){const map=service.connector.mappings?.get(`${c.label}|${c.translation}`);if(map?.autoApproval===true&&map.ownerId!==service.capture.ownerId)return {eligible:false,reason:'This Auto approval belongs to another input window; review it from the owning input window'};}
   return {eligible:true,reason:service.dryRun?'Auto simulation ready; zero output requests':'Verified-cue Auto test output ready'};
