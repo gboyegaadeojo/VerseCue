@@ -1,19 +1,20 @@
 'use strict';
+const {apiJSON,apiResponse}=require('./synthetic-presentation.cjs');
 // SYNTHETIC native helper, speech, lease and target only. No OS mic or PP UI.
 const {_electron}=require('playwright'),http=require('node:http'),path=require('node:path'),fs=require('node:fs/promises'),assert=require('node:assert/strict'),{randomUUID}=require('node:crypto');
 (async()=>{
  const args=process.argv.slice(2),noInput=args.includes('--no-input'),outputEdit=args.includes('--output-edit'),uncertain=args.includes('--uncertain')||outputEdit,recover=args.includes('--recover'),clipped=args.includes('--clipped')||recover,executable=args.find(arg=>!arg.startsWith('--'))?path.resolve(args.find(arg=>!arg.startsWith('--'))):null,uuid='75631f63-da79-419c-b862-c9b8338081f9',library='5e4da747-cf19-4810-8d4d-b6fe1a7d9350';let created=false,triggers=0,creations=0;const freshUuid='b1c6194a-50d9-461f-9d27-33b388b7d8a1',createdIds=[];
  const server=http.createServer((req,res)=>{
   res.setHeader('Content-Type','application/json');
-  if(req.url==='/version')return res.end(JSON.stringify({host_description:'ProPresenter 21.4.2',platform:'win'}));
+  if(req.url==='/version')return res.end(apiJSON({host_description:'ProPresenter 21.4.2',platform:'win'}));
   if(req.url==='/fixture/create'){created=true;creations++;createdIds.push(creations===1?uuid:freshUuid);return res.end('{}');}
-  if(req.url==='/v1/libraries')return res.end(JSON.stringify([{uuid:library,name:'SYNTHETIC'}]));
-  if(req.url==='/v1/library/'+library)return res.end(JSON.stringify({update_type:'all',items:createdIds.map(uuid=>({uuid,name:'John 3_16 (KJV)'}))}));
-  if(req.url==='/v1/playlist/focused')return res.end(JSON.stringify({playlist:null}));
-  const requested=createdIds.find(id=>req.url==='/v1/presentation/'+id);if(requested)return res.end(JSON.stringify({presentation:{id:{uuid:requested,name:'John 3_16 (KJV)'},destination:'presentation',has_timeline:false,groups:[{slides:[{enabled:true,label:'John 3:16',text:'SYNTHETIC detected passage'}]}]}}));
+  if(req.url==='/v1/libraries')return res.end(apiJSON([{uuid:library,name:'SYNTHETIC'}]));
+  if(req.url==='/v1/library/'+library)return res.end(apiJSON({update_type:'all',items:createdIds.map(uuid=>({uuid,name:'John 3_16 (KJV)'}))}));
+  if(req.url==='/v1/playlist/focused')return res.end(apiJSON({playlist:null}));
+  const requested=createdIds.find(id=>req.url==='/v1/presentation/'+id);if(requested)return res.end(apiJSON({presentation:{id:{uuid:requested,name:'John 3_16 (KJV)'},destination:'presentation',has_timeline:false,groups:[{slides:[{enabled:true,label:'John 3:16',text:'SYNTHETIC detected passage'}]}]}}));
   if(req.url.endsWith('/trigger')){triggers++;res.writeHead(204);return res.end();}
-  if(req.url.endsWith('/slide_index'))return res.end(JSON.stringify({presentation_index:outputEdit?{presentation_id:{uuid:'3273e659-f3fb-4b1f-8d22-747e872ff154'},index:0}:null}));
-  if(req.url.endsWith('/status/slide'))return res.end(JSON.stringify({current:{text:outputEdit?(creations?'SYNTHETIC edited live text':'SYNTHETIC original live text'):''}}));
+  if(req.url.endsWith('/slide_index'))return res.end(apiJSON({presentation_index:outputEdit?{presentation_id:{uuid:'3273e659-f3fb-4b1f-8d22-747e872ff154'},index:0}:null}));
+  if(req.url.endsWith('/status/slide'))return res.end(apiJSON({current:{text:outputEdit?(creations?'SYNTHETIC edited live text':'SYNTHETIC original live text'):''}}));
   res.writeHead(404);res.end('{}');
  });
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const env={...process.env};delete env.ELECTRON_RUN_AS_NODE;let app;

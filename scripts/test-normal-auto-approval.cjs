@@ -1,18 +1,19 @@
 'use strict';
+const {apiJSON,apiResponse}=require('./synthetic-presentation.cjs');
 // SYNTHETIC target, speech and authorized capture lease. No OS mic or PP access.
 const {_electron}=require('playwright'),fs=require('node:fs/promises'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict'),{randomUUID}=require('node:crypto');
 (async()=>{
  const args=process.argv.slice(2),changedLook=args.includes('--changed-look'),exe=args.find(a=>!a.startsWith('--'))?path.resolve(args.find(a=>!a.startsWith('--'))):null,id='75631f63-da79-419c-b862-c9b8338081f9',library='5e4da747-cf19-4810-8d4d-b6fe1a7d9350';let triggers=0,app,lookChanged=false;
  const server=http.createServer((req,res)=>{res.setHeader('Content-Type','application/json');
-  if(req.url==='/version')return res.end(JSON.stringify({host_description:'ProPresenter SYNTHETIC normal Auto'}));
-  if(req.url==='/v1/look/current')return res.end(JSON.stringify({id:{uuid:library,name:lookChanged?'CHANGED SYNTHETIC LOOK':'SYNTHETIC'}}));
+  if(req.url==='/version')return res.end(apiJSON({host_description:'ProPresenter SYNTHETIC normal Auto'}));
+  if(req.url==='/v1/look/current')return res.end(apiJSON({id:{uuid:library,name:lookChanged?'CHANGED SYNTHETIC LOOK':'SYNTHETIC'}}));
   if(req.url.includes('/thumbnail/')){res.setHeader('Content-Type','image/png');return res.end(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a9XcAAAAASUVORK5CYII=','base64'));}
-  if(req.url==='/v1/libraries')return res.end(JSON.stringify([{uuid:library,name:'SYNTHETIC'}]));
-  if(req.url==='/v1/library/'+library)return res.end(JSON.stringify({update_type:'all',items:[{uuid:id,name:'John 3_16 (KJV)'}]}));
-  if(req.url==='/v1/presentation/'+id)return res.end(JSON.stringify({presentation:{id:{uuid:id,name:'John 3_16 (KJV)'},destination:'presentation',has_timeline:false,groups:[{slides:[{enabled:true,label:'John 3:16',text:'SYNTHETIC reviewed complete cue'}]}]}}));
+  if(req.url==='/v1/libraries')return res.end(apiJSON([{uuid:library,name:'SYNTHETIC'}]));
+  if(req.url==='/v1/library/'+library)return res.end(apiJSON({update_type:'all',items:[{uuid:id,name:'John 3_16 (KJV)'}]}));
+  if(req.url==='/v1/presentation/'+id)return res.end(apiJSON({presentation:{id:{uuid:id,name:'John 3_16 (KJV)'},destination:'presentation',has_timeline:false,groups:[{slides:[{enabled:true,label:'John 3:16',text:'SYNTHETIC reviewed complete cue'}]}]}}));
   if(req.url.endsWith('/trigger')){triggers++;res.writeHead(204);return res.end();}
-  if(req.url.endsWith('/slide_index'))return res.end(JSON.stringify({presentation_index:triggers?{presentation_id:{uuid:id},index:0}:null}));
-  if(req.url.endsWith('/status/slide'))return res.end(JSON.stringify({current:triggers?{text:'SYNTHETIC reviewed complete cue'}:null}));res.writeHead(404);res.end('{}');
+  if(req.url.endsWith('/slide_index'))return res.end(apiJSON({presentation_index:triggers?{presentation_id:{uuid:id},index:0}:null}));
+  if(req.url.endsWith('/status/slide'))return res.end(apiJSON({current:triggers?{text:'SYNTHETIC reviewed complete cue'}:null}));res.writeHead(404);res.end('{}');
  });await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const env={...process.env};delete env.ELECTRON_RUN_AS_NODE;
  try{
   app=await _electron.launch({...(exe?{executablePath:exe}:{}),args:[...(exe?[]:[path.resolve('.')]),`--user-data-dir=${path.resolve('test-results','normal-auto-'+randomUUID())}`],env});let page=await app.firstWindow();await page.waitForFunction(()=>document.getElementById('message')?.textContent.length>0);

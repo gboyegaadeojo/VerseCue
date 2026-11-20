@@ -1,17 +1,18 @@
 'use strict';
+const {apiJSON,apiResponse}=require('./synthetic-presentation.cjs');
 // SYNTHETIC speech/capture lease and target; no OS microphone or real ProPresenter.
 const {_electron}=require('playwright'),http=require('node:http'),path=require('node:path'),fs=require('node:fs/promises'),assert=require('node:assert/strict'),{randomUUID}=require('node:crypto');
 (async()=>{
  const executable=process.argv[2]?path.resolve(process.argv[2]):null,uuid='75631f63-da79-419c-b862-c9b8338081f9',library='5e4da747-cf19-4810-8d4d-b6fe1a7d9350';let triggers=0;
  const server=http.createServer((req,res)=>{
   res.setHeader('Content-Type','application/json');
-  if(req.url==='/version')return res.end(JSON.stringify({host_description:'ProPresenter SYNTHETIC stabilization'}));
-  if(req.url==='/v1/libraries')return res.end(JSON.stringify([{uuid:library,name:'SYNTHETIC'}]));
-  if(req.url==='/v1/library/'+library)return res.end(JSON.stringify({update_type:'all',items:[{uuid,name:'John 3_16 (KJV)'}]}));
-  if(req.url==='/v1/presentation/'+uuid)return res.end(JSON.stringify({presentation:{id:{uuid,name:'John 3_16 (KJV)'},destination:'presentation',has_timeline:false,groups:[{slides:[{enabled:true,label:'John 3:16',text:'SYNTHETIC stabilization passage'}]}]}}));
+  if(req.url==='/version')return res.end(apiJSON({host_description:'ProPresenter SYNTHETIC stabilization'}));
+  if(req.url==='/v1/libraries')return res.end(apiJSON([{uuid:library,name:'SYNTHETIC'}]));
+  if(req.url==='/v1/library/'+library)return res.end(apiJSON({update_type:'all',items:[{uuid,name:'John 3_16 (KJV)'}]}));
+  if(req.url==='/v1/presentation/'+uuid)return res.end(apiJSON({presentation:{id:{uuid,name:'John 3_16 (KJV)'},destination:'presentation',has_timeline:false,groups:[{slides:[{enabled:true,label:'John 3:16',text:'SYNTHETIC stabilization passage'}]}]}}));
   if(req.url.endsWith('/trigger')){triggers++;res.writeHead(204);return res.end();}
-  if(req.url.endsWith('/slide_index'))return res.end(JSON.stringify({presentation_index:triggers?{presentation_id:{uuid},index:0}:null}));
-  if(req.url.endsWith('/status/slide'))return res.end(JSON.stringify({current:{text:triggers?'SYNTHETIC stabilization passage':''}}));
+  if(req.url.endsWith('/slide_index'))return res.end(apiJSON({presentation_index:triggers?{presentation_id:{uuid},index:0}:null}));
+  if(req.url.endsWith('/status/slide'))return res.end(apiJSON({current:{text:triggers?'SYNTHETIC stabilization passage':''}}));
   res.writeHead(404);res.end('{}');
  });
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const env={...process.env};delete env.ELECTRON_RUN_AS_NODE;let app;

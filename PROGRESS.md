@@ -292,3 +292,11 @@ Dependent on the native diagnostics branch, request initial enabled/offscreen/pr
 ## Fresh reference-readback batching candidate
 
 Dependent on the initial-window batching candidate, replace two provider reads with a new read-only pattern/value snapshot per Value call. All existing readback locations and live focus/edit/action guards remain. No cached value is reused across checks. Next: compiler/module/syntax verification, isolated Windows package and bounded private preparation-only compatibility test; no speedup or acceptance claim yet.
+
+## Arrangement-aware cue-index correction in progress
+
+Isolated branch fix/arranged-passage-cue-order reproduces a pre-send wrong-index mapping when selected arrangement order differs from raw groups. Connector now projects selected group order with bounded identity checks; normal passage coverage requires every raw fragment once and preserves same-reference fragment order, and legacy Auto cannot hide extra raw cues.431 module tests/syntax and the new synthetic normal-workspace scenario pass. Test-only API fixtures now model explicit master metadata; earlier fixture-incompatible failed/hung runs are retained and not counted as passes.
+
+No production arrangement/theme/Look/playlist is changed. No new personal-host outcome is published. Next: review the diff and fixture contracts, run existing source workflows plus the new arrangement scenario, open a small draft PR, build a current-source Windows package and run exact hosted Mac verification before any merge. Original full acceptance remains open; do not drop arrangement identity checks to make restart tests pass.
+
+PR47 initial6a13f3e Windows source batch and Mac44675150306 failed at the synthetic ledger origin assertion; module431/syntax passed and Mac did not reach packaging. Corrected only the fixture seed to include the same master metadata as its fake server, retaining all assertions. Corrected Windows source and existing source-matching148-file package passed the ledger case. Product app/C# source is unchanged by the correction. Next: final-head full source/package synthetic workflows and a new exact Mac run before merge; keep earlier failures in evidence.

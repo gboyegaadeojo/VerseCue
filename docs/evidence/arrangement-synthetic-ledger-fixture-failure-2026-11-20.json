@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-20",
+  "sourceRevision": "6a13f3e8e3410f49d3dc9f0961e1df8c01d86b97",
+  "macRun": 44675150306,
+  "status": "FAILED_RETAINED",
+  "moduleAndSyntaxChecksPassed": true,
+  "failedScenario": "scripts/test-managed-copy-ledger.cjs",
+  "assertion": {
+    "expected": "recorded-native-bible-copy",
+    "actual": "unverified-saved-presentation"
+  },
+  "cause": "The seeded fixture fingerprint omitted master-arrangement metadata present in its fake API response.",
+  "correction": "Seed the ledger from the same complete synthetic document. No product code or provenance/clipping assertions changed.",
+  "correctedWindowsSourceScenarioPassed": true,
+  "correctedWindowsPackageScenarioPassed": true,
+  "newExactMacVerification": "PENDING",
+  "actualProPresenterAccess": false,
+  "microphoneCapture": false
+}
