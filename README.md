@@ -6,10 +6,6 @@ VerseCue listens to an authorized pastor audio feed, identifies Bible references
 
 ![VerseCue Control workspace](docs/images/versecue-studio-workspace.png)
 
-## Continuing development
-
-Developers and coding agents: start with [CLAUDE.md](CLAUDE.md), the detailed [handoff](HANDOFF.md), and the [remaining-work list](docs/107-remaining-work-and-acceptance.md). These record verified progress, the next action and outstanding service acceptance.
-
 ## Download
 
 **Current downloadable development version: 0.5.5.** These are supervised-test builds, not an approved live-service release. Source now includes the Studio 0.6.0 workspace shown above; matching public packages are being verified.
@@ -109,6 +105,10 @@ See the [complete original 86-row implementation/evidence audit](docs/99-origina
 Audio is processed locally. Audio/transcripts are not recorded persistently by default; the default worker uses bounded temporary recognition files which are cleaned up after processing. No Bible translation corpus is bundled or downloaded. Import only passage text you have permission to use. The private API starts disabled and uses a session-only local token.
 
 ## For developers
+
+### Continuing development
+
+Developers and coding agents: start with [CLAUDE.md](CLAUDE.md), the detailed [handoff](HANDOFF.md), and the [remaining-work list](docs/107-remaining-work-and-acceptance.md). These record verified progress, the next action and outstanding service acceptance.
 
 Use a current compatible Node.js installation and the pinned dependencies in the lockfile. On Windows use npm.cmd if PowerShell blocks npm.ps1.
 

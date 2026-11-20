@@ -405,3 +405,7 @@ Initial PR65 e233de3 passed30 Windows source scenarios and152-file review receip
 ## Booth readability and review priority
 
 2026-11-20. New booth.css restores18px base/control text and44px targets while preserving Studio palette/font/backend. Current passage precedes manual/session options; deliberate manual review focuses the heading without sending, and selected-reference details precede quote setup. Measured fonts/rectangles/consent labels, compact,1280/900/640 settings fit,200% zoom and primary-action visibility pass. Existing Studio/routing and idle-focus checks pass. Unchanged workspace test initially found footer-over-Stop at640px/200%; normal-flow footer fix passed the same check.534 modules/check pass. Full exact-head source/package/Mac verification remains before merge. Physical booth/screen-reader acceptance stays pending. See docs/111-booth-readability-and-review-priority.md.
+
+## Stable main-branch agent entry points
+
+2026-11-20. Main CLAUDE.md/HANDOFF.md now point to the maintained active-branch checkpoint, avoiding stale next-action instructions for fresh clones. README keeps downloads and operator guidance before developer handoff links. This documentation-only change adds no capability or acceptance claim; original requirements and PR22 draft gates remain.
