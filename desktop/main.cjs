@@ -184,7 +184,7 @@ async function bootstrap(){
     const result=await speech.transcribe(samples);
     if(epoch!==service.generation||service.stopped||service.mode==='paused')throw new Error('Stale recognition discarded');
     const evidence=speechEvidence(metadata,samples.length,receivedAt,service.clock());
-    const stabilized=citationStabilizer.feed({text:result.text,final:result.final,metadata,evidence,receivedAt,now:service.clock(),scope:`${event.sender.id}/${service.referenceEpoch??0}/${service.mode}`,translation:service.translation});
+    const stabilized=citationStabilizer.feed({text:result.text,final:result.final,metadata,evidence,receivedAt,now:service.clock(),scope:`${event.sender.id}/${service.referenceEpoch??0}/${service.mode}/${service.maxPassageVerses}`,translation:service.translation,maxVerses:service.maxPassageVerses});
     if(stabilized.suppress){
       if(stabilized.state==='duplicate')return {...result,text:'',discarded:true,reason:'Duplicate recognition window discarded.'};
       automatic.cancel();cancelPreparation();service.invalidate();service.speechStabilization={state:stabilized.state,reason:stabilized.reason};service.notify();return {...result,stabilization:service.speechStabilization};
