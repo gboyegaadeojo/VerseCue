@@ -42,6 +42,8 @@
 
 | Bounded stable read-only snapshot collector | [PR50](https://github.com/gboyegaadeojo/VerseCue/pull/50) | Merged at723606e.448 module tests/syntax; eight new synthetic regression groups. No production behavior change or public actual-host result. |
 
+| Configuration safety before persistence | [PR51](https://github.com/gboyegaadeojo/VerseCue/pull/51) | Merged at338fd44.452 module tests/syntax,22 source +22 packaged Windows workflows and exact Mac44728797295 passed. Held/failed writes disarm immediately; Stop survives. |
+
 ## Dependency delivery and remaining acceptance
 
 1. **Session/reference intent and exact saved-passage foundation.** Keep exact edition/title, enabled nonempty ordered cue coverage, missing-middle/range checks, duplicate choice, unverified Bible origin and lookup cancellation together with the Session intent semantics they require. The first isolated run had251/252 tests passing against old main: ordinary final preaching was canceled by legacy Session correction handling. The regression was retained, and the required parser/navigation/small Session changes were included. PR26 now passes269 tests/syntax on current main. Matching Mac verification passed and the foundation is merged.

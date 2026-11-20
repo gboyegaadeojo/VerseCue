@@ -2,7 +2,7 @@
 
 2026-11-20. This is an evidence map, not an acceptance certificate. The complete RF-01–22 checklist remains unchecked in [PR22](https://github.com/gboyegaadeojo/VerseCue/pull/22). The original 62 functional requirements, 24 nonfunctional requirements and their acceptance procedures remain authoritative. Smaller merged PRs do not waive them.
 
-Shared-source checks currently pass 448 module tests on main and 451 in the integration branch, including its additional soak-summary cases. These are deterministic/software checks. Mac CI runs the source desktop scenarios and packaging; it does not run ProPresenter. Personal-host records are private and excluded from this document.
+Shared-source checks currently pass 452 module tests on main and 455 in the integration branch, including its additional soak-summary cases. These are deterministic/software checks. Mac CI runs the source desktop scenarios and packaging; it does not run ProPresenter. Personal-host records are private and excluded from this document.
 
 | Requirement | Implemented software evidence | Evidence still needed / limitation |
 |---|---|---|
@@ -45,3 +45,5 @@ Merged [PR47](https://github.com/gboyegaadeojo/VerseCue/pull/47) addresses a sof
 PR48 corrects relative navigation after a partial range display using the matching cue reference; broad overlapping fragments require a full reference. Its exact Mac and source/package Windows synthetic checks passed. PR49 adds a pure strict restart-configuration comparison with synthetic tests; it neither runs a restart nor changes production fingerprints. Actual restart acceptance still requires complete independently captured before/after evidence.
 
 PR50 adds the bounded two-sweep read-only snapshot collector, with unchanged production behavior and eight synthetic regression groups. Public evidence remains code/build/synthetic only; new personal-host records are excluded pending specific publication permission.
+
+PR51 enters disarmed dry-run safety and revokes old approvals/API before asynchronous configuration persistence. Held/failed-write, overlapping changes, rearm blocking, Stop preservation, profile-load pause and no Auto restoration pass source/package synthetic checks and exact Mac development verification. This software correction does not close actual service acceptance.
