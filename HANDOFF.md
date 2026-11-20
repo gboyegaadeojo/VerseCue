@@ -85,3 +85,7 @@ Root12ca1c0 includes65 and passes534 modules/syntax/inventory. Prepared feat/saf
 ## PR66 verification ? 2026-11-20 19:18 UTC
 
 Safe input test is now draft PR66 at9d2735bde8cc3e1570722b14029093d5f80befd9.534 module/check and extended synthetic UI pass.152-file Windows review/native receipts pass. Source31 suite35260 is live; Mac44800662569 is in_progress; build68094 terminal success. Run packaged31 after source completion. All previous PR64/65 handles are terminal. Root950827d is current before this checkpoint commit.
+
+## PR66 packaged verification ? 2026-11-20 19:27 UTC
+
+Exact9d2735bd passes534 modules/check,31 source Windows scenarios,152-file exact-source/native receipts and Mac44800662569. Packaged31 suite94382 is live; source35260/build68094 terminal. Finish packaged suite before merge. Independent next software gap: Studio readability/control targets versus original18px base/44px requirement, preserving the approved layout/theme and testing actual measured sizes plus fit. No readability code yet.

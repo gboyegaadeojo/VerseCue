@@ -730,3 +730,7 @@ PR65 integration passes534 modules/syntax/inventory. feat/safe-input-test now co
 ## PR66 verification checkpoint ? 19:18 UTC
 
 Draft PR66 at9d2735bd passes534 modules/syntax/inventory, extended synthetic input UI and152-file exact-source Windows/native receipts. Source31 suite35260 and exact Mac44800662569 are live; build68094 is terminal. Packaged31 follows source completion. Root950827d remains through65; no actual input/output or release claim.
+
+## PR66 source/Mac passed ? 19:27 UTC
+
+Exact9d2735bd passes534 module/check, all31 source scenarios,152-file Windows review/native receipt and Mac44800662569. Packaged31 suite94382 is live; poll existing handle before merging. No actual input/output or new release. Original service/hardware acceptance remains open.

@@ -1,6 +1,6 @@
 # VerseCue ? resume here
 
-Checkpoint: 2026-11-20 19:18 UTC. Implementation is active. P0 and full service acceptance remain pending.
+Checkpoint: 2026-11-20 19:27 UTC. Implementation is active. P0 and full service acceptance remain pending.
 
 Read [AGENTS.md](AGENTS.md), the entire [master specification](VerseCue_Master_Development_Prompt_v2_Codex.md), [HANDOFF.md](HANDOFF.md), [PROGRESS.md](PROGRESS.md), [NEW_REQUESTS.md](NEW_REQUESTS.md), [remaining work](docs/107-remaining-work-and-acceptance.md) and the complete original audit. Inspect actual repository/CI before relying on this checkpoint.
 
@@ -23,3 +23,7 @@ PR65 is fully merged/integrated. Root12ca1c0 passes534 modules/syntax/inventory;
 ## Active PR66 checkpoint ? 19:18 UTC
 
 PR66 feat/safe-input-test is now committed at9d2735bde8cc3e1570722b14029093d5f80befd9, not uncommitted.534 branch modules/syntax/inventory and the extended synthetic desktop scenario pass. A152-file exact-source Windows/native review receipt passed; build68094 is terminal. Source31-scenario suite35260 is live, and exact Mac44800662569 is in_progress. No packaged suite yet. Poll those same handles, run packaged31 after source completion, and merge only after exact-head checks pass. PR22 is still open/draft. Root950827d remains534 modules through65; no actual microphone/ProPresenter/output or release changes.
+
+## Current PR66 verification ? 19:27 UTC
+
+Exact9d2735bde8cc3e1570722b14029093d5f80befd9 passes534 module/check, all31 Windows source scenarios,152-file exact-source/native receipts and Mac44800662569. Source35260 and build68094 are terminal. Packaged31 suite is now live in94382; poll that same handle. No merge until it passes. Root6fcc69e remains through65. Next independent software review: reconcile Studio typography/control targets with original18px base/44px click targets while preserving the approved design; no such implementation exists yet. No actual input/output or new release.
