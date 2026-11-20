@@ -59,3 +59,11 @@ P0 remains PENDING: exact supported route, fidelity, translation, platform and t
 ## Keeping this useful
 
 Refresh CLAUDE.md about every10 minutes while actively building and at merges/build checkpoints. Update this file when branch/evidence/next-action changes materially. Keep PROGRESS.md current. Record what actually finished, exact verification head and one concrete next action. Never report the entire application accepted because a component merged.
+
+## Active PR64 verification ? 2026-11-20 18:21 UTC
+
+PR64 feat/audio-input-information at6751a6e implements reported input format/ranges, pre-processing channel/device validation and permission guidance.521 module tests, syntax/inventory and focused synthetic source UI passed. Full29-scenario source suite is running in local session45721; exact-source Windows review build is running in session2283; hosted Mac44791701176 was dispatched (inspect actual state before treating it as live). No actual microphone or ProPresenter is used. Next: poll these same handles, then run the packaged suite after the build; merge only after current-head checks pass. Root integration is2f594be; source version0.6.0 remains unreleased. Prepared audio branch now includes main through63.
+
+## Latest checkpoint ? 2026-11-20 18:32 UTC
+
+PR64 exact6751a6e7 passes521 modules/syntax/inventory,29 Windows source scenarios,151-file review/native receipt and Mac44791701176. Packaged suite remains live in session57626. A separate local fix/speech-scratch-recovery branch now implements app-owned crash-WAV recovery and has six focused synthetic tests passing; latest cancellation/cleanup handling is not yet verified or committed. See CLAUDE.md for exact next actions. Root is2f594be before this checkpoint commit.

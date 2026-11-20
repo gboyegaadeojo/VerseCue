@@ -690,3 +690,11 @@ Integration verification after PR62:517 module tests and syntax/dependency inven
 ## PR62 verification and agent handoff
 
 2026-11-20. PR62 exact58d0c5a7 passed514 modules/syntax/inventory,28 Windows source and28 packaged scenarios,151-file review/native receipts and Mac44787486654; merged at2cc9ec4. Root integration passes517 modules. New CLAUDE.md, AGENTS.md, HANDOFF.md and docs/107 explain the current state, plain-English remaining work, authorization boundaries and next prepared audio-input branch. README links the handoff. Update CLAUDE.md approximately every10 minutes during active work and after merges/build checkpoints. Original P0/physical/Mac-native/field gates remain pending; no release is claimed.
+
+## PR64 input-information verification
+
+2026-11-20 18:21 UTC. Draft PR64 at6751a6e implements selected-input information and validation;521 branch modules/syntax/inventory and focused synthetic UI pass. Full29 source scenarios in session45721, isolated Windows review build in2283, hosted Mac run44791701176 dispatched. Poll exact handles and run packaged scenarios after the build. No real input/output or release claim. CLAUDE.md/HANDOFF.md refreshed; root integration2f594be includes merged62/63.
+
+## Active verification and privacy follow-up ? 18:32 UTC
+
+PR64 source29 and Mac44791701176 passed; Windows151-file receipt matches6751a6e7. Packaged session57626 remains live. Independent fix/speech-scratch-recovery implements scoped startup cleanup after the app single-instance lock, with six focused synthetic tests including interrupted subprocess recovery; latest cancellation-before-spawn and sanitized cleanup failure need tests before its PR. No global temporary-directory scanning or production audio/output is authorized or used.
