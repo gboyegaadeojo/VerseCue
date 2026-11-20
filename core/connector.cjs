@@ -45,12 +45,12 @@ class Connector {
     if(!mapping.version)throw new Error('Test the target first');this.mappings.set(`${reference}|${translation}`,mapping);
     return {reference,translation,cue,prepared:true};
   }
-  async preparePassage({uuid,reference,translation,expectedFingerprint,verified,partIndex=0,expectedCurrent=null,sourceContext=null,guard=()=>true}){
+  async preparePassage({uuid,reference,translation,expectedFingerprint,verified,maxVerses=10,partIndex=0,expectedCurrent=null,sourceContext=null,guard=()=>true}){
     if(verified!==true)throw Error('Verify the passage text, edition and appearance before confirmation');
     const generation=this.generation,base=this.base,version=this.version?.host_description;
     if(!version||!guard())throw Error('Passage verification canceled or connection not tested');
     const source=await this.inspect(uuid);
-    const plan=require('./bible-passage-plan.cjs').planSavedPassage(source,{uuid,reference,translation});
+    const plan=require('./bible-passage-plan.cjs').planSavedPassage(source,{uuid,reference,translation,maxVerses});
     if(plan.fingerprint!==expectedFingerprint)throw Error('Passage changed after review; prepare it again');
     if(!Number.isInteger(partIndex)||partIndex<0||partIndex>=plan.cueIndices.length)throw Error('Invalid passage part');
     let previous=null;
