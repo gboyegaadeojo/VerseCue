@@ -14,3 +14,5 @@ Read [AGENTS.md](AGENTS.md), the entire [master specification](VerseCue_Master_D
 ## Maintenance and boundaries
 
 Refresh this file about every10 minutes during active work and at merges/build checkpoints/before interruption. Update HANDOFF.md and PROGRESS.md for material state changes. No updates occur when no agent runs. Follow HANDOFF.md authorization/privacy boundaries; provisional implementation is authorized, church production output is not. Synthetic checks do not prove real hardware, Mac ProPresenter, physical screens, speech accuracy or field acceptance.
+
+Latest18:38 UTC: PR64 is merged atf18c78a and root8cf01f9 passes524 modules/syntax/inventory. Draft PR65 e233de331787b8e280758c9cceac3e54bc634de1 has530 modules and a152-file Windows receipt, but Mac44794215980 FAILED due to normal parent-path aliases. Original source suite44441 is still live; do not mutate runtime source until it completes. Then canonicalize the parent only, add alias regression, commit and reverify exact changed source. No packaged suite is running for PR65. Earlier PR64 session57626 is terminal success29/29.

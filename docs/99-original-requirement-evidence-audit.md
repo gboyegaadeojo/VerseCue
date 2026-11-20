@@ -171,3 +171,7 @@ PR60 adds [configurable repeat suppression and deliberate resend](104-reference-
 ## Audit coverage and limits
 
 Every original ID appears once in the tables. The [machine-readable record](evidence/original-requirement-audit.json) retains full original requirement and acceptance text, baseline hashes, status, source/test pointers and remaining evidence. Coverage is not success: no row or test count redefines scope, accepts an unsigned full release, waives a threshold, authorizes production output or marks P0/PR22 complete. Contradictions must be fixed or explicitly decided by IFC, then re-audited against the original criterion.
+
+## Subsequent merged evidence: passage limits and selected input
+
+PR62 implements configured1?50 passage limits throughout split speech, coverage/native/manual preparation and settings while retaining a ten-verse Auto ceiling; see [passage policy](106-configurable-passage-range-policy.md). PR64 adds reported active input format/ranges, pre-processing device/channel checks and permission guidance; see [audio input information](108-audio-input-information.md). Both passed their recorded Windows source/package and exact Mac software checks. These follow-ups do not rewrite the historical audit status or establish real hardware, native Mac ProPresenter, physical outputs, latency, speech accuracy or field acceptance. Current main521 modules/integration524 pass.

@@ -3,7 +3,7 @@
 Updated: 2026-11-20 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-IMPLEMENTING — aggregate draft PR22. Components through PR62 are merged to main and integrated locally. PR62 exact58d0c5a7 passed514 module tests,28 Windows source/28 packaged scenarios, fresh151-file review receipt and Mac44787486654. Integration verification is being recorded below. P0 remains PENDING; no full-service, physical-output, Mac-native, speech-accuracy or new-release acceptance claim. See CLAUDE.md for the current resume point and docs/107-remaining-work-and-acceptance.md for the plain-English backlog. Next: finish the agent handoff documentation PR, then implement selected audio-input information/validation in the prepared isolated branch.
+IMPLEMENTING — aggregate draft PR22. Components through PR64 are merged to main and integrated locally. PR62 exact58d0c5a7 passed514 module tests,28 Windows source/28 packaged scenarios, fresh151-file review receipt and Mac44787486654. Integration verification is being recorded below. P0 remains PENDING; no full-service, physical-output, Mac-native, speech-accuracy or new-release acceptance claim. See CLAUDE.md for the current resume point and docs/107-remaining-work-and-acceptance.md for the plain-English backlog. Next: finish PR65 interrupted speech scratch recovery, including the macOS parent-path alias correction and exact-head verification.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -705,3 +705,5 @@ PR64 source29 and Mac44791701176 passed; Windows151-file receipt matches6751a6e7
 ## PR64 merged and integrated
 
 2026-11-20. PR64 exact6751a6e7 merged atf18c78a after521 modules/syntax/inventory,29 Windows source and29 packaged scenarios,151-file exact-source/native receipt and Mac44791701176 passed. Root integration verification follows. All PR64 local processes are terminal. Next component is scoped interrupted-speech scratch cleanup, locally implemented in its separate worktree; no new release or physical acceptance claim.
+
+PR64 integration verification:524 module tests/syntax/inventory and structural audit passed. PR65 initiale233de3 Mac44794215980 failed because its root check rejected a normal macOS parent-path alias. Preserve that failure, canonicalize only the configured parent while refusing linked scratch entries, add a regression and run a new exact-head verification cycle after the current original-head source suite completes. No native helper change is justified by static review alone.
