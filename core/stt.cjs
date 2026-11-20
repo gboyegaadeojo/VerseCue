@@ -5,7 +5,7 @@ const path=require('node:path');
 const os=require('node:os');
 const {ResidentSpeech}=require('./resident-speech.cjs');
 function wav(samples){
-  if(!Array.isArray(samples)||samples.length<3200||samples.length>192000||samples.some(n=>!Number.isFinite(n)||n< -1||n>1))throw new Error('Invalid audio window');
+  if(!Array.isArray(samples)||samples.length<3200||samples.length>160000||samples.some(n=>!Number.isFinite(n)||n< -1||n>1))throw new Error('Invalid audio window');
   const b=Buffer.alloc(44+samples.length*2);b.write('RIFF');b.writeUInt32LE(b.length-8,4);b.write('WAVEfmt ',8);b.writeUInt32LE(16,16);b.writeUInt16LE(1,20);b.writeUInt16LE(1,22);b.writeUInt32LE(16000,24);b.writeUInt32LE(32000,28);b.writeUInt16LE(2,32);b.writeUInt16LE(16,34);b.write('data',36);b.writeUInt32LE(samples.length*2,40);samples.forEach((s,i)=>b.writeInt16LE(Math.round(s<0?s*32768:s*32767),44+i*2));return b;
 }
 class LocalSpeech {
