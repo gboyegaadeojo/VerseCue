@@ -3,7 +3,8 @@
 Updated: 2026-11-20 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-IMPLEMENTING — aggregate draft PR22. Components through PR66 are merged to main and integrated locally. PR62 exact58d0c5a7 passed514 module tests,28 Windows source/28 packaged scenarios, fresh151-file review receipt and Mac44787486654. Integration verification is being recorded below. P0 remains PENDING; no full-service, physical-output, Mac-native, speech-accuracy or new-release acceptance claim. See CLAUDE.md for the current resume point and docs/107-remaining-work-and-acceptance.md for the plain-English backlog. Next: finish PR65 interrupted speech scratch recovery, including the macOS parent-path alias correction and exact-head verification.
+
+IMPLEMENTING - aggregate PR22 remains draft. Components through PR67 are merged; main534 modules and integration537 are the expected current checks, pending integration rerun below. Normal reference-driven Confirm/preparation, navigation, guarded Auto, input testing and booth readability are implemented within their recorded software scopes. P0, real speech accuracy/latency, Windows fresh-reference timing/clipping, native Mac/LAN, installed editions/physical outputs, volunteer/screen-reader, privacy residue and distribution acceptance remain pending. Next: finish integration checks, inspect authorized personal configuration through the computer-use recovery procedure if available, and continue the isolated labeled-recognition evaluator draft. See CLAUDE.md/docs107/full original audit; no release or production acceptance claim.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -765,3 +766,10 @@ Packaged32 suite39252 remains live and has passed early readability/input/privac
 ## Active package and evaluator draft - 23:07 UTC
 
 PR67 packaged32 suite39252 has passed native preparation/clipping/recovery/ownership/preview/lookup cases and is finishing Auto scenarios; fullsource32,153-file receipt and Mac44828146007 passed. Independent feat/labeled-recognition-evaluation has two uncommitted offline scoring scripts with strict provenance/source/split separation and private reports; no tests/docs/PR or real-data scoring yet. Syntax check77914 live. No Computer Use input or actual native/output operation has run.
+## Booth readability and review priority
+
+2026-11-20. New booth.css restores18px base/control text and44px targets while preserving Studio palette/font/backend. Current passage precedes manual/session options; deliberate manual review focuses the heading without sending, and selected-reference details precede quote setup. Measured fonts/rectangles/consent labels, compact,1280/900/640 settings fit,200% zoom and primary-action visibility pass. Existing Studio/routing and idle-focus checks pass. Unchanged workspace test initially found footer-over-Stop at640px/200%; normal-flow footer fix passed the same check.534 modules/check pass. Full exact-head source/package/Mac verification remains before merge. Physical booth/screen-reader acceptance stays pending. See docs/111-booth-readability-and-review-priority.md.
+
+## PR67 merged after complete component verification
+
+2026-11-20. Exact5bfb9051 merged atba4ca31 after534 modules/check, measured geometry/labels/compact/manual-no-send, existing Studio/workspace/smoothness checks,32 Windows source +32 packaged scenarios,153-file exact-source/native receipts and Mac44828146007 passed. All feature verification jobs are terminal. Integration rerun follows. Computer-use list_apps timed out twice before any input; documented reset/retry remains. Independent evaluation-tool scripts remain uncommitted in their own worktree.

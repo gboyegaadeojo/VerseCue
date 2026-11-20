@@ -10,7 +10,7 @@
  while(overview.firstChild)review.append(overview.firstChild);
  const detections=make('section','studio-detections');
  const queuePanel=document.querySelector('.queue-panel');
- detections.append(queuePanel);review.prepend(review.querySelector('.manual'));overview.append(detections,review);overview.classList.add('studio-overview');
+ detections.append(queuePanel);overview.append(detections,review);overview.classList.add('studio-overview');
  const audioHome=document.querySelector('[data-route-panel="audio"]');
  const feed=make('section','studio-feed');feed.setAttribute('aria-label','Listening workspace');
  const audioPanel=document.querySelector('.audio-panel');
@@ -40,6 +40,8 @@
  document.querySelector('.output-actions').append(preparationActions,make('p','preparation-caption','Preparation never sends output. Inspect the passage in ProPresenter.'));
  const sourceLabel=document.querySelector('.source-label');sourceLabel.textContent='RECOGNIZED WORDING';
  document.querySelector('.inspector-heading').firstChild.textContent='PASSAGE INSPECTOR ';
+ const quoteReadiness=document.getElementById('quote-readiness');const quoteSection=quoteReadiness.parentElement;quoteSection.append(quoteReadiness,quoteSection.querySelector('[data-open-settings="quotes"]'));
+ document.getElementById('reference').tabIndex=-1;
  const search=make('button','desk-search','Find a reference');search.type='button';search.setAttribute('aria-keyshortcuts','Control+K Meta+K');search.append(make('kbd','','Ctrl K'));
  search.addEventListener('click',()=>{window.workspace.route('overview');document.getElementById('reference-input').focus();});
  if(!compact)document.querySelector('.header-actions').prepend(search);

@@ -1,0 +1,41 @@
+/* Original booth requirements: 18px base and at least 44px action targets.
+   Keep Studio's palette, type family, hierarchy and operator workflow. */
+:root { font-size: 18px; line-height: 1.55; }
+/* These minimums deliberately override dense component styles, including compact. */
+button, input:not([type="checkbox"]), select {
+  font-size: 18px !important;
+  min-height: 44px !important;
+  min-width: 44px;
+}
+summary { font-size: 18px !important; min-height: 44px !important; padding-block: 10px; }
+label, legend { font-size: 18px !important; }
+.consent { min-height: 44px; align-items: center; }
+.consent input[type="checkbox"] { flex-shrink: 0; }
+p, .muted, blockquote, #saved-cue-preview, #passage-previews pre {
+  font-size: 18px !important;
+  line-height: 1.6;
+}
+.status-strip strong, #passage-ready-status { font-size: 18px !important; }
+.notice { font-size: 18px; line-height: 1.5; }
+.status-strip span, .eyebrow, .nav-label, .pill, #expiry {
+  font-size: 12px !important;
+  line-height: 1.5;
+}
+.brand small { font-size: 10px; }
+.workspace-identity, .workspace-identity small, footer { font-size: 14px; }
+#reference { font-size: clamp(32px, 3vw, 46px); line-height: 1.2; overflow-wrap: anywhere; }
+.header-actions { flex-wrap: wrap; }
+.header-actions button { white-space: normal; }
+.settings-content { overflow-wrap: anywhere; }
+/* Flex layout already reserves footer space. A sticky footer can cover the
+   wrapped safety header in narrow, zoomed windows. */
+.app-body > footer { position: static; }
+.settings-nav button { white-space: normal; }
+.inspector dt { font-size: 14px; }
+.inspector dd, .inspector h2 { font-size: 18px; line-height: 1.5; }
+.input-row > button { white-space: normal !important; }
+.studio-feed .audio-controls { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.studio-feed .audio-controls button { width: 100%; }
+.studio-feed .consent { align-items: flex-start; }
+/* Detailed processing guidance stays available on Audio & recognition. */
+.studio-feed .audio-panel > p.muted:not(#recognition-progress) { display: none; }
