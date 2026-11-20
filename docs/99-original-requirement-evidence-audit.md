@@ -20,6 +20,8 @@ PR57 adds [cross-window reset privacy](101-session-reset-renderer-privacy.md), v
 
 PR59 adds [reference dictionary and bounds versions in diagnostics](103-reference-metadata-diagnostics.md).479 module tests, source/packaged export and packaged Windows workspace checks and exact Mac44745503475 passed. The export scenario checks a real synthetic candidate is present, Cancel does not write, version objects match bundled source and private session content/path/address markers are absent. This does not add installed-edition numbering evidence or full acceptance.
 
+PR60 adds [configurable repeat suppression and deliberate resend](104-reference-repeat-cooldown.md), with491 modules,26 Windows source +26 packaged scenarios and exact Mac44778367779 attempt2. Attempt1 acquired no runner; its capacity failure remains recorded. PR61 adds [reset isolation for late command callbacks](105-reset-inflight-command-isolation.md), with497 combined modules,27 source +27 packaged Windows scenarios and exact Mac44780306030. Both merged independently after verification; original physical, speech, platform, accessibility and field acceptance remain open.
+
 ## Evidence index
 
 <a id="evidence-a"></a>
