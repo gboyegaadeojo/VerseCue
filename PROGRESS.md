@@ -3,7 +3,8 @@
 Updated: 2026-11-18 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-DELIVERED - Selected Studio redesign implemented and merged in PR20 at30a23ce. Windows0.6.0 package built and134manifest/source files verified.227module tests and source/packaged UI, offline speech, minimized quote, fake-output, Auto and recovery checks pass. Existing backend/safety behavior retained; no actual microphone or ProPresenter access in this redesign. Matching Mac standard public runner44330987454 is queued; no Mac0.6.0 success/publication claim. P0/live-service and conversational acceptance gaps remain pending.
+
+IMPLEMENTING - aggregate PR22 remains draft. Components through PR66 are merged; main534 module tests and aggregate537 pass. Current independent component improves booth readability and review priority, with source geometry/Studio/workspace/smoothness checks passing. Full current-head Windows source/package/Mac verification remains before its merge. P0, real speech accuracy/latency, installed-edition/physical-output/Mac-native/field/accessibility/privacy-residue/distribution acceptance remain pending. No new release or installed replacement is claimed. See CLAUDE.md and docs/107 for the exact resume point and complete original audit.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -400,3 +401,7 @@ Initial PR65 e233de3 passed30 Windows source scenarios and152-file review receip
 ## Safe input-test implementation completed locally
 
 2026-11-20. feat/safe-input-test adds an explicitly consented saved-input meter check without Whisper. Backend purpose/ownership and10-second expiry prevent test audio from reaching recognition; frontend avoids speech buffering, closes capture on Stop/expiry/reset, and protects a new test from old permission rejection. Three new focused groups plus534 branch modules/syntax/inventory pass. Extended source desktop scenario passes consent/meter/denial/expiry/Stop/pending permission/two-window/reset/fit with zero recognitions and no real input/output. Full current-head source/package/Mac verification remains before merge. See docs/110-safe-input-test.md.
+
+## Booth readability and review priority
+
+2026-11-20. New booth.css restores18px base/control text and44px targets while preserving Studio palette/font/backend. Current passage precedes manual/session options; deliberate manual review focuses the heading without sending, and selected-reference details precede quote setup. Measured fonts/rectangles/consent labels, compact,1280/900/640 settings fit,200% zoom and primary-action visibility pass. Existing Studio/routing and idle-focus checks pass. Unchanged workspace test initially found footer-over-Stop at640px/200%; normal-flow footer fix passed the same check.534 modules/check pass. Full exact-head source/package/Mac verification remains before merge. Physical booth/screen-reader acceptance stays pending. See docs/111-booth-readability-and-review-priority.md.
