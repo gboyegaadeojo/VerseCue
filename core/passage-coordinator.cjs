@@ -1,7 +1,7 @@
 'use strict';
 const {nativeFailureDiagnostics}=require('./bible-preparation.cjs');
 const {randomUUID}=require('node:crypto');
-const {planSavedPassage}=require('./bible-passage-plan.cjs');
+const {planSavedPassage,metadataReference}=require('./bible-passage-plan.cjs');
 // Reference preparation and explicit desktop confirmation. Output uses the
 // existing Session/Connector guards; no generic Next, Clear or blind retry.
 class PassageCoordinator {
@@ -117,6 +117,17 @@ class PassageCoordinator {
  finishPart(plan,source,partIndex,receipt){
   if(receipt.state!=='readback-matched'){this.active=null;return this.publish({phase:'uncertain',reference:plan.reference,translation:plan.translation,...receipt});}
   const partCount=plan.cueIndices.length,token=randomUUID();
+  const context=this.service.context;
+  if(context?.verified&&context.remote?.uuid===plan.uuid&&context.remote.index===plan.cueIndices[partIndex]&&context.remote.fingerprint===plan.fingerprint){
+   const current=metadataReference(plan.cues?.[partIndex]?.label,plan.translation);
+   if(!current)this.service.context=null;
+   else{const compare=(a,b)=>a[0]-b[0]||a[1]-b[1],start=[current.chapter,current.verse],end=[current.endChapter??current.chapter,current.endVerse??current.verse],multi=compare(start,end)!==0;
+    const overlap=multi&&plan.cues.slice(partIndex+1).some(cue=>{const next=metadataReference(cue.label,plan.translation);if(!next)return true;if(next.book!==current.book)return false;return compare([next.chapter,next.verse],end)<=0&&compare([next.endChapter??next.chapter,next.endVerse??next.verse],start)>=0;});
+    // Keep whole-passage context for explicit repeats, but bind relative verse
+    // navigation to this exact readback cue without renewing ownership or age.
+    this.service.context={...context,displayedReference:current,displayedRangeAmbiguous:overlap};
+   }
+  }
   this.active={token,plan:structuredClone(plan),source:structuredClone(source),partIndex,epoch:this.epoch,target:this.connector.generation,base:this.connector.base,generation:this.service.generation,referenceEpoch:this.service.referenceEpoch,expiresAt:this.service.clock()+120000};
   return this.publish({phase:partIndex+1<partCount?'part-shown':'readback-matched',reference:plan.reference,translation:plan.translation,activeToken:token,partIndex,partCount,...receipt});
  }
