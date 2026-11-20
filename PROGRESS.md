@@ -388,3 +388,7 @@ Earlier8a960f4 passed28 source scenarios and Mac44785647620, and its151-file Win
 ## Audio input information implementation
 
 2026-11-20. Prepared feat/audio-input-information is updated through PR63. Active-input reported format/ranges, pre-processing device/channel validation and actionable permission guidance are implemented. Seven new focused synthetic groups plus521 module tests pass; the source input-information UI passes with fake tracks and no real microphone/ProPresenter. Full current-source Windows/source/package and hosted Mac verification remain before merge. Details and remaining hardware limitations: docs/108-audio-input-information.md.
+
+## Interrupted speech scratch recovery implementation
+
+2026-11-20. fix/speech-scratch-recovery is based on merged PR64. App-owned startup recovery, exclusive WAV creation, bounded nonrecursive cleanup, linked/out-of-scope refusal, cancellation-before-spawn and sanitized cleanup failures are implemented. Nine focused groups and530 modules pass; source desktop recovery scenario passes using synthetic bytes with no actual microphone/ProPresenter. Full source/package/Mac verification remains before merge. See docs/109-interrupted-speech-scratch-recovery.md for legacy/swap/secure-erasure limitations.
