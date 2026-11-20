@@ -4,6 +4,8 @@ contextBridge.exposeInMainWorld('versecue',{
   state:()=>ipcRenderer.invoke('state'),
   command:(command,payload)=>ipcRenderer.invoke('command',command,payload),
   settings:()=>ipcRenderer.invoke('settings'),
+  settingsBackups:()=>ipcRenderer.invoke('settings-backups'),
+  restoreSettingsBackup:options=>ipcRenderer.invoke('restore-settings-backup',options),
   quoteStatus:()=>ipcRenderer.invoke('quote-status'),
   importQuoteIndex:options=>ipcRenderer.invoke('quote-import',options),
   enableQuotes:enabled=>ipcRenderer.invoke('quote-enable',enabled),
