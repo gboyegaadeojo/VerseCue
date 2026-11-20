@@ -1,0 +1,9 @@
+# Fresh batched reference readback
+
+The native Value helper previously fetched ValuePattern and then its Current.Value through separate provider reads. It now obtains a new Element-scoped Raw-view snapshot containing that pattern and its Value property on every call, using GetUpdatedCache. The snapshot is read-only (AutomationElementMode.None), is used immediately and is never reused or substituted for the original live editable field. TryGetCachedPattern must still prove the requested pattern is available.
+
+Every existing readback location remains: inspection, post-SetValue wait, generated-slide stability checks, before opening Save As and immediately before invoking its command. The original live field still performs focus and SetValue. This does not store a previous reference, weaken canonical/edition/focus/selection checks, retry input, change clipping or formatting, extend a deadline or send output. A replaced field remains a failure requiring inspection.
+
+Microsoft documents [GetUpdatedCache](https://learn.microsoft.com/en-us/dotnet/api/system.windows.automation.automationelement.getupdatedcache) and obtaining cached pattern properties in [Use Caching in UI Automation](https://learn.microsoft.com/en-us/dotnet/framework/ui-automation/use-caching-in-ui-automation). Accessed 2026-11-20. These support the batching mechanism, not a ProPresenter speed or compatibility guarantee.
+
+Validation must include current-source C# compilation, module/syntax checks, a receipt-verified isolated Windows package and a bounded preparation-only personal-host compatibility case with independent disabled-screen/output/Look/playlist checks. Hosted Mac verification covers shared source and packaging only. No public actual-host outcome, speech latency, p50/p95, formatting or field acceptance is claimed.

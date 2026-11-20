@@ -33,7 +33,7 @@
 | Safe native failure diagnostics | [PR44](https://github.com/gboyegaadeojo/VerseCue/pull/44) |422 tests/syntax, compiler,147-file Windows source build/receipt and synthetic uncertainty/recovery/clipping plus exact Mac44669329308 passed. Merged at9dad023. No public actual-host result. |
 | Batched initial native readiness | [PR45](https://github.com/gboyegaadeojo/VerseCue/pull/45) | Merged ata9b3de1.422 tests/syntax/compiler,147-file Windows source build/receipt, synthetic uncertainty/recovery/clipping and exact Mac44669726891 passed. No public performance or appearance pass. |
 
-| Fresh batched native reference readback | [PR46](https://github.com/gboyegaadeojo/VerseCue/pull/46) | Draft0bc26db.422 tests/syntax/compiler and147-file Windows source build/receipt passed; exact Mac44670595296 and packaged synthetic checks running. |
+| Fresh batched native reference readback | [PR46](https://github.com/gboyegaadeojo/VerseCue/pull/46) | Merged at42e4717.422 tests/syntax/compiler,147-file Windows source build/receipt, four packaged synthetic native cases and exact Mac44670595296 passed. No full latency/appearance/field pass. |
 
 ## Dependency delivery and remaining acceptance
 

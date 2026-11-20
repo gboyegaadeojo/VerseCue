@@ -469,3 +469,12 @@ PR46 0bc26db batches fresh per-check reference readback and retains all original
 ## Complete RF checklist evidence map
 
 Added docs/90 with all22 unchanged RF checklist items, implemented software evidence and explicit remaining verification/code limitations. Linked it from README; original62FR/24NFR,86 trace rows and66 corpus proposals are retained. Native Mac is explicitly not implemented/verified without the actual profile. Required test-style decision and authorized Mac availability questions are pending; no dependent style change or Mac-control action is performed. The private-evidence publication question remains separate. PR46 exact build verification continues. Next: inspect the same CI run and merge only passing scope, then address actual style/platform/field dependencies rather than substituting synthetic results.
+## Fresh reference-readback batching candidate
+
+Dependent on the initial-window batching candidate, replace two provider reads with a new read-only pattern/value snapshot per Value call. All existing readback locations and live focus/edit/action guards remain. No cached value is reused across checks. Next: compiler/module/syntax verification, isolated Windows package and bounded private preparation-only compatibility test; no speedup or acceptance claim yet.
+
+## PR46 merged and external acceptance dependencies
+
+PR46 merged at42e4717 after exact0bc26db standard Mac44670595296 passed422 module tests/syntax, source desktop scenarios, CPU speech packaging and packaged workspace. The147-file current-source Windows package/receipt and four packaged synthetic native cases (uncertain, recovery, clipping, unchanged-cue text edit) passed. Fresh reference snapshots preserve every prior readback location and action guard. No public personal-host performance, formatting or field acceptance claim is made.
+
+All existing Windows coding/build/test permissions remain active. Questions about an authorized real Mac profile and use of separate fitting test Bible styles are pending; do not perform dependent style changes or invent Mac support. Original audio/physical-output/media/Companion/platform/latency/field and accepted distribution gates remain open in docs/90 and PR22. Personal evidence publication permission is still separate/pending. Next: finish integrated425-test/syntax/document structural checks and update the unchanged22-item tracker; then continue any acceptance work that does not depend on unavailable hardware or unanswered authorization. Do not merge aggregate22 or mark the project complete.

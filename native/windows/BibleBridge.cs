@@ -45,8 +45,12 @@ class BibleBridge {
         return root.FindFirst(TreeScope.Descendants, new PropertyCondition(AutomationElement.AutomationIdProperty,id));
     }
     static string Value(AutomationElement field) {
-        object value; Require(field.TryGetCurrentPattern(ValuePattern.Pattern,out value),"REFERENCE_NOT_EDITABLE");
-        return ((ValuePattern)value).Current.Value;
+        // Fetch a new read-only snapshot on every call; never reuse a prior value.
+        var request=new CacheRequest();request.TreeScope=TreeScope.Element;request.TreeFilter=Automation.RawViewCondition;request.AutomationElementMode=AutomationElementMode.None;
+        request.Add(ValuePattern.Pattern);request.Add(ValuePattern.ValueProperty);
+        var snapshot=field.GetUpdatedCache(request);
+        object value;Require(snapshot.TryGetCachedPattern(ValuePattern.Pattern,out value),"REFERENCE_NOT_EDITABLE");
+        return ((ValuePattern)value).Cached.Value;
     }
     static AutomationElement TranslationSelector(AutomationElement root) {
         var selectors=root.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.AutomationIdProperty,"loadedBibleSelectorSelf"));
