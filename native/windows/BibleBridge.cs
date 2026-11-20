@@ -246,7 +246,8 @@ class BibleBridge {
             string input=Console.ReadLine();Require(input!=null&&input.Length<=8192,"INVALID_REQUEST_SIZE");
             var request=Json.Deserialize<Dictionary<string,object>>(input);Require(request!=null,"INVALID_REQUEST");
             Console.WriteLine(Json.Serialize(Run(request)));return 0;
-        }catch(InvalidOperationException e){Console.WriteLine(Json.Serialize(new {ok=false,code=e.Message,outputRequests=0}));return 2;}
+        }catch(ElementNotAvailableException){Console.WriteLine(Json.Serialize(new {ok=false,code="NATIVE_UI_ELEMENT_REPLACED",outputRequests=0}));return 3;}
+        catch(InvalidOperationException e){Console.WriteLine(Json.Serialize(new {ok=false,code=e.Message,outputRequests=0}));return 2;}
         catch{Console.WriteLine(Json.Serialize(new {ok=false,code="NATIVE_UI_ACCESS_UNCERTAIN",outputRequests=0}));return 3;}
     }
 }

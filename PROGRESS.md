@@ -282,3 +282,5 @@ The inspector now retains the prepared reference and phase after the shorter sug
 ## Native preparation profile investigation
 
 Add allowlisted content-free timing boundaries around existing process/window/control/edition/clipping discovery without adding queries or changing actions/deadlines.420 module tests and syntax pass; compiler result is checked before packaging. This is instrumentation, not a speedup or hardware pass. Next: isolated build and bounded private preparation-only measurement, then select an evidence-based optimization.
+
+Native failure-diagnostic follow-up: retain only known bounded stage metadata on failed helper errors and publish sanitized metadata in local coordinator state; distinguish replaced accessibility controls without exception text or retry.422 tests/syntax pass, Windows helper compiles. New private measurement records are excluded from publication. Next: isolated current-source diagnostic build and one fresh bounded inspected case, then act on the observed failing stage.
