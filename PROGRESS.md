@@ -354,3 +354,7 @@ PR56 merged atf87b508 after476 module tests/syntax,23 source and23 packaged Wind
 ## Reference dictionary versions in diagnostics
 
 Independent fix/reference-diagnostic-versions addresses FR011 missing exported metadata version. Redacted diagnostics now include source-addressed English parser/dictionary version and existing KJV bounds provenance/version/hash, normalized across CRLF/LF. No Bible text or user content is exported. The isolated synthetic export scenario seeds an actual candidate/source phrase, proves Cancel does not invoke Save/write, checks exact exported versions and absence of session content/address/path marker.476 base module tests and initial source export pass. Full current-base/package/Mac verification remain before merge.
+
+## Reset isolation for late command callbacks
+
+Independent fix/reset-inflight-receipt reproduces prior-session receipt history/context resurrection, late uncertainty pausing a new session, old Auto status repaint and relative-preflight invalidation after reset. Reset-epoch checks now return sanitized uncertainty/errors and prevent stale callback state changes; no retry, Clear or undo of already accepted output occurs. Five module groups and484 modules/syntax pass on PR59 base. A source desktop scenario holds three synthetic dispatch outcomes, resets through the UI, adds a fresh reference and verifies history/privacy/Confirm/dry-run preservation. No real microphone/network target/ProPresenter is accessed. Current-main merge and full source/package/Mac checks remain before opening/merging this next component.

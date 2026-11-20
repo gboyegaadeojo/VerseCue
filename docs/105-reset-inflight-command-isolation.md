@@ -1,0 +1,9 @@
+# Reset isolation for late command callbacks
+
+FR-062 requires reset to clear transient session state without implicitly clearing ProPresenter. Held synthetic connector results reproduced old history/context returning after reset and late uncertainty pausing a newer session. Queued Auto callbacks and relative preflight failures reproduced related stale-state mutations.
+
+Session send now captures the reset epoch. A receipt from a prior session returns an uncertainty result without restoring its reference, presentation text, history, last-send state or remote context. Exceptions after reset become a static previous-session message instead of returning old raw error content. Relative preflight failure cannot invalidate the new session. Auto callbacks check their reset epoch before starting and after resolution/rejection, preserving current mode/status/candidates.
+
+An already accepted command cannot be undone by reset. The operator must inspect ProPresenter; this change performs no retry, restoration, Clear or additional trigger. Redacted warning codes record that the previous-session operation ended, without reference or transcript fields. Existing pre-dispatch guards and ordinary Auto failure behavior remain when no reset occurred.
+
+Five synthetic module groups cover late success, uncertain receipt, Auto success/failure, queued timer and relative verification failure.484 modules/syntax pass on the PR59 base. A source desktop test holds three synthetic connector dispatches, clicks Reset, adds a new reference, and verifies late readback/uncertainty/error cannot restore old history, expose old error text or pause the new Confirm/dry-run session. It accesses no microphone, network target or real ProPresenter. Current-main integration, package and exact Mac checks remain before a separate PR merge; this is not full physical/field acceptance.
