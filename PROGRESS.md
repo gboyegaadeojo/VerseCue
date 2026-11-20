@@ -384,3 +384,7 @@ Earlier8a960f4 passed28 source scenarios and Mac44785647620, and its151-file Win
 ## PR62 verification and agent handoff
 
 2026-11-20. PR62 exact58d0c5a7 passed514 modules/syntax/inventory,28 Windows source and28 packaged scenarios,151-file review/native receipts and Mac44787486654; merged at2cc9ec4. Root integration passes517 modules. New CLAUDE.md, AGENTS.md, HANDOFF.md and docs/107 explain the current state, plain-English remaining work, authorization boundaries and next prepared audio-input branch. README links the handoff. Update CLAUDE.md approximately every10 minutes during active work and after merges/build checkpoints. Original P0/physical/Mac-native/field gates remain pending; no release is claimed.
+
+## Audio input information implementation
+
+2026-11-20. Prepared feat/audio-input-information is updated through PR63. Active-input reported format/ranges, pre-processing device/channel validation and actionable permission guidance are implemented. Seven new focused synthetic groups plus521 module tests pass; the source input-information UI passes with fake tracks and no real microphone/ProPresenter. Full current-source Windows/source/package and hosted Mac verification remain before merge. Details and remaining hardware limitations: docs/108-audio-input-information.md.
