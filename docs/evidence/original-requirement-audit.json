@@ -1,0 +1,1414 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-20",
+  "sourceRevision": "209d0db50bccfcd5ea9971800dd3afa2dbaf1a63",
+  "applicationVersion": "0.6.0",
+  "scope": "source/test evidence inventory; no full acceptance certification",
+  "baselineHashNormalization": "UTF-8 text with CRLF normalized to LF",
+  "p0": "PENDING",
+  "functionalCount": 62,
+  "nonfunctionalCount": 24,
+  "baselines": {
+    "docs/02-functional-requirements.md": "6fd67a05b0c3fbbb63dfb98fe590b3ece594a71840fe0e87d77a599cb94840eb",
+    "docs/03-non-functional-requirements.md": "880a827397c3d8aa4ab6d9a243c7d8fde1d506ead6ab9ae100bfb3c68ea0716b"
+  },
+  "evidenceIndex": {
+    "A": "[capture](../ui/audio.js), [buffer](../ui/audio-buffer.js), [worklet](../ui/capture-worklet.js); [capture tests](../tests/pastor-audio.test.cjs), [worklet tests](../tests/capture-worklet.test.cjs), [buffer tests](../tests/audio-buffer.test.cjs)",
+    "S": "[local worker](../core/stt.cjs), [resident worker](../core/resident-speech.cjs), [speech evidence](../core/speech-evidence.cjs), [stabilizer](../core/citation-stabilizer.cjs); [STT tests](../tests/settings-stt.test.cjs), [speech tests](../tests/speech-evidence.test.cjs), [stabilizer tests](../tests/citation-stabilizer.test.cjs)",
+    "P": "[parser](../core/parser.cjs), [navigation](../core/navigation.cjs), [Session](../core/session.cjs), [bounds metadata](../core/kjv-versification.json); [parser tests](../tests/parser.test.cjs), [navigation tests](../tests/navigation.test.cjs), [Session tests](../tests/session.test.cjs)",
+    "C": "[connector](../core/connector.cjs), [coordinator](../core/passage-coordinator.cjs), [saved Bible workflow](../core/saved-bible-workflow.cjs), [native Windows helper](../native/windows/BibleBridge.cs); [connector tests](../tests/connector.test.cjs), [coordinator tests](../tests/passage-coordinator.test.cjs), [native bridge tests](../tests/bible-preparation.test.cjs)",
+    "O": "[guarded Auto](../core/guarded-auto.cjs), [private API](../core/control-api.cjs), [capture lease](../core/capture-lease.cjs), [power recovery](../core/power-recovery.cjs); [Auto tests](../tests/guarded-auto.test.cjs), [API lifecycle tests](../tests/control-api-lifecycle.test.cjs), [ownership tests](../tests/live-context.test.cjs)",
+    "U": "[desktop IPC](../desktop/main.cjs), [operator UI](../ui/app.js), [workspace](../ui/workspace.js), [Studio styles](../ui/studio.css), [recovery UI](../ui/settings-recovery.js); [workspace scenario](../scripts/test-workspace.cjs), [recovery scenario](../scripts/test-settings-recovery-ui.cjs)",
+    "T": "[settings/history](../core/settings.cjs), [profiles](../core/profiles.cjs), [configuration gate](../core/configuration-transition.cjs); [backup tests](../tests/settings-backups.test.cjs), [profile tests](../tests/profiles.test.cjs), [transition scenario](../scripts/test-settings-transition-ui.cjs)",
+    "Q": "[quote matcher](../core/quote-matcher.cjs), [quote tests](../tests/quote-matcher.test.cjs)",
+    "B": "[Windows package](../scripts/package.cjs), [Mac package](../scripts/package-macos.cjs), [review verification](../scripts/build-review-package.cjs), [Mac workflow](../.github/workflows/macos-development.yml), [native receipt tests](../tests/native-build-receipt.test.cjs)",
+    "L": "[dependency inventory](../legal/dependency-inventory.json), [notices](../legal/THIRD_PARTY_NOTICES.md), [font inventory](../legal/font-inventory.json), [privacy/licensing plan](11-data-privacy-security-and-licensing.md)"
+  },
+  "requirements": [
+    {
+      "id": "FR-001",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Enumerate selectable physical/virtual capture devices with stable ID, channel and format metadata; remember selection without silently substituting.",
+      "acceptance": "Given MOTU M4 and another input, when selecting M4/channel and restarting, then the same available ID/channel is chosen; if missing, capture stays off with named error.",
+      "planning": "audio / MVP / BR-001",
+      "rationale": "Avoid wrong microphone/feed.",
+      "priorityDependencies": "M / A,C",
+      "status": "P",
+      "evidenceGroups": [
+        "A",
+        "T"
+      ],
+      "evidence": "Exact device ID and channel are stored; capture requests the selected device instead of a default.",
+      "remaining": "Expose or qualify device format/channel-capability metadata; verify MOTU identity/channel persistence on each OS."
+    },
+    {
+      "id": "FR-002",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Request microphone permission only when setup/input test needs it; explain denial/revocation recovery for each OS.",
+      "acceptance": "Given permission denied then granted in OS settings, when retrying test, then denial shows actionable steps and no capture occurs until grant.",
+      "planning": "audio / MVP / BR-004",
+      "rationale": "Consent and reliable onboarding.",
+      "priorityDependencies": "M / A,U",
+      "status": "P",
+      "evidenceGroups": [
+        "A",
+        "U"
+      ],
+      "evidence": "Input permission actions, capture cancellation and denial paths exist.",
+      "remaining": "Verify OS-specific denial/revocation recovery and improve actionable in-app guidance where only a browser error is shown."
+    },
+    {
+      "id": "FR-003",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Select a mono pastor channel and convert supported sample formats/rates without modifying mixer/live routing.",
+      "acceptance": "Given 44.1/48 kHz stereo fixture with speech on one channel, when configured, then output is the chosen channel at recognizer format with duration error ≤1 frame per second and no other-channel mixing.",
+      "planning": "audio / MVP / BR-001",
+      "rationale": "Clean recognition input.",
+      "priorityDependencies": "M / A",
+      "status": "S",
+      "evidenceGroups": [
+        "A"
+      ],
+      "evidence": "Selected-channel worklet, 16kHz conversion path and PCM boundary tests exist.",
+      "remaining": "Run exact duration/channel-isolation checks for 44.1/48kHz and actual interface/browser combinations; fixtures are not MOTU evidence."
+    },
+    {
+      "id": "FR-004",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Show live level meter, clipping and no-signal/quality status; distinguish device-open from useful speech signal.",
+      "acceptance": "Given silence 5 s, clipped signal 1 s, then normal speech, when captured, then named states appear within 1 s after each threshold; meter updates ≥10 Hz without capture stall.",
+      "planning": "audio / MVP / BR-001",
+      "rationale": "Volunteer can diagnose silence.",
+      "priorityDependencies": "M / A,U",
+      "status": "G",
+      "evidenceGroups": [
+        "A"
+      ],
+      "evidence": "Level, peak clipping and no-signal states are produced by capture.",
+      "remaining": "A synthetic 16kHz one-second probe emits nine 1664-sample packets; cadence misses >=10Hz. Correct and measure real UI thresholds."
+    },
+    {
+      "id": "FR-005",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Handle hot unplug/replug using explicit lost-input state; no silent capture from default mic.",
+      "acceptance": "Given active M4, when unplugged then reconnected, then listening/Auto stop on loss, no substitute opens and operator must retry/re-arm before sends.",
+      "planning": "audio / MVP / BR-003",
+      "rationale": "Prevent background recognition.",
+      "priorityDependencies": "M / A,C",
+      "status": "S",
+      "evidenceGroups": [
+        "A",
+        "O"
+      ],
+      "evidence": "Track-ended/device-change loss stops selected capture and pauses instead of substituting input.",
+      "remaining": "Perform actual M4 unplug/replug and permission-loss trials, visible timing and deliberate rearm."
+    },
+    {
+      "id": "FR-006",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Bound audio buffering and detect dropped frames/overrun; discard stale processing and indicate loss.",
+      "acceptance": "Given STT is stalled beyond 2 s audio queue budget, when more frames arrive, then overrun counter/status rises, old candidates/context invalidate and sends remain blocked until healthy restart.",
+      "planning": "audio / MVP / BR-003",
+      "rationale": "Hidden lag can cause stale output.",
+      "priorityDependencies": "M / A,S",
+      "status": "G",
+      "evidenceGroups": [
+        "A",
+        "S"
+      ],
+      "evidence": "Next-window capture is bounded and overflow/stale events invalidate recognition context.",
+      "remaining": "Default ring is12s and pending-age allowance4s. Resolve the original2s queued-audio budget while inference owns the worker."
+    },
+    {
+      "id": "FR-007",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Provide input test, capture mute, pause and unambiguous listening status.",
+      "acceptance": "Given test mode, when volunteer speaks then mutes/pauses, then level/preview work without output; mute feeds no speech onward and Pause closes capture, with visible status within 250 ms.",
+      "planning": "audio / MVP / BR-003",
+      "rationale": "Safe setup and breaks.",
+      "priorityDependencies": "M / A,U",
+      "status": "S",
+      "evidenceGroups": [
+        "A",
+        "U",
+        "O"
+      ],
+      "evidence": "Consent, start/stop, pause, health and dry-run detection controls exist.",
+      "remaining": "Verify real input-test usefulness and <=250ms visible mute/pause; a healthy meter is not an output test."
+    },
+    {
+      "id": "FR-008",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Document and detect OS-specific loopback prerequisites; prefer physical M4 input initially.",
+      "acceptance": "Given an unavailable loopback route on either OS, when selected, then setup explains actual prerequisite and remains not-ready; no live routing change or paid driver install occurs.",
+      "planning": "audio / v1 / BR-005",
+      "rationale": "Windows/macOS parity cannot be assumed.",
+      "priorityDependencies": "S / A,C",
+      "status": "P",
+      "evidenceGroups": [
+        "A",
+        "U"
+      ],
+      "evidence": "Browser physical/virtual devices can be explicitly selected; physical M4 setup is documented.",
+      "remaining": "OS-specific loopback prerequisite/capability detection is not a verified route; do not silently assume system loopback."
+    },
+    {
+      "id": "FR-009",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Continuous transcription via one backend; rolling readable preview, partial/final distinction, language/provider health.",
+      "acceptance": "Given a 90-minute authorized feed, when speech/pauses occur, then ordered revisions replace partial text; no partial alone becomes sendable; errors show backend state and no unbounded transcript accumulation.",
+      "planning": "speech / MVP / BR-001",
+      "rationale": "Observable recognition.",
+      "priorityDependencies": "M / A,S,U",
+      "status": "P",
+      "evidenceGroups": [
+        "S",
+        "U"
+      ],
+      "evidence": "Continuous capture feeds bounded CLI/resident Whisper windows with rolling text and processing/stabilization states.",
+      "remaining": "Adapter returns final window results rather than true incremental token streaming. Verify partial/final UX and real90-minute feed behavior."
+    },
+    {
+      "id": "FR-010",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Stabilize utterances with revision IDs, end evidence and correction grace before candidate eligibility.",
+      "acceptance": "Given partial John 3 then revised John 3:16, when final/stability policy completes, then only stable full candidate is eligible; test rapid correction prevents old dispatch.",
+      "planning": "speech / MVP / BR-003",
+      "rationale": "Repeated partials are not final.",
+      "priorityDependencies": "M / S,P",
+      "status": "S",
+      "evidenceGroups": [
+        "S",
+        "P",
+        "O"
+      ],
+      "evidence": "Window/session IDs, original age, revisions and citation stabilization guard candidate eligibility.",
+      "remaining": "Validate real partial/revised/corrected speech and correction grace; synthetic assembly is not speech accuracy."
+    },
+    {
+      "id": "FR-011",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Canonical book dictionary includes 1/I/First John, Psalm/Psalms, Song of Songs/Solomon and Revelation/Revelations with provenance/version.",
+      "acceptance": "Given alias corpus, when normalized, then each maps to exact canonical book; “John said” does not become a reference. Dictionary version recorded in diagnostics.",
+      "planning": "parser / MVP / BR-001",
+      "rationale": "Common spoken aliases.",
+      "priorityDependencies": "M / P",
+      "status": "P",
+      "evidenceGroups": [
+        "P",
+        "L"
+      ],
+      "evidence": "Canonical book/ordinal/alias dictionary and provenance metadata files exist.",
+      "remaining": "Export an explicit parser/dictionary metadata version in diagnostics; application version alone does not meet that requirement."
+    },
+    {
+      "id": "FR-012",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Parse spoken numbers/ordinals and chapter/verse aliases for explicit references.",
+      "acceptance": "Given “John three sixteen,” “turn to Romans chapter eight verse twenty-eight,” and “Second Timothy one seven,” when stable, then John 3:16, Romans 8:28 and 2 Timothy 1:7 are produced exactly.",
+      "planning": "parser / MVP / BR-001",
+      "rationale": "Natural reference forms.",
+      "priorityDependencies": "M / P",
+      "status": "S",
+      "evidenceGroups": [
+        "P"
+      ],
+      "evidence": "Deterministic number, ordinal, chapter/verse and common citation normalization has regressions.",
+      "remaining": "Retain the complete original corpus and evaluate the forms through actual STT, not text alone."
+    },
+    {
+      "id": "FR-013",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Validate canonical book/chapter/verse using rights-cleared metadata and selected translation capabilities; reject invalid or unknown bounds.",
+      "acceptance": "Given John 3:99, unknown book and valid John 3:16, when validated, then first two are blocked with reason; valid reference proceeds only if translation availability verified.",
+      "planning": "parser / MVP / BR-003",
+      "rationale": "No nonexistent verses.",
+      "priorityDependencies": "M / P,L",
+      "status": "P",
+      "evidenceGroups": [
+        "P",
+        "C"
+      ],
+      "evidence": "KJV bounds are deterministic; other editions need explicit saved/native verification and cannot gain guessed relative Auto.",
+      "remaining": "Complete installed-edition numbering/unavailable-reference trials; unknown bounds are not validated scripture existence."
+    },
+    {
+      "id": "FR-014",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Parse same-chapter and cross-chapter ranges with order and configurable finite limits, default max 10 verses.",
+      "acceptance": "Given 1 Corinthians 13:4–7 and John 3:16–4:2, when parsed, then ordered bounds are retained; over-10 range needs explicit review/adjustment and never Auto.",
+      "planning": "parser / v1 / BR-001",
+      "rationale": "Prevent runaway chapter output.",
+      "priorityDependencies": "M / P,V",
+      "status": "G",
+      "evidenceGroups": [
+        "P",
+        "C",
+        "T"
+      ],
+      "evidence": "Ordered same/cross-chapter ranges are parsed and capped at hardcoded ten verses.",
+      "remaining": "Finite range limit is not configurable as required. Preserve edition bounds and non-Auto over-limit behavior when adding configuration."
+    },
+    {
+      "id": "FR-015",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Resolve relative “verse seventeen,” “next verse,” “go back to verse three” only from verified recent passage context.",
+      "acceptance": "Given verified John 3:16 context, when next verse is spoken, then offer John 3:17; without context offer Needs review, never guess. Go back from John 3:17 yields John 3:3.",
+      "planning": "parser / v1 / BR-001",
+      "rationale": "Safe follow-on references.",
+      "priorityDependencies": "M / P,V",
+      "status": "S",
+      "evidenceGroups": [
+        "P",
+        "O"
+      ],
+      "evidence": "Relative navigation uses recent readback context and the actual displayed cue after PR48.",
+      "remaining": "Verify actual next/previous/chapter-edge navigation and ambiguous fragments; unknown edition numbering still needs a full reference."
+    },
+    {
+      "id": "FR-016",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Reset context on explicit book change, service reset, manual passage change, uncertainty/disconnect and 120 s context timeout.",
+      "acceptance": "Given John context, when another book/manual slide or timeout occurs, then relative-only speech cannot use prior John context. Unsupported manual-state detection disables relative Auto.",
+      "planning": "parser / MVP / BR-003",
+      "rationale": "Avoid stale relative commands.",
+      "priorityDependencies": "M / P,V,C",
+      "status": "S",
+      "evidenceGroups": [
+        "P",
+        "O"
+      ],
+      "evidence": "Book/intent/generation/target/ownership/age changes invalidate context; takeover checks run in the background.",
+      "remaining": "Exercise real manual/Companion changes and disconnects; unsupported state detection must not enable relative Auto."
+    },
+    {
+      "id": "FR-017",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Reject numeric ambiguity, names/discussion lacking complete reference and non-scripture commands.",
+      "acceptance": "Given “John says a lot about love,” “chapter three is important” without context and “three sixteen,” when processed, then no sendable reference is generated; ambiguous forms show review only when useful.",
+      "planning": "parser / MVP / BR-003",
+      "rationale": "Precision over guessing.",
+      "priorityDependencies": "M / P",
+      "status": "S",
+      "evidenceGroups": [
+        "P"
+      ],
+      "evidence": "Discussion, incomplete numbers, invalid ordinals and non-reference wording have rejection cases.",
+      "remaining": "Measure false suggestions on real negatives, including spoken names and sermon discussion."
+    },
+    {
+      "id": "FR-018",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Separate candidate detection from display intent under service policy; reference mention alone is not unconditional Auto permission.",
+      "acceptance": "Given background lyric/reference discussion and an explicit pastor instruction, when classified, then background/discussion never Auto; configured policy and evidence appear on eligible candidate.",
+      "planning": "parser / MVP / BR-003",
+      "rationale": "Discussion/quotes can mention verses.",
+      "priorityDependencies": "M / P,C",
+      "status": "S",
+      "evidenceGroups": [
+        "P",
+        "O"
+      ],
+      "evidence": "Explicit-command policy is default; bare citations require separate opt-in and bounded final speech.",
+      "remaining": "Validate real background/lyrics/discussion policy and comprehension; heuristic eligibility is not calibrated probability."
+    },
+    {
+      "id": "FR-019",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Recognize self-corrections and invalidate superseded pending/queued candidates immediately, including within one utterance.",
+      "acceptance": "Given “I meant John four sixteen, not John three sixteen,” when stabilized, then only John 4:16 remains; cancellation reaches dispatcher before any stale send.",
+      "planning": "parser / MVP / BR-003",
+      "rationale": "Prevent wrong first reference.",
+      "priorityDependencies": "M / P,S",
+      "status": "S",
+      "evidenceGroups": [
+        "P",
+        "S",
+        "O"
+      ],
+      "evidence": "Corrections/new intent cancel old candidates/preflights; dispatch rechecks ownership.",
+      "remaining": "Run real correction timing and already-dispatched uncertainty with observed output."
+    },
+    {
+      "id": "FR-020",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Detect multiple references in detection order and require separate review, not sequential indiscriminate Auto.",
+      "acceptance": "Given Matthew 5:16 and then Romans 8:28 in one sentence, when parsed, then two ordered review candidates appear and neither auto-dispatches.",
+      "planning": "parser / MVP / BR-003",
+      "rationale": "Avoid replacing first passage instantly.",
+      "priorityDependencies": "M / P,U",
+      "status": "S",
+      "evidenceGroups": [
+        "P",
+        "O"
+      ],
+      "evidence": "Multiple references remain ordered review candidates rather than an Auto sequence.",
+      "remaining": "Verify actual multi-reference speech and volunteer selection without replacing unrelated output."
+    },
+    {
+      "id": "FR-021",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Translation requests normalize installed IDs; ambiguous AMP/AMPC and uninstalled requests require selection, never substitution.",
+      "acceptance": "Given ESV unavailable or ambiguous “Amplified,” when requested, then send is blocked until explicit installed selection; previous default is not silently used.",
+      "planning": "parser / MVP / BR-003",
+      "rationale": "Exact translation matters.",
+      "priorityDependencies": "M / P,L,V",
+      "status": "P",
+      "evidenceGroups": [
+        "P",
+        "C"
+      ],
+      "evidence": "Longest exact edition aliases distinguish AMP/AMPC; missing/ambiguous installed choices are blocked.",
+      "remaining": "Complete every IFC edition/name/build matrix, including AMP/AMPC and no previous-default fallback."
+    },
+    {
+      "id": "FR-022",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Suppress duplicates using reference/range/translation identity and configurable cooldown, default 10 s; intentional manual resend remains distinct.",
+      "acceptance": "Given repeated transcript windows for same reference within 10 s, when finalized, then one suggestion/command occurs; explicit resend after review gets new command ID.",
+      "planning": "parser / MVP / BR-003",
+      "rationale": "Avoid repeated loops.",
+      "priorityDependencies": "M / P,C",
+      "status": "G",
+      "evidenceGroups": [
+        "P",
+        "T",
+        "O"
+      ],
+      "evidence": "Candidate IDs and a ten-second last-send cooldown suppress immediate repeats.",
+      "remaining": "Cooldown is hardcoded rather than configurable; audit deliberate reviewed resend semantics before changing suppression or Auto."
+    },
+    {
+      "id": "FR-023",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Assign per-candidate TTL, default 15 s from stable detection, visible age/expiry; invalidate on policy/target/profile revisions.",
+      "acceptance": "Given candidate aged >15 s, when clicked or shortcut held, then no send occurs and expired state remains visible; a fresh validation requires a new candidate ID.",
+      "planning": "parser / MVP / BR-003",
+      "rationale": "Prevent late stale actions.",
+      "priorityDependencies": "M / P,U,C",
+      "status": "S",
+      "evidenceGroups": [
+        "P",
+        "O",
+        "U"
+      ],
+      "evidence": "Candidate TTL retains original speech age; stale/policy/target/profile changes invalidate actions.",
+      "remaining": "Verify visible expired states and fresh passage-review tokens; intentional prepared review is separate validation, not stale Auto authority."
+    },
+    {
+      "id": "FR-024",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Maintain configurable STT-confusion aliases only with test evidence; uncertain recognition stays reviewable.",
+      "acceptance": "Given confusable John/Job and real labelled examples, when normalization lacks unique evidence, then Needs review appears; no confidence threshold bypasses ambiguity.",
+      "planning": "speech / v1 / BR-001",
+      "rationale": "Handle accents without unsafe inference.",
+      "priorityDependencies": "S / S,P",
+      "status": "P",
+      "evidenceGroups": [
+        "P",
+        "S"
+      ],
+      "evidence": "A fixed tested whitelist handles reported spellings without broad fuzzy book guessing.",
+      "remaining": "Configurable confusion aliases and independently labelled accent evidence remain incomplete; do not guess John/Job from confidence."
+    },
+    {
+      "id": "FR-025",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Quote/paraphrase matching is future explicit opt-in, independently validated and always Confirm; never Auto.",
+      "acceptance": "Given only paraphrased verse content, when future feature disabled, then no match; enabled uncertain suggestions cannot dispatch automatically.",
+      "planning": "product / v2 / BR-003",
+      "rationale": "Avoid hallucinated citations.",
+      "priorityDependencies": "W / S,P,L",
+      "status": "P",
+      "evidenceGroups": [
+        "Q",
+        "O"
+      ],
+      "evidence": "Opt-in rights-cleared local indexes support partial/near-verbatim quotes, always Confirm.",
+      "remaining": "Broad semantic paraphrases remain unavailable; real quote accuracy and index rights need validation. Original future/opt-in boundary remains."
+    },
+    {
+      "id": "FR-026",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Always display connection, audio health, listening state, effective mode and target/test status with text plus icon.",
+      "acceptance": "Given offline link but healthy mic, when viewed full/compact, then separate statuses show offline and listening without a misleading overall connected label.",
+      "planning": "UX / MVP / BR-003",
+      "rationale": "Prevent mistaken readiness.",
+      "priorityDependencies": "M / U,V,A",
+      "status": "S",
+      "evidenceGroups": [
+        "U",
+        "O"
+      ],
+      "evidence": "Separate connection/input/engine/mode/target indicators exist in full/compact workspaces.",
+      "remaining": "Verify booth readability, degraded combinations and actual capture status on each OS."
+    },
+    {
+      "id": "FR-027",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Candidate card shows canonical reference, translation, source phrase, actionable evidence/ambiguity and large Show/Reject controls.",
+      "acceptance": "Given valid and ambiguous candidates, when rendered, then exact reference/translation/source are visible; ambiguous card says Needs review and disables Show until resolved.",
+      "planning": "UX / MVP / BR-001",
+      "rationale": "Fast human review.",
+      "priorityDependencies": "M / U,P,L",
+      "status": "S",
+      "evidenceGroups": [
+        "U",
+        "P",
+        "C"
+      ],
+      "evidence": "Reference/edition/source/review state and deliberate passage actions are implemented.",
+      "remaining": "Confirm operator comprehension and complete real slide review; metadata preview is not physical output proof."
+    },
+    {
+      "id": "FR-028",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Confirm is startup/default mode; Auto requires explicit enablement after health/translation/ownership checks and remains visibly distinct.",
+      "acceptance": "Given clean restart or recovered error, when app opens, then Auto is off; selecting Auto requires deliberate enable action and failed checks prevent arming.",
+      "planning": "UX / MVP / BR-003",
+      "rationale": "Intentional automation.",
+      "priorityDependencies": "M / U,C,V",
+      "status": "S",
+      "evidenceGroups": [
+        "U",
+        "O"
+      ],
+      "evidence": "Startup is Confirm/dry-run; guarded Auto needs explicit session policy/approval and is not restored from settings.",
+      "remaining": "Complete supervised actual speech/edition/ownership readiness and independent output checks."
+    },
+    {
+      "id": "FR-029",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Suggest-only continues capture/detection but forbids all sends; Paused stops capture/detection/sends; resume does not replay queue.",
+      "acceptance": "Given mode transitions with queued candidates, when entering either substate then resuming, then no send occurs from old queue and listening indicators reflect actual capture.",
+      "planning": "UX / MVP / BR-003",
+      "rationale": "Safe separate operator intents.",
+      "priorityDependencies": "M / U,A,P,V",
+      "status": "S",
+      "evidenceGroups": [
+        "U",
+        "A",
+        "O"
+      ],
+      "evidence": "Suggest-only forbids sends; Paused revokes capture/queue authority; resume requires fresh intent.",
+      "remaining": "Verify actual device closure/indicator timing and no replay during real recognition."
+    },
+    {
+      "id": "FR-030",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Emergency stop cancels unsent work, blocks manual/Auto sends, clears Auto arming and requires deliberate re-arm; cannot undo already-sent output.",
+      "acceptance": "Given queued commands, when Stop clicked/focused Escape used, then send gate closes within 100 ms and no unsent command dispatches; already-sent is labelled accurately and no automatic clear occurs.",
+      "planning": "UX / MVP / BR-003",
+      "rationale": "Immediate containment.",
+      "priorityDependencies": "M / U,V,C",
+      "status": "S",
+      "evidenceGroups": [
+        "O",
+        "U"
+      ],
+      "evidence": "Stop invalidates queued work/arming; accepted late triggers remain uncertain rather than silently undone.",
+      "remaining": "Measure <=100ms gate closure and actual loaded-host reaction; no automatic Clear is allowed."
+    },
+    {
+      "id": "FR-031",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Send via click/Space/Enter only in safe focused contexts; ignore key repeat; no global hotkeys by default.",
+      "acceptance": "Given focus in reference edit/settings/another app or held key, when Space/Enter occurs, then no send; focused Show activation sends once after current-candidate recheck.",
+      "planning": "UX / MVP / BR-003",
+      "rationale": "Avoid collisions with ProPresenter/Companion.",
+      "priorityDependencies": "M / U",
+      "status": "S",
+      "evidenceGroups": [
+        "U",
+        "O"
+      ],
+      "evidence": "Focused activation and repeat-key controls exist; text entry is not a global send shortcut.",
+      "remaining": "Complete keyboard/NVDA/VoiceOver and concurrent ProPresenter/Companion focus tests."
+    },
+    {
+      "id": "FR-032",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Optional system-wide shortcuts require opt-in, conflict review and OS permission explanation; emergency stop remains local accessible.",
+      "acceptance": "Given conflicting Companion binding, when registering optional global shortcut, then conflict/permission failure is shown and binding remains inactive; default installation registers none.",
+      "planning": "UX / v1 / BR-005",
+      "rationale": "Preserve existing controls.",
+      "priorityDependencies": "C / U,C",
+      "status": "O",
+      "evidenceGroups": [
+        "U"
+      ],
+      "evidence": "No system-wide shortcut registration is implemented or enabled by default.",
+      "remaining": "Optional opt-in/conflict/permission workflow remains deferred; preserve its original Could/v1 status."
+    },
+    {
+      "id": "FR-033",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Queue candidates by detection time, max 5 active; expire/skip invalidated items; newer references suppress stale Auto eligibility.",
+      "acceptance": "Given >5 detections and correction/new reference, when queue changes, then expired/oldest unsent entries drop with notice; no stale command sends and ordering of retained suggestions is stable.",
+      "planning": "UX / MVP / BR-003",
+      "rationale": "Bound overload and relevance.",
+      "priorityDependencies": "M / U,P,V",
+      "status": "S",
+      "evidenceGroups": [
+        "P",
+        "O",
+        "U"
+      ],
+      "evidence": "Queue is bounded to five, ordered by retained detections and invalidated on stale/new intent.",
+      "remaining": "Verify useful drop/expiry indications and overload under representative service traffic."
+    },
+    {
+      "id": "FR-034",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Reject/Dismiss prevents that candidate sending or reappearing from identical STT revisions; fresh intentional request is distinguishable.",
+      "acceptance": "Given dismissed John 3:16, when same utterance revision reappears, then no new sendable card occurs; a new later utterance gets a new identity.",
+      "planning": "UX / MVP / BR-003",
+      "rationale": "Operator correction authority.",
+      "priorityDependencies": "M / U,P",
+      "status": "S",
+      "evidenceGroups": [
+        "P",
+        "O"
+      ],
+      "evidence": "Dismiss removes the candidate; utterance/revision/window guards prevent identical stale revisions regaining authority.",
+      "remaining": "Validate dismissal versus fresh intentional requests under actual STT revisions."
+    },
+    {
+      "id": "FR-035",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Edit reference/range and immediate correction revalidate, cancel old command and show changed provenance; editing never implicitly sends.",
+      "acceptance": "Given John 3:16 card, when changed to John 4:16, then old command is canceled; new card is Confirm-only and needs explicit Show after validation.",
+      "planning": "UX / v1 / BR-001",
+      "rationale": "Quick safe recovery.",
+      "priorityDependencies": "M / U,P,V",
+      "status": "S",
+      "evidenceGroups": [
+        "U",
+        "P",
+        "O"
+      ],
+      "evidence": "Edit dismisses the old card, focuses manual correction and needs a new reviewed request.",
+      "remaining": "Verify real correction/dispatch races and changed provenance across windows."
+    },
+    {
+      "id": "FR-036",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Manual reference lookup works without STT, subject to connector/translation validation and intentional confirmation.",
+      "acceptance": "Given STT offline and connector healthy, when operator types Romans 8:28 then confirms, then correct validated request can send; connector failure blocks clearly.",
+      "planning": "UX / v1 fast-follow / BR-001",
+      "rationale": "Recover recognition failure.",
+      "priorityDependencies": "M / U,P,V,L",
+      "status": "S",
+      "evidenceGroups": [
+        "U",
+        "P",
+        "C"
+      ],
+      "evidence": "Manual ingress/review operates without the speech worker through the same connector checks.",
+      "remaining": "Complete installed-host exact text/edition/theme/output acceptance with STT unavailable."
+    },
+    {
+      "id": "FR-037",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Recent history default N=20 in memory, with status/time and explicit resend that revalidates target/translation/ownership.",
+      "acceptance": "Given history from another session/target or unavailable translation, when resend requested, then it is blocked; current valid item creates fresh Confirm-only command.",
+      "planning": "UX / v1 / BR-001",
+      "rationale": "Correct repeats without blind replay.",
+      "priorityDependencies": "S / U,V,C",
+      "status": "S",
+      "evidenceGroups": [
+        "P",
+        "O",
+        "U"
+      ],
+      "evidence": "Twenty in-memory receipt/history rows offer fresh review rather than blind replay.",
+      "remaining": "Verify target/edition/ownership revalidation and deliberate resend/cooldown in operator drills."
+    },
+    {
+      "id": "FR-038",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Provide previous/next verse, range adjustment and translation selection only where verified route supports them.",
+      "acceptance": "Given chapter edge and unavailable translation, when navigation/switch requested, then canonical bounds validate and no substitute occurs; unsupported control is disabled with reason.",
+      "planning": "UX / v1 / BR-001",
+      "rationale": "Useful live passage navigation.",
+      "priorityDependencies": "M / U,P,V,L",
+      "status": "P",
+      "evidenceGroups": [
+        "P",
+        "C",
+        "U"
+      ],
+      "evidence": "Previous/next and edition changes use verified context; unsupported numbering is restricted.",
+      "remaining": "Complete actual chapter-edge/range/edition operations for all IFC versions and fitting formatting."
+    },
+    {
+      "id": "FR-039",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Full window and optional always-on-top compact control share one state/command authority; compact never becomes audience output.",
+      "acceptance": "Given both views open, when selecting/rejecting/stopping in either, then the other matches within 250 ms; double activation across views produces one command.",
+      "planning": "UX / v1 / BR-005",
+      "rationale": "Booth workflow.",
+      "priorityDependencies": "S / U",
+      "status": "S",
+      "evidenceGroups": [
+        "U",
+        "O"
+      ],
+      "evidence": "Full/compact share backend authority, owner lease and state updates; duplicate actions are guarded.",
+      "remaining": "Measure <=250ms parity and verify reset/transcript state across windows and late responses."
+    },
+    {
+      "id": "FR-040",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Clear control affects only verified authorized Bible/slide target; disable when scope/ownership uncertain and never map to Clear All.",
+      "acceptance": "Given unrelated lyric/media or unverified clear semantics, when Clear is attempted, then it is disabled; approved test Bible clear preserves other layers in observed output.",
+      "planning": "integration / v1 / BR-002",
+      "rationale": "Avoid media/lyrics destruction.",
+      "priorityDependencies": "M / U,V",
+      "status": "O",
+      "evidenceGroups": [
+        "C",
+        "O",
+        "U"
+      ],
+      "evidence": "Clear is disabled and delegated to ProPresenter; no Clear All mapping exists.",
+      "remaining": "Bible-only clear semantics and preservation are not verified/implemented. Disabled safety behavior is not a working clear feature."
+    },
+    {
+      "id": "FR-041",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Configure host/IP/port and explicit selected instance with allowlist, connection test and actual version readout.",
+      "acceptance": "Given wrong host/build/port, when test runs, then readiness fails with cause; no write is allowed until approved identity/version matches configured target.",
+      "planning": "integration / MVP / BR-002",
+      "rationale": "Avoid wrong host/output.",
+      "priorityDependencies": "M / V,C",
+      "status": "S",
+      "evidenceGroups": [
+        "C",
+        "T",
+        "U"
+      ],
+      "evidence": "Canonical private/loopback target, explicit connection test and version readout exist.",
+      "remaining": "Verify approved instance/build/capability expectations and actual wrong-host/network cases."
+    },
+    {
+      "id": "FR-042",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Optional discovery restricted to explicitly enabled trusted subnet; never silently select/scan production network.",
+      "acceptance": "Given multiple instances and discovery disabled, when app starts, then no discovery traffic occurs; enabled results require explicit selection/allowlisting before sends.",
+      "planning": "integration / v1 / BR-006",
+      "rationale": "Reduce control exposure.",
+      "priorityDependencies": "C / V,C",
+      "status": "O",
+      "evidenceGroups": [
+        "C",
+        "T"
+      ],
+      "evidence": "No automatic subnet scan/discovery or silent instance selection is implemented.",
+      "remaining": "Optional trusted-subnet discovery/selection is deferred; default no-discovery remains enforced."
+    },
+    {
+      "id": "FR-043",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Validate installed translation, Bible availability, theme and Look expectations during setup/preflight; block unverifiable Auto.",
+      "acceptance": "Given missing/mismatched Bible/theme/Look, when preflight runs, then precise discrepancy shown and Auto unavailable; operator cannot bypass by changing confidence alone.",
+      "planning": "integration / MVP / BR-002",
+      "rationale": "Fidelity/rights safety.",
+      "priorityDependencies": "M / V,L,C",
+      "status": "P",
+      "evidenceGroups": [
+        "C",
+        "O"
+      ],
+      "evidence": "Exact title/edition identities, clipping blocks and Look/image/metadata approval binding exist.",
+      "remaining": "Complete actual installed edition/theme/Look/routing checks; labels and HTTP success do not prove provenance or fidelity."
+    },
+    {
+      "id": "FR-044",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Resolve arbitrary normalized reference through proven documented route, preserving genuine ProPresenter Bible source and appearance.",
+      "acceptance": "Given two required and an unprepared valid passage, when explicitly authorized test sends, then exact text/translation/theme and both output Looks match manual baseline; finite cache alone fails.",
+      "planning": "integration / P0 then MVP / BR-002",
+      "rationale": "Core product viability.",
+      "priorityDependencies": "M / V,L",
+      "status": "P",
+      "evidenceGroups": [
+        "C"
+      ],
+      "evidence": "Restricted Windows preparation uses ProPresenter itself and creates/reuses exact saved copies for reference-driven review.",
+      "remaining": "Direct documented arbitrary-reference Bible API is unverified/not documented; native Mac route is not implemented. Full P0 text/style/both-output tests remain."
+    },
+    {
+      "id": "FR-045",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Preserve stage/current state, routing and unrelated media; avoid unrelated lyrics/operator overrides, with ownership loss blocking Auto.",
+      "acceptance": "Given media playing and operator/Companion changes lyric state, when candidate is queued, then no unsolicited replacement occurs; loss of ownership cancels unsent command and shows Review needed.",
+      "planning": "integration / MVP / BR-002",
+      "rationale": "Worship continuity.",
+      "priorityDependencies": "M / V,C",
+      "status": "P",
+      "evidenceGroups": [
+        "C",
+        "O"
+      ],
+      "evidence": "Selected-arrangement and output/text ownership checks detect background takeover.",
+      "remaining": "Run actual media/lyrics/operator/Companion coexistence with routed room/stream observations."
+    },
+    {
+      "id": "FR-046",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Track queued/sent/receipt/readback/output-observed/failed/uncertain separately; never claim observed output from HTTP success.",
+      "acceptance": "Given accepted HTTP but disabled audience output, when result returns, then UI says receipt/readback only, not Live confirmed; independent output evidence required for observed label.",
+      "planning": "integration / MVP / BR-003",
+      "rationale": "Honest feedback.",
+      "priorityDependencies": "M / V,U",
+      "status": "S",
+      "evidenceGroups": [
+        "C",
+        "O",
+        "U"
+      ],
+      "evidence": "Receipt, matching readback, uncertainty and observed-output flags remain distinct.",
+      "remaining": "Complete independent room/stream observations and lost/order receipt cases."
+    },
+    {
+      "id": "FR-047",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Serialize commands with local idempotency keys; uncertain completion is not blindly retried because server idempotency is unproven.",
+      "acceptance": "Given response lost after dispatch, when timeout occurs, then status uncertain and automatic retry absent; explicit reconciliation/readback precedes any fresh operator resend.",
+      "planning": "integration / MVP / BR-003",
+      "rationale": "Prevent duplicate destructive action.",
+      "priorityDependencies": "M / V,C",
+      "status": "S",
+      "evidenceGroups": [
+        "C",
+        "O"
+      ],
+      "evidence": "One command owns dispatch; local IDs and uncertainty guards prevent blind uncertain retries.",
+      "remaining": "Verify actual accepted/lost-response/reconnect cases without asserting server idempotency."
+    },
+    {
+      "id": "FR-048",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Diagnose offline/degraded/unsupported responses; bounded health retry and reconnect invalidate queued work, context and Auto.",
+      "acceptance": "Given ProPresenter closes/restarts or network drops, when health fails/recovers, then no stale sends occur, reasons shown, new identity/state checks and intentional re-arm required.",
+      "planning": "integration / MVP / BR-003",
+      "rationale": "Safe recovery.",
+      "priorityDependencies": "M / V,U",
+      "status": "S",
+      "evidenceGroups": [
+        "C",
+        "O"
+      ],
+      "evidence": "Health failures invalidate Auto/context and recovery requires intentional rearm.",
+      "remaining": "Complete actual network/power/process matrix; new personal-host evidence is private and not claimed here."
+    },
+    {
+      "id": "FR-049",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Dry-run generates simulated command records without any output-affecting API or UI calls; test-target banner persists.",
+      "acceptance": "Given dry-run and click/Auto/clear actions, when exercised, then network/output spy records zero side-effecting requests and no OS automation; simulated status never reads Live.",
+      "planning": "integration / MVP / BR-003",
+      "rationale": "Safe rehearsal.",
+      "priorityDependencies": "M / V,U,C",
+      "status": "S",
+      "evidenceGroups": [
+        "C",
+        "O",
+        "U"
+      ],
+      "evidence": "Dry-run paths simulate without triggers; banners and preparation capabilities are explicit.",
+      "remaining": "Keep tests separating consented preparation from dry-run sends and exercise every active package action."
+    },
+    {
+      "id": "FR-050",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Unsupported mechanisms cannot become silent fallbacks; expose capability limits and fail closed.",
+      "acceptance": "Given documented route unavailable, when sending, then route error appears; no UI automation/import/external Bible is attempted without separately approved design.",
+      "planning": "integration / MVP / BR-002",
+      "rationale": "Supportable architecture.",
+      "priorityDependencies": "M / V,C",
+      "status": "S",
+      "evidenceGroups": [
+        "C",
+        "O"
+      ],
+      "evidence": "Unsupported paths fail explicitly; UI automation is a consented restricted fallback, not an invented Bible REST API.",
+      "remaining": "Preserve OS/build/focus/copy gates and never silently substitute external text or a presentation engine."
+    },
+    {
+      "id": "FR-051",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "First-run setup covers input/channel/permission, target/version, translation/theme expectations, no-output connection test, speaker test and Confirm choice.",
+      "acceptance": "Given fresh settings, when setup completed with one failure, then failed readiness stays visible and no output occurs; valid completion ends in Confirm/dry-run until authorized target is armed.",
+      "planning": "operations / MVP / BR-005",
+      "rationale": "Repeatable safe setup.",
+      "priorityDependencies": "M / A,U,V,C",
+      "status": "P",
+      "evidenceGroups": [
+        "U",
+        "A",
+        "C",
+        "T"
+      ],
+      "evidence": "Setup panels cover target, audio/channel, local worker and review expectations with safe defaults.",
+      "remaining": "Verify speaker/input/readiness onboarding and volunteer learning; technical choices still need field usability review."
+    },
+    {
+      "id": "FR-052",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Profiles store nonsecret audio/target/translation/safety settings; profile switch invalidates queue/context and Auto.",
+      "acceptance": "Given two profiles, when switching, then saved fields restore, credentials stay vault references, no old candidate survives and Auto is off.",
+      "planning": "operations / v1 / BR-006",
+      "rationale": "Service differences without stale state.",
+      "priorityDependencies": "S / C,U",
+      "status": "S",
+      "evidenceGroups": [
+        "T",
+        "O",
+        "U"
+      ],
+      "evidence": "Nonsecret profiles load through a paused disarmed transition, revoking old API/queue/approval state.",
+      "remaining": "Complete current-input/path and cross-platform operator profile-switch drills."
+    },
+    {
+      "id": "FR-053",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Keep optional provider/API secrets in OS credential vault; logs/settings/export contain only opaque references.",
+      "acceptance": "Given seeded test secret, when saving/exporting/crashing/building, then canary is absent from config/log/package; vault failure blocks cloud feature without plaintext fallback.",
+      "planning": "security / MVP / BR-004",
+      "rationale": "Prevent leakage.",
+      "priorityDependencies": "M / C",
+      "status": "O",
+      "evidenceGroups": [
+        "T",
+        "O"
+      ],
+      "evidence": "Cloud/provider-key persistence is absent; optional cloud features are blocked and private bearer tokens are ephemeral.",
+      "remaining": "A future persistent-key provider still needs a real OS vault. No plaintext fallback or existing vault integration is claimed."
+    },
+    {
+      "id": "FR-054",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Structured local diagnostics include sanitized health, event IDs, timings and version/capability state, with bounded retention.",
+      "acceptance": "Given error/timeout and sensitive inputs, when logged, then timestamp/category/severity/correlation appear, but audio/transcript/token fields do not; retention quota is enforced.",
+      "planning": "security / MVP / BR-006",
+      "rationale": "Support without sermon capture.",
+      "priorityDependencies": "M / C",
+      "status": "S",
+      "evidenceGroups": [
+        "O",
+        "T"
+      ],
+      "evidence": "Event IDs/times/severity and bounded content-free timing fields stay in memory.",
+      "remaining": "Verify full error taxonomy/correlation and crash/retention behavior; bounded events are not full operational attestation."
+    },
+    {
+      "id": "FR-055",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Export redacted logs via explicit action with preview; diagnostic upload requires separate consent and is absent by default.",
+      "acceptance": "Given export, when inspected, then local paths/IPs/secrets/content are removed or masked and user chooses destination; no background upload occurs.",
+      "planning": "security / v1 / BR-004",
+      "rationale": "User-controlled support data.",
+      "priorityDependencies": "S / C,U",
+      "status": "S",
+      "evidenceGroups": [
+        "T",
+        "U"
+      ],
+      "evidence": "Diagnostics export previews consent and excludes content/paths/addresses; no background upload exists.",
+      "remaining": "Complete package/crash/export canary and operator review tests on both OS variants."
+    },
+    {
+      "id": "FR-056",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Nonsecret settings import/export validates schema/ranges/host allowlist and cannot enable Auto or overwrite credentials.",
+      "acceptance": "Given malicious/corrupt/imported Auto=true settings, when imported, then invalid fields rejected, secret fields ignored and resulting mode Confirm/Paused, never armed.",
+      "planning": "operations / v1 / BR-006",
+      "rationale": "Safe migration.",
+      "priorityDependencies": "S / C",
+      "status": "S",
+      "evidenceGroups": [
+        "T",
+        "O",
+        "U"
+      ],
+      "evidence": "Known-field import/export strips authority/secrets/local paths and uses disarmed serialized changes.",
+      "remaining": "Complete malformed/import configuration matrices and exported-value checks; imported Auto is forbidden."
+    },
+    {
+      "id": "FR-057",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Reset-to-safe and corrupt-settings recovery preserve optional backup, disable sends/cloud, and require setup revalidation.",
+      "acceptance": "Given corrupt config or reset, when reopened, then app reaches safe setup rather than crashes/Auto; previous known-good nonsecret backup can be reviewed/restored.",
+      "planning": "operations / MVP / BR-006",
+      "rationale": "Recover bad configuration.",
+      "priorityDependencies": "M / C,U",
+      "status": "S",
+      "evidenceGroups": [
+        "T",
+        "O",
+        "U"
+      ],
+      "evidence": "PR53/54 add two validated recovery points, safe corrupt startup/notice and explicit receipt-bound reviewed restore.",
+      "remaining": "Complete crash/filesystem/OS recovery matrix; no automatic backup, cue or authority restoration is claimed."
+    },
+    {
+      "id": "FR-058",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Independent STT/provider, parser/policy and connector interfaces expose capabilities and cancellation without assuming all backends support every feature.",
+      "acceptance": "Given fake STT timeout or connector lacking range/readback, when used in contract test, then caller handles unavailable capability and disables dependent sends without changing parser semantics.",
+      "planning": "product / MVP / BR-006",
+      "rationale": "Maintainability and safe substitution.",
+      "priorityDependencies": "M / S,P,V,C",
+      "status": "S",
+      "evidenceGroups": [
+        "S",
+        "P",
+        "C",
+        "O"
+      ],
+      "evidence": "Capture/STT/parser/policy/connector contracts expose cancellation, capabilities and guarded dispatch.",
+      "remaining": "Complete provider/OS failure/resource contract audits; a shared interface alone does not prove compatibility."
+    },
+    {
+      "id": "FR-059",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Consent settings make recording/transcript persistence/cloud use separate opt-ins with visible current status and deletion controls.",
+      "acceptance": "Given defaults, when 90-minute session ends, then no audio/transcript file exists; optional retention explicitly enabled has expiry and deletion action that removes content as documented.",
+      "planning": "security / MVP / BR-004",
+      "rationale": "Protect pastor/service content.",
+      "priorityDependencies": "M / C,U",
+      "status": "P",
+      "evidenceGroups": [
+        "A",
+        "S",
+        "T"
+      ],
+      "evidence": "No intentional recording/transcript/cloud persistence option is enabled; local processing and quote-index rights are explicit.",
+      "remaining": "Optional capture retention/deletion is not implemented. Inspect temporary WAV/crash/swap residue before privacy acceptance."
+    },
+    {
+      "id": "FR-060",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Enforce in-service update lock; MVP manual signed updates, v1 signed channel/rollback with explicit outside-service install.",
+      "acceptance": "Given active service/update available, when update offered, then install waits for explicit end-of-service action; failed update restores prior config-compatible version without Auto.",
+      "planning": "operations / MVP manual; v1 channel / BR-006",
+      "rationale": "Avoid mid-sermon changes.",
+      "priorityDependencies": "M / C",
+      "status": "G",
+      "evidenceGroups": [
+        "B",
+        "T"
+      ],
+      "evidence": "No automatic updater or in-service install action exists; review build paths are pinned.",
+      "remaining": "Trusted signed manual updates and enforced service-lock/rollback distribution flow remain missing or unaccepted. Signing credentials/cost decisions are external."
+    },
+    {
+      "id": "FR-061",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Present accessible keyboard/screen-reader/status semantics, scalable booth text and non-color-only health.",
+      "acceptance": "Given VoiceOver/NVDA, keyboard-only input and 200% text, when core tasks run, then all controls/statuses remain named, reachable and unclipped; no focus trap or accidental send.",
+      "planning": "UX / MVP / BR-005",
+      "rationale": "Volunteers can operate safely.",
+      "priorityDependencies": "M / U",
+      "status": "P",
+      "evidenceGroups": [
+        "U"
+      ],
+      "evidence": "Labels, keyboard routes, text statuses and200% fit checks exist, including recovery controls.",
+      "remaining": "Complete screen-reader/booth tasks and reconcile original typography/target sizes with the chosen professional design."
+    },
+    {
+      "id": "FR-062",
+      "file": "docs/02-functional-requirements.md",
+      "requirement": "Session reset clears transient audio/transcript/context/history/commands, retains safe nonsecret setup and never clears ProPresenter output implicitly.",
+      "acceptance": "Given active session, when reset confirmed, then transient state is gone, mode returns Confirm/Paused and output spy sees zero clear/trigger requests.",
+      "planning": "operations / MVP / BR-004",
+      "rationale": "End service without output side effects.",
+      "priorityDependencies": "M / A,P,V,C",
+      "status": "P",
+      "evidenceGroups": [
+        "A",
+        "O",
+        "U"
+      ],
+      "evidence": "Backend reset cancels work and clears context/queue/history without ProPresenter Clear; clicked view clears transcript.",
+      "remaining": "Verify/correct cross-window and late-response transcript residue; a clicked-view branch alone does not prove all transient text clears."
+    },
+    {
+      "id": "NFR-001",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "End-to-end latency, broken into capture, STT stabilization, parse, policy, connector and display segments.",
+      "acceptance": "Auto p50 ≤2.0 s, p95 ≤4.0 s from t0; Confirm system-only same target, reaction excluded. Missing output fails, never silently excluded. Budget hypotheses: capture 100 ms, STT/stability 2400 ms, parse/policy 100 ms, connector/display 1400 ms at p95; segment quantiles do not mathematically sum to total quantile.",
+      "planning": "performance / P0 then MVP / BR-001",
+      "method": "≥30 references in P0 exploratory run; ≥200 explicit references for release, H-SHARED/H-LAN/H-WIN, synchronized audio/output video.",
+      "status": "E",
+      "evidenceGroups": [
+        "A",
+        "S",
+        "C",
+        "O"
+      ],
+      "evidence": "Original-age/worker/native timing instrumentation and synthetic metrics exist.",
+      "remaining": "Require independent audible-end to physical room/stream timestamps on defined profiles; p50<=2s/p95<=4s remain unpassed."
+    },
+    {
+      "id": "NFR-002",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Reference quality measured separately for exact book/chapter/start/end/translation and entire normalized tuple.",
+      "acceptance": "Reference precision ≥95%, explicit-reference recall ≥90%; report component accuracies, phrase/context strata and all denominators. Insufficient representative data blocks claimed acceptance.",
+      "planning": "speech + QA / MVP / BR-001",
+      "method": "Held-out real sermon/speaker samples with independent labels; confusion matrix, precision/recall and confidence intervals; no synthetic accent evidence.",
+      "status": "E",
+      "evidenceGroups": [
+        "P",
+        "S"
+      ],
+      "evidence": "Synthetic parser coverage and an exploratory historical real-source pilot exist.",
+      "remaining": "Require independently labelled held-out recordings, denominators/component accuracy/confidence intervals; tuned or synthetic cases are not accent evidence."
+    },
+    {
+      "id": "NFR-003",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Safe Auto precision and false-positive burden.",
+      "acceptance": "Zero unapproved wrong-verse/translation/stale displays; report safe-auto precision and false positives/hour separately, target ≤0.1 false suggestions/hour on real negatives, no false Auto displays. Zero events does not prove zero future risk.",
+      "planning": "QA / MVP / BR-003",
+      "method": "10 h representative supervised rehearsal including negative/background speech; log proposed, blocked and actual outputs.",
+      "status": "E",
+      "evidenceGroups": [
+        "P",
+        "O"
+      ],
+      "evidence": "Auto excludes quotes, ambiguity, stale/lossy/assembled speech and unapproved cues.",
+      "remaining": "Ten-hour representative supervised wrong-output/false-positive rehearsal has not been established by unit/fixture runs."
+    },
+    {
+      "id": "NFR-004",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "All send predicates fail closed; ambiguity, stale commands, translation uncertainty, identity/ownership loss block Auto.",
+      "acceptance": "Zero unsafe dispatches; intentional human validation cannot override unavailable Bible/unknown target. Stop gate closes ≤100 ms; already-dispatched output accurately marked.",
+      "planning": "integration / MVP / BR-003",
+      "method": "Fault injection across every predicate before dispatch plus race tests.",
+      "status": "S",
+      "evidenceGroups": [
+        "C",
+        "O"
+      ],
+      "evidence": "Fault/race guards cover target, source, approval, ownership, Stop and uncertain dispatch.",
+      "remaining": "Complete every predicate/<=100ms Stop measurement and actual output observation on loaded hosts."
+    },
+    {
+      "id": "NFR-005",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Minimum continuity and soak.",
+      "acceptance": "Zero crashes, deadlocks, unbounded queues or unintended media interruptions; RSS growth after warmup ≤100 MB over 3 h; recognition gaps visible.",
+      "planning": "QA / MVP / BR-005",
+      "method": "90-min production-like session and 3-h soak per primary host topology with silence, references, memory snapshots and media baseline.",
+      "status": "E",
+      "evidenceGroups": [
+        "A",
+        "S",
+        "O",
+        "B"
+      ],
+      "evidence": "Historical version-scoped minimized fixture soaks and bounded queues give component evidence.",
+      "remaining": "Current90-minute/three-hour real audio/media/hardware/memory acceptance per topology remains required. Historical fixture soaks are not this certificate."
+    },
+    {
+      "id": "NFR-006",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Shared-host CPU/RAM/GPU containment.",
+      "acceptance": "Proposed VerseCue steady RSS ≤1.5 GiB for chosen small-model configuration; average normalized CPU ≤25% of total capacity, sustained >40% for 10 s triggers degradation; zero added playback drops at observed granularity. Shared GPU/ANE effects measured, no guarantee from model size. Dedicated companion proposed ≤2 GiB RSS / ≤50% total CPU; refine with IFC-approved evidence before release.",
+      "planning": "performance / P0 then MVP / BR-005",
+      "method": "Compare ProPresenter-alone vs added VerseCue under identical representative load; collect per-process and system metrics at 1 s intervals.",
+      "status": "E",
+      "evidenceGroups": [
+        "A",
+        "S",
+        "B"
+      ],
+      "evidence": "CPU-only local worker/model settings and suspension controls exist.",
+      "remaining": "Measure ProPresenter-alone versus VerseCue CPU/RAM/GPU/playback at specified intervals/thresholds and verify resource-degradation behavior."
+    },
+    {
+      "id": "NFR-007",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Offline/local availability.",
+      "acceptance": "Capture/transcription/parser remain functional; no cloud dependency or hidden upload, no model download during service; missing model yields actionable setup block.",
+      "planning": "speech / MVP / BR-004",
+      "method": "Block internet after verified local model/assets installation; run 90-min session; allow only approved local ProPresenter traffic.",
+      "status": "P",
+      "evidenceGroups": [
+        "S",
+        "C",
+        "B"
+      ],
+      "evidence": "Runtime assets are local; missing worker/model is actionable and target network scope is constrained.",
+      "remaining": "Complete real offline90-minute operation and network inspection; architecture alone does not prove absence of every external request."
+    },
+    {
+      "id": "NFR-008",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Reconnect/backpressure safety.",
+      "acceptance": "Audio queue ≤2 s, active candidates ≤5, at most one command in flight; no stale replay/blind resend; connection failure identified within 5 s under configured health policy. Recovery requires new validation/intentional re-arm.",
+      "planning": "integration / MVP / BR-003",
+      "method": "Drop LAN, inject 1/5% loss and 100/500 ms delay, kill STT, close/restart ProPresenter, lose send response.",
+      "status": "G",
+      "evidenceGroups": [
+        "A",
+        "S",
+        "C",
+        "O"
+      ],
+      "evidence": "Queue/command bounds and no-blind-replay recovery guards exist.",
+      "remaining": "Pending age4s and retained next audio up to12s conflict with2s queued audio. Correct semantics and run the specified network/worker/process fault loads."
+    },
+    {
+      "id": "NFR-009",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Device and power recovery.",
+      "acceptance": "Capture/sends stop on loss; no substitute mic; UI responds ≤1 s to detected device event; wake clears context/Auto and requests preflight. Monotonic TTL unaffected by wall-clock jumps.",
+      "planning": "audio / MVP / BR-005",
+      "method": "M4 unplug/replug, revoke permission, sleep/wake, clock change.",
+      "status": "S",
+      "evidenceGroups": [
+        "A",
+        "O"
+      ],
+      "evidence": "Capture-clock/session loss and suspend/resume require fresh authorization/preflight.",
+      "remaining": "Observe actual MOTU permission/hotplug, sleep/wake and wall-clock/device timing thresholds."
+    },
+    {
+      "id": "NFR-010",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Default content minimization and retention.",
+      "acceptance": "Zero persisted audio/transcript by default. Transient audio ring max 10 s, STT input queue max 2 s; rolling transcript max 2 min in RAM; clear at reset/exit; OS swap/crash limitations disclosed. Optional capture explicit consent, default expiry 7 days with startup/daily deletion.",
+      "planning": "security / MVP / BR-004",
+      "method": "Disk/network inspection before/after 90 min, process/log/crash artifact review with seeded text.",
+      "status": "G",
+      "evidenceGroups": [
+        "A",
+        "S",
+        "T"
+      ],
+      "evidence": "Normal CLI WAV cleanup is in finally; Node resident transport uses memory bytes; transcripts are not intentionally persisted.",
+      "remaining": "Default ring12s/pending4s exceed10s/2s. Audit crash WAV/swap residue, cross-window reset and optional seven-day capture retention."
+    },
+    {
+      "id": "NFR-011",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Secret confidentiality and cloud consent/TLS.",
+      "acceptance": "Zero canary leakage; OS vault or feature blocked. No cloud request without explicit consent; TLS certificate validation mandatory, no downgrade. Cloud terms/retention/region reviewed before enabling future provider.",
+      "planning": "security / MVP boundary; v2 cloud / BR-004",
+      "method": "Canary secrets through logs/export/settings/crash/packages; network interception on test endpoint; consent off/on tests.",
+      "status": "P",
+      "evidenceGroups": [
+        "S",
+        "T",
+        "O"
+      ],
+      "evidence": "Cloud/persistent provider keys are inactive; known-field settings/backups and diagnostics omit credential fields.",
+      "remaining": "Complete canary/crash/package/network evidence. Future cloud needs real vault/consent/TLS/terms validation."
+    },
+    {
+      "id": "NFR-012",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Local API network least privilege.",
+      "acceptance": "No public listener/port-forward; client targets only configured approved instance, redirects disabled; send blocked on identity/capability mismatch. Unencrypted/unauthenticated local API risk disclosed and trusted-segment controls approved.",
+      "planning": "security / P0 then MVP / BR-006",
+      "method": "Review bound interfaces/firewall/allowlist and wrong-host tests in authorized lab.",
+      "status": "S",
+      "evidenceGroups": [
+        "C",
+        "O"
+      ],
+      "evidence": "Private IPv4 allowlist/no redirects and loopback authenticated/capability-gated API exist.",
+      "remaining": "Verify deployment host/network/firewall risk and approved segmentation in an authorized lab; no public listener or security-setting change is implied."
+    },
+    {
+      "id": "NFR-013",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Supported OS/CPU matrix and clean packaging.",
+      "acceptance": "All claimed combinations pass capture/recognition/connector/UI tests; no universal OS promise. Windows 10 support cannot be claimed until lifecycle/security/runtime decision recorded. No admin needed for ordinary run; optional driver privilege separate.",
+      "planning": "desktop / MVP / BR-005",
+      "method": "Install/run/uninstall signed artifacts on pinned Windows 11 x64, compatible macOS Apple Silicon and Intel; evaluate Windows 10 edition/runtime support separately.",
+      "status": "P",
+      "evidenceGroups": [
+        "B",
+        "A",
+        "C"
+      ],
+      "evidence": "Windows x64 and Apple Silicon development packaging/source UI checks run. Native Bible preparation is Windows-only.",
+      "remaining": "Actual clean-host capture/recognition/connector/uninstall matrix, Intel Mac and Windows10 decision remain; hosted Mac build is not native Bible parity."
+    },
+    {
+      "id": "NFR-014",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Signing, notarization, update rollback and uninstall cleanliness.",
+      "acceptance": "Unsigned/tampered package rejected; macOS app/helpers notarized as applicable and Windows trusted signature verified. No in-service update; rollback recovers safe mode. Uninstall removes app/autostart/helpers; user data preserved/deleted by explicit choice, never ProPresenter assets.",
+      "planning": "desktop + ops / MVP manual; v1 channel / BR-006",
+      "method": "Verify signatures/tickets on clean hosts; corrupt/tamper update, fail mid-install, rollback old config; inspect residue.",
+      "status": "G",
+      "evidenceGroups": [
+        "B",
+        "T"
+      ],
+      "evidence": "Hashes/manifests/native source receipts and local development Mac signing exist.",
+      "remaining": "These do not meet trusted Windows signing/Apple notarization. Credentials, tamper/install/rollback/uninstall tests and service lock remain missing/external. No paid purchase is authorized."
+    },
+    {
+      "id": "NFR-015",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Booth readability and contrast.",
+      "acceptance": "Core controls ≥44×44 logical px; base text ≥18 px, candidate reference ≥32 px; normal text ≥4.5:1 and large text/status graphics ≥3:1; no color-only status/clipping. These are project targets, no certification claimed.",
+      "planning": "UX / MVP / BR-005",
+      "method": "Observe at IFC booth distance (record actual distance/lighting), 200% scaling/text, contrast measurement.",
+      "status": "G",
+      "evidenceGroups": [
+        "U"
+      ],
+      "evidence": "Figma/Studio direction includes text/icon states and responsive/200% layout checks.",
+      "remaining": "Root14px/smaller fonts and some sub44px controls do not establish original18px/44px targets. Reconcile booth mode/design or record an explicit approved target change."
+    },
+    {
+      "id": "NFR-016",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Keyboard/screen reader/focus usability.",
+      "acceptance": "All core tasks complete, labelled states/actions announced, no trap/repeated-key accidental send; status announcement does not steal focus. Compact parity required if offered.",
+      "planning": "UX / MVP / BR-005",
+      "method": "VoiceOver macOS, NVDA Windows, keyboard-only focus traversal, reduced motion and multiwindow tests.",
+      "status": "P",
+      "evidenceGroups": [
+        "U",
+        "O"
+      ],
+      "evidence": "Focus/repeat-key/keyboard/layout and shared-window ownership tests exist.",
+      "remaining": "Complete NVDA/VoiceOver announcements, reduced motion, all task traversal and compact parity on actual systems."
+    },
+    {
+      "id": "NFR-017",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Volunteer learning time.",
+      "acceptance": "≤5 min orientation and 100% safety tasks without coach intervention; record hesitation/errors and fix dangerous confusion.",
+      "planning": "product + UX / MVP / BR-005",
+      "method": "≥3 representative volunteers after completed setup, each follows 5-min guide then detection/Show/reject/pause/stop/failback tasks.",
+      "status": "E",
+      "evidenceGroups": [
+        "U"
+      ],
+      "evidence": "Five-minute guide and operator readiness/review controls are documented.",
+      "remaining": "At least three representative volunteers must complete orientation/safety tasks without coaching; agent UI tests cannot replace them."
+    },
+    {
+      "id": "NFR-018",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Module contracts and reproducible delivery.",
+      "acceptance": "No provider bypass of safety gate; exact source/dependency/model versions traceable; binary differences documented for signatures/toolchains; no missing license/SBOM entry.",
+      "planning": "maintainer / MVP / BR-006",
+      "method": "Contract/fault tests with fake capture/STT/connector, pinned manifest/model hashes, reproduce builds on clean controlled environments.",
+      "status": "P",
+      "evidenceGroups": [
+        "B",
+        "L"
+      ],
+      "evidence": "Lock/model pins, manifests, receipts and dependency/font inventories provide provenance evidence.",
+      "remaining": "Inventory applicationVersion is0.5.7 while source is0.6.0. Refresh/verify it and complete clean reproducibility/license/SBOM coverage; hashes are not signing."
+    },
+    {
+      "id": "NFR-019",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Structured diagnostics/crash recovery/config backup.",
+      "acceptance": "Safe restart without Auto, no output mutation on startup; logs ≤20 MB/7 days, no default content; last two valid nonsecret config backups recover; error category/action available without tokens.",
+      "planning": "operations / MVP / BR-006",
+      "method": "Force worker/app crash and corrupt settings; inspect rotating logs and restore procedure.",
+      "status": "P",
+      "evidenceGroups": [
+        "T",
+        "O",
+        "B"
+      ],
+      "evidence": "Safe startup, bounded metadata, two validated backups and reviewed paused restoration are implemented/tested.",
+      "remaining": "Complete actual forced app/worker crash, filesystem/corruption/artifact-retention and operator recovery matrix; normal tests do not cover every crash point."
+    },
+    {
+      "id": "NFR-020",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Dependency/security review.",
+      "acceptance": "No unreviewed critical/high exploitable findings or hardcoded credentials; documented mitigation/owner and IFC acceptance needed for any exception. Signed-update key never in app.",
+      "planning": "security / MVP onward / BR-006",
+      "method": "Lockfile/SBOM/license scan and targeted threat review at each release; no new build tools selected now.",
+      "status": "P",
+      "evidenceGroups": [
+        "B",
+        "L"
+      ],
+      "evidence": "Pinned dependencies/component inventories exist; no update signing key is bundled.",
+      "remaining": "Perform current release dependency/security/license review with exception ownership; green builds are not vulnerability clearance."
+    },
+    {
+      "id": "NFR-021",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Translation and third-party rights.",
+      "acceptance": "Zero copyrighted translation redistribution without written applicable rights; all required notices included; installed Bible/stream use and external preview rights checked separately; unknown rights block affected path.",
+      "planning": "licensing / P0 then MVP / BR-006",
+      "method": "Per-edition/OS/model/font/binary/service license inventory and rights review; inspect package for verse databases.",
+      "status": "P",
+      "evidenceGroups": [
+        "L",
+        "C",
+        "Q"
+      ],
+      "evidence": "Paid verse databases are not bundled; installed-source preparation, notices and quote-index rights acknowledgment exist.",
+      "remaining": "Complete applicable per-edition/host/stream/preview rights and runtime-notice coverage; unknown rights still block affected paths."
+    },
+    {
+      "id": "NFR-022",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Operational availability and manual recovery.",
+      "acceptance": "Ordinary ProPresenter continues without VerseCue; volunteer reaches manual Bible workflow ≤30 s without restarting ProPresenter or disrupting media; failed automation visibly contained.",
+      "planning": "operations / MVP / BR-002",
+      "method": "Independent operator drills with app killed and network/audio failures; document timings.",
+      "status": "E",
+      "evidenceGroups": [
+        "C",
+        "O",
+        "U"
+      ],
+      "evidence": "ProPresenter remains the output owner; takeover/no-Clear failback boundaries exist.",
+      "remaining": "Independent operator drills must prove <=30s manual recovery without media interruption under actual app/network/audio faults."
+    },
+    {
+      "id": "NFR-023",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "No required metered operating service.",
+      "acceptance": "USD 0 required STT/API usage/session; any signing/hardware/development/renewal costs explicit and separately approved; no account/card requirement hidden in onboarding.",
+      "planning": "sponsor / MVP / BR-004",
+      "method": "Offline test plus bill-of-materials/cost review; model and dependency distribution terms checked.",
+      "status": "S",
+      "evidenceGroups": [
+        "S",
+        "B",
+        "L"
+      ],
+      "evidence": "Local runtime needs no metered STT/API provider or hidden account/card.",
+      "remaining": "Verify offline service/distribution terms; hardware/development/signing costs remain explicit and separately approved."
+    },
+    {
+      "id": "NFR-024",
+      "file": "docs/03-non-functional-requirements.md",
+      "requirement": "Command/receipt integrity and truthful feedback.",
+      "acceptance": "One dispatch per accepted local command; no claim of server idempotence; uncertain status on lost acknowledgment; observed-output status only with genuine independent observation, otherwise receipt/readback wording.",
+      "planning": "integration / MVP / BR-003",
+      "method": "Side-effect spy, response-loss/order/duplicate/concurrency and screen observation tests.",
+      "status": "S",
+      "evidenceGroups": [
+        "C",
+        "O",
+        "U"
+      ],
+      "evidence": "Command IDs, serialization and receipt/readback/uncertainty have side-effect-spy regressions.",
+      "remaining": "Complete actual loss/order/concurrency/physical-observation cases; never infer server idempotence or observed output from HTTP success."
+    }
+  ]
+}

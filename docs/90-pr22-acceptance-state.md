@@ -29,6 +29,10 @@ Shared-source checks currently pass 471 module tests on main and 474 in the inte
 | RF-21 Private API shares the verified coordinator | Capability-gated saved review, checked ingest, revocation and no remote confirmation bypass; API tests | Actual deployment integration within the verified capabilities. No invented ProPresenter Bible API or arbitrary MCP route |
 | RF-22 Full integration/service acceptance and matching downloads | Pinned build paths, manifests/receipts, Windows/Mac development package checks and runbooks | Original physical room/stream, theme/Look, mic, edition, latency, recovery, platform and field go/no-go tests; signing/distribution decisions and accepted-scope downloads |
 
+## Original requirement inventory
+
+The [complete original 86-row audit](99-original-requirement-evidence-audit.md) now inventories every FR001-062/NFR001-024 with source/test pointers and remaining work. It is a source/evidence inventory, not full acceptance. Earlier follow-up paragraphs below record component history; current operator recovery software is implemented by PR53/54, while full crash/filesystem/field acceptance remains open. Confirmed audio, policy/metadata and distribution gaps are not treated as hardware-only work.
+
 ## Immediate external dependencies
 
 - The native Mac route needs an authorized test installation and its real accessibility evidence before a profile can be implemented and claimed supported. Availability has been requested; Windows work does not imply that this gate passed.
@@ -48,7 +52,7 @@ PR50 adds the bounded two-sweep read-only snapshot collector, with unchanged pro
 
 PR51 enters disarmed dry-run safety and revokes old approvals/API before asynchronous configuration persistence. Held/failed-write, overlapping changes, rearm blocking, Stop preservation, profile-load pause and no Auto restoration pass source/package synthetic checks and exact Mac development verification. This software correction does not close actual service acceptance.
 
-PR52 binds local API startup/revocation/cleanup to listener ownership. Pending startup cancellation, late errors, stale listener requests and delayed close events cannot clear or authenticate with replacement authority. Seven module regressions, source/package Windows workflows and exact Mac development checks pass. This map is scoped to RF01-22 and does not replace original FR001-062/NFR001-024 acceptance; a full original-requirement implementation/evidence audit follows.
+PR52 binds local API startup/revocation/cleanup to listener ownership. Pending startup cancellation, late errors, stale listener requests and delayed close events cannot clear or authenticate with replacement authority. Seven module regressions, source/package Windows workflows and exact Mac development checks pass. This map is scoped to RF01-22 and does not replace original FR001-062/NFR001-024 acceptance; the full original-requirement implementation/evidence inventory is now linked above.
 
 Original FR057/NFR019 inspection found backup-history and recovery gaps. PR53 retains two validated distinct prior setups, excludes corrupt source/unknown secret fields and provides freshness-bound restore primitives without automatic startup recovery. Module/source/package/Mac software checks pass; dedicated operator review/restore UI is a separate unfinished component. This is partial requirement evidence, not full recovery/field acceptance or completion of the original86-row audit.
 
