@@ -734,3 +734,10 @@ Draft PR66 at9d2735bd passes534 modules/syntax/inventory, extended synthetic inp
 ## PR66 source/Mac passed ? 19:27 UTC
 
 Exact9d2735bd passes534 module/check, all31 source scenarios,152-file Windows review/native receipt and Mac44800662569. Packaged31 suite94382 is live; poll existing handle before merging. No actual input/output or new release. Original service/hardware acceptance remains open.
+## Safe input-test implementation completed locally
+
+2026-11-20. feat/safe-input-test adds an explicitly consented saved-input meter check without Whisper. Backend purpose/ownership and10-second expiry prevent test audio from reaching recognition; frontend avoids speech buffering, closes capture on Stop/expiry/reset, and protects a new test from old permission rejection. Three new focused groups plus534 branch modules/syntax/inventory pass. Extended source desktop scenario passes consent/meter/denial/expiry/Stop/pending permission/two-window/reset/fit with zero recognitions and no real input/output. Full current-head source/package/Mac verification remains before merge. See docs/110-safe-input-test.md.
+
+## PR66 merged after verified completion
+
+2026-11-20 22:01 UTC. PR66 exact9d2735bd merged atd9faf6a after534 modules/syntax/inventory,31 source and31 packaged Windows scenarios,152-file exact-source/native receipts and Mac44800662569 passed. All feature jobs are terminal; aggregate integration verification follows. Readability branch contains only uncommitted booth.css and its stylesheet link, not a finished redesign or acceptance pass.

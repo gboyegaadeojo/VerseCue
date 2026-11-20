@@ -61,7 +61,7 @@ function createWindow(compact=false){
   win.on('closed',()=>{releaseUnavailableOwner('AUDIO_OWNER_CLOSED');windows.delete(win);if(compact)compactWindow=null;});win.once('ready-to-show',()=>win.show());win.loadURL(ui+(compact?'?compact=1':''));return win;
 }
 let enforcingSafeCapture=false;
-function update(){if(referencePreparation)service.referencePreparation=referencePreparation.status();if(!enforcingSafeCapture&&capture.snapshot().active&&(service.stopped||service.mode==='paused'||service.recovery?.required)){enforcingSafeCapture=true;try{cancelAudio();}finally{enforcingSafeCapture=false;}}for(const win of windows)if(!win.isDestroyed())win.webContents.send('state-update',service.snapshot());}
+function update(){if(referencePreparation)service.referencePreparation=referencePreparation.status();if(!enforcingSafeCapture&&capture.snapshot().active&&(service.stopped||service.mode==='paused'||service.recovery?.required||(capture.purpose==='input-test'&&(!service.dryRun||service.mode!=='suggest')))){enforcingSafeCapture=true;try{cancelAudio();}finally{enforcingSafeCapture=false;}}for(const win of windows)if(!win.isDestroyed())win.webContents.send('state-update',service.snapshot());}
 service.on('change',update);
 async function choose(kind){
   if(speech.busy)throw new Error('Stop recognition before changing speech files');
@@ -114,7 +114,11 @@ async function bootstrap(){
     const bytes=await fs.readFile(file,'utf8');if(bytes.length>16000000)throw new Error('Quote index too large');return service.loadQuoteIndex(JSON.parse(bytes.replace(/^\uFEFF/,'')),true);
   });
   handler('window-identity',event=>({id:event.sender.id}),{withEvent:true});
-  handler('audio-start',(event,options)=>capture.acquire(event.sender.id,options?.authorized),{withEvent:true});
+  handler('audio-start',(event,options)=>{
+    const purpose=options?.purpose??'recognition';
+    if(purpose==='input-test'){if(options?.authorized!==true)throw Error('Explicit authorization for the selected feed is required');if(capture.snapshot().active||!capture.canStart())throw Error('Stop existing capture and finish preparation before testing input');if(!service.dryRun||service.mode==='auto')throw Error('Return to dry run before testing the input');service.setMode('suggest');}
+    return capture.acquire(event.sender.id,options?.authorized,purpose);
+  },{withEvent:true});
   handler('audio-stop',event=>capture.release(event.sender.id),{withEvent:true});
   handler('profiles-list',()=>profiles.list());
   handler('profiles-save',name=>profiles.save(name,settings));
@@ -181,6 +185,7 @@ async function bootstrap(){
   },{withEvent:true});
   handler('audio',async(event,samples,metadata)=>{
     if(!capture.owns(event.sender.id))throw new Error('This window does not own an authorized audio session');
+    if(capture.purpose!=='recognition')throw Error('Input test is meter-only; recognition is disabled');
     if(service.stopped||service.mode==='paused')throw new Error('Listening is paused');const epoch=service.generation,receivedAt=service.clock();
     const result=await speech.transcribe(samples);
     if(epoch!==service.generation||service.stopped||service.mode==='paused')throw new Error('Stale recognition discarded');

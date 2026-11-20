@@ -1,0 +1,33 @@
+'use strict';
+// SYNTHETIC tracks/frames only. No OS microphone, real recognition or ProPresenter.
+const {_electron}=require('playwright'),fs=require('node:fs/promises'),path=require('node:path'),assert=require('node:assert/strict'),{randomUUID}=require('node:crypto');
+(async()=>{const executable=process.argv[2]?path.resolve(process.argv[2]):null,env={...process.env};delete env.ELECTRON_RUN_AS_NODE;let app;
+try{
+ await fs.mkdir('test-results',{recursive:true});app=await _electron.launch({...(executable?{executablePath:executable}:{}),args:[...(executable?[]:[path.resolve('.')]),'--user-data-dir='+path.resolve('test-results','input-test-'+randomUUID())],env});const page=await app.firstWindow(),errors=[];page.on('pageerror',error=>errors.push(error.message));await page.waitForFunction(()=>document.getElementById('message')?.textContent.length>0);
+ await page.evaluate(async()=>{const s=(await window.versecue.settings()).value;await window.versecue.saveSettings({...s,audioDevice:'synthetic-input',channel:0,executable:'',model:''});});await page.reload();await page.waitForFunction(()=>document.getElementById('message')?.textContent.length>0);
+ await app.evaluate(({app})=>{const path=process.getBuiltinModule('node:path'),require=process.getBuiltinModule('node:module').createRequire(path.join(app.getAppPath(),'package.json'));globalThis.testRecognitions=0;require(path.join(app.getAppPath(),'core/stt.cjs')).LocalSpeech.prototype.transcribe=async()=>{globalThis.testRecognitions++;throw Error('Meter test must not recognize');};});
+ await page.evaluate(()=>{
+  const select=document.getElementById('audio-device'),option=document.createElement('option');option.value='synthetic-input';option.textContent='SYNTHETIC input';select.append(option);select.value=option.value;
+  document.getElementById('settings-dialog').showModal();document.querySelector('[data-settings="audio"]').click();window.testTrackStops=0;
+  const track={label:'SYNTHETIC input',stop(){window.testTrackStops++;},getSettings:()=>({deviceId:'synthetic-input',channelCount:2,sampleRate:48000})};
+  Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,value:async()=>({getTracks:()=>[track],getAudioTracks:()=>[track]})});
+  window.savedSyntheticCapture=navigator.mediaDevices.getUserMedia;
+  window.AudioContext=class{constructor(){this.currentTime=0;this.audioWorklet={addModule:async()=>{}};}createMediaStreamSource(){return {connect(){}};}createGain(){return {gain:{},connect(){}};}async close(){}};window.AudioWorkletNode=class{constructor(){this.port={};}connect(){}disconnect(){}};
+ });
+ await page.locator('#test-input').click();assert.match(await page.locator('#setup-message').textContent(),/authorization/);await page.locator('#input-test-consent').check();await page.locator('#test-input').click();await page.waitForFunction(()=>audio.active&&document.getElementById('stop-input-test').disabled===false);
+ const state=async()=>(await page.evaluate(()=>window.versecue.state())).value;assert.equal((await state()).capture.purpose,'input-test');assert.equal((await state()).mode,'suggest');
+ const denied=await page.evaluate(()=>window.versecue.audio(new Array(3200).fill(0),{}));assert.equal(denied.ok,false);assert.match(denied.error,/meter-only/);
+ await page.evaluate(()=>{for(let i=0;i<100;i++)audio.node.port.onmessage({data:{samples:new Array(1600).fill(.1),rms:.1,peak:.1,sampleOffset:i*1600,capturedAtContextSeconds:0}});});assert.ok(Number(await page.locator('#input-test-meter').getAttribute('value'))>=.4||await page.evaluate(()=>document.getElementById('input-test-meter').value>=.4));
+ await page.waitForFunction(()=>!audio.active&&document.getElementById('input-test-status').textContent.includes('finished'),{},{timeout:15000});assert.equal((await state()).capture.active,false);assert.equal((await state()).dryRun,true);assert.equal((await state()).queue.length,0);assert.equal(await app.evaluate(()=>globalThis.testRecognitions),0);assert.ok(await page.evaluate(()=>window.testTrackStops)>0);
+ await page.locator('#test-input').click();await page.waitForFunction(()=>audio.active);await page.locator('#stop-input-test').click();await page.waitForFunction(()=>!audio.active);assert.equal((await state()).capture.active,false);
+ // A late denial from an explicitly stopped permission request cannot stop a new test.
+ await page.evaluate(()=>{Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,value:()=>new Promise((_resolve,reject)=>window.rejectOldTest=reject)});});
+ await page.locator('#test-input').click();await page.waitForFunction(()=>typeof window.rejectOldTest==='function');await page.locator('#stop-input-test').click();await page.waitForFunction(()=>!state.capture.active);
+ await page.evaluate(()=>{Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,value:window.savedSyntheticCapture});});await page.locator('#test-input').click();await page.waitForFunction(()=>audio.active);
+ await page.evaluate(async()=>{window.rejectOldTest(Object.assign(new Error('SYNTHETIC old denial'),{name:'NotAllowedError'}));await new Promise(resolve=>setTimeout(resolve,50));});assert.equal(await page.evaluate(()=>audio.active),true);assert.equal((await state()).capture.purpose,'input-test');
+ const otherReady=app.waitForEvent('window');await page.evaluate(()=>window.versecue.compact());const other=await otherReady;await other.waitForFunction(()=>window.versecue&&document.getElementById('message')?.textContent.length>0);
+ const deniedOther=await other.evaluate(()=>window.versecue.beginAudio({authorized:true,purpose:'input-test'}));assert.equal(deniedOther.ok,false);await other.evaluate(()=>window.versecue.endAudio());assert.equal((await state()).capture.active,true);await other.close();
+ await page.evaluate(()=>window.versecue.command('reset'));await page.waitForFunction(()=>!audio.active&&!document.getElementById('input-test-consent').checked);assert.equal((await state()).capture.active,false);assert.equal((await state()).dryRun,true);assert.equal(await app.evaluate(()=>globalThis.testRecognitions),0);
+ for(const width of [1280,900,640]){await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>{const e=document.querySelector('[data-settings-panel="audio"]');return e.scrollWidth>e.clientWidth+1;}),false);}
+ assert.deepEqual(errors,[]);await fs.writeFile('test-results/'+(executable?'packaged-':'')+'safe-input-test.json',JSON.stringify({passed:true,synthetic:true,realMicrophone:false,realProPresenter:false,recognitions:0,expiredAndStopped:true},null,2));
+}finally{await app?.close();}})().catch(error=>{console.error(error);process.exitCode=1;});

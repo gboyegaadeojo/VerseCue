@@ -1,6 +1,6 @@
 # VerseCue ? resume here
 
-Checkpoint: 2026-11-20 19:27 UTC. Implementation is active. P0 and full service acceptance remain pending.
+Checkpoint: 2026-11-20 22:01 UTC. Implementation is active. P0 and full service acceptance remain pending.
 
 Read [AGENTS.md](AGENTS.md), the entire [master specification](VerseCue_Master_Development_Prompt_v2_Codex.md), [HANDOFF.md](HANDOFF.md), [PROGRESS.md](PROGRESS.md), [NEW_REQUESTS.md](NEW_REQUESTS.md), [remaining work](docs/107-remaining-work-and-acceptance.md) and the complete original audit. Inspect actual repository/CI before relying on this checkpoint.
 
@@ -27,3 +27,7 @@ PR66 feat/safe-input-test is now committed at9d2735bde8cc3e1570722b14029093d5f80
 ## Current PR66 verification ? 19:27 UTC
 
 Exact9d2735bde8cc3e1570722b14029093d5f80befd9 passes534 module/check, all31 Windows source scenarios,152-file exact-source/native receipts and Mac44800662569. Source35260 and build68094 are terminal. Packaged31 suite is now live in94382; poll that same handle. No merge until it passes. Root6fcc69e remains through65. Next independent software review: reconcile Studio typography/control targets with original18px base/44px click targets while preserving the approved design; no such implementation exists yet. No actual input/output or new release.
+
+## Latest authoritative checkpoint ? 22:01 UTC
+
+After an interruption, PR66 all31 packaged scenarios were observed terminal success, exact Mac44800662569 rechecked success and exact9d2735bd merged atd9faf6a. Root is integrating66; resolve progress/audit conflicts preserving histories, run module/check/audit then commit/push. All old handles are terminal. Next feat/booth-readability worktree contains only ui/booth.css and its stylesheet link; code not tested yet. Update branch through66 before GUI tests. Preserve unrelated design-reference/. User asked remaining steps and was told software readability/speech work plus real ProPresenter/platform/service/release acceptance remain. No actual input/output or new release.

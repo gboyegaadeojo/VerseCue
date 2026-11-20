@@ -89,3 +89,7 @@ Safe input test is now draft PR66 at9d2735bde8cc3e1570722b14029093d5f80befd9.534
 ## PR66 packaged verification ? 2026-11-20 19:27 UTC
 
 Exact9d2735bd passes534 modules/check,31 source Windows scenarios,152-file exact-source/native receipts and Mac44800662569. Packaged31 suite94382 is live; source35260/build68094 terminal. Finish packaged suite before merge. Independent next software gap: Studio readability/control targets versus original18px base/44px requirement, preserving the approved layout/theme and testing actual measured sizes plus fit. No readability code yet.
+
+## PR66 completion after interruption ? 22:01 UTC
+
+PR66 exact9d2735bd passed all31 source/31 packaged Windows scenarios,534 modules/check,152-file exact-source/native receipts and exact Mac44800662569 (rechecked). Merged atd9faf6a. Root integration in progress; all prior job handles terminal. Readability worktree has only uncommitted booth.css and stylesheet link; merge current main while preserving this local work, then measure/render it before claiming improvement. No actual platform/service acceptance or release.
