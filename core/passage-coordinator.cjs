@@ -1,4 +1,5 @@
 'use strict';
+const {nativeFailureDiagnostics}=require('./bible-preparation.cjs');
 const {randomUUID}=require('node:crypto');
 const {planSavedPassage}=require('./bible-passage-plan.cjs');
 // Reference preparation and explicit desktop confirmation. Output uses the
@@ -55,7 +56,7 @@ class PassageCoordinator {
    if(result.state!=='passage-needs-review'||result.reference!==c.label||result.translation!==c.translation)throw Error('No exact passage is ready for review');
    const reviewToken=randomUUID();this.review={token:reviewToken,sourceMode,plan:structuredClone(result),source:structuredClone(c),epoch,target,base,generation:this.service.generation,inputEpoch:this.service.inputEpoch,referenceEpoch:this.service.referenceEpoch,expiresAt:this.service.clock()+120000};
    return this.publish({...result,phase:'review-required',reviewToken,reviewExpiresAt:this.review.expiresAt,reviewGeneration:this.review.generation,reviewSourceMode:sourceMode,reviewInputEpoch:this.review.inputEpoch,reviewReferenceEpoch:this.review.referenceEpoch,sourceCandidateId:id,bibleTextVerified:false,formattingVerified:false,outputObserved:false,outputRequests:0});
-  }catch(error){this.publish({phase:guard()?'blocked':'canceled',reference:c.label,translation:c.translation,reason:error.message,outputRequests:0});throw error;}finally{this.release();}
+  }catch(error){const diagnostics=nativeFailureDiagnostics(error);this.publish({phase:guard()?'blocked':'canceled',reference:c.label,translation:c.translation,reason:error.message,...(diagnostics?{nativeFailure:diagnostics}:{}),outputRequests:0});throw error;}finally{this.release();}
  }
  async rebuildClipped(reviewToken,{formattingCorrected=false,acknowledgeFocusChange=false,acknowledgeCreateCopy=false}={}){
   const r=this.review,s=this.service,c=this.connector;
