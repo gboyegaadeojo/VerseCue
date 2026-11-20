@@ -48,6 +48,8 @@
 
 | Validated settings history/restore backend | [PR53](https://github.com/gboyegaadeojo/VerseCue/pull/53) | Merged at3895f4c.471 module tests/syntax,22 source +22 packaged workflows and exact Mac44732427219 passed. Two safe prior configurations; explicit receipt-bound restore backend. UI follows separately. |
 
+| Reviewed desktop settings recovery | [PR54](https://github.com/gboyegaadeojo/VerseCue/pull/54) | Merged at209d0db.471 module tests/syntax,23 source +23 packaged workflows and exact Mac44735262497 passed. Explicit reviewed recovery stays paused/disarmed and preserves Stop. |
+
 ## Dependency delivery and remaining acceptance
 
 1. **Session/reference intent and exact saved-passage foundation.** Keep exact edition/title, enabled nonempty ordered cue coverage, missing-middle/range checks, duplicate choice, unverified Bible origin and lookup cancellation together with the Session intent semantics they require. The first isolated run had251/252 tests passing against old main: ordinary final preaching was canceled by legacy Session correction handling. The regression was retained, and the required parser/navigation/small Session changes were included. PR26 now passes269 tests/syntax on current main. Matching Mac verification passed and the foundation is merged.

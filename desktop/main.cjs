@@ -46,7 +46,7 @@ async function reviewApiPassage(id,guard){
 }
 const privateApi=new LocalControlAPI(service,{onStop:()=>{cancelAudio();cancelPreparation();connector.arm(false);service.stop();},onPrepare:prepareBible,onReview:reviewApiPassage,onRevoke:()=>cancelPreparation(),onEvent:code=>{if(code==='PRIVATE_API_REFERENCE_REVIEW')resetSpeechStabilization();service.log(code);service.notify();}});
 const configurationTransition=new ConfigurationTransition({enterSafe:()=>{cancelAudio();cancelPreparation();connector.arm(false);connector.mappings.clear();service.setMode('paused');service.configure({translation:service.translation,dryRun:true});return privateApi.stop();}});
-async function changeConfiguration(operation,{restoreMode=true}={}){const previousMode=service.mode==='auto'?'confirm':service.mode;return configurationTransition.run(async()=>{const result=await operation();if(restoreMode&&!service.stopped&&!service.recovery?.required&&service.mode==='paused')service.setMode(previousMode);return result;});}
+async function changeConfiguration(operation,{restoreMode=true}={}){const previousMode=service.mode==='auto'?'confirm':service.mode;return configurationTransition.run(async()=>{const result=await operation();service.settingsRecoveryRequired=false;service.notify();if(restoreMode&&!service.stopped&&!service.recovery?.required&&service.mode==='paused')service.setMode(previousMode);return result;});}
 let settings,settingsFile,profiles,mainWindow,compactWindow,healthTimer,healthBusy=false;const windows=new Set();
 const ui=pathToFileURL(path.join(__dirname,'../ui/index.html')).href;
 function trusted(e){if(!windows.has(BrowserWindow.fromWebContents(e.sender))||e.senderFrame!==e.sender.mainFrame||e.senderFrame.url.split('?')[0]!==ui)throw new Error('Untrusted caller');}
@@ -69,7 +69,7 @@ async function choose(kind){
   return changeConfiguration(async()=>{if(speech.busy)throw Error('Recognition is stopping; retry in a moment');const next={...settings,[kind==='worker'?'executable':'model']:file};settings=await store.save(settingsFile,next);speech.configure(settings.executable,settings.model,settings.speechMode);return settings;});
 }
 async function bootstrap(){
-  settingsFile=path.join(app.getPath('userData'),'settings.json');const loaded=await store.load(settingsFile);settings=loaded.settings;
+  settingsFile=path.join(app.getPath('userData'),'settings.json');const loaded=await store.load(settingsFile);settings=loaded.settings;service.settingsRecoveryRequired=loaded.recovered;
   profiles=new Profiles(path.join(app.getPath('userData'),'profiles.json'));
   const helper=app.isPackaged?path.join(process.resourcesPath,'native','VerseCue.BibleBridge.exe'):path.join(__dirname,'../native/bin/VerseCue.BibleBridge.exe');
   let helperExists=false;try{await fs.access(helper);helperExists=true;}catch{}
@@ -101,6 +101,8 @@ async function bootstrap(){
   // Renderer needs local assets only. All ProPresenter traffic is mediated by the core.
   session.defaultSession.webRequest.onBeforeRequest((details,callback)=>callback({cancel:!details.url.startsWith('file://')&&!details.url.startsWith('devtools://')}));
   handler('state',()=>service.snapshot());handler('settings',()=>settings);
+  handler('settings-backups',()=>store.backups(settingsFile));
+  handler('restore-settings-backup',options=>{if(options?.acknowledged!==true)throw Error('Review and acknowledge the saved setup before restoring');return changeConfiguration(async()=>{if(speech.busy)throw Error('Recognition is stopping; retry in a moment');settings=await store.restore(settingsFile,{slot:options.slot,fingerprint:options.fingerprint});connector.configure(settings.host,settings.port);speech.configure(settings.executable,settings.model,settings.speechMode);service.configure({translation:settings.translation,dryRun:true});service.log('SETTINGS_BACKUP_RESTORED');return settings;},{restoreMode:false});});
   handler('quote-status',()=>service.quoteStatus());
   handler('quote-enable',enabled=>service.enableQuotes(enabled));
   handler('quote-import',async options=>{
