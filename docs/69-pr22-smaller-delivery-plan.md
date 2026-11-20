@@ -35,6 +35,8 @@
 
 | Fresh batched native reference readback | [PR46](https://github.com/gboyegaadeojo/VerseCue/pull/46) | Merged at42e4717.422 tests/syntax/compiler,147-file Windows source build/receipt, four packaged synthetic native cases and exact Mac44670595296 passed. No full latency/appearance/field pass. |
 
+| Arrangement-aware cue order and full fragment coverage | [PR47](https://github.com/gboyegaadeojo/VerseCue/pull/47) | Draft6de96d2.431 branch module tests/syntax and new synthetic UI scenario passed. Initial Mac44675150306/source batch ledger fixture failure retained and corrected; final Mac44675533080 and source/package checks pending. No host acceptance claim. |
+
 ## Dependency delivery and remaining acceptance
 
 1. **Session/reference intent and exact saved-passage foundation.** Keep exact edition/title, enabled nonempty ordered cue coverage, missing-middle/range checks, duplicate choice, unverified Bible origin and lookup cancellation together with the Session intent semantics they require. The first isolated run had251/252 tests passing against old main: ordinary final preaching was canceled by legacy Session correction handling. The regression was retained, and the required parser/navigation/small Session changes were included. PR26 now passes269 tests/syntax on current main. Matching Mac verification passed and the foundation is merged.

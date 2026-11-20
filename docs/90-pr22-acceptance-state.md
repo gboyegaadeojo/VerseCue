@@ -37,3 +37,7 @@ Shared-source checks currently pass 422 module tests on main and 425 in the inte
 - Permission to publish new personal-host evidence is separate from permission to run the tests. Until answered, code/build/synthetic results can be published while personal records stay ignored/private.
 
 Continue safe implementation and verified checks where these dependencies do not apply. Do not merge PR22, call P0 passed or publish a replacement service release on the strength of this map.
+
+## Arrangement-index follow-up
+
+Draft [PR47](https://github.com/gboyegaadeojo/VerseCue/pull/47) addresses a software gap discovered while checking the API contract: cue indexes follow the selected arrangement, while earlier inspection flattened raw group order. The draft adds arrangement-aware mapping and complete-fragment checks. Its branch tests are not evidence that current main already contains the fix, and the full original acceptance checklist remains open until the scoped verification and merge complete.
