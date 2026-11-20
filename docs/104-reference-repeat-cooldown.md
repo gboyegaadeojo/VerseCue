@@ -1,0 +1,13 @@
+# Reference repeat suppression and deliberate resend
+
+FR-022 requires duplicate reference/range/edition suppression with a configurable interval and a distinct intentional manual resend. Four regressions reproduced duplicate speech suggestions, missing configuration, blocked reviewed resends and an intervening-passage bypass of the old last-send-only check.
+
+Settings / Output now offers Repeat suppression, default10 seconds, validated as whole seconds1-300. Existing settings acquire the default. Save, import, profile load and reviewed backup restore apply it to the service through existing disarmed configuration transitions; recovery previews include the interval. Reset clears transient duplicate history while retaining the safe configured policy.
+
+Speech detections use canonical book/chapter/verse/range and exact edition identity. Separate speech IDs cannot renew the candidate or TTL during cooldown. Same-utterance revisions and explicit corrections remain reviewable, and a different input owner cannot poison the approved owner's detection. Unauthorized input does not populate protection. Send protection tracks each reference across intervening passages, rather than only the most recent send.
+
+Both in-memory protection tables are capped at200 identities. A full table withholds new work until expiry or deliberate reset; it never evicts protected output identities to permit a repeat. Nothing is persisted about references in settings. Multiple-reference speech retains its review-only marker even if duplicate filtering leaves one candidate. Stop, source age, loss, correction grace, edition, ownership and Auto checks remain.
+
+Review again or a newly entered manual reference creates a distinct candidate and requires another explicit desktop confirmation. That confirmation can resend a previously simulated/readback-matched passage inside cooldown; it does not send during review. Private API and Auto cannot borrow this exception, and an uncertain prior receipt cannot qualify. Prepared-passage appearance/readback/ownership gates still apply.
+
+Eleven focused regressions plus490 total module tests pass; the synthetic source desktop scenario verifies policy save, backend use, unchanged duplicate lifetime, deliberate resend identity, invalid interval rejection, backup/profile application and dialog fit. Initial test-clock and missing-artifact-directory harness errors are retained separately; no expiry guard was relaxed. Visual review shows the policy outside Advanced mappings in the normal Output panel. Full current-head source/package/Mac verification remains before merge. Tests use no microphone or real ProPresenter. These checks do not certify sermon accuracy, physical output or full service readiness.
