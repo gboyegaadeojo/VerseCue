@@ -37,6 +37,9 @@
 
 | Arrangement-aware cue order and full fragment coverage | [PR47](https://github.com/gboyegaadeojo/VerseCue/pull/47) | Merged atf6cb65e.431 module tests/syntax,21 source +21 packaged Windows synthetic scenarios and final Mac44675533080 passed. Initial ledger fixture/Mac44675150306 failure retained and corrected. No host acceptance claim. |
 
+| Displayed-part relative navigation | [PR48](https://github.com/gboyegaadeojo/VerseCue/pull/48) | Merged atce49af1.436 module tests/syntax,21 Windows source +21 packaged scenarios and exact Mac44677998265 passed. Uncertain overlapping fragments require a full reference. |
+| Strict restart configuration test oracle | [PR49](https://github.com/gboyegaadeojo/VerseCue/pull/49) | Merged at6f39f58.440 module tests/syntax. Test/docs only; full content/order/target evidence retained. No new actual restart performed or accepted. |
+
 ## Dependency delivery and remaining acceptance
 
 1. **Session/reference intent and exact saved-passage foundation.** Keep exact edition/title, enabled nonempty ordered cue coverage, missing-middle/range checks, duplicate choice, unverified Bible origin and lookup cancellation together with the Session intent semantics they require. The first isolated run had251/252 tests passing against old main: ordinary final preaching was canceled by legacy Session correction handling. The regression was retained, and the required parser/navigation/small Session changes were included. PR26 now passes269 tests/syntax on current main. Matching Mac verification passed and the foundation is merged.
