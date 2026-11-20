@@ -1,6 +1,6 @@
 # VerseCue development handoff
 
-Checked: 2026-11-20 22:44 UTC. [CLAUDE.md](CLAUDE.md) is the short current checkpoint; [PROGRESS.md](PROGRESS.md) retains history. This handoff supports Codex, Claude Code and human developers in the same workspace. It does not transfer the previous chat, credentials or runtime permissions automatically.
+Checked: 2026-11-20 22:55 UTC. [CLAUDE.md](CLAUDE.md) is the short current checkpoint; [PROGRESS.md](PROGRESS.md) retains history. This handoff supports Codex, Claude Code and human developers in the same workspace. It does not transfer the previous chat, credentials or runtime permissions automatically.
 
 ## Start here
 
@@ -34,7 +34,7 @@ The component restores18px base/control text and44px action targets while preser
 - Windows source32: session34951 is terminal success; all32 passed.
 - Windows review build: session81089 is terminal success;153 packaged files match exact source and native receipt verified.
 - [Mac44828146007](https://github.com/gboyegaadeojo/VerseCue/actions/runs/44828146007): completed successfully at the exact head. No new dispatch is needed.
-- Packaged32 suite39252 is live. Poll it and merge only when current-head evidence passes. A separate read-only personal target prerequisite check95264 writes ignored private evidence and requests no output; no actual native preparation is running. Integrate root after verified merge and update progress/audit/PR22/checkpoints.
+- Packaged32 suite39252 is live. Poll it and merge only when current-head evidence passes. Read-only personal checks95264/7532 are terminal, recorded only privately; no actual native preparation is running. Integrate root after verified merge and update progress/audit/PR22/checkpoints.
 
 These are synthetic software checks, not physical booth, screen-reader, real speech, native Mac ProPresenter or field acceptance.
 
@@ -75,3 +75,9 @@ P0 remains PENDING: route/fidelity/translation/platform/timing evidence and IFC 
 Use docs/107 and the complete original audit rather than narrowing success to existing tests. Software remains for speech preview/reliability, native Mac integration and privacy/distribution follow-ups. Real acceptance includes exact edition/range/context fidelity; preservation of themes/Looks/playlist/manual/Companion operation; input hardware; latency/long sessions; labeled sermons; physical outputs; volunteer and screen-reader tasks. ProPresenter owns its themes/Looks/playlists: these are preservation checks, not editors to build in VerseCue.
 
 Refresh CLAUDE.md about every10 minutes during active work, after merges/build checkpoints and before interruption. Keep this file and PROGRESS.md current. Record exact evidence, one concrete next action and actual live handles. Never claim the whole application accepted because a component merged.
+
+## Immediate priority after the package check
+
+After verified PR67 merge/integration, inspect the authorized personal ProPresenter configuration using the computer-use skill (already read along with guidance/API/confirmations). Use node_repl + @oai/sky, returned app/window selection, fresh observations and one action per refresh. No input has run yet; wait for package GUI completion to avoid focus races. Keep personal records private. No security/privacy setting changes, production output, Clear, blind retry or restoration. Native testing still requires fresh independent Audience=false/Stage=false observations.
+
+If actual HIL depends on user/external state, continue independent software work. Current sermon pilot/spot-check/replay scripts are throwaway diagnostics and explicitly unscored, with no independent audible-end/accuracy labels. A strict labeled-recognition scorer would support the remaining acceptance work; real labels/consent/held-out coverage must remain genuine rather than inferred from captions or model output. The supplied source/timestamp and clips are already recorded in docs/test-data/sermon-source-intake.md; do not ask for them again.
