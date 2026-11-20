@@ -1,0 +1,7 @@
+# Native preparation timing investigation
+
+The existing preparation worker has a twelve-second parent deadline. Earlier stage boundaries grouped process discovery, executable validation, UI Automation binding, root readiness and focus under one elapsed span, making startup and provider costs hard to distinguish. Add content-free stage boundaries around those existing operations and reference/edition/clipping discovery. These are elapsed monotonic durations, not audible-end-to-output latency or a performance improvement claim. No additional accessibility query, action, retry, copy, format change, output request or deadline extension is introduced.
+
+Only allowlisted stage names and bounded numeric timings reach the prepared receipt. The native adapter privacy test verifies the new names while continuing to discard unknown names, negative/out-of-bound timings and nonnumeric values. Actual personal-host records remain ignored/private pending explicit publication permission. A source compilation or synthetic protocol check does not verify hardware performance or physical output.
+
+Next: build an isolated current-source package, perform a bounded preparation-only comparison through the application with independent disabled-screen/output-identity checks, and use the measured boundaries to choose any optimization. Do not infer a bottleneck from an unmeasured process-startup hypothesis or remove verification to hit a target.
