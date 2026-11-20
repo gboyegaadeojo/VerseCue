@@ -16,6 +16,8 @@ At this baseline, 471 module tests passed on main and 474 in integration (three 
 
 PR56 corrects the source-level audio cadence and capture/pending bounds described at this historical baseline. See [audio cadence and queue bounds](100-audio-cadence-and-queue-bounds.md). It passed476 module tests,23 source and23 packaged Windows synthetic scenarios and corrected exact-head Mac44742598707. Real audio cadence, recognition latency, hardware, crash-residue and field acceptance remain open.
 
+PR57 adds [cross-window reset privacy](101-session-reset-renderer-privacy.md), verified with24 source and24 packaged Windows synthetic scenarios and exact Mac44743714554. PR58 adds [dependency inventory provenance enforcement](102-dependency-inventory-provenance.md), with479 module tests, exact-source Windows packaging/workspace and exact Mac44744660186. These close narrower software gaps without certifying crash erasure, independent licensing/security review or original field acceptance.
+
 ## Evidence index
 
 <a id="evidence-a"></a>
