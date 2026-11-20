@@ -67,3 +67,7 @@ PR64 feat/audio-input-information at6751a6e implements reported input format/ran
 ## Latest checkpoint ? 2026-11-20 18:32 UTC
 
 PR64 exact6751a6e7 passes521 modules/syntax/inventory,29 Windows source scenarios,151-file review/native receipt and Mac44791701176. Packaged suite remains live in session57626. A separate local fix/speech-scratch-recovery branch now implements app-owned crash-WAV recovery and has six focused synthetic tests passing; latest cancellation/cleanup handling is not yet verified or committed. See CLAUDE.md for exact next actions. Root is2f594be before this checkpoint commit.
+
+## Corrected PR65 verification ? 2026-11-20 18:46 UTC
+
+PR65 d2f6ac25ff3795e0b41bd3c138e02ba3b617e526 passes531 modules/syntax/inventory,152-file exact-source Windows/native receipts and Mac44794893453. Original Mac44794215980 failed on normal parent aliases; correction canonicalizes only the configured parent and preserves linked-root/child refusal, with a regression. Source suite25311 is live; build94115 terminal success. Next is corrected-head packaged30 after source completion. No actual input/output used.

@@ -707,3 +707,7 @@ PR64 source29 and Mac44791701176 passed; Windows151-file receipt matches6751a6e7
 2026-11-20. PR64 exact6751a6e7 merged atf18c78a after521 modules/syntax/inventory,29 Windows source and29 packaged scenarios,151-file exact-source/native receipt and Mac44791701176 passed. Root integration verification follows. All PR64 local processes are terminal. Next component is scoped interrupted-speech scratch cleanup, locally implemented in its separate worktree; no new release or physical acceptance claim.
 
 PR64 integration verification:524 module tests/syntax/inventory and structural audit passed. PR65 initiale233de3 Mac44794215980 failed because its root check rejected a normal macOS parent-path alias. Preserve that failure, canonicalize only the configured parent while refusing linked scratch entries, add a regression and run a new exact-head verification cycle after the current original-head source suite completes. No native helper change is justified by static review alone.
+
+## Corrected PR65 verification checkpoint ? 18:46 UTC
+
+Corrected d2f6ac25 passes531 modules/syntax/inventory,152-file exact-source Windows/native receipts and Mac44794893453. Source30 suite25311 remains live. The original e233de3 source30/Windows build passed but Mac44794215980 failed on parent aliases; retained as historical evidence only. Finish corrected source, then packaged30 before any merge. No installed app/release/actual input/output changes.
