@@ -1,6 +1,7 @@
 'use strict';
 // Operator guidance only. Unknown helper output is never echoed as a diagnosis.
 function nativePreparationReason(code){
+ if(code==='NATIVE_UI_ELEMENT_REPLACED')return 'ProPresenter replaced a Bible workspace control during preparation. Inspect the current reference and generated slides before trying again. No retry was sent.';
  if(typeof code!=='string')return 'The native preparation result could not be verified. Inspect ProPresenter before trying again.';
  if(['REQUESTED_EDITION_NOT_FOUND_OR_MENU_UNVERIFIED','UNSUPPORTED_REQUESTED_TRANSLATION'].includes(code))return 'The requested Bible edition could not be selected. Check that the exact edition is installed in ProPresenter; VerseCue will not substitute another edition.';
  if(['EDITION_SELECTION_NOT_VERIFIED','REQUESTED_EDITION_NOT_VERIFIED','TRANSLATION_SELECTION_UNCERTAIN','MULTIPLE_OR_MISSING_TRANSLATION_SELECTORS','TRANSLATION_CHANGED_DURING_PREPARATION'].includes(code))return 'The selected Bible edition could not be verified. Inspect the selected edition and any open Bible menu in ProPresenter before trying again.';

@@ -167,15 +167,19 @@ class BibleBridge {
             Require(Translations.ContainsKey(translation),"UNSUPPORTED_REQUESTED_TRANSLATION");
         }
         var processes=Process.GetProcessesByName("ProPresenter");Require(processes.Length==1,"ONE_PROPRESENTER_INSTANCE_REQUIRED");
+        Stage("target-process-found");
         var process=processes[0];var expected=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),"Renewed Vision","ProPresenter","ProPresenter.exe");
         Require(String.Equals(Path.GetFullPath(process.MainModule.FileName),Path.GetFullPath(expected),StringComparison.OrdinalIgnoreCase),"UNEXPECTED_PROPRESENTER_EXECUTABLE");
         Require(process.MainWindowHandle!=IntPtr.Zero,"PROPRESENTER_WINDOW_UNAVAILABLE");
+        Stage("bind-target-window");
         var root=AutomationElement.FromHandle(process.MainWindowHandle);Require(root.Current.IsEnabled&&!root.Current.IsOffscreen,"PROPRESENTER_NOT_READY");
+        Stage("target-window-bound");
         // Inspection remains read-only. Preparation has explicit application
         // consent for focus changes, opening Bibles and exact edition selection.
         if(operation!="inspect"){Require(SetForegroundWindow(process.MainWindowHandle),"COULD_NOT_FOCUS_PROPRESENTER");WaitReleasedModifiers();}
         Stage("find-bible-controls");
         var header=operation=="inspect"?ById(root,"bibleViewerHeader"):OpenBibleView(root,process);Require(header!=null,"OPEN_BIBLES_VIEW_IN_PROPRESENTER");
+        Stage("bible-view-verified");
         // Restrict control discovery to the observed Bible viewer, rather than
         // traversing unrelated library, media, stage and production controls.
         var bibleControls=TreeWalker.RawViewWalker.GetParent(header);Require(bibleControls!=null,"BIBLE_VIEW_CONTAINER_MISSING");
@@ -183,7 +187,9 @@ class BibleBridge {
         var edits=container.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Edit));
         Require(edits.Count==1,"REFERENCE_INPUT_AMBIGUOUS");var field=edits[0];
         Require(field.Current.IsEnabled&&!field.Current.IsOffscreen,"REFERENCE_INPUT_NOT_READY");
+        Stage("reference-control-verified");
         var selector=TranslationSelector(bibleControls);string selected=SelectedTranslation(selector);
+        Stage("edition-control-verified");
         if(operation=="inspect")return new {ok=true,state="inspection-only",translationDisplayName=selected,reference=Value(field),outputRequests=0};
         SelectTranslation(root,process,selector,Translations[translation]);selected=SelectedTranslation(selector);
         Require(Translations[translation]==selected,"REQUESTED_EDITION_NOT_VERIFIED");
@@ -221,6 +227,7 @@ class BibleBridge {
             Console.Error.WriteLine(Json.Serialize(new {stage="verify-check",elapsedMs=Total.ElapsedMilliseconds,fieldMatches=fieldMatches,rangeFound=rangeFound,elementCount=elements.Count,labelCount=count}));Console.Error.Flush();
             stable=fieldMatches&&rangeFound&&count>0?stable+1:0;
             if(stable>=2) {
+                Stage("read-clipping-snapshot");
                 var warningCache=new CacheRequest();warningCache.TreeScope=TreeScope.Element;warningCache.Add(AutomationElement.NameProperty);warningCache.Add(AutomationElement.HelpTextProperty);
                 AutomationElementCollection warnings;using(warningCache.Activate()){warnings=bible.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Image));}
                 clipped=warnings.Cast<AutomationElement>().Any(e=>(e.Cached.HelpText??"").IndexOf("clipped",StringComparison.OrdinalIgnoreCase)>=0||(e.Cached.Name??"").IndexOf("clipped",StringComparison.OrdinalIgnoreCase)>=0);
@@ -239,7 +246,8 @@ class BibleBridge {
             string input=Console.ReadLine();Require(input!=null&&input.Length<=8192,"INVALID_REQUEST_SIZE");
             var request=Json.Deserialize<Dictionary<string,object>>(input);Require(request!=null,"INVALID_REQUEST");
             Console.WriteLine(Json.Serialize(Run(request)));return 0;
-        }catch(InvalidOperationException e){Console.WriteLine(Json.Serialize(new {ok=false,code=e.Message,outputRequests=0}));return 2;}
+        }catch(ElementNotAvailableException){Console.WriteLine(Json.Serialize(new {ok=false,code="NATIVE_UI_ELEMENT_REPLACED",outputRequests=0}));return 3;}
+        catch(InvalidOperationException e){Console.WriteLine(Json.Serialize(new {ok=false,code=e.Message,outputRequests=0}));return 2;}
         catch{Console.WriteLine(Json.Serialize(new {ok=false,code="NATIVE_UI_ACCESS_UNCERTAIN",outputRequests=0}));return 3;}
     }
 }

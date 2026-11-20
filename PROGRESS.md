@@ -278,3 +278,9 @@ Expose the existing backend review deadline and disable expired review actions w
 ## Prepared-passage inspector consistency
 
 The inspector now retains the prepared reference and phase after the shorter suggestion TTL, respects Stop/recovery, and distinguishes expired review. Corrected the obsolete no-preview statement.420 module tests/syntax and source synthetic workflow pass; strengthening the expiry inspector assertion and proving the old-package regression are in progress. No actual-host outcomes are published. Next: finish before/after verification, open a small PR, then exact package/Mac checks.
+
+## Native preparation profile investigation
+
+Add allowlisted content-free timing boundaries around existing process/window/control/edition/clipping discovery without adding queries or changing actions/deadlines.420 module tests and syntax pass; compiler result is checked before packaging. This is instrumentation, not a speedup or hardware pass. Next: isolated build and bounded private preparation-only measurement, then select an evidence-based optimization.
+
+Native failure-diagnostic follow-up: retain only known bounded stage metadata on failed helper errors and publish sanitized metadata in local coordinator state; distinguish replaced accessibility controls without exception text or retry.422 tests/syntax pass, Windows helper compiles. New private measurement records are excluded from publication. Next: isolated current-source diagnostic build and one fresh bounded inspected case, then act on the observed failing stage.
