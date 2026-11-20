@@ -354,3 +354,7 @@ PR56 merged atf87b508 after476 module tests/syntax,23 source and23 packaged Wind
 ## Reference dictionary versions in diagnostics
 
 Independent fix/reference-diagnostic-versions addresses FR011 missing exported metadata version. Redacted diagnostics now include source-addressed English parser/dictionary version and existing KJV bounds provenance/version/hash, normalized across CRLF/LF. No Bible text or user content is exported. The isolated synthetic export scenario seeds an actual candidate/source phrase, proves Cancel does not invoke Save/write, checks exact exported versions and absence of session content/address/path marker.476 base module tests and initial source export pass. Full current-base/package/Mac verification remain before merge.
+
+## Passage range policy core in progress
+
+Independent feat/passage-range-policy-core on PR59 base reproduces five FR014 core failures and adds finite explicit1-50 verse bounds to parser and saved metadata/coverage functions, retaining default10. Verified lengths and unknown cross-chapter lengths are distinguished. Extended ranges carry Confirm-only review text and an independent Auto ceiling.484 module tests/syntax pass. Runtime settings/service/lookup/native/connector/thumbnail/profile/backup/UI propagation and full acceptance remain unfinished; no PR is opened or full feature completion claimed. See docs106 for the complete wiring checklist. No real microphone/ProPresenter access or output is involved.
