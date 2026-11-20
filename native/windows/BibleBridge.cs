@@ -172,7 +172,14 @@ class BibleBridge {
         Require(String.Equals(Path.GetFullPath(process.MainModule.FileName),Path.GetFullPath(expected),StringComparison.OrdinalIgnoreCase),"UNEXPECTED_PROPRESENTER_EXECUTABLE");
         Require(process.MainWindowHandle!=IntPtr.Zero,"PROPRESENTER_WINDOW_UNAVAILABLE");
         Stage("bind-target-window");
-        var root=AutomationElement.FromHandle(process.MainWindowHandle);Require(root.Current.IsEnabled&&!root.Current.IsOffscreen,"PROPRESENTER_NOT_READY");
+        // Capture readiness and identity together when binding this one window.
+        // Keep Full mode for the later live focus/reference/edition checks.
+        var windowHandle=process.MainWindowHandle;
+        var readinessCache=new CacheRequest();readinessCache.TreeScope=TreeScope.Element;readinessCache.TreeFilter=Automation.RawViewCondition;
+        readinessCache.Add(AutomationElement.IsEnabledProperty);readinessCache.Add(AutomationElement.IsOffscreenProperty);
+        readinessCache.Add(AutomationElement.ProcessIdProperty);readinessCache.Add(AutomationElement.NativeWindowHandleProperty);
+        AutomationElement root;using(readinessCache.Activate()){root=AutomationElement.FromHandle(windowHandle);}
+        Require(root.Cached.IsEnabled&&!root.Cached.IsOffscreen&&root.Cached.ProcessId==process.Id&&new IntPtr(root.Cached.NativeWindowHandle)==windowHandle,"PROPRESENTER_NOT_READY");
         Stage("target-window-bound");
         // Inspection remains read-only. Preparation has explicit application
         // consent for focus changes, opening Bibles and exact edition selection.
