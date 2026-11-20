@@ -392,3 +392,7 @@ Earlier8a960f4 passed28 source scenarios and Mac44785647620, and its151-file Win
 ## Interrupted speech scratch recovery implementation
 
 2026-11-20. fix/speech-scratch-recovery is based on merged PR64. App-owned startup recovery, exclusive WAV creation, bounded nonrecursive cleanup, linked/out-of-scope refusal, cancellation-before-spawn and sanitized cleanup failures are implemented. Nine focused groups and530 modules pass; source desktop recovery scenario passes using synthetic bytes with no actual microphone/ProPresenter. Full source/package/Mac verification remains before merge. See docs/109-interrupted-speech-scratch-recovery.md for legacy/swap/secure-erasure limitations.
+
+## Mac parent-alias correction
+
+Initial PR65 e233de3 passed30 Windows source scenarios and152-file review receipts, but Mac44794215980 failed because normal parent aliases changed realpath. Canonicalizing the configured parent now preserves strict scratch-root/child refusal; an explicit parent-alias/linked-root regression passes. Ten focused groups plus531 modules/syntax/inventory pass. A new exact-head Windows/source/package/Mac cycle is required; retain old failure and reports without claiming them for changed source.

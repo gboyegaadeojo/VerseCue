@@ -7,7 +7,11 @@ class SpeechScratch {
  constructor(root){if(!path.isAbsolute(root))throw Error('Speech scratch must use an absolute app-owned directory');this.root=path.resolve(root);this.ready=false;}
  async verifyRoot(){const stat=await fs.lstat(this.root);if(!stat.isDirectory()||stat.isSymbolicLink()||path.relative(this.root,await fs.realpath(this.root))!=='')throw Error('Speech scratch directory is not a regular app-owned directory');}
  async initialize(){
-  this.ready=false;await fs.mkdir(this.root,{mode:0o700}).catch(error=>{if(error.code!=='EEXIST')throw error;});await this.verifyRoot();
+  this.ready=false;
+  // Resolve the configured parent (for example macOS /var -> /private/var),
+  // while retaining lstat refusal of a linked scratch root or run directory.
+  this.root=path.join(await fs.realpath(path.dirname(this.root)),path.basename(this.root));
+  await fs.mkdir(this.root,{mode:0o700}).catch(error=>{if(error.code!=='EEXIST')throw error;});await this.verifyRoot();
   for(const name of await fs.readdir(this.root))if(ownedName.test(name))await this.remove(path.join(this.root,name));
   this.ready=true;
  }
