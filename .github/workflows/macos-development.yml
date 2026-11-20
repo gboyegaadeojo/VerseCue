@@ -19,7 +19,9 @@ jobs:
       - run: npm test && npm run check
       - name: Check reference-driven desktop workflow against synthetic targets
         run: |
+          node scripts/test-reference-cooldown-ui.cjs
           node scripts/test-reference-diagnostics.cjs
+          node scripts/test-reset-inflight-receipt.cjs
           node scripts/test-session-reset-privacy.cjs
           node scripts/test-settings-recovery-ui.cjs
           node scripts/test-settings-transition-ui.cjs

@@ -1,0 +1,31 @@
+'use strict';
+// Synthetic service input only; no microphone or real ProPresenter.
+const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path'),{randomUUID}=require('node:crypto');
+(async()=>{
+  const executable=process.argv[2]?path.resolve(process.argv[2]):null,env={...process.env};delete env.ELECTRON_RUN_AS_NODE;
+  const app=await _electron.launch({...(executable?{executablePath:executable}:{}),args:[...(executable?[]:[path.resolve('.')]),'--user-data-dir='+path.resolve('test-results','cooldown-ui-'+randomUUID())],env});
+  try{
+    const page=await app.firstWindow();await page.waitForFunction(()=>document.getElementById('message')?.textContent.length>0);
+    await app.evaluate(({app})=>{const path=process.mainModule.require('node:path'),{Session}=process.mainModule.require(path.join(app.getAppPath(),'core/session.cjs')),original=Session.prototype.configure;Session.prototype.configure=function(...args){globalThis.cooldownService=this;return original.apply(this,args);};});
+    await page.locator('#setup').click();await page.locator('[data-settings=output]').click();assert.equal(await page.locator('#duplicate-cooldown').isVisible(),true);assert.equal(await page.locator('#duplicate-cooldown').inputValue(),'10');assert.equal(await page.locator('#advanced-output-mappings').getAttribute('open'),null);
+    await page.locator('#duplicate-cooldown').fill('2');await page.locator('#settings-form button[type=submit]').click();await page.waitForFunction(()=>document.getElementById('setup-message').textContent.includes('Configuration saved'));
+    assert.equal((await page.evaluate(()=>window.versecue.settings())).value.duplicateCooldownSeconds,2);assert.equal(await app.evaluate(()=>globalThis.cooldownService.duplicateCooldownSeconds),2);assert.equal((await page.evaluate(()=>window.versecue.state())).value.dryRun,true);
+    await page.locator('#duplicate-cooldown').scrollIntoViewIfNeeded();await page.screenshot({path:'test-results/reference-cooldown-settings.png'});await page.locator('#close-settings').click();
+    const base=Date.now();const emit=async(id,elapsed)=>app.evaluate((_electron,{id,now})=>{globalThis.cooldownNow=now;const s=globalThis.cooldownService;s.clock=()=>globalThis.cooldownNow;return s.ingest('John 3:16',{id}).length;},{id,now:base+elapsed});
+    assert.equal(await emit('synthetic-first',1000),1);await page.waitForFunction(()=>document.getElementById('queue-count').textContent==='1');const first=(await page.evaluate(()=>window.versecue.state())).value.queue[0];assert.equal(await emit('synthetic-repeat',2000),0);const duplicate=(await page.evaluate(()=>window.versecue.state())).value;assert.equal(duplicate.queue.length,1);assert.equal(duplicate.queue[0].id,first.id);assert.equal(duplicate.queue[0].expiresAt,first.expiresAt);assert.match(duplicate.interpretation.reason,/cooldown/);
+    await page.locator('#show').click();await page.waitForFunction(()=>document.getElementById('history').textContent.includes('Simulated'));
+    await page.locator('[data-route=history]').click();await page.getByRole('button',{name:'Review again',exact:true}).click();await page.locator('[data-route=overview]').click();const review=(await page.evaluate(()=>window.versecue.state())).value;assert.equal(review.history.length,1);assert.equal(review.queue.at(-1).manual,true);assert.notEqual(review.queue.at(-1).id,first.id);
+    await page.locator('#show').click();await page.waitForFunction(async()=>((await window.versecue.state()).value.history.length===2));
+    const after=(await page.evaluate(()=>window.versecue.state())).value;assert.equal(after.dryRun,true);assert.equal(after.history.every(item=>item.state==='simulated'),true);
+    const invalid=await page.evaluate(async()=>window.versecue.saveSettings({...((await window.versecue.settings()).value),duplicateCooldownSeconds:0}));assert.equal(invalid.ok,false);assert.equal((await page.evaluate(()=>window.versecue.settings())).value.duplicateCooldownSeconds,2);
+    assert.equal((await page.evaluate(()=>window.versecue.saveProfile('SYNTHETIC cooldown policy'))).ok,true);
+    const profile=(await page.evaluate(()=>window.versecue.profiles())).value[0];
+    assert.equal((await page.evaluate(async()=>window.versecue.saveSettings({...((await window.versecue.settings()).value),duplicateCooldownSeconds:3}))).ok,true);
+    const backup=(await page.evaluate(()=>window.versecue.settingsBackups())).value.snapshots.find(row=>row.settings.duplicateCooldownSeconds===2);assert.ok(backup);
+    assert.equal((await page.evaluate(row=>window.versecue.restoreSettingsBackup({slot:row.slot,fingerprint:row.fingerprint,acknowledged:true}),backup)).ok,true);assert.equal(await app.evaluate(()=>globalThis.cooldownService.duplicateCooldownSeconds),2);
+    assert.equal((await page.evaluate(async()=>window.versecue.saveSettings({...((await window.versecue.settings()).value),duplicateCooldownSeconds:4}))).ok,true);
+    assert.equal((await page.evaluate(id=>window.versecue.loadProfile(id),profile.id)).ok,true);assert.equal(await app.evaluate(()=>globalThis.cooldownService.duplicateCooldownSeconds),2);assert.equal((await page.evaluate(()=>window.versecue.state())).value.mode,'paused');
+    await page.locator('#setup').click();await page.locator('[data-settings=output]').click();for(const width of [1280,900,640]){await page.setViewportSize({width,height:800});assert.equal(await page.locator('#settings-dialog').evaluate(e=>e.scrollWidth>e.clientWidth+2),false);}await page.evaluate(()=>document.body.style.zoom='2');assert.equal(await page.locator('#settings-dialog').evaluate(e=>e.scrollWidth>e.clientWidth+2),false);
+    const report={passed:true,packaged:!!executable,policyVisibleOutsideAdvancedMappings:true,savedPolicyAppliedToService:true,backupAndProfilePoliciesApplied:true,duplicateDidNotRenewCandidate:true,manualReviewDidNotSendUntilClicked:true,manualResendHasNewIdentity:true,invalidIntervalRejected:true,dryRunRetained:true,actualProPresenterAccess:false,microphoneCapture:false};await fs.writeFile(executable?'test-results/packaged-reference-cooldown-ui.json':'test-results/reference-cooldown-ui.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report));
+  }finally{await app.close();}
+})().catch(error=>{console.error(error);process.exitCode=1;});
