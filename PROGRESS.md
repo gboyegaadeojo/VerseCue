@@ -274,3 +274,7 @@ Final Mac44637601238 failed while its test tried to click Continue after externa
 ## Prepared review expiry UI correction
 
 Expose the existing backend review deadline and disable expired review actions with an explicit prepare-again instruction. Preserve Confirm rejection in the operator message. 420 module tests/syntax and the strengthened synthetic source desktop scenario pass, including zero triggers during renderer-clock expiry. No real host outcome or hardware pass published. Next: exact review package and standard Mac checks before merge.
+
+## Prepared-passage inspector consistency
+
+The inspector now retains the prepared reference and phase after the shorter suggestion TTL, respects Stop/recovery, and distinguishes expired review. Corrected the obsolete no-preview statement.420 module tests/syntax and source synthetic workflow pass; strengthening the expiry inspector assertion and proving the old-package regression are in progress. No actual-host outcomes are published. Next: finish before/after verification, open a small PR, then exact package/Mac checks.
