@@ -698,3 +698,10 @@ Integration verification after PR62:517 module tests and syntax/dependency inven
 ## Active verification and privacy follow-up ? 18:32 UTC
 
 PR64 source29 and Mac44791701176 passed; Windows151-file receipt matches6751a6e7. Packaged session57626 remains live. Independent fix/speech-scratch-recovery implements scoped startup cleanup after the app single-instance lock, with six focused synthetic tests including interrupted subprocess recovery; latest cancellation-before-spawn and sanitized cleanup failure need tests before its PR. No global temporary-directory scanning or production audio/output is authorized or used.
+## Audio input information implementation
+
+2026-11-20. Prepared feat/audio-input-information is updated through PR63. Active-input reported format/ranges, pre-processing device/channel validation and actionable permission guidance are implemented. Seven new focused synthetic groups plus521 module tests pass; the source input-information UI passes with fake tracks and no real microphone/ProPresenter. Full current-source Windows/source/package and hosted Mac verification remain before merge. Details and remaining hardware limitations: docs/108-audio-input-information.md.
+
+## PR64 merged and integrated
+
+2026-11-20. PR64 exact6751a6e7 merged atf18c78a after521 modules/syntax/inventory,29 Windows source and29 packaged scenarios,151-file exact-source/native receipt and Mac44791701176 passed. Root integration verification follows. All PR64 local processes are terminal. Next component is scoped interrupted-speech scratch cleanup, locally implemented in its separate worktree; no new release or physical acceptance claim.
