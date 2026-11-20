@@ -12,6 +12,10 @@
 
 At this baseline, 471 module tests passed on main and 474 in integration (three additional historical soak-summary tests). PR54 exact source and packaged Windows runs passed 23 synthetic desktop scenarios; Mac 44735262497 passed source checks, CPU speech packaging and packaged workspace. These scopes do not certify ProPresenter on Mac, physical room/stream outputs, real microphone accuracy, latency thresholds or service readiness. All original acceptance gates remain open. New personal-host records are private and excluded.
 
+## Merged follow-up
+
+PR56 corrects the source-level audio cadence and capture/pending bounds described at this historical baseline. See [audio cadence and queue bounds](100-audio-cadence-and-queue-bounds.md). It passed476 module tests,23 source and23 packaged Windows synthetic scenarios and corrected exact-head Mac44742598707. Real audio cadence, recognition latency, hardware, crash-residue and field acceptance remain open.
+
 ## Evidence index
 
 <a id="evidence-a"></a>
