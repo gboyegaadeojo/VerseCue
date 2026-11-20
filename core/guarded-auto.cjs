@@ -12,7 +12,7 @@ function assessAuto(service,candidates,evidence={},{allowBusy=false}={}){
   if(!candidates.length&&service.interpretation?.kind==='duplicate-reference')return {eligible:false,reason:service.interpretation.reason};
   if(candidates.length!==1)return {eligible:false,reason:'Only one unambiguous reference can Auto-send'};
   const c=candidates[0],r=c.reference;
-  if(c.manual||!c.authorized||c.recognition!=='reference'||r.relative||r.corrected||r.valid!==true||r.numberingSystem!=='KJV'||r.verse==null||r.overLimit||c.issues.length)return {eligible:false,reason:'This reference needs operator review; quotes never Auto-send'};
+  if(c.manual||!c.authorized||c.recognition!=='reference'||r.relative||r.corrected||r.valid!==true||r.numberingSystem!=='KJV'||r.verse==null||r.overLimit||r.rangeLength>10||c.issues.length)return {eligible:false,reason:'This reference needs operator review; quotes never Auto-send'};
   if(!citationIntent(c,service.autoCitationPolicy))return {eligible:false,reason:service.autoCitationPolicy==='bare-citation'?'Only a complete bare citation or explicit current show/read instruction is eligible':'An explicit current display/read instruction is required'};
   if(c.generation!==service.generation||service.clock()>=c.expiresAt)return {eligible:false,reason:'Reference expired or changed'};
   if(service.duplicateSend(c))return {eligible:false,reason:'Repeated reference suppressed by duplicate cooldown'};

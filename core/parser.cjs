@@ -38,7 +38,8 @@ function validate(r, bounds) {
   }
   return reasons;
 }
-function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslation='KJV'}={}) {
+function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslation='KJV',maxVerses=10}={}) {
+  if(!Number.isSafeInteger(maxVerses)||maxVerses<1||maxVerses>50)throw Error('Invalid passage verse limit');
   if(typeof text!=='string'||text.length>8192) return {references:[],issues:['Invalid transcript size']};
   let s=normalize(citationForms(normalize(text))); const corrected=/\b(sorry|i meant|rather|correction|not)\b/.test(s);
   if(/\bnot\b/.test(s)&&/\bi meant\b/.test(s)) s=s.split(/\bnot\b/)[0];
@@ -81,7 +82,9 @@ function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslat
     if(!selectedBounds)r.issues.push('Translation numbering requires verified ProPresenter preparation');
     let rangeLength=r.endVerse&&(!r.endChapter||r.endChapter===r.chapter)?r.endVerse-r.verse+1:1;
     if(r.endChapter&&r.endChapter!==r.chapter&&selectedBounds&&r.valid){rangeLength=(selectedBounds[r.book][r.chapter-1]-r.verse+1)+r.endVerse;for(let chapter=r.chapter+1;chapter<r.endChapter;chapter++)rangeLength+=selectedBounds[r.book][chapter-1];}
-    r.overLimit=rangeLength>10;if(r.overLimit)r.issues.push('Range exceeds the 10-verse limit; shorten it or use ProPresenter manually');
+    r.rangeLength=r.verse!=null&&r.valid&&(!r.endChapter||r.endChapter===r.chapter||selectedBounds)?rangeLength:null;
+    r.overLimit=r.rangeLength!==null&&r.rangeLength>maxVerses;if(r.overLimit)r.issues.push('Range exceeds the '+maxVerses+'-verse limit; shorten it or use ProPresenter manually');
+    if(!r.overLimit&&r.rangeLength>10)r.issues.push('Extended range requires explicit Confirm review; never Auto');
     if(r.implicitChapter)r.issues.push('Implicit single chapter · review');
     if(/\b(do not show|not now|don.t show)\b/.test(s))r.issues.push('Explicit no-show instruction');
     if(/\b(in french|in spanish)\b/.test(s))r.issues.push('Requested language is not supported');

@@ -8,12 +8,12 @@ class BiblePreparation {
   constructor({helper,platform=process.platform,spawnImpl=spawn,timeoutMs=12000}={}){if(!Number.isInteger(timeoutMs)||timeoutMs<100||timeoutMs>12000)throw new Error('Invalid native helper deadline');this.timeoutMs=timeoutMs;this.helper=helper;this.platform=platform;this.spawn=spawnImpl;this.busy=false;this.child=null;this.epoch=0;}
   available(){return this.platform==='win32'&&Boolean(this.helper);}
   cancel(){this.epoch++;this.child?.kill();}
-  async prepare(reference,translation,{guard=()=>true,saveCopy=false}={}){
+  async prepare(reference,translation,{guard=()=>true,saveCopy=false,maxVerses=10}={}){
     if(typeof saveCopy!=='boolean')throw new Error('Invalid save-copy choice');
     if(!this.available())throw new Error('Native Bible preparation is not available on this platform/build');
     if(this.busy)throw new Error('Bible preparation is already in progress');
-    const parsed=parse(reference,{defaultTranslation:translation});const r=parsed.references[0];
-    if(parsed.references.length!==1||!r||r.label!==reference||r.verse==null||r.valid===false||r.overLimit||r.issues.some(i=>/Invalid/.test(i))||typeof translation!=='string'||!['KJV','ASV','NIV','NKJV','AMP','AMPC','MSG'].includes(translation))throw new Error('Use one valid canonical reference of at most 10 verses and a supported installed translation');
+    const parsed=parse(reference,{defaultTranslation:translation,maxVerses});const r=parsed.references[0];
+    if(parsed.references.length!==1||!r||r.label!==reference||r.verse==null||r.valid===false||r.overLimit||r.rangeLength===null||r.issues.some(i=>/Invalid/.test(i))||typeof translation!=='string'||!['KJV','ASV','NIV','NKJV','AMP','AMPC','MSG'].includes(translation))throw new Error('Use one valid bounded canonical reference within the configured verse limit and a supported installed translation; cross-chapter numbering must be verified');
     if(!guard())throw new Error('Preparation canceled');this.busy=true;const epoch=this.epoch;const started=performance.now();
     try{
       const result=await new Promise((resolve,reject)=>{
