@@ -12,7 +12,7 @@ class ReferencePreparation {
   if(options.nativePreparation!==undefined&&typeof options.nativePreparation!=='boolean')throw Error('Invalid native preparation choice');
   if(native&&(!options.enabled||!Number.isSafeInteger(ownerId)||ownerId<1||options.acknowledgeFocusChange!==true||options.acknowledgeCreateCopy!==true||this.service.stopped||this.service.recovery?.required||this.service.mode!=='confirm'||this.service.connector.status?.state!=='connected'||!this.nativeReadiness().available))throw Error('Native preparation needs Confirm, an owning window, a verified route and explicit focus/copy consent for this session');
   if(native&&this.needsInspection&&options.acknowledgeInspection!==true)throw Error('Acknowledge inspection of ProPresenter after the uncertain attempt before enabling native preparation again');
-  this.cancel();this.enabled=options.enabled;this.nativeConsent=native;
+  this.cancel();this.service.resetDetectionCooldown?.();this.enabled=options.enabled;this.nativeConsent=native;
   this.nativeBinding=native?{base:this.service.connector.base,generation:this.service.connector.generation}:null;
   this.nativeOwnerId=native?ownerId:null;
   if(native){this.needsInspection=false;this.reason=null;}
