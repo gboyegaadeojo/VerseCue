@@ -749,3 +749,7 @@ PR66 integration passes537 modules/syntax/inventory. Booth readability is locall
 ## Readability safety correction ? 22:18 UTC
 
 Legacy workspace test found sticky footer intercepting Emergency Stop at narrow200% zoom; normal-flow footer fix passed the unchanged test. Studio routing, smoothness, measured readability/manual-no-send/compact and534 branch modules/check pass. Last dedicated checkbox-label geometry run15084 is live. Docs111 authored; no PR/build/Mac yet. Original physical booth/screen-reader/field acceptance remains open.
+
+## PR67 current-head verification ? 22:29 UTC
+
+Exact5bfb90513b9b61ae113b79204049008276313e84 passes534 modules/check, focused measured geometry/consent-label/compact/no-send, and existing Studio/workspace/smoothness checks. The153-file exact-source Windows review/native receipt and Mac44828146007 passed. Full32 Windows source suite34951 is live and advancing; no packaged suite yet. Build81089 and observers15902/52199 are terminal. CLAUDE/HANDOFF now show one current state rather than stale current instructions. Preserve original acceptance and wait for source/package before merge.
