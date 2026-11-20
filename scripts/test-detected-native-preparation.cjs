@@ -38,7 +38,7 @@ const {_electron}=require('playwright'),http=require('node:http'),path=require('
   await feed('John chapter three verse sixteen');assert.equal(await app.evaluate(()=>global.__detectedCalls),0);assert.equal(creations,0);
   await page.locator('#setup').click();await page.locator('[data-settings=output]').click();await page.locator('#prepare-missing-detected').check();await page.locator('#close-settings').click();
   assert.equal((await state()).referencePreparation.scope,'native-with-session-consent');
-  const compactOpened=app.waitForEvent('window');assert.equal((await page.evaluate(()=>window.versecue.compact())).ok,true);const compact=await compactOpened;await compact.waitForFunction(()=>document.getElementById('message').textContent.length>0);
+  const compactOpened=app.waitForEvent('window');assert.equal((await page.evaluate(()=>window.versecue.compact())).ok,true);const compact=await compactOpened;await compact.waitForFunction(()=>document.getElementById('message')?.textContent.length>0);
   assert.equal(await compact.locator('#prepare-missing-detected').isChecked(),false);assert.match(await compact.locator('#prepare-missing-help').textContent(),/another VerseCue window/);assert.equal(await page.locator('#prepare-missing-detected').isChecked(),true);
   assert.equal((await compact.evaluate(()=>window.versecue.command('ingest',{text:'John 3:16'}))).ok,true);
   await page.waitForFunction(async()=>{const state=(await window.versecue.state()).value;return !state.referencePreparation.running&&state.preparation.phase==='consent-required';});
