@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "scope": "SYNTHETIC source-level original audio requirement probe",
+  "sourceRevision": "209d0db50bccfcd5ea9971800dd3afa2dbaf1a63",
+  "sourceHashNormalization": "UTF-8 text; CRLF normalized to LF",
+  "sourceHashes": {
+    "ui/capture-worklet.js": "14e39b92ce2df1967cd431de9a77c94fa93c619d97ddcf8522f1ed1321d127b8",
+    "ui/audio-buffer.js": "f7c34a80f4573adb433a0872487da6b5576a7dd7b299a81180f28b710962bfeb"
+  },
+  "sampleRate": 16000,
+  "inputFrames": 16000,
+  "meterMessagesInOneSecond": 9,
+  "messageSizes": [
+    1664,
+    1664,
+    1664,
+    1664,
+    1664,
+    1664,
+    1664,
+    1664,
+    1664
+  ],
+  "defaultRingSeconds": 12,
+  "defaultPendingAgeMs": 4000,
+  "originalTargets": {
+    "meterHzMinimum": 10,
+    "ringSecondsMaximum": 10,
+    "pendingQueueMsMaximum": 2000
+  },
+  "actualMicrophone": false,
+  "actualProPresenterAccess": false
+}

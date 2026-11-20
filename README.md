@@ -81,11 +81,17 @@ Examples supported: **Revelations 1 vs 1**, **Revelation 1 and verse 1**, **Reve
 
 In **Settings / Output**, choose the exact translation for each saved-cue mapping. ProPresenter must have that edition installed; VerseCue neither downloads paid Bibles nor substitutes KJV. The inspector shows whether optional quoted-wording matching has an enabled local index.
 
-## Current limits
+## Limits of the downloadable 0.5.5 build
 
 Reliable arbitrary-passage lookup and output through ProPresenter are still under investigation. Current output uses **exact, verified saved cue mappings**. Experimental native Bible preparation is Windows-only and prepare-only. Exact verse text is not available in a verified VerseCue preview; ProPresenter remains the Bible-text authority.
 
 Quoted-wording matching needs your own permitted local index. General semantic paraphrases and automatic quote display are not implemented. Held-out sermon accuracy, church Mac/M4, actual MOTU routing, physical output/Looks, Companion/media concurrency and full service acceptance remain pending. Development tests are not a claim of Sunday-service readiness.
+
+## Development source and remaining acceptance
+
+The current 0.6.0 development source is newer than the downloads above. Its normal workspace prepares and reviews a reference-driven ProPresenter passage, then confirms or continues it without making the operator select a Library/Presentation/Cue for every passage. Consented native preparation is restricted to the inspected Windows route; native Mac Bible preparation is not implemented. Prepared ProPresenter text/thumbnails can be reviewed, but matching readback is not physical room/stream confirmation. Development source also includes reviewed settings-backup recovery.
+
+See the [complete original 86-row implementation/evidence audit](docs/99-original-requirement-evidence-audit.md) and [PR22 integration evidence map](docs/90-pr22-acceptance-state.md) for specific software gaps and remaining hardware/data/field/release gates. These development features are not an accepted Sunday-service release, and merging source does not update an already downloaded executable.
 
 ## Quick controls
 
