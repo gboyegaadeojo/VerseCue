@@ -14,7 +14,7 @@ class PastorAudio {
     return error?.message||'The selected audio input could not start.';
   }
   constructor({onLevel,onWindow,onHealth,onLost,onDiscontinuity,onInputInfo}){this.onInputInfo=onInputInfo;this.onLevel=onLevel;this.onWindow=onWindow;this.onHealth=onHealth;this.onLost=onLost;this.onDiscontinuity=onDiscontinuity;this.stream=null;this.ctx=null;this.node=null;this.active=false;this.cancelEpoch=0;this.noSignal=0;this.droppedSamples=0;this.clippedSamples=0;this.buffer=new AudioWindowBuffer({onWindow:async (samples,metadata)=>{this.onHealth('Recognizing locally · capture continues in a bounded buffer');await this.onWindow(samples,{...metadata,droppedSamples:this.droppedSamples,clippedSamples:this.clippedSamples});},onDrop:drop=>{const firstLoss=this.droppedSamples===0;this.droppedSamples+=drop.samples;if(firstLoss)this.onDiscontinuity?.(drop);this.onHealth(`Audio ${drop.reason==='stale'?'expired':'overflow'} · ${(this.droppedSamples/16000).toFixed(1)}s dropped; recognition cannot keep up`);},onError:()=>this.onHealth('Recognition failed · review speech setup')});}
-  async start(deviceId,channel,guard=()=>true){
+  async start(deviceId,channel,guard=()=>true,{meterOnly=false}={}){
     await this.stop();if(!guard())throw new Error('Audio session authorization was revoked');if(!deviceId)throw new Error('Select a specific audio input in Setup');
     if(!Number.isSafeInteger(channel)||channel<0||channel>7)throw new Error('Select a pastor channel from 1 to 8 in Setup');
     const epoch=++this.cancelEpoch;
@@ -52,7 +52,7 @@ class PastorAudio {
       if(rms<.003)this.noSignal+=samples.length;else this.noSignal=0;
       if(this.noSignal>80000)this.onHealth('No signal · check selected channel');
       else if(peak<.99&&rms>=.003)this.onHealth(this.droppedSamples?`Listening · ${(this.droppedSamples/16000).toFixed(1)}s audio dropped this session; review suggestions`:`Listening · ${track.label}`);
-      this.buffer.push(samples,rms,deliveryLagMs);
+      if(!meterOnly)this.buffer.push(samples,rms,deliveryLagMs);
     };
     return track.label;
   }
