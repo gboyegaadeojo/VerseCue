@@ -4,11 +4,12 @@ const path=require('node:path');
 const {randomUUID,createHash}=require('node:crypto');
 const MAX_SETTINGS_BYTES=16384,writes=new Set();
 const {targetURL}=require('./connector.cjs');
-const defaults=()=>({schemaVersion:1,host:'127.0.0.1',port:1025,translation:'KJV',audioDevice:'',channel:0,executable:'',model:'',speechMode:'cli'});
+const defaults=()=>({schemaVersion:1,host:'127.0.0.1',port:1025,translation:'KJV',audioDevice:'',channel:0,executable:'',model:'',speechMode:'cli',duplicateCooldownSeconds:10});
 function validateSettings(value){
   if(!value||typeof value!=='object'||Array.isArray(value)||value.schemaVersion!==1)throw new Error('Unsupported settings schema');
   const s=defaults();
   for(const key of ['host','translation','audioDevice','executable','model'])if(value[key]!==undefined){if(typeof value[key]!=='string'||value[key].length>1000)throw new Error('Invalid settings field');s[key]=value[key];}
+  if(value.duplicateCooldownSeconds!==undefined){if(!Number.isSafeInteger(value.duplicateCooldownSeconds)||value.duplicateCooldownSeconds<1||value.duplicateCooldownSeconds>300)throw Error('Invalid duplicate cooldown');s.duplicateCooldownSeconds=value.duplicateCooldownSeconds;}
   s.port=value.port??s.port;s.channel=value.channel??0;targetURL(s.host,s.port);
   if(value.speechMode!==undefined){if(!['cli','resident'].includes(value.speechMode))throw new Error('Invalid speech mode');s.speechMode=value.speechMode;}
   if(!/^[- A-Z0-9]{2,30}$/.test(s.translation)||![0,1,2,3,4,5,6,7].includes(s.channel))throw new Error('Invalid translation or audio channel');
