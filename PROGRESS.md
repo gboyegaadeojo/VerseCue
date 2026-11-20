@@ -438,3 +438,12 @@ Expose the existing backend review deadline and disable expired review actions w
 ## PR42 merged verification
 
 PR42 merged at65a31fe after exact d544069 standard Mac44641806049 passed420 module tests/syntax, source desktop workflows, CPU speech packaging and packaged workspace. Source and exact147-file Windows package passed expiry/confirmation, next-verse and normal-Auto synthetic scenarios. Integration module/syntax checks follow. Actual personal-host results remain in ignored private storage pending specific publication permission; no physical-output/theme/field acceptance is implied. Next: continue native preparation latency and clipping investigation while retaining all gates; do not merge aggregate22 or publish an incomplete release.
+## Prepared-passage inspector consistency
+
+The inspector now retains the prepared reference and phase after the shorter suggestion TTL, respects Stop/recovery, and distinguishes expired review. Corrected the obsolete no-preview statement.420 module tests/syntax and source synthetic workflow pass; strengthening the expiry inspector assertion and proving the old-package regression are in progress. No actual-host outcomes are published. Next: finish before/after verification, open a small PR, then exact package/Mac checks.
+
+## PR43 merged and next integration work
+
+PR43 merged at81e0c6f after exact cfabf2d standard Mac44643248990 passed420 tests/syntax, source workflows, CPU speech packaging and packaged workspace. Exact147-file Windows package passed strengthened inspector/expiry/confirmation and next-verse synthetic scenarios. The old exact package failed at the new inspector assertion; corrected source/package passed. No actual-host outcome is published. Integrated423-test/syntax and documentation structural audit are rechecked below.
+
+Next: continue the native preparation turnaround investigation without weakening independent reference/edition/focus/clipping/output checks. Original Mac native route, physical outputs, actual church audio/media/Companion, alternate installed editions and field acceptance remain unverified; aggregate22 and a replacement release remain incomplete. Private personal-host evidence is retained separately pending publication permission.

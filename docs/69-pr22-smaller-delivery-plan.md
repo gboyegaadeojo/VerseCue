@@ -28,6 +28,8 @@
 | Bounded saved-confirmation diagnostic harness | [PR41](https://github.com/gboyegaadeojo/VerseCue/pull/41) | Syntax and pre-access authorization guards passed; merged at418fe08. Content-free private failure snapshots; no hardware pass claimed. |
 | Visible prepared-review expiry | [PR42](https://github.com/gboyegaadeojo/VerseCue/pull/42) | Merged at65a31fe;420 tests/syntax, source and exact packaged confirmation/expiry, packaged next-verse and normal-Auto synthetic checks plus exact standard Mac44641806049 passed. |
 
+| Prepared-passage inspector consistency | [PR43](https://github.com/gboyegaadeojo/VerseCue/pull/43) |420 tests/syntax; before/after regression, source and exact147-file Windows package workflow/next-verse plus final Mac44643248990 passed. Merged at81e0c6f. No hardware/field acceptance claim. |
+
 ## Dependency delivery and remaining acceptance
 
 1. **Session/reference intent and exact saved-passage foundation.** Keep exact edition/title, enabled nonempty ordered cue coverage, missing-middle/range checks, duplicate choice, unverified Bible origin and lookup cancellation together with the Session intent semantics they require. The first isolated run had251/252 tests passing against old main: ordinary final preaching was canceled by legacy Session correction handling. The regression was retained, and the required parser/navigation/small Session changes were included. PR26 now passes269 tests/syntax on current main. Matching Mac verification passed and the foundation is merged.
