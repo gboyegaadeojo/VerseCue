@@ -431,3 +431,10 @@ PR40 merged atc17f3cd after final exact c17c242 Mac run44639465385 passed. Earli
 ## Review-expiry correction in progress
 
 PR41 merged at418fe08 and integrated. PR42 d544069 exposes the existing two-minute review deadline, disables expired actions and preserves Confirm errors in the operator message.420 module tests/syntax, source and exact147-file Windows packaged expiry/confirmation, packaged next-verse and normal-Auto synthetic checks passed. Standard Mac44641806049 is running; PR42 remains draft pending that result. No private actual-host result is published and no field acceptance is claimed. Next: inspect that exact CI run, merge only if its checks pass, then continue preparation/confirmation acceptance within scope.
+## Prepared review expiry UI correction
+
+Expose the existing backend review deadline and disable expired review actions with an explicit prepare-again instruction. Preserve Confirm rejection in the operator message. 420 module tests/syntax and the strengthened synthetic source desktop scenario pass, including zero triggers during renderer-clock expiry. No real host outcome or hardware pass published. Next: exact review package and standard Mac checks before merge.
+
+## PR42 merged verification
+
+PR42 merged at65a31fe after exact d544069 standard Mac44641806049 passed420 module tests/syntax, source desktop workflows, CPU speech packaging and packaged workspace. Source and exact147-file Windows package passed expiry/confirmation, next-verse and normal-Auto synthetic scenarios. Integration module/syntax checks follow. Actual personal-host results remain in ignored private storage pending specific publication permission; no physical-output/theme/field acceptance is implied. Next: continue native preparation latency and clipping investigation while retaining all gates; do not merge aggregate22 or publish an incomplete release.

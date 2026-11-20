@@ -26,7 +26,7 @@
 | Exact Save As popup lookup candidate | [PR40](https://github.com/gboyegaadeojo/VerseCue/pull/40) | 420 tests/syntax, fresh147-file Windows package, focused packaged synthetic checks and final Mac44639465385 passed; merged atc17f3cd. No public personal-host performance/appearance acceptance claim. |
 
 | Bounded saved-confirmation diagnostic harness | [PR41](https://github.com/gboyegaadeojo/VerseCue/pull/41) | Syntax and pre-access authorization guards passed; merged at418fe08. Content-free private failure snapshots; no hardware pass claimed. |
-| Visible prepared-review expiry | [PR42](https://github.com/gboyegaadeojo/VerseCue/pull/42) | Draft d544069;420 tests/syntax, source and exact packaged confirmation/expiry, packaged next-verse and normal-Auto synthetic checks passed. Exact Mac44641806049 running. |
+| Visible prepared-review expiry | [PR42](https://github.com/gboyegaadeojo/VerseCue/pull/42) | Merged at65a31fe;420 tests/syntax, source and exact packaged confirmation/expiry, packaged next-verse and normal-Auto synthetic checks plus exact standard Mac44641806049 passed. |
 
 ## Dependency delivery and remaining acceptance
 
