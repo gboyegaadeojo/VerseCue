@@ -1,6 +1,6 @@
 # VerseCue development handoff
 
-Checked: 2026-11-20 22:29 UTC. [CLAUDE.md](CLAUDE.md) is the short current checkpoint; [PROGRESS.md](PROGRESS.md) retains history. This handoff supports Codex, Claude Code and human developers in the same workspace. It does not transfer the previous chat, credentials or runtime permissions automatically.
+Checked: 2026-11-20 22:44 UTC. [CLAUDE.md](CLAUDE.md) is the short current checkpoint; [PROGRESS.md](PROGRESS.md) retains history. This handoff supports Codex, Claude Code and human developers in the same workspace. It does not transfer the previous chat, credentials or runtime permissions automatically.
 
 ## Start here
 
@@ -31,10 +31,10 @@ The component restores18px base/control text and44px action targets while preser
 
 534 module/check, measured typography/rectangles/checkbox-label/compact/manual-no-send tests and existing Studio/workspace/smoothness checks passed. Full current verification:
 
-- Windows source32: session34951, live at last check; new readability scenario passed.
+- Windows source32: session34951 is terminal success; all32 passed.
 - Windows review build: session81089 is terminal success;153 packaged files match exact source and native receipt verified.
 - [Mac44828146007](https://github.com/gboyegaadeojo/VerseCue/actions/runs/44828146007): completed successfully at the exact head. No new dispatch is needed.
-- No packaged suite yet. After source/build finish, run all32 packaged scenarios. Merge only when current-head evidence passes. Integrate root and update progress/audit/PR22/checkpoints.
+- Packaged32 suite39252 is live. Poll it and merge only when current-head evidence passes. A separate read-only personal target prerequisite check95264 writes ignored private evidence and requests no output; no actual native preparation is running. Integrate root after verified merge and update progress/audit/PR22/checkpoints.
 
 These are synthetic software checks, not physical booth, screen-reader, real speech, native Mac ProPresenter or field acceptance.
 

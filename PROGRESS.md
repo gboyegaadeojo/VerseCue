@@ -753,3 +753,7 @@ Legacy workspace test found sticky footer intercepting Emergency Stop at narrow2
 ## PR67 current-head verification ? 22:29 UTC
 
 Exact5bfb90513b9b61ae113b79204049008276313e84 passes534 modules/check, focused measured geometry/consent-label/compact/no-send, and existing Studio/workspace/smoothness checks. The153-file exact-source Windows review/native receipt and Mac44828146007 passed. Full32 Windows source suite34951 is live and advancing; no packaged suite yet. Build81089 and observers15902/52199 are terminal. CLAUDE/HANDOFF now show one current state rather than stale current instructions. Preserve original acceptance and wait for source/package before merge.
+
+## PR67 source32 passed; packaged verification ? 22:44 UTC
+
+Exact5bfb9051 now passes all32 Windows source scenarios,534 module/check,153-file exact-source/native receipts and Mac44828146007. Packaged32 suite39252 is live; source34951 is terminal. A separate read-only personal localhost preflight95264 checks version/disabled-screen prerequisites and records only private ignored evidence, with zero output requests; no actual native preparation is running. Keep public host telemetry publication restriction and all original acceptance gates.
