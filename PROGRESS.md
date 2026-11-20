@@ -270,3 +270,7 @@ Head38c2925 passed420 module tests/syntax, a fresh147-file Windows package with 
 ## Synthetic takeover-test race correction
 
 Final Mac44637601238 failed while its test tried to click Continue after external takeover. A controlled synthetic reproduction allowing the background guard to pause and hide Continue reproduced the old locator timeout. A backend-only wait did not reproduce it; that distinction is retained. The test now explicitly waits for PASSAGE_OWNERSHIP_LOST, requires Continue hidden, rejects the old continuation token and still asserts exactly4 fake triggers/paused/Stop/no page errors. Windows source and exact candidate package passed the corrected scenario. Product code did not change. New final Mac check pending; failure retained in docs/evidence/popup-ci-takeover-race-2026-11-19.json. No actual personal-host result is published.
+
+## Prepared review expiry UI correction
+
+Expose the existing backend review deadline and disable expired review actions with an explicit prepare-again instruction. Preserve Confirm rejection in the operator message. 420 module tests/syntax and the strengthened synthetic source desktop scenario pass, including zero triggers during renderer-clock expiry. No real host outcome or hardware pass published. Next: exact review package and standard Mac checks before merge.
