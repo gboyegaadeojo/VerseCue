@@ -6,6 +6,10 @@ VerseCue listens to an authorized pastor audio feed, identifies Bible references
 
 ![VerseCue Control workspace](docs/images/versecue-studio-workspace.png)
 
+## Continuing development
+
+Developers and coding agents: start with [CLAUDE.md](CLAUDE.md), the detailed [handoff](HANDOFF.md), and the [remaining-work list](docs/107-remaining-work-and-acceptance.md). These record verified progress, the next action and outstanding service acceptance.
+
 ## Download
 
 **Current downloadable development version: 0.5.5.** These are supervised-test builds, not an approved live-service release. Source now includes the Studio 0.6.0 workspace shown above; matching public packages are being verified.
