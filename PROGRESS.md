@@ -346,6 +346,9 @@ Isolated fix/audio-budget-cadence reproduced four failures: nine oversized meter
 
 PR56 first exact-head Mac44742030797 failed in the synthetic compact-window startup wait before the message element existed. Corrected the wait to allow DOM creation without removing assertions. Windows source23 passed and the150-file review package/native receipt matches a1f0a58 app source; package23 scenarios remain running. A new exact-head Mac run is required. No application guard was relaxed.
 
+## Dependency inventory provenance correction
+
+Isolated fix/dependency-inventory-provenance reproduces stale tracked application0.5.7 versus current0.6.0. Schema2 generation now records package paths and normalized lockfile SHA256; read-only --check fails stale metadata. Standard checks and packaging invoke the guard; isolated build staging includes package-lock.json. Three synthetic regression groups and479 total branch module tests pass; source unchanged at the PR56 app baseline. Native build/platform verification and current-main integration remain before a small PR merge. This is not an independent license/security attestation.
 PR56 merged atf87b508 after476 module tests/syntax,23 source and23 packaged Windows scenarios and corrected exact-head Mac44742598707 passed. First Mac44742030797 failed on compact DOM startup and remains recorded.150-file Windows review package/native receipt matches unchanged app source; the only later change was the corrected synthetic wait. Reset component now includes current main and passes476 modules; full24-case desktop/package/Mac checks follow.
 
 ## Reference dictionary versions in diagnostics
