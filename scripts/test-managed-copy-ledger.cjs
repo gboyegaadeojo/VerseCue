@@ -1,4 +1,5 @@
 'use strict';
+const {apiJSON,apiResponse}=require('./synthetic-presentation.cjs');
 // SYNTHETIC target/helper and a seeded isolated test-user-data ledger only.
 const {_electron}=require('playwright'),fs=require('node:fs/promises'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict'),{randomUUID,createHash}=require('node:crypto'),{planSavedPassage}=require('../core/bible-passage-plan.cjs');
 (async()=>{
@@ -6,15 +7,15 @@ const {_electron}=require('playwright'),fs=require('node:fs/promises'),path=requ
  const presentation=(uuid,verse)=>({id:{uuid,name:`Hosea 1_${verse} (KJV)`},destination:'presentation',has_timeline:false,groups:[{slides:[{enabled:true,label:`Hosea 1:${verse}`,text:'SYNTHETIC saved text '+verse}]}]});
  const original=presentation(first,1),plan=planSavedPassage({p:original,slides:original.groups[0].slides},{uuid:first,reference:'Hosea 1:1',translation:'KJV'});
  const server=http.createServer((req,res)=>{res.setHeader('Content-Type','application/json');
-  if(req.url==='/version')return res.end(JSON.stringify({host_description:'ProPresenter 21.4.2',platform:'win'}));
+  if(req.url==='/version')return res.end(apiJSON({host_description:'ProPresenter 21.4.2',platform:'win'}));
   if(req.url==='/fixture/create'){creations++;return res.end('{}');}
-  if(req.url==='/v1/libraries')return res.end(JSON.stringify([{uuid:library,name:'SYNTHETIC'}]));
-  if(req.url==='/v1/library/'+library)return res.end(JSON.stringify({update_type:'all',items:[{uuid:first,name:original.id.name},...(creations?[{uuid:second,name:'Hosea 1_2 (KJV)'}]:[])]}));
-  if(req.url==='/v1/presentation/'+first)return res.end(JSON.stringify({presentation:original}));
-  if(req.url==='/v1/presentation/'+second&&creations)return res.end(JSON.stringify({presentation:presentation(second,2)}));
-  if(req.url==='/v1/playlist/focused')return res.end(JSON.stringify({playlist:null}));
-  if(req.url.endsWith('/slide_index'))return res.end(JSON.stringify({presentation_index:null}));
-  if(req.url.endsWith('/status/slide'))return res.end(JSON.stringify({current:null}));
+  if(req.url==='/v1/libraries')return res.end(apiJSON([{uuid:library,name:'SYNTHETIC'}]));
+  if(req.url==='/v1/library/'+library)return res.end(apiJSON({update_type:'all',items:[{uuid:first,name:original.id.name},...(creations?[{uuid:second,name:'Hosea 1_2 (KJV)'}]:[])]}));
+  if(req.url==='/v1/presentation/'+first)return res.end(apiJSON({presentation:original}));
+  if(req.url==='/v1/presentation/'+second&&creations)return res.end(apiJSON({presentation:presentation(second,2)}));
+  if(req.url==='/v1/playlist/focused')return res.end(apiJSON({playlist:null}));
+  if(req.url.endsWith('/slide_index'))return res.end(apiJSON({presentation_index:null}));
+  if(req.url.endsWith('/status/slide'))return res.end(apiJSON({current:null}));
   if(req.url.endsWith('/trigger')){triggers++;res.writeHead(204);return res.end();}res.writeHead(404);res.end('{}');
  });await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const port=server.address().port,target=createHash('sha256').update('http://127.0.0.1:'+port).digest('hex');
  const rows=Array.from({length:500},(_,i)=>({id:randomUUID(),target,state:i===1?'reserved':'verified',uuid:i===1?null:i===0?first:randomUUID(),fingerprint:i===1?null:i===0?plan.fingerprint:'a'.repeat(64),clippingWarning:i===1?null:i===0}));await fs.mkdir(userData,{recursive:true});const file=path.join(userData,'native-copy-ledger.json');await fs.writeFile(file,JSON.stringify({schemaVersion:1,rows}));

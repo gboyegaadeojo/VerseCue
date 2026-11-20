@@ -1,6 +1,7 @@
 'use strict';
 const {createHash,randomUUID}=require('node:crypto');
 const {readSlideThumbnail}=require('./slide-thumbnail.cjs');
+const {orderedPresentationCues}=require('./presentation-cue-order.cjs');
 function targetURL(host,port) {
   if(typeof host!=='string'||!Number.isInteger(port)||port<1||port>65535)throw new Error('Invalid host or port');
   // Literal loopback/private IPv4 only. No redirects, DNS rebinding or discovery.
@@ -15,7 +16,7 @@ class Connector {
   async read(path,{timeoutMs=2000}={}){if(!Number.isInteger(timeoutMs)||timeoutMs<1||timeoutMs>2000)throw new Error('Invalid read deadline');if(!this.base)throw new Error('Configure the target first');const base=this.base,generation=this.generation;const response=await this.fetch(base+path,{redirect:'error',signal:AbortSignal.timeout(timeoutMs)});if(!response.ok)throw new Error(`ProPresenter HTTP ${response.status}`);const data=await response.text();if(generation!==this.generation||base!==this.base)throw new Error('Target changed during request; stale response discarded');if(data.length>2000000)throw new Error('Response too large');return JSON.parse(data);}
   async test(){const generation=this.generation;try{const v=await this.read('/version');if(typeof v.host_description!=='string'||!/ProPresenter/.test(v.host_description))throw new Error('Unexpected target identity');this.version=v;this.status={state:'connected',version:v.host_description};return this.status;}catch(e){if(generation===this.generation){this.armed=false;this.status={state:'offline'};}throw e;}}
   arm(value){if(value&&!this.version)throw new Error('Test connection before arming');this.armed=value===true;}
-  async inspect(uuid){if(typeof uuid!=='string'||!/^[a-f0-9-]{36}$/i.test(uuid))throw new Error('Invalid presentation UUID');const raw=await this.read(`/v1/presentation/${uuid}`);const p=raw.presentation??raw;return {p,slides:(p.groups??[]).flatMap(g=>g.slides??[])};}
+  async inspect(uuid){if(typeof uuid!=='string'||!/^[a-f0-9-]{36}$/i.test(uuid))throw new Error('Invalid presentation UUID');const raw=await this.read(`/v1/presentation/${uuid}`);const p=raw.presentation??raw;return {p,...orderedPresentationCues(p)};}
   async thumbnail(uuid,index,additionalGuard=()=>true){
     if(!this.base||typeof uuid!=='string'||!/^[a-f0-9-]{36}$/i.test(uuid)||!Number.isInteger(index)||index<0||index>10000)throw Error('Invalid saved slide thumbnail request');
     const base=this.base,generation=this.generation,guard=()=>base===this.base&&generation===this.generation&&additionalGuard();
@@ -36,8 +37,8 @@ class Connector {
     const generation=this.generation;
     if(verified!==true)throw new Error('Verify actual Bible text, translation, theme and Looks in ProPresenter first');
     if(!Number.isInteger(cue)||cue<0||cue>10000||typeof reference!=='string'||typeof translation!=='string')throw new Error('Invalid mapping');
-    const {p,slides}=await this.inspect(uuid);const s=slides[cue];
-    if(typeof autoVerified!=='boolean'||autoVerified&&slides.length!==1)throw new Error('Auto verification requires one complete, unambiguous cue in the saved presentation');
+    const source=await this.inspect(uuid),{p,slides}=source;const s=slides[cue];
+    if(typeof autoVerified!=='boolean'||autoVerified&&(slides.length!==1||source.rawCueCount!==1))throw new Error('Auto verification requires one complete, unambiguous cue in the saved presentation');
     if(p.id?.uuid!==uuid||p.destination!=='presentation'||p.has_timeline||!s?.enabled||s.label!==reference)throw new Error('Presentation identity, destination, label or cue does not match');
     const mapping={uuid,cue,reference,translation,autoVerified,fingerprint:fingerprint(p),version:this.version?.host_description};
     if(generation!==this.generation)throw new Error('Target changed during mapping; verify again');
