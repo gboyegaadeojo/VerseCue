@@ -2,7 +2,7 @@
 
 2026-11-20. This is an evidence map, not an acceptance certificate. The complete RF-01–22 checklist remains unchecked in [PR22](https://github.com/gboyegaadeojo/VerseCue/pull/22). The original 62 functional requirements, 24 nonfunctional requirements and their acceptance procedures remain authoritative. Smaller merged PRs do not waive them.
 
-Shared-source checks currently pass 422 module tests on main and 425 in the integration branch, including its additional soak-summary cases. These are deterministic/software checks. Mac CI runs the source desktop scenarios and packaging; it does not run ProPresenter. Personal-host records are private and excluded from this document.
+Shared-source checks currently pass 431 module tests on main and 434 in the integration branch, including its additional soak-summary cases. These are deterministic/software checks. Mac CI runs the source desktop scenarios and packaging; it does not run ProPresenter. Personal-host records are private and excluded from this document.
 
 | Requirement | Implemented software evidence | Evidence still needed / limitation |
 |---|---|---|
@@ -40,4 +40,4 @@ Continue safe implementation and verified checks where these dependencies do not
 
 ## Arrangement-index follow-up
 
-Draft [PR47](https://github.com/gboyegaadeojo/VerseCue/pull/47) addresses a software gap discovered while checking the API contract: cue indexes follow the selected arrangement, while earlier inspection flattened raw group order. The draft adds arrangement-aware mapping and complete-fragment checks. Its branch tests are not evidence that current main already contains the fix, and the full original acceptance checklist remains open until the scoped verification and merge complete.
+Merged [PR47](https://github.com/gboyegaadeojo/VerseCue/pull/47) addresses a software gap discovered while checking the API contract: cue indexes follow the selected arrangement, while earlier inspection flattened raw group order. The merged change adds arrangement-aware mapping and complete-fragment checks after module, source/package synthetic and exact Mac verification. Current main includes the fix; that scoped software evidence does not pass the original actual-host/platform/physical-output/service checklist.

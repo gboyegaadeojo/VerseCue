@@ -1,10 +1,11 @@
 'use strict';
+const {apiJSON,apiResponse}=require('./synthetic-presentation.cjs');
 // SYNTHETIC recognition/loopback output. No microphone or real ProPresenter.
 const {_electron}=require('playwright'),http=require('node:http'),fs=require('node:fs/promises'),path=require('node:path'),assert=require('node:assert/strict'),{randomUUID}=require('node:crypto');
 (async()=>{const executable=process.argv[2]?path.resolve(process.argv[2]):null;
  const uuid='75631f63-da79-419c-b862-c9b8338081f9';let triggers=0;
  const p={id:{uuid},destination:'presentation',has_timeline:false,groups:[{slides:[{enabled:true,label:'John 3:16',text:'SYNTHETIC OUTPUT'}]}]};
- const server=http.createServer((req,res)=>{res.setHeader('Content-Type','application/json');if(req.url==='/version')return res.end(JSON.stringify({host_description:'ProPresenter SYNTHETIC audio age'}));if(req.url.endsWith('/trigger')){triggers++;res.writeHead(204);return res.end();}if(req.url.endsWith('/slide_index'))return res.end(JSON.stringify({presentation_index:{presentation_id:{uuid},index:0}}));if(req.url.endsWith('/status/slide'))return res.end(JSON.stringify({current:{text:'SYNTHETIC OUTPUT'}}));if(req.url==='/v1/presentation/'+uuid)return res.end(JSON.stringify({presentation:p}));res.writeHead(404);res.end('{}');});
+ const server=http.createServer((req,res)=>{res.setHeader('Content-Type','application/json');if(req.url==='/version')return res.end(apiJSON({host_description:'ProPresenter SYNTHETIC audio age'}));if(req.url.endsWith('/trigger')){triggers++;res.writeHead(204);return res.end();}if(req.url.endsWith('/slide_index'))return res.end(apiJSON({presentation_index:{presentation_id:{uuid},index:0}}));if(req.url.endsWith('/status/slide'))return res.end(apiJSON({current:{text:'SYNTHETIC OUTPUT'}}));if(req.url==='/v1/presentation/'+uuid)return res.end(apiJSON({presentation:p}));res.writeHead(404);res.end('{}');});
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const env={...process.env};delete env.ELECTRON_RUN_AS_NODE;let app;
  try{
   app=await _electron.launch({...(executable?{executablePath:executable}:{}),args:[...(executable?[]:[path.resolve('.')]),`--user-data-dir=${path.resolve('test-results','audio-age-'+randomUUID())}`],env});const page=await app.firstWindow();await page.waitForFunction(()=>document.getElementById('message').textContent.length>0);

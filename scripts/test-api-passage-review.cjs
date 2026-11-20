@@ -1,4 +1,5 @@
 'use strict';
+const {apiJSON,apiResponse}=require('./synthetic-presentation.cjs');
 // Own Electron app and SYNTHETIC target only. No real clipboard, microphone or ProPresenter.
 const {_electron}=require('playwright'),http=require('node:http'),path=require('node:path'),fs=require('node:fs/promises'),assert=require('node:assert/strict'),{randomUUID}=require('node:crypto');
 (async()=>{
@@ -6,13 +7,13 @@ const {_electron}=require('playwright'),http=require('node:http'),path=require('
  let triggers=0;
  const server=http.createServer((req,res)=>{
   res.setHeader('Content-Type','application/json');
-  if(req.url==='/version')return res.end(JSON.stringify({host_description:'ProPresenter SYNTHETIC API review'}));
-  if(req.url==='/v1/libraries')return res.end(JSON.stringify([{uuid:library,name:'SYNTHETIC'}]));
-  if(req.url==='/v1/library/'+library)return res.end(JSON.stringify({update_type:'all',items:[{uuid,name:'Hosea 1_1 (KJV)'}]}));
-  if(req.url==='/v1/presentation/'+uuid)return res.end(JSON.stringify({presentation:{id:{uuid,name:'Hosea 1_1 (KJV)'},destination:'presentation',has_timeline:false,groups:[{slides:[{enabled:true,label:'Hosea 1:1',text:'SYNTHETIC passage for API review'}]}]}}));
+  if(req.url==='/version')return res.end(apiJSON({host_description:'ProPresenter SYNTHETIC API review'}));
+  if(req.url==='/v1/libraries')return res.end(apiJSON([{uuid:library,name:'SYNTHETIC'}]));
+  if(req.url==='/v1/library/'+library)return res.end(apiJSON({update_type:'all',items:[{uuid,name:'Hosea 1_1 (KJV)'}]}));
+  if(req.url==='/v1/presentation/'+uuid)return res.end(apiJSON({presentation:{id:{uuid,name:'Hosea 1_1 (KJV)'},destination:'presentation',has_timeline:false,groups:[{slides:[{enabled:true,label:'Hosea 1:1',text:'SYNTHETIC passage for API review'}]}]}}));
   if(req.url==='/v1/presentation/'+uuid+'/0/trigger'){triggers++;res.writeHead(204);return res.end();}
-  if(req.url.endsWith('/slide_index'))return res.end(JSON.stringify({presentation_index:triggers?{presentation_id:{uuid},index:0}:null}));
-  if(req.url.endsWith('/status/slide'))return res.end(JSON.stringify({current:{text:triggers?'SYNTHETIC passage for API review':''}}));
+  if(req.url.endsWith('/slide_index'))return res.end(apiJSON({presentation_index:triggers?{presentation_id:{uuid},index:0}:null}));
+  if(req.url.endsWith('/status/slide'))return res.end(apiJSON({current:{text:triggers?'SYNTHETIC passage for API review':''}}));
   res.writeHead(404);res.end('{}');
  });
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));

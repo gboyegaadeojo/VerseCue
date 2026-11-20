@@ -46,7 +46,7 @@ class SavedBibleWorkflow {
    if(created.length!==1||!guard())throw Error('New saved copy was not identified; inspect ProPresenter before retrying');
    const item=created[0],inspected=await this.connector.inspect(item.uuid),p=inspected.p,slides=inspected.slides;
    if(!guard()||p.id?.uuid!==item.uuid||p.destination!=='presentation'||p.has_timeline||!String(p.id?.name??'').endsWith('('+translation+')')||!slides.length||slides.length>100||slides.some(s=>!s.enabled||typeof s.text!=='string'||!s.text.trim()||!contained(s.label,requested,translation)))throw Error('Saved passage identity/translation/cues could not be verified; review the copy manually');
-   const passagePlan=planSavedPassage({p,slides},{uuid:item.uuid,reference,translation});
+   const passagePlan=planSavedPassage(inspected,{uuid:item.uuid,reference,translation});
    const activeAfter=await outputSnapshot(this.connector);if(!guard()||activeAfter!==activeBefore)throw Error('Output identity or text changed during preparation; inspect ProPresenter and do not send automatically');
    if(playlistBefore.uuid){const playlistAfter=await playlistSnapshot(this.connector,playlistBefore.uuid);if(!guard()||playlistAfter.fingerprint!==playlistBefore.fingerprint)throw Error('Service playlist changed during preparation; inspect ProPresenter before continuing');}
    if(this.ledger){await this.ledger.complete(reservation,base,{uuid:item.uuid,fingerprint:passagePlan.fingerprint,clippingWarning:receipt.clippingWarning===true});if(!guard())throw Error('Saved preparation changed during copy accounting; inspect ProPresenter');}

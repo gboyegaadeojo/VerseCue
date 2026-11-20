@@ -35,7 +35,7 @@
 
 | Fresh batched native reference readback | [PR46](https://github.com/gboyegaadeojo/VerseCue/pull/46) | Merged at42e4717.422 tests/syntax/compiler,147-file Windows source build/receipt, four packaged synthetic native cases and exact Mac44670595296 passed. No full latency/appearance/field pass. |
 
-| Arrangement-aware cue order and full fragment coverage | [PR47](https://github.com/gboyegaadeojo/VerseCue/pull/47) | Draft6de96d2.431 branch module tests/syntax and new synthetic UI scenario passed. Initial Mac44675150306/source batch ledger fixture failure retained and corrected; final Mac44675533080 and source/package checks pending. No host acceptance claim. |
+| Arrangement-aware cue order and full fragment coverage | [PR47](https://github.com/gboyegaadeojo/VerseCue/pull/47) | Merged atf6cb65e.431 module tests/syntax,21 source +21 packaged Windows synthetic scenarios and final Mac44675533080 passed. Initial ledger fixture/Mac44675150306 failure retained and corrected. No host acceptance claim. |
 
 ## Dependency delivery and remaining acceptance
 

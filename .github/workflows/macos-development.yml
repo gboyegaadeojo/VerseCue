@@ -20,6 +20,7 @@ jobs:
       - name: Check reference-driven desktop workflow against synthetic targets
         run: |
           node scripts/test-reference-passage-ui.cjs
+          node scripts/test-arranged-passage-ui.cjs
           node scripts/test-next-verse-ui.cjs
           node scripts/test-audio-age.cjs
           node scripts/test-passage-copy-choice.cjs
