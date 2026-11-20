@@ -1,6 +1,6 @@
 # VerseCue ? resume here
 
-Checkpoint: 2026-11-20 18:58 UTC. Implementation is active. P0 and full service acceptance remain pending.
+Checkpoint: 2026-11-20 19:11 UTC. Implementation is active. P0 and full service acceptance remain pending.
 
 Read [AGENTS.md](AGENTS.md), the entire [master specification](VerseCue_Master_Development_Prompt_v2_Codex.md), [HANDOFF.md](HANDOFF.md), [PROGRESS.md](PROGRESS.md), [NEW_REQUESTS.md](NEW_REQUESTS.md), [remaining work](docs/107-remaining-work-and-acceptance.md) and the complete original audit. Inspect actual repository/CI before relying on this checkpoint.
 
@@ -15,3 +15,7 @@ Read [AGENTS.md](AGENTS.md), the entire [master specification](VerseCue_Master_D
 ## Maintenance
 
 Refresh this file about every10 minutes during active work and after merges/build checkpoints/before interruption. Update HANDOFF.md/PROGRESS.md when state changes. No updates occur when no agent runs. Follow existing authorization/privacy boundaries. Synthetic tests do not prove physical hardware, Mac ProPresenter, speech accuracy, field readiness or trusted signing.
+
+## Latest authoritative checkpoint ? 19:11 UTC
+
+PR65 is fully merged/integrated. Root12ca1c0 passes534 modules/syntax/inventory; all PR64/65 jobs are terminal. New feat/safe-input-test worktree is based on main428a535 and now has uncommitted runtime/UI/tests: ten-second capture purpose, backend recognition denial, meter-only PastorAudio path, consent/Stop/expiry Setup controls and cancellation epoch protection. Three new focused module groups pass; initial desktop scenario passed. Extended synthetic desktop test (late permission rejection + second-window denial + reset) and full module/check run are currently live in session44050. Poll that exact session; no PR/build/Mac run exists yet for this feature. Next: inspect results, fix any failure, finish docs and full exact-head source/package/Mac verification before merging. Do not claim this feature complete yet.

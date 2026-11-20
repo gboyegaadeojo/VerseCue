@@ -722,3 +722,7 @@ Initial PR65 e233de3 passed30 Windows source scenarios and152-file review receip
 ## PR65 merged and integrated ? 2026-11-20 18:58 UTC
 
 Corrected d2f6ac25 merged at428a535 after531 modules/syntax/inventory,30 Windows source +30 packaged scenarios,152-file exact-source/native receipts and Mac44794893453 passed. Initial Mac44794215980 failure is retained historically. No live local verification remains from PR65. Root integration checks follow. Next independent task is a dedicated bounded microphone meter test with backend ownership/purpose protection, no recognition or passage ingestion, explicit consent,10-second expiry and dry-run/Suggest state. Prepared feat/safe-input-test must first update to current main. Original P0/physical/Mac-native/speech-accuracy/field/privacy-residue/distribution gates remain open.
+
+## Dedicated safe input-test implementation ? 19:11 UTC
+
+PR65 integration passes534 modules/syntax/inventory. feat/safe-input-test now contains uncommitted meter-only ten-second Setup testing with backend capture purpose, ownership/expiry and recognition denial. Initial synthetic desktop scenario and three new focused module groups pass. Extended permission/cross-window/reset UI plus modules/check are live in44050. No feature PR or full build/Mac evidence yet; retain this exact next action.
