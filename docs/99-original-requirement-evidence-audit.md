@@ -18,6 +18,8 @@ PR56 corrects the source-level audio cadence and capture/pending bounds describe
 
 PR57 adds [cross-window reset privacy](101-session-reset-renderer-privacy.md), verified with24 source and24 packaged Windows synthetic scenarios and exact Mac44743714554. PR58 adds [dependency inventory provenance enforcement](102-dependency-inventory-provenance.md), with479 module tests, exact-source Windows packaging/workspace and exact Mac44744660186. These close narrower software gaps without certifying crash erasure, independent licensing/security review or original field acceptance.
 
+PR59 adds [reference dictionary and bounds versions in diagnostics](103-reference-metadata-diagnostics.md).479 module tests, source/packaged export and packaged Windows workspace checks and exact Mac44745503475 passed. The export scenario checks a real synthetic candidate is present, Cancel does not write, version objects match bundled source and private session content/path/address markers are absent. This does not add installed-edition numbering evidence or full acceptance.
+
 ## Evidence index
 
 <a id="evidence-a"></a>

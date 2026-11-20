@@ -631,3 +631,9 @@ Draft PR59 c8e41a6359023f89d9072af0d7d95cd7fb39aedf adds exported dictionary/bou
 ## Reference dictionary versions in diagnostics
 
 Independent fix/reference-diagnostic-versions addresses FR011 missing exported metadata version. Redacted diagnostics now include source-addressed English parser/dictionary version and existing KJV bounds provenance/version/hash, normalized across CRLF/LF. No Bible text or user content is exported. The isolated synthetic export scenario seeds an actual candidate/source phrase, proves Cancel does not invoke Save/write, checks exact exported versions and absence of session content/address/path marker.476 base module tests and initial source export pass. Full current-base/package/Mac verification remain before merge.
+
+## PR59 merged and integrated; cooldown verification
+
+PR59 c8e41a6 merged ated073f7 after479 module tests/syntax/inventory checks, source and packaged diagnostics export, exact-source151-file Windows build/native receipt, packaged workspace and exact Mac44745503475 passed. Root integration passes482 module tests/syntax/inventory and structural audit111 Markdown/226 links, retaining all original requirements/corpus.
+
+The next isolated feat/reference-cooldown at9f4edae adds FR022 configurable per-reference duplicate protection and deliberate reviewed desktop resends.490 module tests and syntax/inventory checks pass; initial source UI and visual checks pass. Full26 source desktop scenarios are running in session63468, isolated Windows build in43307 and exact Mac44777681494 is active. Poll the same handles, do not duplicate jobs or merge before full verification. No real microphone/ProPresenter/output is used; original hardware/Mac-native/physical/latency/field/distribution gates remain open and personal records remain private.
