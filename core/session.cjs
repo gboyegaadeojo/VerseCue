@@ -6,7 +6,7 @@ const {QuoteMatcher}=require('./quote-matcher.cjs');
 const {validateAutoPolicy}=require('./auto-citation-policy.cjs');
 class Session extends EventEmitter {
   constructor(connector,{clock=()=>performance.timeOrigin+performance.now()}={}) {
-    super();this.connector=connector;this.clock=clock;this.mode='confirm';this.autoCitationPolicy='explicit-command';this.stopped=false;this.dryRun=true;this.queue=[];this.history=[];this.events=[];this.generation=0;this.resetEpoch=0;this.busy=false;this.translation='KJV';this.context=null;this.revisions=new Map();this.lastSend=null;
+    super();this.connector=connector;this.clock=clock;this.mode='confirm';this.autoCitationPolicy='explicit-command';this.stopped=false;this.dryRun=true;this.queue=[];this.history=[];this.events=[];this.generation=0;this.resetEpoch=0;this.busy=false;this.translation='KJV';this.context=null;this.revisions=new Map();this.lastSend=null;this.duplicateCooldownSeconds=10;this.recentDetections=new Map();this.recentSends=new Map();
   }
   snapshot(){this.expire();return {resetEpoch:this.resetEpoch,settingsRecoveryRequired:this.settingsRecoveryRequired===true,speechStabilization:this.speechStabilization??{state:'idle'},referenceEpoch:this.referenceEpoch??0,referencePreparation:this.referencePreparation??{enabled:false,running:false,scope:'saved-passages-only'},interpretation:this.interpretation??null,inputEpoch:this.inputEpoch??0,preparation:this.passagePreparation??{phase:'idle'},recovery:this.recovery?{...this.recovery}:null,generation:this.generation,mode:this.mode,autoCitationPolicy:this.autoCitationPolicy,stopped:this.stopped,dryRun:this.dryRun,queue:structuredClone(this.queue),history:structuredClone(this.history),events:structuredClone(this.events),busy:this.busy,translation:this.translation,quoteMatching:this.quoteStatus(),capture:this.capture?{...this.capture}:{active:false,ownerId:null},autoStatus:this.autoStatus??null,capabilities:{auto:true,quoteAuto:false,arbitraryLookup:false,clear:false},connection:this.connector.status??{state:'offline'}};}
   notify(){this.emit('change',this.snapshot());}
@@ -20,7 +20,12 @@ class Session extends EventEmitter {
   setMode(mode){if(!['confirm','suggest','paused'].includes(mode))throw new Error('Select a supported mode; enable Auto through its acknowledgment dialog');if(this.recovery?.required&&mode!=='paused')throw new Error('Recheck the connection after wake, then Resume in Confirm');this.invalidate();this.mode=mode;this.autoCitationPolicy='explicit-command';this.log('MODE_CHANGED');this.notify();}
   stop(){this.stopped=true;this.mode='paused';this.autoCitationPolicy='explicit-command';this.invalidate();this.log('EMERGENCY_STOP','warning');this.notify();}
   resume(){if(this.recovery?.required&&(this.recovery.phase!=='resume'||this.connector.status?.state!=='connected'||!this.connector.version))throw new Error('Test the ProPresenter connection after wake before resuming Confirm');this.recovery=null;this.stopped=false;this.mode='confirm';this.autoCitationPolicy='explicit-command';this.invalidate();this.log('REARMED_CONFIRM');this.notify();}
-  configure({dryRun=true,translation='KJV'}={}){if(typeof dryRun!=='boolean'||!/^[- A-Z0-9]{2,30}$/.test(translation))throw new Error('Invalid session settings');this.invalidate();if(this.mode==='auto')this.mode='confirm';if(translation!==this.translation)this.quoteEnabled=false;this.autoCitationPolicy='explicit-command';this.dryRun=dryRun;this.translation=translation;this.log('CONFIG_CHANGED');this.notify();}
+  configure({dryRun=true,translation='KJV',duplicateCooldownSeconds=this.duplicateCooldownSeconds}={}){if(typeof dryRun!=='boolean'||!/^[- A-Z0-9]{2,30}$/.test(translation))throw new Error('Invalid session settings');if(!Number.isSafeInteger(duplicateCooldownSeconds)||duplicateCooldownSeconds<1||duplicateCooldownSeconds>300)throw Error('Invalid duplicate cooldown');this.duplicateCooldownSeconds=duplicateCooldownSeconds;this.invalidate();if(this.mode==='auto')this.mode='confirm';if(translation!==this.translation)this.quoteEnabled=false;this.autoCitationPolicy='explicit-command';this.dryRun=dryRun;this.translation=translation;this.log('CONFIG_CHANGED');this.notify();}
+  resetDetectionCooldown(){this.recentDetections.clear();}
+  referenceKey(candidate){const r=candidate.reference;return JSON.stringify([r.book,r.chapter,r.verse,r.endChapter??r.chapter,r.endVerse??r.verse,candidate.translation]);}
+  pruneCooldown(map){const now=this.clock();for(const [key,value] of map)if(now-value.at>=this.duplicateCooldownSeconds*1000)map.delete(key);}
+  rememberCooldown(map,key,value){this.pruneCooldown(map);if(!map.has(key)&&map.size>=200)return false;map.set(key,value);return true;}
+  duplicateSend(candidate){this.pruneCooldown(this.recentSends);const key=this.referenceKey(candidate);return this.recentSends.has(key)||this.recentSends.size>=200;}
   async ingestChecked(text,options={}){
     const external=options.additionalGuard??(()=>true);
     if(!external())throw Error('Reference request was revoked');
@@ -63,7 +68,23 @@ class Session extends EventEmitter {
     // remote context for later relative references.
     if(parsed.references.some(r=>!r.relative)||parsed.issues.length)this.context=null;
     if(parsed.corrected&&(parsed.references.length||/^\s*(?:sorry\b|i meant\b|correction\b|rather\b)/i.test(text)))this.invalidate();
-    const candidates=parsed.references.map(r=>({id:randomUUID(),utteranceId:id,revision,reference:r,label:r.label,translation:r.translation??this.translation,phrase:text.slice(0,1000),recognition:quote?'quote':'reference',...(quote?{quoteEvidence:quote}:{}),detectedAt:this.clock(),expiresAt:this.clock()+15000-(manual?0:sourceAgeMs),generation:this.generation,manual,authorized,state:authorized?'review':'blocked',issues:[...parsed.issues,...r.issues,...(!authorized?['Audio source not authorized']:[])]}));
+    let candidates=parsed.references.map(r=>({id:randomUUID(),utteranceId:id,revision,reference:r,label:r.label,translation:r.translation??this.translation,phrase:text.slice(0,1000),recognition:quote?'quote':'reference',...(quote?{quoteEvidence:quote}:{}),detectedAt:this.clock(),expiresAt:this.clock()+15000-(manual?0:sourceAgeMs),generation:this.generation,manual,authorized,state:authorized?'review':'blocked',issues:[...parsed.issues,...r.issues,...(!authorized?['Audio source not authorized']:[])]}));
+    if(parsed.multiple)for(const candidate of candidates)candidate.issues.push('Multiple references detected; review individually');
+    let suppressionReason=null;this.pruneCooldown(this.recentDetections);
+    candidates=candidates.filter(candidate=>{
+      if(manual||!authorized)return true;
+      const key=this.referenceKey(candidate),prior=this.recentDetections.get(key);
+      if(!parsed.corrected&&((prior&&prior.utteranceId!==id&&prior.ownerId===(this.capture?.ownerId??null))||this.duplicateSend(candidate))){
+        suppressionReason='Repeated reference suppressed by duplicate cooldown; use manual review for an intentional resend.';return false;
+      }
+      // Retain existing protection when the bounded table fills, rather than
+      // evicting a recent reference and silently allowing it to repeat.
+      if(!this.rememberCooldown(this.recentDetections,key,{at:this.clock(),utteranceId:id,ownerId:this.capture?.ownerId??null})){
+        suppressionReason='Recent-reference tracking is full. Wait for the cooldown interval or reset the session deliberately.';return false;
+      }
+      return true;
+    });
+    if(suppressionReason&&!candidates.length){this.interpretation={kind:'duplicate-reference',reason:suppressionReason};this.log('DUPLICATE_REFERENCE_SUPPRESSED');}
     if(candidates.length||parsed.issues.length)this.referenceEpoch=(this.referenceEpoch??0)+1;
     this.queue.push(...candidates);this.queue=this.queue.slice(-5);this.notify();return candidates;
   }
@@ -76,7 +97,7 @@ class Session extends EventEmitter {
     const next=proposal.references[0];if(!next||next.valid!==true)throw Error(proposal.issues[0]??'Book boundary reached; choose the next book explicitly');
     this.queue=this.queue.filter(item=>item.id!==id);return this.ingest(next.label+' in '+candidate.translation,{manual:true});
   }
-  reset(){this.resetEpoch++;this.quoteMatcher=null;this.quoteEnabled=false;this.invalidate();this.revisions.clear();this.history=[];this.stopped=false;this.mode=this.recovery?.required?'paused':'confirm';this.dryRun=true;this.lastSend=null;this.autoCitationPolicy='explicit-command';this.log('SESSION_RESET');this.notify();}
+  reset(){this.resetEpoch++;this.quoteMatcher=null;this.quoteEnabled=false;this.invalidate();this.revisions.clear();this.history=[];this.stopped=false;this.mode=this.recovery?.required?'paused':'confirm';this.dryRun=true;this.lastSend=null;this.recentDetections.clear();this.recentSends.clear();this.autoCitationPolicy='explicit-command';this.log('SESSION_RESET');this.notify();}
   async send(id,{additionalGuard=()=>true,origin='desktop',operationOwner=null}={}){
     if(this.operationOwner&&this.operationOwner!==operationOwner)throw Error('Another passage operation is in progress');
     this.expire();const c=this.queue.find(c=>c.id===id);
@@ -93,7 +114,10 @@ class Session extends EventEmitter {
     if(part&&(origin!=='desktop'||!c.manual||part.uuid!==map?.uuid||part.cue!==map?.cue||!map?.passagePart))throw Error('Invalid passage continuation identity');
     const partKey=part?part.uuid+'|'+part.cue:null;
     const continued=part?.continuation===true&&this.lastSend?.state==='readback-matched'&&this.lastSend?.partKey===part.uuid+'|'+part.previousCue;
-    if(this.lastSend?.key===key&&this.clock()-this.lastSend.at<10000&&!continued)throw new Error('Duplicate cooldown: wait before intentionally repeating');
+    this.pruneCooldown(this.recentSends);
+    const cooldownKey=this.referenceKey(c),priorSend=this.recentSends.get(cooldownKey),manualResend=origin==='desktop'&&c.manual===true&&['simulated','readback-matched'].includes(priorSend?.state);
+    if(!priorSend&&this.recentSends.size>=200)throw Error('Duplicate cooldown tracking is full; wait or reset the session deliberately');
+    if(this.duplicateSend(c)&&!continued&&!manualResend)throw new Error('Duplicate cooldown: wait or explicitly review a successful passage again');
     this.busy=true;const gen=this.generation,mode=this.mode,inputEpoch=this.inputEpoch,resetEpoch=this.resetEpoch;this.notify();
     try {
       const guard=()=>!this.stopped&&this.mode===mode&&gen===this.generation&&(!automatic||inputEpoch===this.inputEpoch)&&this.clock()<c.expiresAt&&additionalGuard();
@@ -102,7 +126,7 @@ class Session extends EventEmitter {
       }
       const result=await this.connector.send(c,{dryRun:this.dryRun,automatic,guard});
       if(this.resetEpoch!==resetEpoch){this.log('PREVIOUS_SESSION_RECEIPT_UNCERTAIN','warning');return {state:'uncertain',reason:'A previous-session command finished after reset. Inspect ProPresenter; no retry or clear was sent.'};}
-      this.lastSend={key,at:this.clock(),partKey,state:result.state};this.queue=this.queue.filter(x=>x.id!==id);
+      this.lastSend={key,at:this.clock(),partKey,state:result.state};this.rememberCooldown(this.recentSends,cooldownKey,{at:this.clock(),state:result.state});this.queue=this.queue.filter(x=>x.id!==id);
       this.history.unshift({...c,phrase:undefined,state:result.state,at:this.clock()});this.history=this.history.slice(0,20);
       // Simulation never establishes real remote passage context.
       this.context=result.state==='readback-matched'?{...c.reference,translation:c.translation,verified:true,verifiedAt:this.clock(),remote:result.presentation??null,partial:result.part?result.part.index+1<result.part.count:false}:null;

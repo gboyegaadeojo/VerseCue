@@ -26,7 +26,7 @@
  const outputFieldset=document.querySelector('[data-settings-panel="output"] fieldset');outputFieldset.querySelector('legend').textContent='Passage output';
  document.querySelector('.settings-footer button[type="submit"]').textContent='Save configuration';document.querySelector('.dialog-heading p').textContent='Saving configuration disarms output. Prepare and confirm a passage separately in the workspace.';
  const mappingTools=node('details','advanced-output-mappings');mappingTools.append(node('summary',null,'Advanced: saved cue mappings and Auto tests'));
- for(const child of [...outputFieldset.children])if(child.tagName!=='LEGEND')mappingTools.append(child);
+ for(const child of [...outputFieldset.children])if(child.tagName!=='LEGEND'&&!child.hasAttribute('data-reference-policy'))mappingTools.append(child);
  const outputReadiness=node('p','passage-output-readiness');outputReadiness.setAttribute('role','status');
  const outputGuide=node('ol');for(const text of ['Connect to ProPresenter in the ProPresenter settings panel.','Enter a reference or start your authorized audio feed. Prepare the detected passage in the workspace.','Review the complete passage and its appearance in ProPresenter, then confirm output deliberately.'])outputGuide.append(node('li',null,text));
  const returnToWorkspace=node('button','output-workspace','Review passages in workspace');returnToWorkspace.type='button';returnToWorkspace.addEventListener('click',()=>document.getElementById('close-settings').click());
