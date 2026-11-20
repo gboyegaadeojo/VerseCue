@@ -288,3 +288,7 @@ Native failure-diagnostic follow-up: retain only known bounded stage metadata on
 ## Initial native window-readiness batching candidate
 
 Dependent on the native diagnostics branch, request initial enabled/offscreen/process/handle properties at the single UI Automation window bind. Later live checks, actions, deadline and clipping/output boundaries are unchanged. Microsoft caching guidance is linked in docs/88. No speedup or provider-compatibility claim yet. Next: compiler/module checks, isolated current-source build and bounded private preparation-only comparison.
+
+## Fresh reference-readback batching candidate
+
+Dependent on the initial-window batching candidate, replace two provider reads with a new read-only pattern/value snapshot per Value call. All existing readback locations and live focus/edit/action guards remain. No cached value is reused across checks. Next: compiler/module/syntax verification, isolated Windows package and bounded private preparation-only compatibility test; no speedup or acceptance claim yet.
