@@ -44,6 +44,8 @@
 
 | Configuration safety before persistence | [PR51](https://github.com/gboyegaadeojo/VerseCue/pull/51) | Merged at338fd44.452 module tests/syntax,22 source +22 packaged Windows workflows and exact Mac44728797295 passed. Held/failed writes disarm immediately; Stop survives. |
 
+| Private API startup/revocation ownership | [PR52](https://github.com/gboyegaadeojo/VerseCue/pull/52) | Merged atb365acb.459 module tests/syntax,22 source +22 packaged Windows workflows and exact Mac44730148514 passed. Seven lifecycle regressions; no capability expansion. |
+
 ## Dependency delivery and remaining acceptance
 
 1. **Session/reference intent and exact saved-passage foundation.** Keep exact edition/title, enabled nonempty ordered cue coverage, missing-middle/range checks, duplicate choice, unverified Bible origin and lookup cancellation together with the Session intent semantics they require. The first isolated run had251/252 tests passing against old main: ordinary final preaching was canceled by legacy Session correction handling. The regression was retained, and the required parser/navigation/small Session changes were included. PR26 now passes269 tests/syntax on current main. Matching Mac verification passed and the foundation is merged.

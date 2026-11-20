@@ -12,26 +12,32 @@ async function jsonBody(req){
 }
 class LocalControlAPI {
   constructor(session,{onStop=()=>session.stop(),onPrepare=null,onReview=null,onRevoke=()=>{},onEvent=()=>{}}={}){
-    this.session=session;this.onStop=onStop;this.onPrepare=onPrepare;this.onReview=onReview;this.onRevoke=onRevoke;this.onEvent=onEvent;this.server=null;this.token=null;this.port=null;this.allowPreparedSend=false;this.allowPreparation=false;this.accepting=false;this.rateStart=performance.now();this.rateCount=0;
+    this.session=session;this.onStop=onStop;this.onPrepare=onPrepare;this.onReview=onReview;this.onRevoke=onRevoke;this.onEvent=onEvent;this.server=null;this.token=null;this.port=null;this.allowPreparedSend=false;this.allowPreparation=false;this.accepting=false;this.rateStart=performance.now();this.rateCount=0;this.lifecycle=0;this.startOperation=null;
   }
   status(){return {enabled:this.accepting,host:'127.0.0.1',port:this.port,allowPreparedSend:this.allowPreparedSend,allowPreparation:this.allowPreparation,arbitraryLookup:false};}
   async start({port=0,allowPreparedSend=false,allowPreparation=false}={}){
     if(this.server)throw new Error('Private API is already enabled');
     if(!Number.isInteger(port)||port<0||port>65535||typeof allowPreparedSend!=='boolean'||typeof allowPreparation!=='boolean'||allowPreparation&&typeof this.onPrepare!=='function')throw new Error('Invalid or unavailable private API settings');
-    this.token=randomBytes(32).toString('hex');this.allowPreparedSend=allowPreparedSend;this.allowPreparation=allowPreparation;
-    const server=http.createServer((req,res)=>this.handle(req,res));this.server=server;
+    const operation={epoch:++this.lifecycle,token:randomBytes(32).toString('hex'),controller:new AbortController(),cancel:null};
+    this.token=operation.token;this.allowPreparedSend=allowPreparedSend;this.allowPreparation=allowPreparation;this.accepting=false;
+    const server=http.createServer((req,res)=>{if(this.server!==server||this.lifecycle!==operation.epoch||!this.accepting){res.writeHead(503,{'Content-Type':'application/json'});return res.end(JSON.stringify({error:'Private API listener was revoked'}));}return this.handle(req,res);});this.server=server;this.startOperation=operation;
     server.maxConnections=16;server.requestTimeout=5000;server.headersTimeout=5000;server.keepAliveTimeout=1000;server.maxHeadersCount=30;
     server.on('clientError',(_error,socket)=>socket.end('HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n'));
     try{
-      await new Promise((resolve,reject)=>{server.once('error',reject);server.listen({host:'127.0.0.1',port,exclusive:true},resolve);});
-      this.port=server.address().port;this.accepting=true;this.rateStart=performance.now();this.rateCount=0;this.onEvent('PRIVATE_API_ENABLED');return this.status();
-    }catch(e){server.close();this.server=null;this.token=null;this.port=null;this.allowPreparedSend=false;this.allowPreparation=false;throw e;}
+      await new Promise((resolve,reject)=>{operation.cancel=()=>reject(Error('Private API startup was canceled'));server.once('error',reject);server.listen({host:'127.0.0.1',port,exclusive:true,signal:operation.controller.signal},resolve);});
+      if(this.startOperation!==operation||this.server!==server||this.lifecycle!==operation.epoch||this.token!==operation.token)throw Error('Private API startup was canceled');
+      const address=server.address();if(!address||typeof address==='string'||!Number.isInteger(address.port))throw Error('Private API listener address could not be verified');
+      this.startOperation=null;this.port=address.port;this.accepting=true;this.rateStart=performance.now();this.rateCount=0;this.onEvent('PRIVATE_API_ENABLED');return this.status();
+    }catch(e){operation.controller.abort();server.close();if(this.startOperation===operation)this.startOperation=null;if(this.server===server&&this.lifecycle===operation.epoch){this.server=null;this.token=null;this.port=null;this.allowPreparedSend=false;this.allowPreparation=false;this.accepting=false;}throw e;}
   }
   async stop(){
     // Revoke before waiting for any asynchronous request-body/preflight work.
+    const epoch=++this.lifecycle,pending=this.startOperation;this.startOperation=null;
     this.accepting=false;this.token=null;this.allowPreparedSend=false;this.allowPreparation=false;const server=this.server;this.server=null;this.port=null;
-    this.onRevoke();
-    if(server){server.closeAllConnections();await new Promise(resolve=>server.close(resolve));this.onEvent('PRIVATE_API_DISABLED');}
+    pending?.cancel?.();pending?.controller.abort();
+    try{this.onRevoke();}finally{
+      if(server){server.closeAllConnections();await new Promise(resolve=>server.close(resolve));if(this.lifecycle===epoch&&!this.server&&!this.accepting)this.onEvent('PRIVATE_API_DISABLED');}
+    }
   }
   authenticated(req){
     const expected=this.token;if(!this.accepting||!expected)return false;
