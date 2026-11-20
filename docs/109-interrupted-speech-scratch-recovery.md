@@ -1,0 +1,19 @@
+# Interrupted speech scratch recovery
+
+2026-11-20. FR-057/059/062 and NFR-010/019 privacy/recovery follow-up. This narrows a confirmed crash-residue gap; it does not certify complete privacy or field acceptance.
+
+The CLI speech adapter previously wrote input.wav into a random system temporary directory and removed it in finally. A killed application can skip finally and leave that WAV. Desktop startup now initializes an app-owned speech-scratch directory under the current user-data profile after Electron's single-instance lock is held. Before recognition starts, it removes only generated run-UUID-v4 directories containing the known input.wav, or empty interrupted run directories. No global temporary-directory scan or recursive removal is used. Unrelated entries are preserved; linked roots/run directories/audio files and unexpected contents are refused. Startup fails safely if recovery cannot finish.
+
+Every new CLI window uses an exclusively created WAV in that initialized directory. Success, worker failure, timeout and cancellation retain the finally cleanup boundary. Cancellation during asynchronous WAV creation is checked before spawning the worker. A cleanup failure withholds the result, reports a static message without its underlying path and disables further scratch writes until initialization succeeds. The private local-speech integration script explicitly initializes its isolated scratch directory and checks it is empty afterward. Resident recognition still sends WAV bytes in memory and is unchanged.
+
+Ten synthetic module groups cover normal creation/removal, an abruptly exiting child leaving bytes for next-start recovery, preservation of unrelated files, out-of-scope refusal, junction/symlink refusal, missing worker cleanup, initialization requirements, cancellation before spawn, sanitized cleanup failure and successful synthetic-result cleanup. The successful-result group exercises the actual adapter with an injected synthetic child process. The desktop scenario seeds a stale WAV before startup and proves recovery, preserves a witness file, exercises missing-worker cleanup and confirms dry-run/no-capture/no-history state. No microphone, real sermon or ProPresenter is accessed.
+
+## Deliberate limits and remaining evidence
+
+- This is transient disk processing, not a promise of memory-only CLI recognition or secure erasure. Bytes may exist until cleanup; a crash leaves them until the next successful startup. Filesystem snapshots, deleted-block recovery, pagefile/swap, crash dumps, backups and OS access-control assurance remain separate audit work.
+- Existing legacy verse cue temporary directories are not scanned or deleted: ownership cannot safely be inferred from a global filename prefix. Any legacy-residue review requires a separately scoped procedure and evidence.
+- File/directory modes request restrictive access on supporting systems; this does not claim a Windows ACL change or a security-policy modification.
+- Automatic recovery assumes the desktop's per-profile single-instance lock. Other tools must use an isolated scratch root and must not initialize a directory being used by another recognizer.
+- Full current-head source/package/Mac checks and actual privacy/hardware/service acceptance remain required. This component adds no output route, translation substitution, retry, Clear or standalone presentation capability.
+
+Initiale233de3 passed30 Windows source scenarios and a152-file exact-source Windows review build, but Mac44794215980 failed on normal macOS parent aliases. Recovery now canonicalizes only the configured parent before creating/checking the scratch root; the root and its children still reject links. A new regression exercises both an allowed parent alias and a refused linked root.531 module tests/syntax/inventory pass locally; changed-source full verification follows. Earlier reports remain historical rather than evidence for the changed runtime.

@@ -71,3 +71,9 @@ PR64 exact6751a6e7 passes521 modules/syntax/inventory,29 Windows source scenario
 ## Corrected PR65 verification ? 2026-11-20 18:46 UTC
 
 PR65 d2f6ac25ff3795e0b41bd3c138e02ba3b617e526 passes531 modules/syntax/inventory,152-file exact-source Windows/native receipts and Mac44794893453. Original Mac44794215980 failed on normal parent aliases; correction canonicalizes only the configured parent and preserves linked-root/child refusal, with a regression. Source suite25311 is live; build94115 terminal success. Next is corrected-head packaged30 after source completion. No actual input/output used.
+
+## Current checkpoint ? 2026-11-20 18:58 UTC
+
+PR64 merged f18c78a and PR65 merged428a535. Corrected PR65 d2f6ac25 passes531 modules,30 source/30 packaged Windows scenarios,152-file exact-source/native receipts and Mac44794893453. All verification processes are terminal. Root integration verification follows. Prepared feat/safe-input-test is still clean on64; update through65 before coding.
+
+Next task: implement a10-second explicitly consented meter-only selected-input test in Setup, without needing Whisper. Add capture lease purpose (recognition vs input-test), backend timeout/ownership, reject audio recognition requests on a test lease, cancel on stop/reset/window loss/configuration, remain dry-run/Suggest and never restore Auto/output. Require saving pending device/channel edits before test. Expose meter/Stop/clear completion state; reset transient consent. Test with fake tracks and fake timers, including two windows, stale timeout after a new lease, no audio IPC/inference/ingestion/output, denied permission and cancellation while permission is pending. Actual microphone/format/permission hardware acceptance stays pending. This is a plan, not existing code.

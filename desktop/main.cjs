@@ -70,6 +70,7 @@ async function choose(kind){
   return changeConfiguration(async()=>{if(speech.busy)throw Error('Recognition is stopping; retry in a moment');const next={...settings,[kind==='worker'?'executable':'model']:file};settings=await store.save(settingsFile,next);speech.configure(settings.executable,settings.model,settings.speechMode);return settings;});
 }
 async function bootstrap(){
+  await fs.mkdir(app.getPath('userData'),{recursive:true});await speech.initializeScratch(path.join(app.getPath('userData'),'speech-scratch'));
   settingsFile=path.join(app.getPath('userData'),'settings.json');const loaded=await store.load(settingsFile);settings=loaded.settings;service.settingsRecoveryRequired=loaded.recovered;
   profiles=new Profiles(path.join(app.getPath('userData'),'profiles.json'));
   const helper=app.isPackaged?path.join(process.resourcesPath,'native','VerseCue.BibleBridge.exe'):path.join(__dirname,'../native/bin/VerseCue.BibleBridge.exe');

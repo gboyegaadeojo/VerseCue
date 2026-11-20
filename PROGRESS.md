@@ -3,7 +3,7 @@
 Updated: 2026-11-20 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
 ## Current stage
-IMPLEMENTING — aggregate draft PR22. Components through PR64 are merged to main and integrated locally. PR62 exact58d0c5a7 passed514 module tests,28 Windows source/28 packaged scenarios, fresh151-file review receipt and Mac44787486654. Integration verification is being recorded below. P0 remains PENDING; no full-service, physical-output, Mac-native, speech-accuracy or new-release acceptance claim. See CLAUDE.md for the current resume point and docs/107-remaining-work-and-acceptance.md for the plain-English backlog. Next: finish PR65 interrupted speech scratch recovery, including the macOS parent-path alias correction and exact-head verification.
+IMPLEMENTING — aggregate draft PR22. Components through PR65 are merged to main and integrated locally. PR62 exact58d0c5a7 passed514 module tests,28 Windows source/28 packaged scenarios, fresh151-file review receipt and Mac44787486654. Integration verification is being recorded below. P0 remains PENDING; no full-service, physical-output, Mac-native, speech-accuracy or new-release acceptance claim. See CLAUDE.md for the current resume point and docs/107-remaining-work-and-acceptance.md for the plain-English backlog. Next: finish PR65 interrupted speech scratch recovery, including the macOS parent-path alias correction and exact-head verification.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -711,3 +711,14 @@ PR64 integration verification:524 module tests/syntax/inventory and structural a
 ## Corrected PR65 verification checkpoint ? 18:46 UTC
 
 Corrected d2f6ac25 passes531 modules/syntax/inventory,152-file exact-source Windows/native receipts and Mac44794893453. Source30 suite25311 remains live. The original e233de3 source30/Windows build passed but Mac44794215980 failed on parent aliases; retained as historical evidence only. Finish corrected source, then packaged30 before any merge. No installed app/release/actual input/output changes.
+## Interrupted speech scratch recovery implementation
+
+2026-11-20. fix/speech-scratch-recovery is based on merged PR64. App-owned startup recovery, exclusive WAV creation, bounded nonrecursive cleanup, linked/out-of-scope refusal, cancellation-before-spawn and sanitized cleanup failures are implemented. Nine focused groups and530 modules pass; source desktop recovery scenario passes using synthetic bytes with no actual microphone/ProPresenter. Full source/package/Mac verification remains before merge. See docs/109-interrupted-speech-scratch-recovery.md for legacy/swap/secure-erasure limitations.
+
+## Mac parent-alias correction
+
+Initial PR65 e233de3 passed30 Windows source scenarios and152-file review receipts, but Mac44794215980 failed because normal parent aliases changed realpath. Canonicalizing the configured parent now preserves strict scratch-root/child refusal; an explicit parent-alias/linked-root regression passes. Ten focused groups plus531 modules/syntax/inventory pass. A new exact-head Windows/source/package/Mac cycle is required; retain old failure and reports without claiming them for changed source.
+
+## PR65 merged and integrated ? 2026-11-20 18:58 UTC
+
+Corrected d2f6ac25 merged at428a535 after531 modules/syntax/inventory,30 Windows source +30 packaged scenarios,152-file exact-source/native receipts and Mac44794893453 passed. Initial Mac44794215980 failure is retained historically. No live local verification remains from PR65. Root integration checks follow. Next independent task is a dedicated bounded microphone meter test with backend ownership/purpose protection, no recognition or passage ingestion, explicit consent,10-second expiry and dry-run/Suggest state. Prepared feat/safe-input-test must first update to current main. Original P0/physical/Mac-native/speech-accuracy/field/privacy-residue/distribution gates remain open.
