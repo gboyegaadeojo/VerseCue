@@ -773,3 +773,7 @@ PR67 packaged32 suite39252 has passed native preparation/clipping/recovery/owner
 ## PR67 merged after complete component verification
 
 2026-11-20. Exact5bfb9051 merged atba4ca31 after534 modules/check, measured geometry/labels/compact/manual-no-send, existing Studio/workspace/smoothness checks,32 Windows source +32 packaged scenarios,153-file exact-source/native receipts and Mac44828146007 passed. All feature verification jobs are terminal. Integration rerun follows. Computer-use list_apps timed out twice before any input; documented reset/retry remains. Independent evaluation-tool scripts remain uncommitted in their own worktree.
+
+## Current integration and offline work - 23:27 UTC
+
+PR67 integration passes537 modules/syntax/inventory and structural audit; all source/package/Mac jobs are terminal. Computer Use recovery failed (two list_apps timeouts, then reset initialization/retry JS timeouts), with zero UI input. Actual ProPresenter testing remains pending; independent work continues. Evaluator10 focused synthetic groups pass, code/tests uncommitted, no actual scoring. Stable main handoff pointer worktree62562 is being created. Found five replay/soak scripts still using12 seconds while runtime cap is10; repair before new replay/soak claims.

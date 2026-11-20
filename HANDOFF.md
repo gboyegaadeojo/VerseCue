@@ -85,3 +85,9 @@ If actual HIL depends on user/external state, continue independent software work
 ## Independent evaluation tool draft - 2026-11-20 23:07 UTC
 
 feat/labeled-recognition-evaluation in test-results/pr-split/labeled-recognition-evaluation is based on main through66. Two uncommitted scripts draft offline scoring of supplied canonical citation/edition proposals, separated by source/split; real rows need explicit authorization and review artifacts, duplicate audio/split leakage is rejected, and reporting is private/no-overwrite with nominal Wilson95 bounds and explicit no-service-acceptance flags. Latest syntax check77914 is live. No tests/docs/PR or actual scoring yet. Existing pilot/replay data remain unlabeled. Preserve this work while completing PR67 package and personal configuration inspection.
+
+## Authoritative current checkpoint - 2026-11-20 23:27 UTC
+
+PR67 merged atba4ca31; root7129ee6 passes537 modules/check/audit. All verification handles terminal. Computer Use list_apps timed out twice, then reset initialization/retry returned js execution timeout/kernel reset; no app selection/input was sent. ProPresenter UI work remains pending helper recovery; no security/privacy changes, output, screenshots or native operation occurred. Private read-only records remain ignored.
+
+The evaluator draft now has10 passing focused synthetic groups; code/tests remain uncommitted, no real data scored, no docs/full-module/Mac check/PR yet. A new docs/active-work-handoff-link worktree is being created in session62562 to fix stale main entry points. Separately, five legacy replay/soak scripts retain12-second limits despite the runtime10-second bound; no repair started. Complete bounded replay/ownership/timing alignment before running or claiming a new long soak. See the refreshed CLAUDE.md for exact next actions.
