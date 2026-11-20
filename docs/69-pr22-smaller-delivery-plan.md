@@ -31,7 +31,9 @@
 | Prepared-passage inspector consistency | [PR43](https://github.com/gboyegaadeojo/VerseCue/pull/43) |420 tests/syntax; before/after regression, source and exact147-file Windows package workflow/next-verse plus final Mac44643248990 passed. Merged at81e0c6f. No hardware/field acceptance claim. |
 
 | Safe native failure diagnostics | [PR44](https://github.com/gboyegaadeojo/VerseCue/pull/44) |422 tests/syntax, compiler,147-file Windows source build/receipt and synthetic uncertainty/recovery/clipping plus exact Mac44669329308 passed. Merged at9dad023. No public actual-host result. |
-| Batched initial native readiness | [PR45](https://github.com/gboyegaadeojo/VerseCue/pull/45) | Draft9df0bdf, dependent on merged44.422 tests/syntax/compiler,147-file Windows source build/receipt and synthetic uncertainty/recovery/clipping passed; exact Mac44669726891 running. No public performance or appearance pass. |
+| Batched initial native readiness | [PR45](https://github.com/gboyegaadeojo/VerseCue/pull/45) | Merged ata9b3de1.422 tests/syntax/compiler,147-file Windows source build/receipt, synthetic uncertainty/recovery/clipping and exact Mac44669726891 passed. No public performance or appearance pass. |
+
+| Fresh batched native reference readback | [PR46](https://github.com/gboyegaadeojo/VerseCue/pull/46) | Draft0bc26db.422 tests/syntax/compiler and147-file Windows source build/receipt passed; exact Mac44670595296 and packaged synthetic checks running. |
 
 ## Dependency delivery and remaining acceptance
 

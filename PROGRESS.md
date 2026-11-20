@@ -456,3 +456,12 @@ Native failure-diagnostic follow-up: retain only known bounded stage metadata on
 ## PR44 merged; batching candidate verification
 
 PR44 merged at9dad023 after exact92bbed1 standard Mac44669329308 passed422 module tests/syntax, synthetic source workflows, CPU speech packaging and packaged workspace. Its source-compiled147-file Windows package passed uncertain/recover/clipped synthetic cases. Native failures retain only recognized bounded timing stages; unknown payloads remain excluded. No actual-host result is published. PR45 candidate9df0bdf targets main after the dependency merge; exact Mac44669726891 is running and its packaged synthetic uncertainty/recovery/clipping checks passed. Actual Mac installation/accessibility profile requested asynchronously; Windows work continues. Next: check exact PR45 CI, integrate only passing scope, continue native turnaround/appearance and original acceptance requirements.
+## Initial native window-readiness batching candidate
+
+Dependent on the native diagnostics branch, request initial enabled/offscreen/process/handle properties at the single UI Automation window bind. Later live checks, actions, deadline and clipping/output boundaries are unchanged. Microsoft caching guidance is linked in docs/88. No speedup or provider-compatibility claim yet. Next: compiler/module checks, isolated current-source build and bounded private preparation-only comparison.
+
+## PR45 merged; fresh-readback candidate
+
+PR45 merged ata9b3de1 after exact9df0bdf standard Mac44669726891 passed422 module tests/syntax, source workflows, CPU speech packaging and packaged workspace. A147-file current-source Windows build/receipt and packaged synthetic uncertainty/recovery/clipping checks passed. Initial readiness is batched; later live checks remain. Actual personal-host records remain private, with no public performance/formatting/field claim.
+
+PR46 0bc26db batches fresh per-check reference readback and retains all original checks/actions.422 module tests/syntax/compiler and147-file current-source Windows build/receipt passed. Exact Mac44670595296 and packaged synthetic checks are running. Real Mac profile/access and original physical/audio/field acceptance remain required. Next: finish exact PR46 verification, then continue the remaining acceptance work without claiming unsupported platforms or changed formatting.
