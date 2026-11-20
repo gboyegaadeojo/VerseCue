@@ -4,7 +4,7 @@ Updated: 2026-11-20 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Cod
 
 ## Current stage
 
-IMPLEMENTING - aggregate PR22 remains draft. Components through PR67 are merged; main534 modules and integration537 are the expected current checks, pending integration rerun below. Normal reference-driven Confirm/preparation, navigation, guarded Auto, input testing and booth readability are implemented within their recorded software scopes. P0, real speech accuracy/latency, Windows fresh-reference timing/clipping, native Mac/LAN, installed editions/physical outputs, volunteer/screen-reader, privacy residue and distribution acceptance remain pending. Next: finish integration checks, inspect authorized personal configuration through the computer-use recovery procedure if available, and continue the isolated labeled-recognition evaluator draft. See CLAUDE.md/docs107/full original audit; no release or production acceptance claim.
+IMPLEMENTING - aggregate PR22 remains draft. Components through PR67 and the PR68 documentation pointers are merged. Main534/integration537 module checks and PR67 full32 source/32 packaged Windows plus Mac software checks passed. Actual personal ProPresenter inspection is pending failed Windows helper recovery; no app input or output was sent. Independent labeled-recognition evaluator code/tests have10 focused groups and544 branch modules passing, with synthetic example run; documentation/CI/PR remain. Five replay/soak scripts still require10-second contract repair before any new long-soak claim. Preserve P0, speech/platform/physical/field/privacy/distribution gates. See CLAUDE.md and the full original audit.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -777,3 +777,10 @@ PR67 packaged32 suite39252 has passed native preparation/clipping/recovery/owner
 ## Current integration and offline work - 23:27 UTC
 
 PR67 integration passes537 modules/syntax/inventory and structural audit; all source/package/Mac jobs are terminal. Computer Use recovery failed (two list_apps timeouts, then reset initialization/retry JS timeouts), with zero UI input. Actual ProPresenter testing remains pending; independent work continues. Evaluator10 focused synthetic groups pass, code/tests uncommitted, no actual scoring. Stable main handoff pointer worktree62562 is being created. Found five replay/soak scripts still using12 seconds while runtime cap is10; repair before new replay/soak claims.
+## Stable main-branch agent entry points
+
+2026-11-20. Main CLAUDE.md/HANDOFF.md now point to the maintained active-branch checkpoint, avoiding stale next-action instructions for fresh clones. README keeps downloads and operator guidance before developer handoff links. This documentation-only change adds no capability or acceptance claim; original requirements and PR22 draft gates remain.
+
+## Main handoff entry points merged - 23:43 UTC
+
+PR68 documentation-only830e1dd merged at2d93e73 after structural audit and file review. Main CLAUDE/HANDOFF point to maintained active-branch notes; root retains its detailed live checkpoint. Both progress histories are preserved. All original required documents/requirements/corpus remain. No app source or output authorization changed.

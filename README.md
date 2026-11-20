@@ -6,10 +6,6 @@ VerseCue listens to an authorized pastor audio feed, identifies Bible references
 
 ![VerseCue Control workspace](docs/images/versecue-studio-workspace.png)
 
-## Continuing development
-
-Developers and coding agents: start with [CLAUDE.md](CLAUDE.md), the detailed [handoff](HANDOFF.md), and the [remaining-work list](docs/107-remaining-work-and-acceptance.md). These record verified progress, the next action and outstanding service acceptance.
-
 ## Download
 
 **Current downloadable development version: 0.5.5.** These are supervised-test builds, not an approved live-service release. Source now includes the Studio 0.6.0 workspace shown above; matching public packages are being verified.
@@ -109,6 +105,10 @@ See the [complete original 86-row implementation/evidence audit](docs/99-origina
 Audio is processed locally. Audio/transcripts are not recorded persistently by default; the default worker uses bounded temporary recognition files which are cleaned up after processing. No Bible translation corpus is bundled or downloaded. Import only passage text you have permission to use. The private API starts disabled and uses a session-only local token.
 
 ## For developers
+
+### Continuing development
+
+Developers and coding agents: start with [CLAUDE.md](CLAUDE.md), the detailed [handoff](HANDOFF.md), and the [remaining-work list](docs/107-remaining-work-and-acceptance.md). These record verified progress, the next action and outstanding service acceptance.
 
 Draft [PR #22](https://github.com/gboyegaadeojo/VerseCue/pull/22) adds reference-driven preparation/review/Confirm, saved-slide previews and [normal-workspace approval for guarded Auto](docs/67-normal-workspace-auto-approval.md). Its native-copy route is restricted to the inspected local Windows test profile, and its [full acceptance checklist](docs/51-reference-driven-bible-workflow.md) remains open. The linked public download is an earlier development build; current source is not a finished service release.
 
