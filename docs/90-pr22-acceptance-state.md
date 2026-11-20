@@ -2,7 +2,7 @@
 
 2026-11-20. This is an evidence map, not an acceptance certificate. The complete RF-01–22 checklist remains unchecked in [PR22](https://github.com/gboyegaadeojo/VerseCue/pull/22). The original 62 functional requirements, 24 nonfunctional requirements and their acceptance procedures remain authoritative. Smaller merged PRs do not waive them.
 
-Shared-source checks currently pass 459 module tests on main and 462 in the integration branch, including its additional soak-summary cases. These are deterministic/software checks. Mac CI runs the source desktop scenarios and packaging; it does not run ProPresenter. Personal-host records are private and excluded from this document.
+Shared-source checks currently pass 471 module tests on main and 474 in the integration branch, including its additional soak-summary cases. These are deterministic/software checks. Mac CI runs the source desktop scenarios and packaging; it does not run ProPresenter. Personal-host records are private and excluded from this document.
 
 | Requirement | Implemented software evidence | Evidence still needed / limitation |
 |---|---|---|
@@ -49,3 +49,5 @@ PR50 adds the bounded two-sweep read-only snapshot collector, with unchanged pro
 PR51 enters disarmed dry-run safety and revokes old approvals/API before asynchronous configuration persistence. Held/failed-write, overlapping changes, rearm blocking, Stop preservation, profile-load pause and no Auto restoration pass source/package synthetic checks and exact Mac development verification. This software correction does not close actual service acceptance.
 
 PR52 binds local API startup/revocation/cleanup to listener ownership. Pending startup cancellation, late errors, stale listener requests and delayed close events cannot clear or authenticate with replacement authority. Seven module regressions, source/package Windows workflows and exact Mac development checks pass. This map is scoped to RF01-22 and does not replace original FR001-062/NFR001-024 acceptance; a full original-requirement implementation/evidence audit follows.
+
+Original FR057/NFR019 inspection found backup-history and recovery gaps. PR53 retains two validated distinct prior setups, excludes corrupt source/unknown secret fields and provides freshness-bound restore primitives without automatic startup recovery. Module/source/package/Mac software checks pass; dedicated operator review/restore UI is a separate unfinished component. This is partial requirement evidence, not full recovery/field acceptance or completion of the original86-row audit.
