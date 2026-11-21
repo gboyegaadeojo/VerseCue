@@ -34,7 +34,7 @@ jobs:
           New-Item -ItemType Directory engine | Out-Null
           Copy-Item build\bin\Release\*.exe,build\bin\Release\*.dll engine\
           Get-ChildItem engine | Format-Table Name,Length
-      - name: Smoke test (no GPU on the runner: must fall back to the processor)
+      - name: 'Smoke test - no GPU on the runner, so it must fall back to the processor'
         shell: pwsh
         run: |
           Invoke-WebRequest https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin -OutFile base.bin
