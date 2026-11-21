@@ -14,7 +14,9 @@ test('the resident worker public folder is an owned scratch run folder, removed 
     await assert.rejects(resident.start('worker','model',Date.now()+150,epoch),/could not become ready/);
     const publicDir=spawnedArgs[spawnedArgs.indexOf('--public')+1];
     assert.equal(path.dirname(publicDir),root,'Folder lives under the app-owned scratch root, not the global temp folder');assert.match(path.basename(publicDir),/^run-[0-9a-f-]{36}$/);
-    resident.stop();await settle();
+    resident.stop();
+    // Removal is asynchronous; wait up to 3 s rather than a fixed delay so a loaded test host does not flake.
+    for(const end=Date.now()+3000;Date.now()<end;){try{await fs.access(publicDir);await settle();}catch{break;}}
     await assert.rejects(fs.access(publicDir),'Stop removes the folder');assert.deepEqual(await fs.readdir(root),[]);
   }finally{await fs.rm(parent,{recursive:true,force:true});}
 });

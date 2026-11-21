@@ -908,3 +908,7 @@ PR88 adds docs/124, a personal Auto-first test guide. Exact-source packaged Wind
 ## Text size setting and public 0.6.0 pre-release - 2026-11-21
 
 PR91 text size (Standard 15 px default, Large 18 px booth) merged at 04e3be1 after 586 modules, 42/42 scenarios, Mac 44902068349 and diagnostics. Public v0.6.0 pre-release published from 04e3be1 with Windows and Apple Silicon ZIPs and checksums at the user request (replacing 0.5.5 as current). PR92 updated README downloads; merged 587be79. Not a live-service release; P0 pending.
+
+## User-reported fixes and public 0.6.1 - 2026-11-21
+
+PR93 bundled speech engine fallback; PR94 ordinal/comma references (1st John was read as John); PR95 connection health tolerance (slow answers no longer pause the session); PR96 5 s queued speech; PR97 pre-ticked setup boxes (NR-011); PR98 version 0.6.1. Public v0.6.1 pre-release from d304541 with Windows and Apple Silicon ZIPs; packaged Windows build passed all 45 scenarios; Mac CI 44912264640. Next: evaluate the RTX 2060 GPU speech path. P0 pending.

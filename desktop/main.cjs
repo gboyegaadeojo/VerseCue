@@ -48,7 +48,7 @@ async function reviewApiPassage(id,guard){
 const privateApi=new LocalControlAPI(service,{onStop:()=>{cancelAudio();cancelPreparation();connector.arm(false);service.stop();},onPrepare:prepareBible,onReview:reviewApiPassage,onRevoke:()=>cancelPreparation(),onEvent:code=>{if(code==='PRIVATE_API_REFERENCE_REVIEW')resetSpeechStabilization();service.log(code);service.notify();}});
 const configurationTransition=new ConfigurationTransition({enterSafe:()=>{cancelAudio();cancelPreparation();connector.arm(false);connector.mappings.clear();service.setMode('paused');service.configure({translation:service.translation,dryRun:true});return privateApi.stop();}});
 async function changeConfiguration(operation,{restoreMode=true}={}){const previousMode=service.mode==='auto'?'confirm':service.mode;return configurationTransition.run(async()=>{const result=await operation();service.settingsRecoveryRequired=false;service.notify();if(restoreMode&&!service.stopped&&!service.recovery?.required&&service.mode==='paused')service.setMode(previousMode);return result;});}
-let settings,settingsFile,profiles,mainWindow,compactWindow,healthTimer,healthBusy=false;const windows=new Set();
+let settings,settingsFile,profiles,mainWindow,compactWindow,healthTimer,healthBusy=false,healthFailures=0,healthFailingSince=0;const windows=new Set();
 const ui=pathToFileURL(path.join(__dirname,'../ui/index.html')).href;
 function trusted(e){if(!windows.has(BrowserWindow.fromWebContents(e.sender))||e.senderFrame!==e.sender.mainFrame||e.senderFrame.url.split('?')[0]!==ui)throw new Error('Untrusted caller');}
 // NR-010: saved Auto start preference and hold window. Start mode applies only at launch/reset (Session.applyStartMode).
@@ -91,8 +91,13 @@ async function bootstrap(){
   // not downloaded or executed automatically during startup.
   const speechDir=path.join(process.resourcesPath,'speech');
   const bundledWorker=path.join(speechDir,process.platform==='win32'?'whisper-cli.exe':'whisper-cli');
-  if(!settings.executable&&!settings.model){
-    try{await fs.access(bundledWorker);await fs.access(path.join(speechDir,'ggml-base.en.bin'));settings.executable=bundledWorker;settings.model=path.join(speechDir,'ggml-base.en.bin');}catch{}
+  // A saved engine from an older, moved or deleted copy is replaced by this version's bundled engine.
+  // An engine the operator chose that still exists is never replaced.
+  const exists=async file=>{if(!file)return false;try{await fs.access(file);return true;}catch{return false;}};
+  const savedMissing=Boolean(settings.executable||settings.model)&&!((await exists(settings.executable))&&(await exists(settings.model)));
+  if(!settings.executable&&!settings.model||savedMissing){
+    const bundledModel=path.join(speechDir,'ggml-base.en.bin');
+    if(await exists(bundledWorker)&&await exists(bundledModel)){settings.executable=bundledWorker;settings.model=bundledModel;if(savedMissing)service.log('SPEECH_ENGINE_REPLACED_MISSING','warning');}
   }
   connector.configure(settings.host,settings.port);service.configure({translation:settings.translation,dryRun:true,duplicateCooldownSeconds:settings.duplicateCooldownSeconds,maxPassageVerses:settings.maxPassageVerses});applySessionPreferences();speech.configure(settings.executable,settings.model,settings.speechMode);if(!service.settingsRecoveryRequired)service.applyStartMode();
   if(loaded.recovered)service.log('CORRUPT_SETTINGS_RECOVERED','warning');
@@ -233,14 +238,21 @@ async function bootstrap(){
   healthTimer=setInterval(async()=>{
     if(!connector.version||healthBusy)return;healthBusy=true;
     const previous=connector.status.state,version=connector.version.host_description,targetGeneration=connector.generation;
+    // A ProPresenter on the same busy computer can answer one check late. One or two late answers show
+    // "slow to respond" and block sends (connector.send needs "connected") without ending the session.
+    // Failing continuously for 15 seconds (and at least three checks) is a lost link, handled as before. Sends stay blocked meanwhile.
     try{
-      const result=await connector.test();
+      const result=await connector.probe();
       if(targetGeneration!==connector.generation)return;
-      if(result.version!==version){cancelAudio();cancelPreparation();connector.arm(false);connector.mappings.clear();service.setMode('paused');service.log('TARGET_VERSION_CHANGED','warning');}
-      else if(previous!=='connected'){cancelAudio();cancelPreparation();connector.arm(false);service.setMode('paused');service.log('LINK_RECOVERED_REARM_REQUIRED','warning');}
-      else if(await passageCoordinator.checkOwnership()){reviewOwnerId=null;cancelAudio();}
+      healthFailures=0;healthFailingSince=0;
+      if(result.host_description!==version){connector.version=result;connector.status={state:'connected',version:result.host_description};cancelAudio();cancelPreparation();connector.arm(false);connector.mappings.clear();service.setMode('paused');service.log('TARGET_VERSION_CHANGED','warning');}
+      else if(previous==='offline'){connector.status={state:'connected',version};cancelAudio();cancelPreparation();connector.arm(false);service.setMode('paused');service.log('LINK_RECOVERED_REARM_REQUIRED','warning');}
+      else{connector.status={state:'connected',version};if(previous==='degraded')service.log('LINK_SLOW_RECOVERED');else if(await passageCoordinator.checkOwnership()){reviewOwnerId=null;cancelAudio();}}
     }catch{
-      if(targetGeneration===connector.generation&&previous==='connected'){cancelAudio();connector.arm(false);service.setMode('paused');service.log('LINK_LOST','warning');}
+      if(targetGeneration!==connector.generation||previous==='offline')return;
+      healthFailures++;if(!healthFailingSince)healthFailingSince=Date.now();
+      if(healthFailures<3||Date.now()-healthFailingSince<15000){if(previous!=='degraded')service.log('LINK_SLOW','warning');connector.status={state:'degraded',version};automatic.cancel();}
+      else{connector.status={state:'offline'};cancelAudio();connector.arm(false);service.setMode('paused');service.log('LINK_LOST','warning');}
     }finally{healthBusy=false;service.notify();}
   },2000);
   mainWindow=createWindow();
