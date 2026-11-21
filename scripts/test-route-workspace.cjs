@@ -6,6 +6,7 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
   const app=await _electron.launch({...(executable?{executablePath:executable}:{}),args:[...(executable?[]:[path.resolve('.')]),'--user-data-dir='+path.resolve('test-results','route-'+randomUUID())],env});
   try{
     const page=await app.firstWindow(),errors=[];page.on('pageerror',error=>errors.push(error.message));await page.waitForFunction(()=>document.getElementById('message')?.textContent.length>0);
+    await page.setViewportSize({width:1280,height:800});
     const pipeline=()=>page.evaluate(()=>[...document.querySelectorAll('#auto-pipeline li')].map(li=>li.dataset.step+':'+li.dataset.state+':'+li.querySelector('.pipeline-label').textContent));
     const look=await page.evaluate(()=>({body:getComputedStyle(document.body).backgroundColor,header:getComputedStyle(document.querySelector('header')).backgroundColor,eyebrow:document.querySelector('.page-heading .eyebrow').textContent}));
     assert.equal(look.body,'rgb(255, 255, 255)');assert.equal(look.header,'rgb(0, 0, 0)');assert.equal(look.eyebrow,'LIVE SCRIPTURE');
