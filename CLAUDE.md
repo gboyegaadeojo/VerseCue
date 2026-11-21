@@ -20,13 +20,13 @@ Use [HANDOFF.md](HANDOFF.md) as the takeover document. **Public v0.6.2 pre-relea
 
 ## Next queue
 
-User requests 2026-11-21 (evening): (1) guided NVIDIA setup, (2) Mac ProPresenter helper, (3) faster detection + simple open-and-connect, (4) Halo design (canvas https://claude.ai/artifact/9sYtuXBtafLyrrDxZZUV5J, design 5).
-1. PR105 NVIDIA setup MERGED (docs/135).
-2. PR106 Halo (feat/halo-design, docs/136, NR-016: Standard compact, Large keeps 44px booth checks, Hold 44px). Fixed sweep failures; rerun sweep (scratchpad sweep-halo2.txt) + CI 44945428804/44945437324, then merge.
-3. feat/faster-simpler worktree (NR-015, docs/137 TO WRITE): auto-connect, auto-listen, -ac 768, 0.7 s silence, heardConfidence (CLI -ojf, resident verbose_json). 607 unit tests pass. TODO: measure speed on idle CPU, verify resident verbose_json with real server, doc, PR, sweep.
-4. PR107 Mac helper (docs/138): inspection-only until user's Mac inspection; merge after diagnostics.
-5. Then rebuild + publish next version (0.6.3) and integrate into PR22.
-6. Live voice test with the user; Mac inspection from user; code signing; volunteer sessions.
+Merged today: PR105 NVIDIA setup, PR106 Halo design (NR-016), PR107 Mac helper (inspection-only until user's Mac inspection).
+1. PR109 feat/faster-simpler (NR-015/NR-017, docs/137): auto-connect, auto-listen, default mic, -ac 768 (41% faster), 0.7 s silence, background GPU warm-up (CPU until GPU proven), heard clarity, any ProPresenter version (keyword fallback in Windows bridge). Sweep running (scratchpad sweep-fast.txt), CI 44957455243/44957462245. Then merge.
+2. PR108 feat/vulkan-speech (docs/139): Vulkan Windows engine (any AMD/NVIDIA/Intel GPU) built in CI (speech-engines.yml, sha 9c16b302...), Intel Mac build (matrix in macos-development.yml). Merge main in, packaged sweep with the Vulkan engine (engine zip in poc/private/tools/engines/), then merge.
+3. Release 0.6.3: bump version, README downloads (+ Intel Mac row), Windows ZIP (Vulkan engine) + packaged sweep, Mac arm64 + Intel artifacts, checksums, gh release, verify links; integrate PR22.
+4. Retest live chapter preparation on personal ProPresenter once ProPresenter is not overloaded (it used ~25% CPU continuously; UIA queries took 78 s).
+5. User: Mac inspection file, live voice test, licence choice for public release, code signing.
+Standing rules: README updated with every change (public audience); Halo look must match canvas https://claude.ai/artifact/9sYtuXBtafLyrrDxZZUV5J. Scheduler: one cron b47d9e7e (:17/:47).
 
 ## Integration and authorization
 
