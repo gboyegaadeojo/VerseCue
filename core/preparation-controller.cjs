@@ -8,7 +8,7 @@ class PreparationController {
     // Any ProPresenter version on Windows (NR-017). The helper verifies every control (Bible view, reference field,
     // edition, generated labels) before acting and stops safely if a future version differs; it never sends output.
     const host=this.connector.version?.host_description??'';
-    if(!/^ProPresenter(\s|$)/.test(host)||this.connector.version?.platform!=='win')return {available:false,reason:'Automatic preparation uses the Windows ProPresenter Bible view. This target can use exact saved passages.'};
+    if(!/^ProPresenter(\s|$)/.test(host)||this.connector.version?.platform!=='win')return {available:false,reason:'Automatic preparation uses the ProPresenter Bible view on Windows; on this platform, use exact saved passages.'};
     return {available:true,scope:'windows-loopback',verifiedVersion:'ProPresenter 21.4.2',version:host,versionVerified:host==='ProPresenter 21.4.2'};
   }
   async prepare(reference,translation,guard=()=>true,{saveCopy=false,keepListening=false,focusVerse=null}={}){
