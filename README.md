@@ -15,18 +15,19 @@ ProPresenter stays in charge of your Bible text, themes, Looks and screens. Vers
 Churches and ministries that use **ProPresenter** (tested with ProPresenter 21.4 on Windows) and want Scripture on screen as soon as it's read, without a volunteer searching for every reference.
 
 You need:
-- **Windows 10/11 (64-bit)** or a **Mac with Apple silicon** (M1 or newer).
+- **Windows 10/11 (64-bit)** or a **Mac** (Apple silicon or Intel).
 - **ProPresenter** with its network API turned on (ProPresenter > Settings > Network).
 - The **preacher's microphone feed** going into the computer, for example through an audio interface such as a MOTU M4, or a USB microphone for testing.
 
 ## Download
 
-**Latest version: 0.6.2** (development preview)
+**Latest version: 0.6.3** (development preview)
 
 | Computer | Download |
 |---|---|
-| Windows (Intel/AMD 64-bit) | [VerseCue for Windows (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.2/VerseCue-0.6.2-win32-x64.zip) |
-| Mac with Apple silicon | [VerseCue for Mac (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.2/VerseCue-0.6.2-darwin-arm64.zip) |
+| Windows (Intel/AMD 64-bit) | [VerseCue for Windows (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.3/VerseCue-0.6.3-win32-x64.zip) |
+| Mac with Apple silicon (M1 or newer) | [VerseCue for Apple silicon Mac (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.3/VerseCue-0.6.3-darwin-arm64.zip) |
+| Mac with Intel processor | [VerseCue for Intel Mac (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.3/VerseCue-0.6.3-darwin-x64.zip) |
 
 Checksums and older versions are on the [releases page](https://github.com/gboyegaadeojo/VerseCue/releases). Don't use GitHub's automatic "Source code" ZIP to run the app.
 
