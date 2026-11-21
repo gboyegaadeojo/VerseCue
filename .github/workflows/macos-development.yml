@@ -68,6 +68,11 @@ jobs:
           cp .cache/whisper-build/bin/whisper-cli .cache/whisper-build/bin/whisper-server .cache/mac-speech/
           curl --fail --location --retry 2 https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin -o .cache/mac-speech/ggml-base.en.bin
           echo 'a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002  .cache/mac-speech/ggml-base.en.bin' | shasum -a 256 --check
+      - name: Build the experimental Mac Bible helper
+        run: |
+          mkdir -p .cache/mac-native
+          swiftc -O -framework Cocoa -framework ApplicationServices -o .cache/mac-native/VerseCue.BibleBridge native/macos/BibleBridge.swift
+          echo '{"operation":"bogus"}' | .cache/mac-native/VerseCue.BibleBridge | grep -q UNKNOWN_OPERATION
       - name: Package and locally sign development app
         run: node scripts/package-macos.cjs
       - name: Check native packaged workspace
