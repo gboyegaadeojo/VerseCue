@@ -1,0 +1,37 @@
+name: Offline diagnostic checks
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/diagnostic-checks.yml'
+      - 'scripts/recognition-evaluation.cjs'
+      - 'scripts/score-recognition.cjs'
+      - 'tests/recognition-evaluation.test.cjs'
+      - 'docs/test-data/recognition-evaluation.synthetic.json'
+      - 'core/**'
+      - 'package*.json'
+permissions:
+  contents: read
+jobs:
+  checks:
+    if: ${{ github.event.repository.private == false }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npm run check
+      - run: node scripts/audit-documentation.cjs
+      - run: node scripts/score-recognition.cjs docs/test-data/recognition-evaluation.synthetic.json SYNTHETIC-ci.json

@@ -4,7 +4,7 @@ Updated: 2026-11-18 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Cod
 
 ## Current stage
 
-IMPLEMENTING - aggregate PR22 remains draft. Components through PR66 are merged; main534 module tests and aggregate537 pass. Current independent component improves booth readability and review priority, with source geometry/Studio/workspace/smoothness checks passing. Full current-head Windows source/package/Mac verification remains before its merge. P0, real speech accuracy/latency, installed-edition/physical-output/Mac-native/field/accessibility/privacy-residue/distribution acceptance remain pending. No new release or installed replacement is claimed. See CLAUDE.md and docs/107 for the exact resume point and complete original audit.
+IMPLEMENTING - aggregate PR22 remains draft. Main includes components through PR67 and PR68 documentation pointers. This branch adds an offline labeled-recognition evaluator, with no application runtime changes or real-data accuracy claim. Ten focused synthetic groups and544 module tests passed locally; final checks and public Windows/Mac ARM/Intel diagnostic CI remain before merge. P0, native Windows timing/clipping, Mac/LAN, physical audio/output, field/privacy/distribution gates remain open. See docs/107 and the full original86-row audit.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -409,3 +409,10 @@ Initial PR65 e233de3 passed30 Windows source scenarios and152-file review receip
 ## Stable main-branch agent entry points
 
 2026-11-20. Main CLAUDE.md/HANDOFF.md now point to the maintained active-branch checkpoint, avoiding stale next-action instructions for fresh clones. README keeps downloads and operator guidance before developer handoff links. This documentation-only change adds no capability or acceptance claim; original requirements and PR22 draft gates remain.
+
+
+## 2026-11-21 - Offline recognition evaluator component
+
+Implemented bounded offline JSON scoring of supplied canonical citation/edition proposals, duplicate-counted precision/recall, separate sequence agreement and nominal Wilson intervals. Source/split isolation prevents synthetic/tuning cases inflating real held-out results. Explicit real-data authorization/review attestations and artifact hashes are required; unreviewed labels stay unscored. Private reports omit raw references/transcripts and refuse overwrite/traversal/linked output parents. This tool neither transcribes nor verifies media/ground truth/consent and never passes service acceptance. Ten synthetic groups cover counts, editions/order, leakage, exclusions, malformed schema, uncertainty and CLI/privacy guards. Prior local544 modules/check passed; exact-head final checks/three-platform diagnostic CI pending. Updated stale docs/107 to distinguish merged input/scratch/readability software from unperformed hardware/field tests. No real recording, microphone, ProPresenter output or new release. Original62FR/24NFR/86 trace/66 corpus requirements and RF01-22 gates retained.
+
+Final local evaluator checks:544/544 module tests, JavaScript syntax/dependency inventory and documentation audit passed. Structural audit retains62FR,24NFR,86 coverage rows and66 equal CSV/JSON corpus rows, with P0 PENDING. Cross-platform CI remains pending until the component PR runs.
