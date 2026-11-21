@@ -71,3 +71,7 @@ Trust gate: the original 10-hour representative rehearsal with zero unapproved w
 ## NR-014 - Whole chapter at the spoken verse; higher verse limit
 
 2026-11-21: the user asked that a detected reference such as Proverbs 3:5 open the entire chapter in ProPresenter, positioned at the spoken verse, so the volunteer can go to earlier or later verses with next/previous instead of searching again. The user also asked to raise the verse limit in case a minister reads a whole chapter. Implemented for Prepare for volunteer (no output, no saved copy); the configurable limit now reaches 176 (Psalm 119). Auto keeps its 10-verse limit, because the user did not ask to change Auto and its safety rules need a recorded reason. See [docs/134](docs/134-whole-chapter-preparation.md).
+
+## NR-016 - Halo design with compact controls in Standard size
+
+2026-11-21: the user chose design 5 (Halo) and asked for smaller fonts and smaller, better-looking buttons ("the buttons are too big"). Standard (the default text size) now uses Halo's compact controls: at least 28 px, 12–13 px text. Large ("booth distance") keeps the original booth readability: 18 px text and 44 px targets, every booth check unchanged (docs/111, docs/126). The Hold button stays 44 px in both sizes because it is the operator's safety control. See [docs/136](docs/136-halo-design.md).
