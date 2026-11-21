@@ -91,8 +91,13 @@ async function bootstrap(){
   // not downloaded or executed automatically during startup.
   const speechDir=path.join(process.resourcesPath,'speech');
   const bundledWorker=path.join(speechDir,process.platform==='win32'?'whisper-cli.exe':'whisper-cli');
-  if(!settings.executable&&!settings.model){
-    try{await fs.access(bundledWorker);await fs.access(path.join(speechDir,'ggml-base.en.bin'));settings.executable=bundledWorker;settings.model=path.join(speechDir,'ggml-base.en.bin');}catch{}
+  // A saved engine from an older, moved or deleted copy is replaced by this version's bundled engine.
+  // An engine the operator chose that still exists is never replaced.
+  const exists=async file=>{if(!file)return false;try{await fs.access(file);return true;}catch{return false;}};
+  const savedMissing=Boolean(settings.executable||settings.model)&&!((await exists(settings.executable))&&(await exists(settings.model)));
+  if(!settings.executable&&!settings.model||savedMissing){
+    const bundledModel=path.join(speechDir,'ggml-base.en.bin');
+    if(await exists(bundledWorker)&&await exists(bundledModel)){settings.executable=bundledWorker;settings.model=bundledModel;if(savedMissing)service.log('SPEECH_ENGINE_REPLACED_MISSING','warning');}
   }
   connector.configure(settings.host,settings.port);service.configure({translation:settings.translation,dryRun:true,duplicateCooldownSeconds:settings.duplicateCooldownSeconds,maxPassageVerses:settings.maxPassageVerses});applySessionPreferences();speech.configure(settings.executable,settings.model,settings.speechMode);if(!service.settingsRecoveryRequired)service.applyStartMode();
   if(loaded.recovered)service.log('CORRUPT_SETTINGS_RECOVERED','warning');
