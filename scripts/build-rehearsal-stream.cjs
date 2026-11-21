@@ -18,8 +18,8 @@ function readWav(bytes){
   try{await fs.access(outFile);throw Error('Refusing to overwrite an existing stream');}catch(error){if(error.code!=='ENOENT')throw error;}
   const samples=readWav(await fs.readFile(wavPath));
   const speech=new LocalSpeech();await speech.initializeScratch(path.resolve('test-results','auto-rehearsal','scratch'));speech.configure(path.resolve(executable),path.resolve(model),'cli');
-  let clock=0,dropped=0,current=null;const windows=[];
-  const buffer=new AudioWindowBuffer({clock:()=>clock,onDrop:drop=>{dropped+=drop.samples;},onWindow:(window,meta)=>{const dispatchAt=clock;const job=speech.transcribe(Array.from(window,v=>Math.max(-1,Math.min(1,v)))).then(r=>{windows.push({endSeconds:dispatchAt/1000,durationSeconds:window.length/16000,text:r.text,endEvidence:meta.endEvidence,elapsedMs:r.elapsedMs,droppedSamples:dropped});return r.elapsedMs;},()=>{windows.push({endSeconds:dispatchAt/1000,durationSeconds:window.length/16000,text:'',endEvidence:meta.endEvidence,elapsedMs:20000,droppedSamples:dropped});return 20000;});return new Promise(release=>{current={job,dispatchAt,release};});}});
+  let clock=0,dropped=0,windowDropped=0,current=null;const windows=[];
+  const buffer=new AudioWindowBuffer({clock:()=>clock,onDrop:drop=>{dropped+=drop.samples;windowDropped+=drop.samples;},onWindow:(window,meta)=>{const dispatchAt=clock,lost=windowDropped;windowDropped=0;const job=speech.transcribe(Array.from(window,v=>Math.max(-1,Math.min(1,v)))).then(r=>{windows.push({endSeconds:dispatchAt/1000,durationSeconds:window.length/16000,text:r.text,endEvidence:meta.endEvidence,elapsedMs:r.elapsedMs,droppedSamples:lost});return r.elapsedMs;},()=>{windows.push({endSeconds:dispatchAt/1000,durationSeconds:window.length/16000,text:'',endEvidence:meta.endEvidence,elapsedMs:20000,droppedSamples:lost});return 20000;});return new Promise(release=>{current={job,dispatchAt,release};});}});
   buffer.start();
   for(let i=0;i<samples.length;i+=1600){
     const packet=Array.from(samples.subarray(i,i+1600));clock+=packet.length/16;const rms=Math.sqrt(packet.reduce((t,v)=>t+v*v,0)/packet.length);buffer.push(packet,rms);
