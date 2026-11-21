@@ -452,3 +452,7 @@ Chosen design C (Route), Auto-first: monochrome route.css theme, Heard/Matched/R
 ## Hold shortcut, announcements and hold-window age fix - 2026-11-21
 
 H holds a pending automatic send (focused only, never while typing). A polite live region announces scheduled, held, sent/simulated and paused states. Fixed: the hold window counted against the 4 s Auto age limit, so holds above about 1 s on this PC made Auto impossible; the hold is now allowed on top at send time. 577 modules, check, 41/41 source scenarios. See docs/120.
+
+## Resident worker folder ownership - 2026-11-21
+
+The resident worker's whisper-server folder moved from the global temp directory into the app-owned speech scratch, so stop and startup recovery remove it after a crash. 580 modules, check, private real-server check pass. See docs/121.

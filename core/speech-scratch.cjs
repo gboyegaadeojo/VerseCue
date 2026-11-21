@@ -15,6 +15,8 @@ class SpeechScratch {
   for(const name of await fs.readdir(this.root))if(ownedName.test(name))await this.remove(path.join(this.root,name));
   this.ready=true;
  }
+ // Empty owned run folder for the resident worker's --public directory; removed like any other run.
+ async createDirectory(){if(!this.ready)throw Error('Speech scratch recovery must finish before recognition');await this.verifyRoot();const directory=path.join(this.root,'run-'+randomUUID());await fs.mkdir(directory,{mode:0o700});return directory;}
  async create(bytes){
   if(!this.ready)throw Error('Speech scratch recovery must finish before recognition');await this.verifyRoot();
   const directory=path.join(this.root,'run-'+randomUUID());await fs.mkdir(directory,{mode:0o700});

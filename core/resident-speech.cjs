@@ -3,16 +3,18 @@ const {spawn}=require('node:child_process');const net=require('node:net');const 
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function unusedPort(){return new Promise((resolve,reject)=>{const server=net.createServer();server.once('error',reject);server.listen(0,'127.0.0.1',()=>{const port=server.address().port;server.close(error=>error?reject(error):resolve(port));});});}
 class ResidentSpeech {
-  constructor(){this.child=null;this.base=null;this.directory=null;this.epoch=0;this.controller=null;this.idle=null;this.starting=null;}
-  stop(){this.epoch++;clearTimeout(this.idle);this.controller?.abort();this.controller=null;const child=this.child;this.child=null;this.base=null;child?.kill();const directory=this.directory;this.directory=null;if(directory&&path.dirname(directory)===os.tmpdir()&&path.basename(directory).startsWith('versecue-worker-'))fs.rm(directory,{recursive:true,force:true}).catch(()=>{});}
+  constructor(){this.scratch=null;this.child=null;this.base=null;this.directory=null;this.epoch=0;this.controller=null;this.idle=null;this.starting=null;}
+  stop(){this.epoch++;clearTimeout(this.idle);this.controller?.abort();this.controller=null;const child=this.child;this.child=null;this.base=null;child?.kill();const directory=this.directory;this.directory=null;this.discard(directory);}
+  // App-owned scratch folders are recovered at startup; the temp-folder fallback is only for callers without scratch.
+  discard(directory){if(!directory)return;if(this.scratch&&path.dirname(directory)===this.scratch.root)this.scratch.remove(directory).catch(()=>{});else if(path.dirname(directory)===os.tmpdir()&&path.basename(directory).startsWith('versecue-worker-'))fs.rm(directory,{recursive:true,force:true}).catch(()=>{});}
   async start(executable,model,deadline,epoch){
-    const directory=await fs.mkdtemp(path.join(os.tmpdir(),'versecue-worker-'));
-    if(epoch!==this.epoch){await fs.rm(directory,{recursive:true,force:true});throw new Error('Recognition canceled');}
+    const directory=this.scratch?await this.scratch.createDirectory():await fs.mkdtemp(path.join(os.tmpdir(),'versecue-worker-'));
+    if(epoch!==this.epoch){this.discard(directory);throw new Error('Recognition canceled');}
     this.directory=directory;const port=await unusedPort();
     if(epoch!==this.epoch)throw new Error('Recognition canceled');
     const prefix='/'+randomBytes(32).toString('hex');
     const child=spawn(executable,['--host','127.0.0.1','--port',String(port),'--public',directory,'--request-path',prefix,'-m',model,'-t','4','-p','1','-ng','-l','en','-bs','1','-bo','1'],{windowsHide:true,shell:false,stdio:['ignore','pipe','pipe']});
-    this.child=child;let exited=false;child.stdout.on('data',()=>{});child.stderr.on('data',()=>{});child.once('error',()=>{exited=true;});child.once('close',()=>{exited=true;if(this.child===child){this.child=null;this.base=null;}if(path.dirname(directory)===os.tmpdir()&&path.basename(directory).startsWith('versecue-worker-'))fs.rm(directory,{recursive:true,force:true}).catch(()=>{});});
+    this.child=child;let exited=false;child.stdout.on('data',()=>{});child.stderr.on('data',()=>{});child.once('error',()=>{exited=true;});child.once('close',()=>{exited=true;if(this.child===child){this.child=null;this.base=null;}if(this.directory===directory)this.directory=null;this.discard(directory);});
     const base=`http://127.0.0.1:${port}${prefix}`;
     while(Date.now()<deadline&&!exited&&epoch===this.epoch){
       try{const response=await fetch(base+'/health',{redirect:'error',signal:AbortSignal.timeout(Math.min(300,Math.max(1,deadline-Date.now())))});if(response.ok&&(await response.json()).status==='ok'&&!exited&&epoch===this.epoch){this.base=base;return;}}catch{}
