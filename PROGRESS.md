@@ -828,3 +828,7 @@ Final local replay checks: unchanged isolated loopback suite7/7 and full550/550 
 ## PR71 rolling recognition preview
 
 Exact 119e8f2 passed 550 modules, source and packaged Windows synthetic verification, and Mac 44848255375. Merged at 9ceb18f. Aggregate integration passed 553 modules, syntax/inventory and cross-window reset. Provider partials and real speech evidence remain pending.
+
+## PR72 and PR73 integration
+
+PR72 d827b8b passed four targeted Windows source and packaged scenarios plus Mac 44850836751 after preserving intentional expiry responses. PR73 ba30ae8 passed 551 modules and diagnostics 44851126201. Both merged. Aggregate 554 modules, syntax/inventory and audio age/reset passed. P0 remains pending.

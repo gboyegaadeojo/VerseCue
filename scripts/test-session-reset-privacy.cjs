@@ -28,6 +28,30 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
     }
     await primary.evaluate(snapshot=>render(snapshot),staleSnapshot);
     assert.equal(await primary.locator('#queue-count').textContent(),'0','Late pre-reset snapshot must not restore private candidates');
+    // Simulate a worker settling after the same window releases and reacquires capture.
+    await app.evaluate(({app})=>{
+      const path=process.mainModule.require('node:path');
+      const {LocalSpeech}=process.mainModule.require(path.join(app.getAppPath(),'core/stt.cjs'));
+      globalThis.originalTranscribe=LocalSpeech.prototype.transcribe;
+      LocalSpeech.prototype.transcribe=()=>new Promise(resolve=>{globalThis.resolveRevokedWorker=resolve;});
+      globalThis.restoreTranscribe=()=>{LocalSpeech.prototype.transcribe=globalThis.originalTranscribe;};
+    });
+    assert.equal((await primary.evaluate(()=>window.versecue.beginAudio({authorized:true}))).ok,true);
+    await primary.evaluate(()=>{window.revokedWorkerReply=window.versecue.audio([],{});});
+    const deadline=Date.now()+5000;
+    while(!await app.evaluate(()=>typeof globalThis.resolveRevokedWorker==='function')){
+      if(Date.now()>deadline)throw Error('Synthetic worker did not receive audio');
+      await new Promise(resolve=>setTimeout(resolve,20));
+    }
+    assert.equal((await primary.evaluate(()=>window.versecue.endAudio())).ok,true);
+    assert.equal((await primary.evaluate(()=>window.versecue.beginAudio({authorized:true}))).ok,true);
+    await app.evaluate(()=>globalThis.resolveRevokedWorker({text:'John 3:16',elapsedMs:10,final:true}));
+    const revoked=await primary.evaluate(()=>window.revokedWorkerReply);
+    assert.equal(revoked.ok,false);
+    assert.match(revoked.error,/Stale recognition discarded/);
+    assert.equal((await primary.evaluate(()=>window.versecue.state())).value.queue.length,0);
+    assert.equal((await primary.evaluate(()=>window.versecue.endAudio())).ok,true);
+    await app.evaluate(()=>globalThis.restoreTranscribe());
     // Model a successful reply already in transport when reset occurs. This
     // deliberately replaces only this isolated process's audio IPC handler.
     await app.evaluate(()=>{const {ipcMain}=process.mainModule.require('electron');ipcMain.removeHandler('audio');globalThis.resetReplies=[];ipcMain.handle('audio',()=>new Promise(resolve=>globalThis.resetReplies.push(resolve)));});
@@ -57,7 +81,15 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
     assert.equal(await primary.locator('#transcript span').count(),5,'Silence must preserve completed windows');
     assert.equal((await compact.evaluate(()=>window.versecue.command('reset'))).ok,true);
     await primary.waitForFunction(()=>document.getElementById('transcript').textContent==='No audio has been processed.');
-    const report={passed:true,rollingPreviewBoundedAndReset:true,packaged:!!executable,allWindowsCleared:true,unsubmittedReferenceCleared:true,hiddenCandidateContentCleared:true,lateSuccessCannotRestoreOldTranscript:true,newSessionRecognitionStillDisplayed:true,dryRunRestored:true,actualProPresenterAccess:false,microphoneCapture:false};
+    await primary.evaluate(()=>{window.stoppedReply=audio.onWindow([],{});});
+    await waitReplies(10);
+    await primary.evaluate(()=>stopAudio());
+    assert.equal(await primary.locator('#transcript').getAttribute('aria-busy'),'false');
+    assert.equal(await primary.locator('#recognition-progress').textContent(),'');
+    await app.evaluate(()=>globalThis.resetReplies[9]({ok:true,value:{text:'SYNTHETIC STOPPED REPLY',elapsedMs:10}}));
+    await primary.evaluate(()=>window.stoppedReply);
+    assert.equal(await primary.locator('#transcript').textContent(),'No audio has been processed.');
+    const report={passed:true,lateStoppedReplyDiscarded:true,rollingPreviewBoundedAndReset:true,packaged:!!executable,allWindowsCleared:true,unsubmittedReferenceCleared:true,hiddenCandidateContentCleared:true,lateSuccessCannotRestoreOldTranscript:true,newSessionRecognitionStillDisplayed:true,dryRunRestored:true,actualProPresenterAccess:false,microphoneCapture:false};
     await fs.mkdir('test-results',{recursive:true});await fs.writeFile(executable?'test-results/packaged-session-reset-privacy.json':'test-results/session-reset-privacy.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report));
   }finally{await app.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});
