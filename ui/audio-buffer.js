@@ -1,8 +1,9 @@
 'use strict';
 // Bounded capture continues while one inference request owns the worker.
 class AudioWindowBuffer {
-  constructor({onWindow,onDrop=()=>{},onError=()=>{},clock=()=>performance.now(),capacity=160000,pendingCapacity=32000,maxPendingAgeMs=2000}){Object.assign(this,{onWindow,onDrop,onError,clock,capacity,pendingCapacity,maxPendingAgeMs});this.busy=false;this.epoch=0;this.active=false;this.clear();}
-  clear(){this.samples=[];this.silent=0;this.readyAt=null;this.firstSampleAt=null;this.lastVoicedAt=null;this.pendingAt=null;}
+  // Optional provisional snapshots copy a still-growing window for display only. They never clear or delay it.
+  constructor({onWindow,onDrop=()=>{},onError=()=>{},clock=()=>performance.now(),capacity=160000,pendingCapacity=32000,maxPendingAgeMs=2000,onProvisional=null,provisionalEnabled=()=>false,provisionalMinSamples=32000,provisionalStepSamples=32000}){Object.assign(this,{onWindow,onDrop,onError,clock,capacity,pendingCapacity,maxPendingAgeMs,onProvisional,provisionalEnabled,provisionalMinSamples,provisionalStepSamples});this.busy=false;this.provisionalBusy=false;this.epoch=0;this.active=false;this.clear();}
+  clear(){this.samples=[];this.silent=0;this.readyAt=null;this.firstSampleAt=null;this.lastVoicedAt=null;this.pendingAt=null;this.provisionalMark=0;}
   start(){this.epoch++;this.clear();this.captureSessionId=globalThis.crypto.randomUUID();this.windowSequence=0;this.active=true;}
   stop(){this.epoch++;this.active=false;this.clear();}
   push(samples,rms,deliveryLagMs=0){
@@ -13,9 +14,17 @@ class AudioWindowBuffer {
     this.samples.push(...samples);this.silent=rms<.008?this.silent+samples.length:0;
     const limit=this.busy?Math.min(this.capacity,this.pendingCapacity):this.capacity;
     const overflow=this.samples.length-limit;
-    if(overflow>0){this.samples.splice(0,overflow);this.firstSampleAt+=overflow/16;this.onDrop({reason:'overflow',samples:overflow});if(!this.active)return;}
+    if(overflow>0){this.samples.splice(0,overflow);this.firstSampleAt+=overflow/16;this.provisionalMark=Math.max(0,this.provisionalMark-overflow);this.onDrop({reason:'overflow',samples:overflow});if(!this.active)return;}
     if(this.readyAt===null&&((this.silent>=16000&&this.samples.length>=16000)||this.samples.length>=limit))this.readyAt=this.clock();
     this.drain();
+    this.provisional();
+  }
+  provisional(){
+    if(!this.onProvisional||!this.active||this.busy||this.provisionalBusy||this.readyAt!==null||this.silent>0||!this.provisionalEnabled())return;
+    if(this.samples.length<this.provisionalMinSamples||this.samples.length-this.provisionalMark<this.provisionalStepSamples)return;
+    const samples=this.samples.slice(),epoch=this.epoch,metadata={captureSessionId:this.captureSessionId,windowSequence:this.windowSequence+1,snapshotDurationMs:samples.length/16};
+    this.provisionalMark=this.samples.length;this.provisionalBusy=true;
+    Promise.resolve().then(()=>this.active&&epoch===this.epoch?this.onProvisional(samples,metadata):undefined).catch(()=>{}).finally(()=>{this.provisionalBusy=false;});
   }
   drain(){
     if(!this.active||this.busy)return;
