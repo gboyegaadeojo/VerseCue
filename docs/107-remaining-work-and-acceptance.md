@@ -1,46 +1,47 @@
 # What remains before VerseCue is ready for service
 
-Updated: 2026-11-20. Read [the handoff](../HANDOFF.md) for exact branches, evidence and the next command. This is a plain-English work list; the complete [original-requirement audit](99-original-requirement-evidence-audit.md), functional requirements, non-functional requirements and acceptance plan remain authoritative. Completed software checks do not establish real service readiness.
+Updated: 2026-11-21. Read [the handoff](../HANDOFF.md) for exact branches, evidence and the next command. This is a plain-English work list; the complete [original-requirement audit](99-original-requirement-evidence-audit.md), functional requirements, non-functional requirements and acceptance plan remain authoritative. Completed software checks do not establish real service readiness.
 
-## Finish the current component
+## Where things stand
 
-Components through PR67 are merged: configurable passage limits, audio-input information, interrupted speech-scratch recovery, a ten-second input test and booth readability/review priority. PR68 updates the main-branch handoff pointers. Main passes534 module tests; the integration branch passes537. PR67 passed32 source and32 packaged Windows scenarios plus its exact-head Mac development workflow. These are software checks, not service acceptance.
+VerseCue now **starts in Auto** by the product owner's decision ([NR-010](../NEW_REQUESTS.md)). Complete, explicit references go to ProPresenter automatically, and the operator holds or stops rather than confirming each one. The workspace uses the chosen Auto-first "Route" design. Auto still starts in dry run, sends only verified complete cues to an armed test target, and leaves anything ambiguous, quoted, corrected, slow, lossy or unprepared for review.
 
-PR69 offline labeled-recognition evaluation is merged after544 local module checks and all standard Windows/Mac ARM/Intel diagnostic jobs passed. It has not scored real sermon data. PR70 merged after 550 local module tests and Windows/macOS diagnostic CI. It bounds five replay/soak scripts to the current ten-second audio contract and retains the integration soak safeguards. Aggregate PR22 stays draft; P0 and service acceptance/new release remain pending.
+Components merged through PR82 include provisional speech ([docs/114](114-provisional-speech-provider.md)), loopback input guidance ([docs/115](115-loopback-input-guidance.md)), start in Auto with a Hold window ([docs/116](116-start-in-auto-and-hold.md)), the ten-hour Auto rehearsal harness ([docs/117](117-auto-rehearsal-harness.md)), per-window audio loss ([docs/118](118-per-window-audio-loss.md)), the Route workspace ([docs/119](119-route-operator-workspace.md)) and the H hold shortcut with screen-reader announcements ([docs/120](120-hold-shortcut-and-auto-announcements.md)). These are software checks on synthetic data, not service acceptance. Aggregate PR22 stays draft. P0 remains pending.
 
 ## Software to build or strengthen
 
 | Work | What the operator should gain | Requirements / next evidence |
 | --- | --- | --- |
-| Real microphone setup verification | Confirm the reported input/channel information and ten-second meter test work with the actual pastor feed | FR-001/002/003/005/007/008. Input information and error guidance are built in PR64; explicit no-recognition meter testing is built in PR66. Physical MOTU channels, drivers, permissions, hotplug and platform loopback remain unverified. |
-| Better speech recognition feedback | Read a rolling preview with provisional speech clearly different from a confirmed citation; diagnose missed or corrected references | FR-009/010/012/017/019/020/024/025. PR71 adds a rolling preview of five completed recognition windows with a separate processing indicator and session reset. True streaming partials and real accent accuracy still need verification. Add tested confusion handling from labeled evidence. |
-| Real macOS ProPresenter preparation | Use the actual installed Bible workflow on Mac with the same safeguards | FR-044 and RF03/platform matrix. Native route remains unimplemented/unverified; requires an authorized Mac accessibility profile. Mac CI is insufficient. |
-| Live-service accessibility | Read important states from the booth, use deliberate keyboard actions, and operate with a screen reader | FR-026/027/030/031/061, NFR-015. PR67 implements measured18px body/control text,44px targets, primary-reference emphasis and passage-first review with keyboard/no-send regressions. Actual booth-distance, contrast, NVDA/VoiceOver and volunteer tasks remain; preserve the approved professional workspace direction. |
-| Remaining privacy and recovery assurance | Recover safely without leaving unintended audio/transcript residue | FR-057/059/062, NFR-010/019. Backup/restore UI, reset protections and PR65 bounded interrupted CLI-scratch cleanup are built. Legacy temporary files, swap/crash dumps and full retention/filesystem assurance remain; optional persistent recording remains off/unimplemented. |
-| Trusted installation and updates | Install, identify and roll back a release safely on each claimed platform | FR-060, NFR-014/018. Signing/notarization, manual signed update/service lock, rollback/uninstall and independent license/dependency review remain. Checksums, inventory validation and ad-hoc signing do not substitute for trusted signing. No paid certificate/service without authorization. |
+| Real microphone setup verification | Confirm input/channel information, the ten-second meter test and loopback guidance with the actual pastor feed | FR-001/002/003/005/007/008. Built: input information, safe input test, loopback/virtual input guidance. Physical MOTU channels, drivers, permissions, hotplug and platform loopback remain unverified. |
+| Speech recognition feedback and speed | Read provisional speech, and get Auto sends fast enough to be useful | FR-009/010/012/017/019/020/024/025. Built: rolling preview, opt-in provisional snapshots on the CLI worker. On the development CPU, recognition takes about 2 seconds per window regardless of length; the resident worker saves little and a reduced audio context was unreliable, so defaults are unchanged. Faster recognition (GPU, a smaller verified model) needs labelled accuracy evidence. Configurable confusion aliases still need labelled evidence. |
+| Real macOS ProPresenter preparation | Use the installed Bible workflow on Mac with the same safeguards | FR-044 and RF03/platform matrix. Not implemented; needs an authorized Mac accessibility profile and the installed app. Mac CI is not enough. |
+| Live-service accessibility | Read states from the booth, use deliberate keys, operate with a screen reader | FR-026/027/030/031/061, NFR-015/016. Built: 18 px text, 44 px targets, Route high-contrast design, H to hold, Escape to stop, spoken Auto announcements. Actual booth-distance, contrast, NVDA/VoiceOver and volunteer tasks remain. |
+| Privacy and recovery assurance | Recover safely without leaving audio or transcript residue | FR-057/059/062, NFR-010/019. Built: backup/restore, reset protections, CLI scratch recovery. Resident-worker temporary folders, swap/crash dumps and full retention assurance remain; optional recording stays off. |
+| Trusted installation and updates | Install, identify and roll back a release safely | FR-060, NFR-014/018. Signing/notarization, a signed manual update with a service lock, rollback/uninstall and independent license/dependency review remain. No paid certificate or service without authorization. |
 
 ## Test with real ProPresenter and the service setup
 
-These are tests of preservation, not requests to build a second theme editor, Looks editor or Sunday playlist system. ProPresenter continues to own all of those.
+These are tests of preservation, not requests to build a theme editor, Looks editor or playlist system. ProPresenter keeps all of those.
 
-- Verify exact passage text, numbering, ranges and edition switches for IFC's KJV, Amplified, Amplified Classic, NIV, NKJV and The Message. Personal-host KJV/ASV evidence does not prove these six editions. Never guess numbering or silently substitute an edition.
-- Verify existing Bible themes, room/stream Looks and routing are preserved, text is not clipped, and Sunday playlist/media/manual/Companion operation remains usable. Include unrelated operator changes, failures, reconnection and uncertain-output recovery. Retain all RF01–22 cases and the original FR/NFR mappings.
-- Measure actual audible-reference-end to confirmed output latency, including native preparation. Proposed p50≤2s/p95≤4s targets remain measurement gates; existing slow/clipped preparation is not a pass.
+- Verify exact passage text, numbering, ranges and edition switches for IFC's KJV, Amplified, Amplified Classic, NIV, NKJV and The Message. Never guess numbering or silently substitute an edition.
+- Verify existing Bible themes, room/stream Looks and routing are preserved, text is not clipped, and Sunday playlist/media/manual/Companion operation remains usable, including during Auto, Hold, Emergency stop, failures, reconnection and uncertain output.
+- Measure actual audible-reference-end to confirmed output latency in Auto, including the hold window and native preparation. The p50 ≤ 2 s and p95 ≤ 4 s targets remain measurement gates.
 - Verify real MOTU M4 input/channel selection, unplug/replug, permissions and format conversion. The selected microphone must not silently change.
-- Run real same-host and LAN tests on every claimed Windows/macOS/architecture profile. Verify minimized/background operation, sleep/wake and manual takeover under realistic shared CPU/GPU load.
+- Run same-host and LAN tests on every claimed Windows/macOS/architecture profile, including minimized operation, sleep/wake and manual takeover under shared CPU/GPU load.
 
-Personal Windows testing is authorized under the safeguards in HANDOFF.md. Church production access/output is not. Physical tests and missing Mac access must remain pending until they can actually be observed.
+Personal Windows testing is authorized under the safeguards in HANDOFF.md. Church production output is not. The user will run the hands-on tests once the software work is complete.
 
 ## Measure service readiness
 
-- Build a labeled, held-out real sermon set before claiming reference precision/recall, accent performance or false-positive rates. The supplied Sunday video starting at1:18:10 is a source, not a completed accuracy benchmark; a short unlabeled pilot is not ground truth. Synthetic transcripts and loopback fixtures only prove their stated software behavior.
-- Complete the original90-minute and3-hour stability,10-hour wrong-output rehearsal and CPU/RAM measurements on representative hosts. A historical90-minute minimized synthetic fixture applies only to its recorded code baseline and scope.
-- Verify the original precision/recall thresholds, zero unapproved wrong displays, p50/p95 delay,30-second manual failback and failure/reconnect requirements using the defined methods.
-- Conduct at least three volunteer usability sessions, keyboard/screen-reader checks and physical room/stream review. Record errors, assistance, exact versions, expected/actual outcomes and reviewer approval.
-- Obtain the defined technical/operational acceptance and release decision. P0 remains PENDING until route/fidelity/translation/platform/timing evidence and IFC approval are complete; provisional development approval does not waive these tests.
+- **Auto trust gate.** Build labelled, held-out real sermon recordings and run the [ten-hour Auto rehearsal](117-auto-rehearsal-harness.md): at least 36,000 seconds of reviewed held-out audio with zero wrong automatic outputs (NFR-003). Labels must come from independent listening, never captions or model output.
+- **Recognition accuracy.** Score reference precision/recall on the same kind of held-out set with the [offline evaluator](112-labeled-recognition-evaluation.md) (NFR-002). Synthetic transcripts only prove software behavior.
+- Complete the 90-minute and 3-hour stability runs and CPU/RAM measurements on representative hosts.
+- Verify the 30-second manual failback and the failure/reconnect requirements with the defined methods.
+- Conduct at least three volunteer usability sessions, keyboard/screen-reader checks and physical room/stream review.
+- Obtain the technical/operational acceptance and release decision. P0 remains PENDING until route, fidelity, translation, platform and timing evidence and IFC approval are complete.
 
 ## Optional or deferred capabilities
 
-Global hotkeys (FR-032) and discovery (FR-042) stay off unless deliberately supported and enabled. Bible-only Clear (FR-040) remains unavailable until a safe scoped route is verified; never replace it with Clear All. Cloud credentials/provider work (FR-053) is conditional future work, with secure vault storage if introduced; free local use remains the preference. Persistent recording is optional/off. Near-verbatim quote matching is review-only and opt-in; broad semantic paraphrase matching and automatic quote display are not established capabilities.
+Global hotkeys (FR-032) and discovery (FR-042) stay off unless deliberately supported and enabled. Bible-only Clear (FR-040) remains unavailable until a safe scoped route is verified; never replace it with Clear All. Cloud credentials/provider work (FR-053) is conditional future work. Persistent recording is optional and off. Near-verbatim quote matching is review-only and never auto-sends.
 
-Preserve each item's original priority and release assignment. Do not turn optional work into a release blocker or erase an unmet Must because it is hard. Use the complete86-row original audit to assess completion, and record subsequent evidence as dated follow-ups rather than rewriting historical results.
+Preserve each item's original priority and release assignment. Do not turn optional work into a release blocker or erase an unmet Must because it is hard. Record new evidence as dated follow-ups rather than rewriting historical results.
