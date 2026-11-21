@@ -1,6 +1,6 @@
 # VerseCue development handoff
 
-Checked: 2026-11-21 00:03 UTC. Read [CLAUDE.md](CLAUDE.md) for the short current checkpoint and [PROGRESS.md](PROGRESS.md) for history. Main has stable links to this maintained integration-branch handoff.
+Checked: 2026-11-21 00:15 UTC. Read [CLAUDE.md](CLAUDE.md) for the short current checkpoint and [PROGRESS.md](PROGRESS.md) for history. Main has stable links to this maintained integration-branch handoff.
 
 ## Start safely
 
@@ -25,13 +25,11 @@ PR62 passage policy passed514 modules/28 source+packaged/Mac44787486654. PR63 in
 
 PR67 exact5bfb90513b9b61ae113b79204049008276313e84 passed534 modules/check, measured typography/targets/checkbox labels/compact/manual-no-send, existing Studio/workspace/smoothness, all32 source+32 packaged Windows scenarios,153-file current-source/native receipts and Mac44828146007. Initial footer-over-Stop at640px/200% was reproduced and corrected using the unchanged regression. All jobs are terminal. PR68 docs-only830e1dd merged at2d93e73 after audit; main entry points now direct fresh agents to current active work.
 
-## Active evaluator work
+## Active component work
 
-Two offline scripts, tests/recognition-evaluation.test.cjs, docs112, a synthetic JSON example and diagnostic-checks workflow are uncommitted in the active worktree.10 focused synthetic groups (including BOM input) plus544 full modules/check pass; the synthetic example reports zero real held-out clips. No actual recordings were scored.
+PR69 offline evaluator merged atd7bc48a after exact71a699f passed544 local modules/check/audit and all three public diagnostic jobs44841778744 (Windows/Mac ARM/Mac Intel). Job logs include exact head,544 pass/0fail and zero-real synthetic CLI. No actual recordings were scored. Main is fetched but not yet integrated into root/replay. Preserve live root handoff on conflict and retain both progress histories.
 
-The evaluator separates source/split groups, requires real consent/review attestations and artifact hashes, rejects duplicate audio/split leakage, counts exact citation/edition/sequence matches and nominal Wilson intervals, and writes new reports only under ignored test-results/recognition-evaluation. It does not verify ground truth, verse legality/availability, live timing, sermon-hour false positives, display fidelity or service acceptance.
-
-Current main68 is now integrated in the evaluator worktree. Its docs/107 and PROGRESS have been refreshed to distinguish merged software from actual hardware/service evidence. Final local modules/check/audit are running at exec sessions39319 and30303. Inspect these exact live handles; no PR/CI exists yet. Next review the diff, publish a small PR and verify its public Windows/Mac ARM/Intel diagnostic CI before merge. No app runtime/package change or real recognition/output claim.
+Active branch feat/bounded-speech-replay, worktree test-results/pr-split/bounded-speech-replay, contains uncommitted shared diagnostic PCM decoder and6 passing synthetic groups plus edits to local/resident/packaged/background speech scripts. A later sequential Node edit changed background successfully but stopped before writing soak-desktop because its expected reader marker differed; inspect actual soak source next. Do not blindly repeat the background replacement. Terminal helper-test output and PR69 jobs are not live processes. No real replay, GUI test or long soak has run for this component. Next finish readers/provenance, isolated profiles, modules/check/audit and appropriately scoped private worker/desktop smokes, then public diagnostic CI/small PR. Replay metadata must remain untimed and cannot become measured audible-end evidence.
 
 ## Next actual integration work
 
@@ -39,7 +37,7 @@ The personal read-only prerequisite checks are terminal and records remain ignor
 
 Once tooling/prerequisites permit, prioritize Windows fresh-reference preparation speed/clipping and the full real-host fidelity matrix. Native testing needs fresh independent Audience=false and Stage=false observations. No actual native operation or output was attempted in this continuation. Do not publish new personal-host telemetry without specific authorization.
 
-A separate diagnostic bug is not fixed yet: soak-desktop, test-background-quotes, test-local-speech, test-packaged-speech and test-resident-speech still slice up to12 seconds, conflicting with the runtime10-second/160000-sample contract. Repair bounds and current capture/age/ownership semantics before running or claiming new replay/soak evidence. No long soak is active.
+The diagnostic bug currently being repaired is: soak-desktop, test-background-quotes, test-local-speech, test-packaged-speech and test-resident-speech still slice up to12 seconds, conflicting with the runtime10-second/160000-sample contract. Repair bounds and current capture/age/ownership semantics before running or claiming new replay/soak evidence. No long soak is active.
 
 Existing sermon pilot/spot-check/replay scripts are throwaway diagnostics, explicitly without independent labels/accuracy scores. The user already supplied the source and4690s start; [source intake](docs/test-data/sermon-source-intake.md) records it. Do not ask for source/timestamp again, manufacture labels from captions/model output or relabel synthetic cases as real. Formal consent/review/held-out evidence still matters.
 

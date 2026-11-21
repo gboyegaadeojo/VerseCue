@@ -793,3 +793,8 @@ Main68/root412cdc2 documentation integration is complete; app source remains534 
 ## 2026-11-21 00:03 UTC - evaluator final-check checkpoint
 
 Continued after the status question; prior turn supplied status, not implementation. Re-read master/AGENTS/current records and verified rootdc627c6 plus main2d93e73. Evaluator main68 integration succeeded; preserved all uncommitted code. Corrected stale docs/107 and its component progress; final module/check/audit jobs are active (39319/30303). GitHub confirms repository PUBLIC and aggregate PR22 draft. No new real data, output or release. Next publish evaluator after local checks, verify cross-platform diagnostic jobs and repair bounded replay diagnostics.
+
+
+## 2026-11-21 00:15 UTC - evaluator merged; replay repair active
+
+PR69 merged atd7bc48a7d1648346623d84a7ae760a215ce52ec1. Exact71a699f passed544 local checks and all Windows/Mac ARM/Intel jobs44841778744; job logs verify544/0fail and synthetic CLI zero real clips. Shared replay decoder now passes6 synthetic groups; four script readers edited, soak reader still needs actual-source correction after a guarded marker failure. All actual replay/worker/native/output/soak evidence remains unperformed for this component. Next integrate main69, finish diagnostic repair and appropriately scoped tests; preserve original gates and private records.
