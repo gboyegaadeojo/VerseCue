@@ -794,7 +794,7 @@
     {
       "type": "application",
       "bom-ref": "whisper.cpp-windows-x64",
-      "name": "whisper.cpp Windows x64 release archive",
+      "name": "whisper.cpp b5454 Windows x64 engine (Vulkan + CPU variants, built from official source in CI)",
       "licenses": [
         {
           "license": {
@@ -805,7 +805,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "6ba69e3482d7826214f90a6a9c84ca07782aec1e1d0c6a7c30c994fd5d816ccb"
+          "content": "9c16b302a33997482d88154cac702ed030baf65d62d3580096bc6ddc09b03e6e"
         }
       ],
       "scope": "optional",
