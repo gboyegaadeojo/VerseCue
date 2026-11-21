@@ -41,7 +41,8 @@ function validate(r, bounds) {
   return reasons;
 }
 function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslation='KJV',maxVerses=10}={}) {
-  if(!Number.isSafeInteger(maxVerses)||maxVerses<1||maxVerses>50)throw Error('Invalid passage verse limit');
+  // 176 covers the longest chapter (Psalm 119) so a whole chapter can be read; Auto keeps its own 10-verse limit.
+  if(!Number.isSafeInteger(maxVerses)||maxVerses<1||maxVerses>176)throw Error('Invalid passage verse limit');
   if(typeof text!=='string'||text.length>8192) return {references:[],issues:['Invalid transcript size']};
   let s=normalize(citationForms(normalize(text)));
   // Commas Whisper inserts between book, chapter and verse ("Psalm 21, verse 1", "First Peter, chapter 2, verse 1").

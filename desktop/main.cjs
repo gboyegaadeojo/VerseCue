@@ -52,7 +52,7 @@ let settings,settingsFile,profiles,mainWindow,compactWindow,healthTimer,healthBu
 const ui=pathToFileURL(path.join(__dirname,'../ui/index.html')).href;
 function trusted(e){if(!windows.has(BrowserWindow.fromWebContents(e.sender))||e.senderFrame!==e.sender.mainFrame||e.senderFrame.url.split('?')[0]!==ui)throw new Error('Untrusted caller');}
 // NR-010: saved Auto start preference and hold window. Start mode applies only at launch/reset (Session.applyStartMode).
-function applySessionPreferences(){automatic.configureDelay(settings.autoHoldMs);service.startMode=settings.startMode;}
+function applySessionPreferences(){automatic.configureDelay(settings.autoHoldMs);service.startMode=settings.startMode;service.chapterContext=settings.chapterContext!==false;}
 function handler(name,callback,{withEvent=false}={}){ipcMain.handle(name,async(e,...args)=>{try{trusted(e);if(configurationTransition.busy&&!['state','settings','quote-status','private-api-status','profiles-list','window-identity','audio-stop','private-api-stop','command'].includes(name))throw Error('Settings are changing; wait for setup to finish');return {ok:true,value:await callback(...(withEvent?[e,...args]:args))};}catch(error){return {ok:false,error:error.message};}});}
 function createWindow(compact=false){
   const win=new BrowserWindow({width:compact?450:1280,height:compact?630:900,minWidth:compact?360:800,minHeight:550,title:'VerseCue',backgroundColor:'#10151d',show:false,alwaysOnTop:compact,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,backgroundThrottling:false}});
@@ -83,7 +83,7 @@ async function bootstrap(){
   if(nativeCopyLedger.failure)service.log('NATIVE_COPY_LEDGER_UNVERIFIED','warning');
   savedBible=new SavedBibleWorkflow({service,connector,catalog,controller:preparationController,ledger:nativeCopyLedger,onPreparedCopy:receipt=>referencePassages.rememberNativeCopy(receipt),onUncertain:()=>referencePreparation?.revokeNative()});
   passageCoordinator=new PassageCoordinator({service,connector,resolver:referencePassages,savedBible,onChange:value=>{service.passagePreparation=value;service.notify();}});
-  referencePreparation=new ReferencePreparation({service,coordinator:passageCoordinator,nativeReadiness:()=>savedBible.readiness(),canPrepare:()=>!preparationOwner&&!passageCoordinator.busy&&!savedBible.busy&&!preparation.busy&&!service.busy&&!service.operationOwner,prepare:(id,event,options)=>ownedPreparation(event,()=>passageCoordinator.prepare(id,options)),onChange:value=>{service.referencePreparation=value;service.notify();}});
+  referencePreparation=new ReferencePreparation({service,coordinator:passageCoordinator,nativeReadiness:()=>savedBible.readiness(),canPrepare:()=>!preparationOwner&&!passageCoordinator.busy&&!savedBible.busy&&!preparation.busy&&!service.busy&&!service.operationOwner,prepare:(id,event,{chapter=false,...options}={})=>ownedPreparation(event,()=>chapter?passageCoordinator.prepareChapter(id,options):passageCoordinator.prepare(id,options)),onChange:value=>{service.referencePreparation=value;service.notify();}});
   if(nativeCopyLedger.status().uncertainReservations>0)referencePreparation.revokeNative();
   const recovery=new PowerRecovery({service,connector,cancelAudio,cancelPreparation:()=>cancelPreparation(),revokeApi:()=>privateApi.stop(),getTarget:()=>settings});
   powerMonitor.on('suspend',()=>recovery.handle('suspend'));powerMonitor.on('resume',()=>recovery.handle('resume'));
