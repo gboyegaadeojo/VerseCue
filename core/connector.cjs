@@ -14,6 +14,8 @@ class Connector {
   constructor({fetchImpl=fetch}={}){this.fetch=fetchImpl;this.status={state:'offline'};this.base=null;this.version=null;this.mappings=new Map();this.armed=false;this.generation=0;}
   configure(host,port){this.base=targetURL(host,port);this.generation++;this.version=null;this.armed=false;this.mappings.clear();this.status={state:'offline'};}
   async read(path,{timeoutMs=2000}={}){if(!Number.isInteger(timeoutMs)||timeoutMs<1||timeoutMs>2000)throw new Error('Invalid read deadline');if(!this.base)throw new Error('Configure the target first');const base=this.base,generation=this.generation;const response=await this.fetch(base+path,{redirect:'error',signal:AbortSignal.timeout(timeoutMs)});if(!response.ok)throw new Error(`ProPresenter HTTP ${response.status}`);const data=await response.text();if(generation!==this.generation||base!==this.base)throw new Error('Target changed during request; stale response discarded');if(data.length>2000000)throw new Error('Response too large');return JSON.parse(data);}
+  // Health probe: reads the version without changing connection state; the caller decides.
+  async probe(){const v=await this.read('/version');if(typeof v.host_description!=='string'||!/ProPresenter/.test(v.host_description))throw new Error('Unexpected target identity');return v;}
   async test(){const generation=this.generation;try{const v=await this.read('/version');if(typeof v.host_description!=='string'||!/ProPresenter/.test(v.host_description))throw new Error('Unexpected target identity');this.version=v;this.status={state:'connected',version:v.host_description};return this.status;}catch(e){if(generation===this.generation){this.armed=false;this.status={state:'offline'};}throw e;}}
   arm(value){if(value&&!this.version)throw new Error('Test connection before arming');this.armed=value===true;}
   async inspect(uuid){if(typeof uuid!=='string'||!/^[a-f0-9-]{36}$/i.test(uuid))throw new Error('Invalid presentation UUID');const raw=await this.read(`/v1/presentation/${uuid}`);const p=raw.presentation??raw;return {p,...orderedPresentationCues(p)};}
@@ -92,6 +94,7 @@ class Connector {
     if(dryRun){if(!guard())throw new Error('Send canceled');return {state:'simulated',networkRequests:0};}
     const generation=this.generation,base=this.base;
     if(!this.armed)throw new Error('Output is disarmed');
+    if(this.status?.state!=='connected')throw new Error('ProPresenter is not responding right now; nothing was sent');
     const mappingKey=`${candidate.label}|${candidate.translation}`,m=this.mappings.get(mappingKey);
     if(!m)throw new Error('Prepare this exact passage in ProPresenter and verify a cue mapping. Arbitrary Bible lookup is not verified.');
     if(automatic&&m.autoVerified!==true)throw new Error('This cue has not been explicitly verified for Auto');
