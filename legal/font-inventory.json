@@ -1,29 +1,46 @@
 {
-  "family": "IBM Plex Sans",
-  "source": "https://github.com/IBM/plex",
-  "commit": "bc6a7e4b37634eb79785d59781893db63ee3edcb",
-  "license": "SIL Open Font License 1.1",
-  "modified": false,
-  "files": [
-    {
-      "file": "ui/fonts/IBMPlexSans-Regular.woff2",
-      "bytes": 65080,
-      "sha256": "78efbe80177406a1b80d5925e706e3366290bf0d5309d7b0bd2d7f0d607f3c4c"
-    },
-    {
-      "file": "ui/fonts/IBMPlexSans-Medium.woff2",
-      "bytes": 69148,
-      "sha256": "0497fab52b9c10f9efbec00be509b16d449a1e277098f03af929ef1e7cbddb54"
-    },
-    {
-      "file": "ui/fonts/IBMPlexSans-SemiBold.woff2",
-      "bytes": 69388,
-      "sha256": "0fe2655c3c88b0b4c578b0046333fde7fb60d18419b9d07b4a1e115ac893e7f6"
-    },
-    {
-      "file": "ui/fonts/IBMPlexSans-Bold.woff2",
-      "bytes": 65012,
-      "sha256": "0ee7512b5d3b040fe7c0b874df0965b357777d3929f627dfea202ff63834d05d"
-    }
-  ]
+    "family":  "IBM Plex Sans",
+    "source":  "https://github.com/IBM/plex",
+    "commit":  "bc6a7e4b37634eb79785d59781893db63ee3edcb",
+    "license":  "SIL Open Font License 1.1",
+    "modified":  false,
+    "files":  [
+                  {
+                      "file":  "ui/fonts/IBMPlexSans-Regular.woff2",
+                      "bytes":  65080,
+                      "sha256":  "78efbe80177406a1b80d5925e706e3366290bf0d5309d7b0bd2d7f0d607f3c4c"
+                  },
+                  {
+                      "file":  "ui/fonts/IBMPlexSans-Medium.woff2",
+                      "bytes":  69148,
+                      "sha256":  "0497fab52b9c10f9efbec00be509b16d449a1e277098f03af929ef1e7cbddb54"
+                  },
+                  {
+                      "file":  "ui/fonts/IBMPlexSans-SemiBold.woff2",
+                      "bytes":  69388,
+                      "sha256":  "0fe2655c3c88b0b4c578b0046333fde7fb60d18419b9d07b4a1e115ac893e7f6"
+                  },
+                  {
+                      "file":  "ui/fonts/IBMPlexSans-Bold.woff2",
+                      "bytes":  65012,
+                      "sha256":  "0ee7512b5d3b040fe7c0b874df0965b357777d3929f627dfea202ff63834d05d"
+                  }
+              ],
+    "additionalFamilies":  [
+                               {
+                                   "family":  "DM Sans",
+                                   "source":  "https://github.com/google/fonts/tree/main/ofl/dmsans",
+                                   "commit":  "5b35b7208dd4100571326fdf37f030b32a524232",
+                                   "license":  "SIL Open Font License 1.1",
+                                   "licenseFile":  "legal/DM-SANS-LICENSE.txt",
+                                   "modified":  false,
+                                   "files":  [
+                                                 {
+                                                     "file":  "ui/fonts/DMSans-Variable.ttf",
+                                                     "bytes":  240164,
+                                                     "sha256":  "8cd08d97e89c24d0aa92edd2f0f4c8ee6195eee9b7c9f154865a58b02f0c1c0d"
+                                                 }
+                                             ]
+                               }
+                           ]
 }

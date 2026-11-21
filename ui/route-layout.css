@@ -1,0 +1,76 @@
+/* Route layout (NR-010): matches the chosen Route artboard. Loaded after route.css; works with route-layout.js. */
+@font-face{font-family:'DM Sans';src:url('fonts/DMSans-Variable.ttf') format('truetype');font-weight:100 1000;font-style:normal;font-display:swap}
+:root{font-family:'DM Sans','IBM Plex Sans',system-ui,sans-serif}
+body,button,input,select,textarea{font-family:inherit}
+
+/* One black top bar: brand, tabs, status pills, actions. */
+.route-layout .app-shell{display:block}
+.route-layout .sidebar{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 8px;position:static;width:auto;height:auto;min-height:72px;padding:10px 24px;background:#000;border:0;color:#fff}
+.route-layout .sidebar .nav-label,.route-layout .workspace-identity,.route-layout .brand small{display:none}
+.route-layout .brand{padding:0 12px 0 0;gap:10px;align-items:center}
+.route-layout .brand h1{color:#fff;font-size:22px;font-weight:700;letter-spacing:-.5px;margin:0}
+.route-layout .mark{background:#fff;color:#000;border-color:#fff}
+.route-layout .sidebar>button{flex:none;min-height:44px;padding:0 14px;border-radius:999px;border:0;background:transparent;color:#c7c7c7;font-weight:600;white-space:nowrap}
+.route-layout .sidebar>button:hover{background:#1f1f1f;color:#fff}
+.route-layout .sidebar>button[aria-current=page]{background:#fff;color:#000}
+.route-layout .sidebar .nav-icon{display:none}
+.route-layout .route-status{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto;background:transparent;border:0;padding:0}
+.route-layout .route-status>div{display:flex;align-items:baseline;gap:6px;padding:8px 14px;border:0;border-radius:999px;background:#1f1f1f}
+.route-layout .route-status span{color:#a6a6a6;font-size:11px;letter-spacing:.6px}
+.route-layout .route-status strong{color:#fff;margin:0;font-weight:600}
+.route-layout .header-actions{display:flex;flex-wrap:wrap;gap:8px;margin:0}
+.route-layout .app-body>header{display:none}
+
+/* Two columns like the artboard: the left column and the reference card. */
+.route-layout .workspace{grid-template-columns:minmax(300px,380px) minmax(0,1fr)!important;background:#fff}
+.route-layout .inspector.route-inspector{display:none}
+.route-layout .studio-feed{padding:28px 24px 32px;background:#fff;border-right:1px solid var(--line)}
+.route-layout .studio-panel-heading{display:none}
+.route-layout .studio-feed>.manual{margin:0 0 24px;padding:0;border:0;background:transparent}
+.route-layout .studio-feed>.manual label[for="reference-input"]{display:block;font-size:28px!important;font-weight:700;letter-spacing:-.5px;margin-bottom:12px}
+.route-layout .studio-feed>.manual .input-row{display:flex;flex-direction:column;gap:8px}
+.route-layout .studio-feed>.manual input{min-height:56px;border-radius:10px;background:#eee;border:0;padding:0 18px}
+.route-layout .studio-feed>.manual button{align-self:stretch}
+.route-layout .studio-feed>.manual>.muted{display:none}
+.route-layout .studio-feed .studio-detections{border:0;background:transparent;margin:0 0 24px}
+.route-layout .studio-feed .queue-panel{padding:0}
+.route-layout .studio-feed .queue-panel h2{font-size:18px!important;font-weight:700}
+.route-layout .studio-feed .queue-item{border:0;padding:0}
+.route-layout .studio-feed .queue-item button{border:0;border-bottom:1px solid #eee;border-radius:10px;font-weight:600}
+.route-layout .studio-feed .audio-panel{padding:0;margin-bottom:24px}
+.route-layout .route-session{border-top:1px solid var(--line);padding-top:16px}
+.route-layout .route-session section{padding:0;border:0;background:transparent}
+.route-layout .route-session h2{font-size:18px!important;font-weight:700}
+
+/* Main column: heading, mode bar, then the large reference card. */
+.route-layout .workspace>main{padding:28px 40px 40px}
+.route-layout .page-heading{margin-bottom:16px}
+.route-layout .page-heading h2{font-size:22px;font-weight:700}
+.route-layout main>.mode-bar{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;margin:0 0 20px;padding:16px 20px;border-radius:16px;background:#f6f6f6;border:0}
+.route-layout main>.mode-bar h2{display:none}
+.route-layout main>.mode-bar label{margin:0;display:flex;flex-direction:column;gap:6px;font-weight:600}
+.route-layout .candidate-panel{padding:32px 36px;border-radius:16px}
+.route-layout .candidate-panel #reference{font-size:clamp(48px,5.4vw,80px);letter-spacing:-3px;font-weight:700}
+.route-layout blockquote{font-size:20px;line-height:1.5}
+
+/* Narrow windows stack the columns. */
+@media (max-width:1000px){.route-layout .workspace{display:block!important}.route-layout .studio-feed{border-right:0;border-bottom:1px solid var(--line)}.route-layout .route-status{margin-left:0}.route-layout .workspace>main{padding:20px}}
+@container desk (max-width:800px){.route-layout .workspace{display:block!important}}
+.compact.route-layout .sidebar>button{display:none}
+/* Fixes after the first visual check. */
+.route-layout .studio-overview{display:block!important}
+.route-layout .desk-search{display:none}
+.route-layout .sidebar{gap:6px;min-height:64px}
+.route-layout .sidebar>button{padding:0 12px}
+.route-layout .route-status>div{padding:6px 12px}
+.route-layout .route-status strong{font-size:14px!important}
+.route-layout .route-status span{font-size:10px!important}
+.route-layout main>.mode-bar>div{flex:1 1 360px;min-width:0}
+.route-layout main>.mode-bar p{margin:0 0 4px}
+.route-layout main>.mode-bar label{flex:0 1 260px}
+/* Zoom and narrow windows: pills wrap inside the window instead of overflowing it. */
+.route-layout .route-status{min-width:0;max-width:100%}
+.route-layout .route-status>div{flex-wrap:wrap;min-width:0;max-width:100%}
+.route-layout .route-status strong{overflow-wrap:anywhere;min-width:0}
+.route-layout .sidebar{min-width:0;max-width:100%}
+.route-layout .header-actions{min-width:0;max-width:100%}

@@ -500,3 +500,7 @@ Version bump for a public 0.6.1 pre-release with the user-reported fixes: bundle
 ## Prepare for volunteer (NR-012) - 2026-11-21
 
 New start mode: Confirm, no output, detected-reference preparation (native ProPresenter Bible) switched on when listening starts; volunteer takes it live in ProPresenter. Unit and synthetic scenario pass; real ProPresenter run pending (ProPresenter not running). See docs/130.
+
+## Route layout and DM Sans - 2026-11-21
+
+User said the app did not look like the chosen artboard. Bundled DM Sans (OFL), single black top bar with status pills, two columns (Which passage?/heard list/audio/session; reference card), inspector folded in. Layout-only. See docs/131.
