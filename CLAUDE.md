@@ -20,9 +20,13 @@ Use [HANDOFF.md](HANDOFF.md) as the takeover document. **Public v0.6.2 pre-relea
 
 ## Next queue
 
-1. Optional: CUDA speech add-on asset for the RTX 4070 PC (CUDA build folder poc/private/tools/whisper-b5454-cuda-11.8.0, ~1.2 GB; check redistribution terms first).
-2. Whole-chapter preparation on Mac (native bridge is Windows-only).
-3. Live voice test with the user; labelled recordings; Mac native route; code signing; volunteer/screen-reader sessions.
+User requests 2026-11-21 (evening): (1) guided NVIDIA setup, (2) Mac ProPresenter helper, (3) faster detection + simple open-and-connect, (4) Halo design (canvas https://claude.ai/artifact/9sYtuXBtafLyrrDxZZUV5J, design 5).
+1. PR105 NVIDIA setup MERGED (docs/135).
+2. PR106 Halo (feat/halo-design, docs/136, NR-016: Standard compact, Large keeps 44px booth checks, Hold 44px). Fixed sweep failures; rerun sweep (scratchpad sweep-halo2.txt) + CI 44945428804/44945437324, then merge.
+3. feat/faster-simpler worktree (NR-015, docs/137 TO WRITE): auto-connect, auto-listen, -ac 768, 0.7 s silence, heardConfidence (CLI -ojf, resident verbose_json). 607 unit tests pass. TODO: measure speed on idle CPU, verify resident verbose_json with real server, doc, PR, sweep.
+4. PR107 Mac helper (docs/138): inspection-only until user's Mac inspection; merge after diagnostics.
+5. Then rebuild + publish next version (0.6.3) and integrate into PR22.
+6. Live voice test with the user; Mac inspection from user; code signing; volunteer sessions.
 
 ## Integration and authorization
 
