@@ -33,6 +33,14 @@
 
 The ring and badge appear only when the speech engine reports how confidently it heard the words (`heardConfidence` on a candidate). Until then the ring stays neutral and no badge is shown, so the app never displays a made-up number.
 
+## Sizes and safety controls (NR-016)
+
+- **Standard (default):** compact Halo controls, at least 28 px, 12–13 px text, as the user asked.
+- **Large ("booth distance"):** keeps the original booth readability, with 18 px text and 44 px targets. All booth checks still run there.
+- **Hold:** stays 44 px in both sizes.
+- **Mode menu:** stays visible, compact, in the mode line, so it remains usable from the keyboard. The toolbar switch is the quick way to change mode.
+- **Status messages:** float as a pill at the bottom of the window and ignore clicks, so they never cover a control.
+
 ## Verification
 
 | Check | Result |
