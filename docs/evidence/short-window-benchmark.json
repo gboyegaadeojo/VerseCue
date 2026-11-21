@@ -1,0 +1,246 @@
+{
+  "started": "2026-11-18T19:08:04.458Z",
+  "finished": "2026-11-18T19:09:25.869Z",
+  "provider": "resident CPU whisper.cpp b5454",
+  "threads": 4,
+  "beamSize": 1,
+  "rows": [
+    {
+      "model": "base.en",
+      "fixture": "REAL-PILOT-001-12",
+      "windowSeconds": 4,
+      "elapsedMs": 6647,
+      "includesStartup": true,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "base.en",
+      "fixture": "REAL-PILOT-002-12",
+      "windowSeconds": 4,
+      "elapsedMs": 5379,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "base.en",
+      "fixture": "REAL-PILOT-004-14",
+      "windowSeconds": 4,
+      "elapsedMs": 5359,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "base.en",
+      "fixture": "REAL-PILOT-001-12",
+      "windowSeconds": 6,
+      "elapsedMs": 5393,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "base.en",
+      "fixture": "REAL-PILOT-002-12",
+      "windowSeconds": 6,
+      "elapsedMs": 5217,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "base.en",
+      "fixture": "REAL-PILOT-004-14",
+      "windowSeconds": 6,
+      "elapsedMs": 15160,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "base.en",
+      "fixture": "REAL-PILOT-001-12",
+      "windowSeconds": 8,
+      "elapsedMs": 5710,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "base.en",
+      "fixture": "REAL-PILOT-002-12",
+      "windowSeconds": 8,
+      "elapsedMs": 5350,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "base.en",
+      "fixture": "REAL-PILOT-004-14",
+      "windowSeconds": 8,
+      "elapsedMs": 5515,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "tiny.en",
+      "fixture": "REAL-PILOT-001-12",
+      "windowSeconds": 4,
+      "elapsedMs": 2849,
+      "includesStartup": true,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "tiny.en",
+      "fixture": "REAL-PILOT-002-12",
+      "windowSeconds": 4,
+      "elapsedMs": 2645,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "tiny.en",
+      "fixture": "REAL-PILOT-004-14",
+      "windowSeconds": 4,
+      "elapsedMs": 2264,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "tiny.en",
+      "fixture": "REAL-PILOT-001-12",
+      "windowSeconds": 6,
+      "elapsedMs": 2044,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "tiny.en",
+      "fixture": "REAL-PILOT-002-12",
+      "windowSeconds": 6,
+      "elapsedMs": 2288,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "tiny.en",
+      "fixture": "REAL-PILOT-004-14",
+      "windowSeconds": 6,
+      "elapsedMs": 2197,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "tiny.en",
+      "fixture": "REAL-PILOT-001-12",
+      "windowSeconds": 8,
+      "elapsedMs": 2314,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "tiny.en",
+      "fixture": "REAL-PILOT-002-12",
+      "windowSeconds": 8,
+      "elapsedMs": 2338,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    },
+    {
+      "model": "tiny.en",
+      "fixture": "REAL-PILOT-004-14",
+      "windowSeconds": 8,
+      "elapsedMs": 2158,
+      "includesStartup": false,
+      "transcriptNonempty": true,
+      "completeReferenceProposals": 0,
+      "accuracyScored": false
+    }
+  ],
+  "groups": [
+    {
+      "model": "base.en",
+      "windowSeconds": 4,
+      "warmRequests": 2,
+      "p50Ms": 5359,
+      "p95Ms": 5379
+    },
+    {
+      "model": "base.en",
+      "windowSeconds": 6,
+      "warmRequests": 3,
+      "p50Ms": 5393,
+      "p95Ms": 15160
+    },
+    {
+      "model": "base.en",
+      "windowSeconds": 8,
+      "warmRequests": 3,
+      "p50Ms": 5515,
+      "p95Ms": 5710
+    },
+    {
+      "model": "tiny.en",
+      "windowSeconds": 4,
+      "warmRequests": 2,
+      "p50Ms": 2264,
+      "p95Ms": 2645
+    },
+    {
+      "model": "tiny.en",
+      "windowSeconds": 6,
+      "warmRequests": 3,
+      "p50Ms": 2197,
+      "p95Ms": 2288
+    },
+    {
+      "model": "tiny.en",
+      "windowSeconds": 8,
+      "warmRequests": 3,
+      "p50Ms": 2314,
+      "p95Ms": 2338
+    }
+  ],
+  "microphoneCapture": false,
+  "propresenterOutputRequests": 0,
+  "defaultChanged": false,
+  "accuracyScored": false,
+  "physicalLatencyMeasured": false,
+  "limitations": [
+    "Small unlabelled diagnostic set",
+    "Shared host load uncontrolled",
+    "Back-to-back inference, not live arrival",
+    "Different window lengths omit different context",
+    "First request includes startup and is excluded from warm percentiles",
+    "No inference that a shorter transcript or more parser proposals is more accurate"
+  ]
+}

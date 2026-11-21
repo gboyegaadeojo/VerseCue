@@ -1,0 +1,37 @@
+{
+  "scope": "Real personal Windows ProPresenter21.4.2 preparation only; no saves, microphone or output",
+  "reports": [
+    {
+      "at": "2026-11-18T23:50:50.798Z",
+      "translation": "ASV",
+      "reference": "Hosea 1:1",
+      "sourceRevision": "c53190cf6c03f5bc488586032d0235d8c4657a96",
+      "nativeHelperSha256": "04773d7c07a324679fe2c2180a26f934bfad8bc6ab697f5f596bbdcb26faccd0",
+      "actualProPresenterAccess": true,
+      "microphoneCapture": false,
+      "requestedOutputCommands": 0,
+      "physicalOutputObserved": false,
+      "passed": true,
+      "pausedDisarmedDryRun": true,
+      "nativeWorkerMs": 8916,
+      "outputUnchanged": true,
+      "outputBeforeSha256": "65b6a6a01814db1767211fd13bff5e8cd65a9f27ebbef2b0c147aace50d72a7c"
+    },
+    {
+      "at": "2026-11-18T23:53:00.651Z",
+      "translation": "KJV",
+      "reference": "Hosea 1:1",
+      "sourceRevision": "c53190cf6c03f5bc488586032d0235d8c4657a96",
+      "nativeHelperSha256": "04773d7c07a324679fe2c2180a26f934bfad8bc6ab697f5f596bbdcb26faccd0",
+      "actualProPresenterAccess": true,
+      "microphoneCapture": false,
+      "requestedOutputCommands": 0,
+      "physicalOutputObserved": false,
+      "passed": true,
+      "pausedDisarmedDryRun": true,
+      "nativeWorkerMs": 8474,
+      "outputUnchanged": true,
+      "outputBeforeSha256": "65b6a6a01814db1767211fd13bff5e8cd65a9f27ebbef2b0c147aace50d72a7c"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "at": "2026-11-18T19:49:25.348Z",
+  "version": "0.6.0",
+  "passed": true,
+  "packaged": false,
+  "nativeBridge": "SYNTHETIC",
+  "existingInputRetainedDuringNativePreparation": true,
+  "outputDisarmedDuringPreparation": true,
+  "ordinarySpeechKeptReviewValid": true,
+  "holdBlockedPendingReview": true,
+  "correctionCanceledNativePreparation": true,
+  "newReferencePreserved": true,
+  "minimizedThroughout": true,
+  "noNewMicrophoneAcquisition": true,
+  "pauseRevokedCapture": true,
+  "fakeTargetTriggers": 1,
+  "actualProPresenterAccess": false,
+  "microphoneCapture": false
+}

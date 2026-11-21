@@ -1,0 +1,102 @@
+{
+  "at": "2026-11-19T01:14:31.897Z",
+  "windows": {
+    "at": "2026-11-19T01:10:55.257Z",
+    "revision": "ac3d572ce66210589c3d06d56cebcc578d68954c",
+    "version": "0.6.0",
+    "scope": "isolated unpublished Windows review build",
+    "manifestFilesVerified": 143,
+    "currentSourceMatches": true,
+    "nativeHelperMatchesWorkspace": true,
+    "nativeHelperSha256": "04773d7c07a324679fe2c2180a26f934bfad8bc6ab697f5f596bbdcb26faccd0",
+    "nativeSourceSha256": "b3acb3e50b6961dda199eefd01a00d79ab5b80d6d48c44afaf60d4e1d13dd295",
+    "existingDistUnchanged": true,
+    "existingInstalledAppUnchanged": true,
+    "signed": false,
+    "published": false
+  },
+  "mac": {
+    "run": 44434893807,
+    "revision": "ac3d572ce66210589c3d06d56cebcc578d68954c",
+    "conclusion": "success",
+    "unitTests": 367,
+    "nativeBiblePreparationVerified": false,
+    "physicalOutputVerified": false,
+    "artifactChecksumIndependentlyVerified": false
+  },
+  "reports": {
+    "packaged-detected-native-preparation-clipped-recover": {
+      "at": "2026-11-19T01:12:39.221Z",
+      "version": "0.6.0",
+      "passed": true,
+      "packaged": true,
+      "nativeBridge": "SYNTHETIC",
+      "offUntilExplicitOutputSetting": true,
+      "otherWindowCannotBorrowNativeConsent": true,
+      "detectedMissingPassagePreparedWithoutPrepareClick": true,
+      "ordinarySpeechDidNotCancelNativeWork": true,
+      "minimizedReviewReached": true,
+      "existingInputRetained": true,
+      "noInputManualPathVerified": false,
+      "knownClippingReuseRetained": true,
+      "clippingRecoveryCreatesFreshReviewedCopy": true,
+      "stopRevokedSessionConsent": true,
+      "ownerReloadWithoutCaptureRevokedConsent": true,
+      "nativeCopyCreations": 2,
+      "outputTriggers": 0,
+      "actualProPresenterAccess": false,
+      "microphoneCapture": false
+    },
+    "packaged-detected-native-preparation-uncertain": {
+      "at": "2026-11-19T01:12:46.666Z",
+      "passed": true,
+      "packaged": true,
+      "nativeBridge": "SYNTHETIC",
+      "uncertainAttemptRevokedConsent": true,
+      "savedLookupRetained": true,
+      "noAutomaticRetry": true,
+      "explicitInspectionRequired": true,
+      "inspectionChoiceDidNotRetry": true,
+      "nativeAttempts": 1,
+      "outputTriggers": 0,
+      "actualProPresenterAccess": false,
+      "microphoneCapture": false
+    },
+    "packaged-saved-lookup-speech": {
+      "at": "2026-11-19T01:12:50.532Z",
+      "passed": true,
+      "packaged": true,
+      "ordinarySpeechDuringSavedLookupPreserved": true,
+      "minimizedCaptureRetained": true,
+      "nativeConsent": false,
+      "outputTriggers": 0,
+      "actualProPresenterAccess": false,
+      "microphoneCapture": false
+    },
+    "packaged-reference-passage-ui": {
+      "at": "2026-11-19T01:12:57.505Z",
+      "version": "0.6.0",
+      "passed": true,
+      "packaged": true,
+      "normalOperatorUIWired": true,
+      "deliberateKeyboardConfirmation": true,
+      "uncheckedKeyboardOutputBlocked": true,
+      "unsupportedNativeRouteExplainedBeforeConsent": true,
+      "operatorLibraryPresentationCueSelection": false,
+      "previewFromSyntheticProPresenter": true,
+      "explicitAppearanceAndTargetConsent": true,
+      "fakeTargetTriggers": 4,
+      "preparedReviewZoomChecked": true,
+      "multiSlideContinuation": true,
+      "operatorTakeoverBlockedBeforeTrigger": true,
+      "stopLatched": true,
+      "actualProPresenterAccess": false,
+      "microphoneCapture": false
+    }
+  },
+  "limitations": [
+    "Synthetic targets and capture leases; no microphone or actual ProPresenter in package checks",
+    "No Mac native Bible control or physical/service acceptance",
+    "Unpublished checkpoint; later error-guidance change excluded"
+  ]
+}

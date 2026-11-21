@@ -1,0 +1,73 @@
+{
+  "at": "2026-11-19T01:28:12.472Z",
+  "windows": {
+    "at": "2026-11-19T01:21:40.639Z",
+    "revision": "d0962b0632673ff3d15122a199d373bafe21a2ad",
+    "version": "0.6.0",
+    "scope": "isolated unpublished Windows review build",
+    "manifestFilesVerified": 144,
+    "currentSourceMatches": true,
+    "nativeHelperMatchesWorkspace": true,
+    "nativeHelperSha256": "04773d7c07a324679fe2c2180a26f934bfad8bc6ab697f5f596bbdcb26faccd0",
+    "nativeSourceSha256": "b3acb3e50b6961dda199eefd01a00d79ab5b80d6d48c44afaf60d4e1d13dd295",
+    "existingDistUnchanged": true,
+    "existingInstalledAppUnchanged": true,
+    "signed": false,
+    "published": false
+  },
+  "mac": {
+    "run": 44436283334,
+    "revision": "d0962b0632673ff3d15122a199d373bafe21a2ad",
+    "conclusion": "success",
+    "unitTests": 371,
+    "nativeBiblePreparationVerified": false,
+    "physicalOutputVerified": false,
+    "artifactChecksumIndependentlyVerified": false
+  },
+  "reports": {
+    "packaged-detected-native-preparation-output-edit": {
+      "at": "2026-11-19T01:23:37.226Z",
+      "passed": true,
+      "packaged": true,
+      "nativeBridge": "SYNTHETIC",
+      "uncertainAttemptRevokedConsent": true,
+      "liveTextEditWithUnchangedCueBlocked": true,
+      "nativeCopiesCreated": 1,
+      "savedLookupRetained": true,
+      "noAutomaticRetry": true,
+      "explicitInspectionRequired": true,
+      "inspectionChoiceDidNotRetry": true,
+      "nativeAttempts": 1,
+      "outputTriggers": 0,
+      "actualProPresenterAccess": false,
+      "microphoneCapture": false
+    },
+    "packaged-detected-native-preparation-clipped-recover": {
+      "at": "2026-11-19T01:23:45.204Z",
+      "version": "0.6.0",
+      "passed": true,
+      "packaged": true,
+      "nativeBridge": "SYNTHETIC",
+      "offUntilExplicitOutputSetting": true,
+      "otherWindowCannotBorrowNativeConsent": true,
+      "detectedMissingPassagePreparedWithoutPrepareClick": true,
+      "ordinarySpeechDidNotCancelNativeWork": true,
+      "minimizedReviewReached": true,
+      "existingInputRetained": true,
+      "noInputManualPathVerified": false,
+      "knownClippingReuseRetained": true,
+      "clippingRecoveryCreatesFreshReviewedCopy": true,
+      "stopRevokedSessionConsent": true,
+      "ownerReloadWithoutCaptureRevokedConsent": true,
+      "nativeCopyCreations": 2,
+      "outputTriggers": 0,
+      "actualProPresenterAccess": false,
+      "microphoneCapture": false
+    }
+  },
+  "limitations": [
+    "Synthetic package targets and capture leases only",
+    "Native helper identity matches that build time; later timing instrumentation excluded",
+    "No Mac native Bible or physical/service acceptance"
+  ]
+}

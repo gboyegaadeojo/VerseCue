@@ -1,0 +1,16 @@
+{
+  "at": "2026-11-19T12:09:18.260Z",
+  "passed": true,
+  "packaged": false,
+  "normalReviewAutoApprovalWithoutTechnicalMapping": true,
+  "approvalSentNoOutput": true,
+  "focusedAutoShortcutSentNoOutput": true,
+  "uncheckedApprovalBlocked": true,
+  "legacyManualSendStillBlocked": true,
+  "ownerInputBareCitationTriggeredOnce": true,
+  "unapprovedReferenceStayedForReview": true,
+  "ownerCloseWithoutCaptureRevokedApproval": true,
+  "actualProPresenterAccess": false,
+  "microphoneCapture": false,
+  "fakeTargetTriggers": 1
+}

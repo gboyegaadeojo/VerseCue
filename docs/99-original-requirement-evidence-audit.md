@@ -12,6 +12,16 @@
 
 At this baseline, 471 module tests passed on main and 474 in integration (three additional historical soak-summary tests). PR54 exact source and packaged Windows runs passed 23 synthetic desktop scenarios; Mac 44735262497 passed source checks, CPU speech packaging and packaged workspace. These scopes do not certify ProPresenter on Mac, physical room/stream outputs, real microphone accuracy, latency thresholds or service readiness. All original acceptance gates remain open. New personal-host records are private and excluded.
 
+## Merged follow-up
+
+PR56 corrects the source-level audio cadence and capture/pending bounds described at this historical baseline. See [audio cadence and queue bounds](100-audio-cadence-and-queue-bounds.md). It passed476 module tests,23 source and23 packaged Windows synthetic scenarios and corrected exact-head Mac44742598707. Real audio cadence, recognition latency, hardware, crash-residue and field acceptance remain open.
+
+PR57 adds [cross-window reset privacy](101-session-reset-renderer-privacy.md), verified with24 source and24 packaged Windows synthetic scenarios and exact Mac44743714554. PR58 adds [dependency inventory provenance enforcement](102-dependency-inventory-provenance.md), with479 module tests, exact-source Windows packaging/workspace and exact Mac44744660186. These close narrower software gaps without certifying crash erasure, independent licensing/security review or original field acceptance.
+
+PR59 adds [reference dictionary and bounds versions in diagnostics](103-reference-metadata-diagnostics.md).479 module tests, source/packaged export and packaged Windows workspace checks and exact Mac44745503475 passed. The export scenario checks a real synthetic candidate is present, Cancel does not write, version objects match bundled source and private session content/path/address markers are absent. This does not add installed-edition numbering evidence or full acceptance.
+
+PR60 adds [configurable repeat suppression and deliberate resend](104-reference-repeat-cooldown.md), with491 modules,26 Windows source +26 packaged scenarios and exact Mac44778367779 attempt2. Attempt1 acquired no runner; its capacity failure remains recorded. PR61 adds [reset isolation for late command callbacks](105-reset-inflight-command-isolation.md), with497 combined modules,27 source +27 packaged Windows scenarios and exact Mac44780306030. Both merged independently after verification; original physical, speech, platform, accessibility and field acceptance remain open.
+
 ## Evidence index
 
 <a id="evidence-a"></a>
@@ -161,3 +171,9 @@ At this baseline, 471 module tests passed on main and 474 in integration (three 
 ## Audit coverage and limits
 
 Every original ID appears once in the tables. The [machine-readable record](evidence/original-requirement-audit.json) retains full original requirement and acceptance text, baseline hashes, status, source/test pointers and remaining evidence. Coverage is not success: no row or test count redefines scope, accepts an unsigned full release, waives a threshold, authorizes production output or marks P0/PR22 complete. Contradictions must be fixed or explicitly decided by IFC, then re-audited against the original criterion.
+
+## Subsequent merged evidence: passage limits and selected input
+
+PR62 implements configured1?50 passage limits throughout split speech, coverage/native/manual preparation and settings while retaining a ten-verse Auto ceiling; see [passage policy](106-configurable-passage-range-policy.md). PR64 adds reported active input format/ranges, pre-processing device/channel checks and permission guidance; see [audio input information](108-audio-input-information.md). Both passed their recorded Windows source/package and exact Mac software checks. These follow-ups do not rewrite the historical audit status or establish real hardware, native Mac ProPresenter, physical outputs, latency, speech accuracy or field acceptance. Current main521 modules/integration524 pass.
+
+PR65 subsequently narrows interrupted CLI WAV residue via app-owned startup recovery, exclusive creation, nonrecursive cleanup and link/foreign-file refusal; see [scratch recovery](109-interrupted-speech-scratch-recovery.md). Corrected d2f6ac25 passed531 modules,30 source/30 packaged Windows scenarios and Mac44794893453 after the recorded parent-alias regression. Legacy temporary files, swap/crash dumps and secure-erasure assurance remain pending. Integration passes534 modules; no real privacy/hardware/field certification is implied.

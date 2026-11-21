@@ -1,0 +1,241 @@
+{
+  "at": "2026-11-19T22:29:28.842Z",
+  "revision": "32f9731f3ddaeab6c9865a14a6cc20031e1efbc1",
+  "scope": "source and isolated Windows package / synthetic targets",
+  "moduleTests": 416,
+  "syntaxPassed": true,
+  "source": {
+    "at": "2026-11-19T22:25:45.352Z",
+    "revision": "32f9731f3ddaeab6c9865a14a6cc20031e1efbc1",
+    "manifestFilesVerified": null,
+    "buildAt": null,
+    "cases": [
+      {
+        "test": "test-reference-passage-ui.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-next-verse-ui.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-audio-age.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-passage-copy-choice.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-listening-preparation.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-api-passage-review.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-citation-stabilization.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-detected-native-preparation.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-detected-native-preparation.cjs --no-input",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-detected-native-preparation.cjs --clipped",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-detected-native-preparation.cjs --recover",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-detected-native-preparation.cjs --uncertain",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-detected-native-preparation.cjs --output-edit",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-slide-preview.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-saved-lookup-speech.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-managed-copy-ledger.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-guarded-auto.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-guarded-auto.cjs --bare-citations",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-normal-auto-approval.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-normal-auto-approval.cjs --changed-look",
+        "status": 0,
+        "error": null
+      }
+    ],
+    "complete": true,
+    "passed": true,
+    "packaged": false,
+    "actualProPresenterAccess": false,
+    "microphoneCapture": false
+  },
+  "packaged": {
+    "at": "2026-11-19T22:27:21.202Z",
+    "revision": "32f9731f3ddaeab6c9865a14a6cc20031e1efbc1",
+    "manifestFilesVerified": 146,
+    "buildAt": "2026-11-19T22:23:56.194Z",
+    "cases": [
+      {
+        "test": "test-reference-passage-ui.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-next-verse-ui.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-audio-age.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-passage-copy-choice.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-listening-preparation.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-api-passage-review.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-citation-stabilization.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-detected-native-preparation.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-detected-native-preparation.cjs --no-input",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-detected-native-preparation.cjs --clipped",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-detected-native-preparation.cjs --recover",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-detected-native-preparation.cjs --uncertain",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-detected-native-preparation.cjs --output-edit",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-slide-preview.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-saved-lookup-speech.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-managed-copy-ledger.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-guarded-auto.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-guarded-auto.cjs --bare-citations",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-normal-auto-approval.cjs",
+        "status": 0,
+        "error": null
+      },
+      {
+        "test": "test-normal-auto-approval.cjs --changed-look",
+        "status": 0,
+        "error": null
+      }
+    ],
+    "complete": true,
+    "passed": true,
+    "packaged": true,
+    "actualProPresenterAccess": false,
+    "microphoneCapture": false
+  },
+  "mac": {
+    "runId": 44628216612,
+    "conclusion": "success",
+    "scope": "standard Mac module/source/speech package/packaged workspace"
+  },
+  "actualProPresenterAccess": false,
+  "microphoneCapture": false,
+  "physicalOutputVerified": false
+}

@@ -17,3 +17,7 @@ A reference can change while preparation waits for a shared owner, before the ne
 ## Verification and limits
 
 17 scheduler tests and all384 combined module tests pass on Windows; JavaScript syntax checks pass. Tests cover initial disabled state, ambiguity, ownership, consent, coalescing, busy timeout, uncertainty and cancellation. No microphone, ProPresenter connection, native UI, output, physical screen or Mac runtime was exercised. Matching hosted Mac verification is pending. Desktop initialization, controls and startup reconciliation remain separate work under PR22; original requirements and acceptance gates remain in force.
+
+## Verification update - 2026-11-19
+
+PR31 merged atd99bf40 after exact headbffd6b0 passed384 module tests/syntax and standard Mac44593983560. Desktop integration is tracked separately in PR35. Original real-host/platform/service limitations remain.

@@ -1,0 +1,18 @@
+'use strict';
+// THROWAWAY DIAGNOSTIC: already authorized private sermon clips only.
+// No microphone, cloud, ProPresenter control or application default changes.
+const fs=require('node:fs/promises'),path=require('node:path'),{createHash}=require('node:crypto'),{LocalSpeech}=require('../core/stt.cjs'),{parse}=require('../core/parser.cjs');
+const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
+(async()=>{
+ const models=[['base.en','a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002'],['tiny.en','921e4cf8686fdd993dcd081a5da5b6c365bfde1162e72b08d75ac75289920b1f']];
+ for(const [name,digest]of models)if(sha(await fs.readFile(`poc/private/models/ggml-${name}.bin`))!==digest)throw Error('Pinned model mismatch');
+ if(sha(await fs.readFile('poc/private/tools/whisper-bin-x64.zip'))!=='6ba69e3482d7826214f90a6a9c84ca07782aec1e1d0c6a7c30c994fd5d816ccb')throw Error('Pinned runtime archive mismatch');
+ const clips=[];for(const id of ['REAL-PILOT-001-12','REAL-PILOT-002-12','REAL-PILOT-004-14']){const b=await fs.readFile(`recordings/replay-private/${id}.wav`);let pos=12,pcm;while(pos+8<=b.length){const size=b.readUInt32LE(pos+4);if(b.toString('ascii',pos,pos+4)==='data'){pcm=b.subarray(pos+8,pos+8+size);break;}pos+=8+size+size%2;}if(!pcm||pcm.length<8*32000)throw Error('Expected existing mono PCM16 fixture');clips.push({id,pcm});}
+ const rows=[],started=new Date().toISOString();await fs.mkdir('recordings/short-window-private',{recursive:true});
+ for(const [model]of models){const speech=new LocalSpeech();speech.configure(path.resolve('poc/private/tools/whisper-b5454/Release/whisper-cli.exe'),path.resolve(`poc/private/models/ggml-${model}.bin`),'resident');let first=true;
+  try{for(const seconds of [4,6,8])for(const {id,pcm}of clips){const bytes=pcm.subarray(pcm.length-seconds*32000),samples=[];for(let i=0;i<bytes.length;i+=2)samples.push(bytes.readInt16LE(i)/32768);const before=performance.now(),result=await speech.transcribe(samples),elapsedMs=Math.round(performance.now()-before);await fs.writeFile(`recordings/short-window-private/${id}.${seconds}s.${model}.private.txt`,result.text);const parsed=parse(result.text),row={model,fixture:id,windowSeconds:seconds,elapsedMs,includesStartup:first,transcriptNonempty:!!result.text.trim(),completeReferenceProposals:parsed.references.filter(r=>r.valid&&r.verse!=null).length,accuracyScored:false};rows.push(row);first=false;console.log(JSON.stringify(row));}}
+  finally{speech.cancel();}
+ }
+ const groups=[];for(const [model]of models)for(const seconds of [4,6,8]){const times=rows.filter(r=>r.model===model&&r.windowSeconds===seconds&&!r.includesStartup).map(r=>r.elapsedMs).sort((a,b)=>a-b);groups.push({model,windowSeconds:seconds,warmRequests:times.length,p50Ms:times[Math.ceil(times.length*.5)-1],p95Ms:times[Math.ceil(times.length*.95)-1]});}
+ const report={started,finished:new Date().toISOString(),provider:'resident CPU whisper.cpp b5454',threads:4,beamSize:1,rows,groups,microphoneCapture:false,propresenterOutputRequests:0,defaultChanged:false,accuracyScored:false,physicalLatencyMeasured:false,limitations:['Small unlabelled diagnostic set','Shared host load uncontrolled','Back-to-back inference, not live arrival','Different window lengths omit different context','First request includes startup and is excluded from warm percentiles','No inference that a shorter transcript or more parser proposals is more accurate']};await fs.writeFile('docs/evidence/short-window-benchmark.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({finished:report.finished,groups,defaultChanged:false,accuracyScored:false}));
+})().catch(error=>{console.error(error.message);process.exitCode=1;});
