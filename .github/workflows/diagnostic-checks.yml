@@ -10,6 +10,8 @@ on:
       - 'scripts/test-packaged-speech.cjs'
       - 'scripts/test-background-quotes.cjs'
       - 'scripts/soak-desktop.cjs'
+      - 'scripts/summarize-soak.cjs'
+      - 'tests/soak-summary-privacy.test.cjs'
       - 'tests/speech-replay-fixture.test.cjs'
       - 'scripts/recognition-evaluation.cjs'
       - 'scripts/score-recognition.cjs'
