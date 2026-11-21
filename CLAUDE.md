@@ -1,6 +1,6 @@
 # VerseCue - resume here
 
-Checked: 2026-11-21 09:30 UTC. P0 and full service acceptance PENDING.
+Checked: 2026-11-21 10:00 UTC. P0 and full service acceptance PENDING.
 
 Read AGENTS.md, the entire master specification, HANDOFF.md, PROGRESS.md, NEW_REQUESTS.md, docs/107 and the complete docs/99 original audit. Keep all original 62 FR/24 NFR/86 trace/66 corpus and RF01-22 gates.
 
@@ -25,7 +25,7 @@ The user plans to test once the software is complete; the review build above and
 3. Mac native preparation (needs an authorized Mac and accessibility profile).
 4. Code signing/notarization (paid; not authorized), volunteer, screen-reader and booth sessions, latency and soak on representative hosts.
 
-Small software follow-ups if time allows: configurable STT confusion aliases only with labelled evidence (FR-024); rollback/uninstall procedure for the portable build (FR-060 v1). Do not change Auto safety rules without a recorded reason.
+Small software follow-ups if time allows: configurable STT confusion aliases only with labelled evidence (FR-024). Rollback/removal procedure is documented in docs/125 (PR90). Do not change Auto safety rules without a recorded reason.
 
 ## Integration and authorization
 
