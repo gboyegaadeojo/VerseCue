@@ -25,7 +25,7 @@ All three wrong kinds count as wrong automatic outputs. `display` labels without
    node scripts/build-rehearsal-stream.cjs <whisper-cli> <model> <recording.wav> <recordingId> <name.json>
    ```
 
-   The stream is written under ignored `test-results/auto-rehearsal/streams/` and never overwrites an existing file. The builder feeds 100 ms packets through the app's `AudioWindowBuffer` in simulated real time and transcribes each window with the real local worker. Slow recognition therefore drops and splits audio exactly as it would live, using the app's session-cumulative dropped-sample count.
+   The stream is written under ignored `test-results/auto-rehearsal/streams/` and never overwrites an existing file. The builder feeds 100 ms packets through the app's `AudioWindowBuffer` in simulated real time and transcribes each window with the real local worker. Slow recognition therefore drops and splits audio exactly as it would live, using per-window dropped-sample counts and the shared audio-loss rule.
 
 2. Add labels from **independent listening**, never from the transcript or captions: `{"atSeconds","reference","translation","intent":"display"|"mention"}`, with canonical references such as `John 3:16`. Set `dataUseAuthorized` and `labelsReviewed` only when both are true.
 
@@ -39,7 +39,7 @@ All three wrong kinds count as wrong automatic outputs. `display` labels without
 
 ## Finding from the first smoke run
 
-A 12-second private pilot clip on the development PC produced four windows. Recognition took about 2 seconds per window, so while the worker was busy the buffer's 2-second pending limit forced 2-second fragments and dropped 0.3 seconds of audio. The app counts dropped audio per listening session and Auto requires zero drops. After the first overflow, every later reference in that session gets an "audio was dropped" note and cannot Auto-send. For an Auto-first product, this needs a per-window loss rule that keeps today's safety intent. That is the next component. This observation comes from one short clip on one PC; it is not a measured rate.
+A 12-second private pilot clip on the development PC produced four windows. Recognition took about 2 seconds per window, so while the worker was busy the buffer's 2-second pending limit forced 2-second fragments and dropped 0.3 seconds of audio. The app counts dropped audio per listening session and Auto requires zero drops. After the first overflow, every later reference in that session gets an "audio was dropped" note and cannot Auto-send. For an Auto-first product, this needs a per-window loss rule that keeps today's safety intent. [Per-window audio loss](118-per-window-audio-loss.md) addresses it. This observation comes from one short clip on one PC; it is not a measured rate.
 
 ## Verification
 

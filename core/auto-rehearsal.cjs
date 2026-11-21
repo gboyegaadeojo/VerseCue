@@ -8,6 +8,7 @@ const {GuardedAuto}=require('./guarded-auto.cjs');
 const {CitationStabilizer}=require('./citation-stabilizer.cjs');
 const {speechEvidence}=require('./speech-evidence.cjs');
 const {parse}=require('./parser.cjs');
+const {AudioLossPolicy}=require('./audio-loss-policy.cjs');
 const GATE_SECONDS=36000,SOURCES=['SYNTHETIC-TEXT','SYNTHETIC-TTS','REAL-RECORDING'],SPLITS=['training','tuning','held-out'];
 const fail=message=>{throw new Error(message);};
 const id=value=>typeof value==='string'&&/^[A-Za-z0-9._-]{1,80}$/.test(value);
@@ -40,10 +41,12 @@ async function replay(stream,{holdMs=1000,citationPolicy='explicit-command',maxP
   const connector={base:'http://127.0.0.1:1025',status:{state:'connected'},version:{host_description:'REHEARSAL dry run'},armed:false,mappings:new Map(),arm(v){this.armed=v;},async send(c,{dryRun,guard}){if(!dryRun)fail('Rehearsal never writes output');if(guard&&!guard())fail('canceled');sends.push({atMs:now,reference:c.label,translation:c.translation});return {state:'simulated'};}};
   const service=new Session(connector,{clock:()=>now});service.configure({dryRun:true,translation:'KJV',maxPassageVerses,duplicateCooldownSeconds});service.capture={active:true,ownerId:1};service.enableAuto({acknowledged:true,citationPolicy,acknowledgeBareCitations:citationPolicy==='bare-citation'});
   const automatic=new GuardedAuto(service,{delayMs:holdMs,schedule:(fn,ms)=>{const t={fn,due:now+ms,live:true};timers.push(t);return t;},clear:t=>{if(t)t.live=false;}});
-  const stabilizer=new CitationStabilizer();const captureSessionId=randomUUID();let sequence=0;
+  const stabilizer=new CitationStabilizer();const captureSessionId=randomUUID();let sequence=0,autoPausedAtSeconds=null;const lossPolicy=new AudioLossPolicy();
   const runTimers=async until=>{for(;;){const next=timers.filter(t=>t.live&&t.due<=until).sort((a,b)=>a.due-b.due)[0];if(!next)break;next.live=false;now=Math.max(now,next.due);await next.fn();}};
   for(const w of stream.windows){
     const receivedAt=Math.round(w.endSeconds*1000);await runTimers(receivedAt);now=Math.max(now,receivedAt);
+    // Mirrors the desktop audio-loss handler: the loss event arrives before its window.
+    if(w.droppedSamples>0){stabilizer.reset();automatic.cancel();service.invalidate();if(service.mode==='auto'&&lossPolicy.record(now).pauseAuto){service.setMode('paused');autoPausedAtSeconds=now/1000;}}
     const durationMs=Math.round(w.durationSeconds*1000),samples=durationMs*16;
     const metadata={windowId:randomUUID(),captureSessionId,windowSequence:++sequence,endEvidence:w.endEvidence,windowDurationMs:samples/16,bufferedAgeMs:samples/16,speechEndAgeMs:w.endEvidence==='silence'?Math.min(1000,samples/16):0,timingBasis:'capture-monotonic-proxy',droppedSamples:w.droppedSamples,clippedSamples:0};
     now+=w.elapsedMs;await runTimers(now);
@@ -56,7 +59,7 @@ async function replay(stream,{holdMs=1000,citationPolicy='explicit-command',maxP
     if(!evidence.timingKnown||!evidence.lossFree)for(const c of candidates)c.issues.push('Audio was dropped or timing is unknown.');
     automatic.consider(candidates,{source:'local-speech',final:true,elapsedMs:w.elapsedMs,endEvidence:evidence.endEvidence,droppedSamples:w.droppedSamples,endAgeMs:evidence.endAgeMs,observedAt:evidence.receivedAt});
   }
-  await runTimers(Number.POSITIVE_INFINITY);stabilizer.reset();
+  await runTimers(Number.POSITIVE_INFINITY);stabilizer.reset();sends.autoPausedAtSeconds=autoPausedAtSeconds;
   return sends;
 }
 function score(stream,sends,{matchWindowSeconds=20}={}){
@@ -68,7 +71,7 @@ function score(stream,sends,{matchWindowSeconds=20}={}){
     if(near.some(({l})=>l.intent==='display'))wrong.wrongReference++;else if(near.some(({l})=>l.intent==='mention'))wrong.mentionDisplayed++;else wrong.spurious++;
   }
   const displayLabels=stream.labels.filter(l=>l.intent==='display').length,wrongOutputs=wrong.wrongReference+wrong.mentionDisplayed+wrong.spurious,hours=stream.durationSeconds/3600;
-  return {automaticSends:sends.length,correctAutomaticSends:matched.length,wrongOutputs,wrong,displayLabels,missedDisplays:displayLabels-matched.length,wrongPerHour:hours?wrongOutputs/hours:null};
+  return {autoPausedAtSeconds:sends.autoPausedAtSeconds??null,automaticSends:sends.length,correctAutomaticSends:matched.length,wrongOutputs,wrong,displayLabels,missedDisplays:displayLabels-matched.length,wrongPerHour:hours?wrongOutputs/hours:null};
 }
 async function rehearse(streams,options={}){
   if(!Array.isArray(streams)||!streams.length||streams.length>500)fail('Provide 1-500 rehearsal streams');

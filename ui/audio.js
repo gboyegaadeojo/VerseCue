@@ -1,4 +1,5 @@
 'use strict';
+// Loss counters: session totals for the operator; per-window counts (since the previous dispatched window) for recognition evidence.
 // Authorized physical input only; capture bounded to ten seconds, with two seconds pending inference at 16 kHz.
 class PastorAudio {
   static inputInformation(track,channel){
@@ -13,7 +14,7 @@ class PastorAudio {
     if(['NotReadableError','TrackStartError','AbortError'].includes(error?.name))return 'The selected input could not start. Check its connection and whether another application is using it, then explicitly retry.';
     return error?.message||'The selected audio input could not start.';
   }
-  constructor({onLevel,onWindow,onHealth,onLost,onDiscontinuity,onInputInfo,onProvisional=null,provisionalEnabled=()=>false}){this.onInputInfo=onInputInfo;this.onLevel=onLevel;this.onWindow=onWindow;this.onHealth=onHealth;this.onLost=onLost;this.onDiscontinuity=onDiscontinuity;this.stream=null;this.ctx=null;this.node=null;this.active=false;this.cancelEpoch=0;this.noSignal=0;this.droppedSamples=0;this.clippedSamples=0;this.buffer=new AudioWindowBuffer({onWindow:async (samples,metadata)=>{this.onHealth('Recognizing locally · capture continues in a bounded buffer');await this.onWindow(samples,{...metadata,droppedSamples:this.droppedSamples,clippedSamples:this.clippedSamples});},onDrop:drop=>{const firstLoss=this.droppedSamples===0;this.droppedSamples+=drop.samples;if(firstLoss)this.onDiscontinuity?.(drop);this.onHealth(`Audio ${drop.reason==='stale'?'expired':'overflow'} · ${(this.droppedSamples/16000).toFixed(1)}s dropped; recognition cannot keep up`);},onError:()=>this.onHealth('Recognition failed · review speech setup'),onProvisional,provisionalEnabled});}
+  constructor({onLevel,onWindow,onHealth,onLost,onDiscontinuity,onInputInfo,onProvisional=null,provisionalEnabled=()=>false}){this.onInputInfo=onInputInfo;this.onLevel=onLevel;this.onWindow=onWindow;this.onHealth=onHealth;this.onLost=onLost;this.onDiscontinuity=onDiscontinuity;this.stream=null;this.ctx=null;this.node=null;this.active=false;this.cancelEpoch=0;this.noSignal=0;this.droppedSamples=0;this.clippedSamples=0;this.windowDroppedSamples=0;this.windowClippedSamples=0;this.buffer=new AudioWindowBuffer({onWindow:async (samples,metadata)=>{this.onHealth('Recognizing locally · capture continues in a bounded buffer');const droppedSamples=this.windowDroppedSamples,clippedSamples=this.windowClippedSamples;this.windowDroppedSamples=0;this.windowClippedSamples=0;await this.onWindow(samples,{...metadata,droppedSamples,clippedSamples,sessionDroppedSamples:this.droppedSamples});},onDrop:drop=>{const firstLoss=this.windowDroppedSamples===0;this.droppedSamples+=drop.samples;this.windowDroppedSamples+=drop.samples;if(firstLoss)this.onDiscontinuity?.(drop);this.onHealth(`Audio ${drop.reason==='stale'?'expired':'overflow'} · ${(this.droppedSamples/16000).toFixed(1)}s dropped; recognition cannot keep up`);},onError:()=>this.onHealth('Recognition failed · review speech setup'),onProvisional,provisionalEnabled});}
   async start(deviceId,channel,guard=()=>true,{meterOnly=false}={}){
     await this.stop();if(!guard())throw new Error('Audio session authorization was revoked');if(!deviceId)throw new Error('Select a specific audio input in Setup');
     if(!Number.isSafeInteger(channel)||channel<0||channel>7)throw new Error('Select a pastor channel from 1 to 8 in Setup');
@@ -38,17 +39,17 @@ class PastorAudio {
     const source=this.ctx.createMediaStreamSource(stream);
     this.node=new AudioWorkletNode(this.ctx,'versecue-capture',{processorOptions:{channel}});
     const gain=this.ctx.createGain();gain.gain.value=0;source.connect(this.node);this.node.connect(gain);gain.connect(this.ctx.destination);
-    this.active=true;this.onInputInfo?.(PastorAudio.inputInformation(track,channel));this.buffer.start();this.droppedSamples=0;this.clippedSamples=0;this.nextCaptureSample=0;this.noSignal=0;this.onHealth(`Listening · ${track.label}`);
+    this.active=true;this.onInputInfo?.(PastorAudio.inputInformation(track,channel));this.buffer.start();this.droppedSamples=0;this.clippedSamples=0;this.windowDroppedSamples=0;this.windowClippedSamples=0;this.nextCaptureSample=0;this.noSignal=0;this.onHealth(`Listening · ${track.label}`);
     context.onstatechange=()=>{if(this.active&&['suspended','interrupted','closed'].includes(context.state)){this.onHealth('Audio context interrupted; restart the selected input explicitly');this.stop();this.onLost?.();}};
     this.node.port.onmessage=event=>{
       if(!this.active||epoch!==this.cancelEpoch)return;
       if(event.data.error){this.onHealth(event.data.error);this.stop();this.onLost?.();return;}
       const {samples,rms,peak,sampleOffset,capturedAtContextSeconds}=event.data;
       if(!Array.isArray(samples)||!Number.isSafeInteger(sampleOffset)||sampleOffset<0||!Number.isFinite(capturedAtContextSeconds)){this.onHealth('Capture timing lost; restart the selected input');this.stop();this.onLost?.();return;}
-      if(sampleOffset!==this.nextCaptureSample){const missing=Math.max(1,sampleOffset-this.nextCaptureSample);this.droppedSamples+=missing;this.buffer.clear();this.onDiscontinuity?.({reason:'capture-gap',samples:missing});if(sampleOffset<this.nextCaptureSample)return;}
+      if(sampleOffset!==this.nextCaptureSample){const missing=Math.max(1,sampleOffset-this.nextCaptureSample);this.droppedSamples+=missing;this.windowDroppedSamples+=missing;this.buffer.clear();this.onDiscontinuity?.({reason:'capture-gap',samples:missing});if(sampleOffset<this.nextCaptureSample)return;}
       this.nextCaptureSample=sampleOffset+samples.length;const deliveryLagMs=Math.max(0,(this.ctx.currentTime-capturedAtContextSeconds)*1000);
       this.onLevel(Math.min(1,rms*5));
-      if(peak>=.99){if(this.clippedSamples===0)this.onDiscontinuity?.({reason:'clipping',samples:samples.length});this.clippedSamples+=samples.length;this.onHealth('Clipping · reduce input gain');}
+      if(peak>=.99){if(this.windowClippedSamples===0)this.onDiscontinuity?.({reason:'clipping',samples:samples.length});this.clippedSamples+=samples.length;this.windowClippedSamples+=samples.length;this.onHealth('Clipping · reduce input gain');}
       if(rms<.003)this.noSignal+=samples.length;else this.noSignal=0;
       if(this.noSignal>80000)this.onHealth('No signal · check selected channel');
       else if(peak<.99&&rms>=.003)this.onHealth(this.droppedSamples?`Listening · ${(this.droppedSamples/16000).toFixed(1)}s audio dropped this session; review suggestions`:`Listening · ${track.label}`);
