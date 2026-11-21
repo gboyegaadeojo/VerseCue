@@ -1,6 +1,6 @@
 # VerseCue development handoff
 
-Checked: 2026-11-20 23:50 UTC. Read [CLAUDE.md](CLAUDE.md) for the short current checkpoint and [PROGRESS.md](PROGRESS.md) for history. Main has stable links to this maintained integration-branch handoff.
+Checked: 2026-11-21 00:03 UTC. Read [CLAUDE.md](CLAUDE.md) for the short current checkpoint and [PROGRESS.md](PROGRESS.md) for history. Main has stable links to this maintained integration-branch handoff.
 
 ## Start safely
 
@@ -15,7 +15,7 @@ Public repository: https://github.com/gboyegaadeojo/VerseCue. Aggregate PR22 rem
 | Location | Checked state |
 | --- | --- |
 | Main |2d93e73, through PR67 app changes and PR68 docs pointers;534 modules|
-| Root |feat/reference-driven-bible-workflow,412cdc2 before this checkpoint;537 module/check pass on its app source, later changes docs only|
+| Root |feat/reference-driven-bible-workflow,dc627c6 before this checkpoint;537 module/check pass on its app source, later changes docs only|
 | Active code |feat/labeled-recognition-evaluation; test-results/pr-split/labeled-recognition-evaluation; uncommitted offline tool|
 | Unrelated material |Existing untracked design-reference/; preserve|
 
@@ -31,7 +31,7 @@ Two offline scripts, tests/recognition-evaluation.test.cjs, docs112, a synthetic
 
 The evaluator separates source/split groups, requires real consent/review attestations and artifact hashes, rejects duplicate audio/split leakage, counts exact citation/edition/sequence matches and nominal Wilson intervals, and writes new reports only under ignored test-results/recognition-evaluation. It does not verify ground truth, verse legality/availability, live timing, sermon-hour false positives, display fidelity or service acceptance.
 
-Its attempt to merge main68 was blocked only by the generated documentation audit JSON. Archive that one generated report into ignored test-results, restore only that file to HEAD, merge origin/main and preserve all new code. Re-run audit/progress, commit a small PR, then inspect its public standard-runner Windows/Mac ARM/Intel diagnostic jobs. Repo PUBLIC was just verified and the workflow skips private repos to preserve free-use constraints. No new app bundle or32-case GUI rerun is needed for these unbundled diagnostic-only scripts; assess changes if scope expands.
+Current main68 is now integrated in the evaluator worktree. Its docs/107 and PROGRESS have been refreshed to distinguish merged software from actual hardware/service evidence. Final local modules/check/audit are running at exec sessions39319 and30303. Inspect these exact live handles; no PR/CI exists yet. Next review the diff, publish a small PR and verify its public Windows/Mac ARM/Intel diagnostic CI before merge. No app runtime/package change or real recognition/output claim.
 
 ## Next actual integration work
 
