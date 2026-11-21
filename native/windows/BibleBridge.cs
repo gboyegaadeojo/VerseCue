@@ -45,6 +45,16 @@ class BibleBridge {
     static AutomationElement ById(AutomationElement root, string id) {
         return root.FindFirst(TreeScope.Descendants, new PropertyCondition(AutomationElement.AutomationIdProperty,id));
     }
+    // Version tolerance (NR-017): use the exact ID verified on ProPresenter 21.4.2; if a different ProPresenter
+    // version renamed it, accept exactly one control whose ID contains the same key word. None or several: stop safely.
+    static AutomationElement ByIdOrKeyword(AutomationElement root,string id,string keyword) {
+        var exact=ById(root,id);if(exact!=null)return exact;
+        var matches=new List<AutomationElement>();var walker=TreeWalker.ControlViewWalker;var stack=new Stack<AutomationElement>();stack.Push(root);int seen=0;var budget=Stopwatch.StartNew();
+        while(stack.Count>0&&seen<8000&&budget.ElapsedMilliseconds<1500){var el=stack.Pop();seen++;string aid;try{aid=el.Current.AutomationId??"";}catch(ElementNotAvailableException){continue;}
+            if(aid.IndexOf(keyword,StringComparison.OrdinalIgnoreCase)>=0){matches.Add(el);if(matches.Count>1)return null;}
+            for(var child=walker.GetFirstChild(el);child!=null;child=walker.GetNextSibling(child))stack.Push(child);}
+        return matches.Count==1?matches[0]:null;
+    }
     static string Value(AutomationElement field) {
         // Fetch a new read-only snapshot on every call; never reuse a prior value.
         var request=new CacheRequest();request.TreeScope=TreeScope.Element;request.TreeFilter=Automation.RawViewCondition;request.AutomationElementMode=AutomationElementMode.None;
@@ -55,8 +65,9 @@ class BibleBridge {
     }
     static AutomationElement TranslationSelector(AutomationElement root) {
         var selectors=root.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.AutomationIdProperty,"loadedBibleSelectorSelf"));
-        Require(selectors.Count==1,"MULTIPLE_OR_MISSING_TRANSLATION_SELECTORS");
-        return selectors[0];
+        if(selectors.Count==1)return selectors[0];
+        Require(selectors.Count==0,"MULTIPLE_OR_MISSING_TRANSLATION_SELECTORS");
+        var loose=ByIdOrKeyword(root,"loadedBibleSelectorSelf","BibleSelector");Require(loose!=null,"MULTIPLE_OR_MISSING_TRANSLATION_SELECTORS");return loose;
     }
     static string SelectedTranslation(AutomationElement selector) {
         var cache=new CacheRequest();cache.TreeScope=TreeScope.Element;cache.TreeFilter=Automation.RawViewCondition;cache.Add(AutomationElement.NameProperty);
@@ -67,6 +78,8 @@ class BibleBridge {
     static AutomationElement OpenBibleView(AutomationElement root,Process process) {
         var header=ById(root,"bibleViewerHeader");if(header!=null)return header;
         var button=ById(root,"MAIN_MENU_VIEW_BIBLES_title");
+        // Only when neither verified ID exists (a different ProPresenter version) fall back to keyword matching.
+        if(button==null){header=ByIdOrKeyword(root,"bibleViewerHeader","bibleViewerHeader");if(header!=null)return header;button=ByIdOrKeyword(root,"MAIN_MENU_VIEW_BIBLES_title","VIEW_BIBLES");}
         Require(button!=null&&button.Current.IsEnabled&&!button.Current.IsOffscreen,"BIBLE_VIEW_CONTROL_UNAVAILABLE");
         Stage("open-bible-view");ClickVerifiedControl(button,process.Id);
         var timer=Stopwatch.StartNew();while(timer.ElapsedMilliseconds<2000){header=ById(root,"bibleViewerHeader");if(header!=null)return header;Thread.Sleep(50);}
@@ -271,12 +284,12 @@ class BibleBridge {
         // consent for focus changes, opening Bibles and exact edition selection.
         if(operation!="inspect"){Require(SetForegroundWindow(process.MainWindowHandle),"COULD_NOT_FOCUS_PROPRESENTER");WaitReleasedModifiers();}
         Stage("find-bible-controls");
-        var header=operation=="inspect"?ById(root,"bibleViewerHeader"):OpenBibleView(root,process);Require(header!=null,"OPEN_BIBLES_VIEW_IN_PROPRESENTER");
+        var header=operation=="inspect"?ByIdOrKeyword(root,"bibleViewerHeader","bibleViewerHeader"):OpenBibleView(root,process);Require(header!=null,"OPEN_BIBLES_VIEW_IN_PROPRESENTER");
         Stage("bible-view-verified");
         // Restrict control discovery to the observed Bible viewer, rather than
         // traversing unrelated library, media, stage and production controls.
         var bibleControls=TreeWalker.RawViewWalker.GetParent(header);Require(bibleControls!=null,"BIBLE_VIEW_CONTAINER_MISSING");
-        var container=ById(header,"ReferenceTextBox");Require(container!=null,"REFERENCE_CONTAINER_MISSING");
+        var container=ByIdOrKeyword(header,"ReferenceTextBox","Reference");Require(container!=null,"REFERENCE_CONTAINER_MISSING");
         var edits=container.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Edit));
         Require(edits.Count==1,"REFERENCE_INPUT_AMBIGUOUS");var field=edits[0];
         Require(field.Current.IsEnabled&&!field.Current.IsOffscreen,"REFERENCE_INPUT_NOT_READY");

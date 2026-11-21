@@ -44,15 +44,15 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
   - **Auto:** complete, explicit references go to ProPresenter automatically after a short hold window. Press **H** to hold one, or **Esc** for Emergency stop.
   - **Confirm:** you review every passage, then send it.
   - **Prepare for volunteer:** VerseCue never sends anything. It opens the passage in ProPresenter's own Bible view, and by default the **whole chapter** at the spoken verse, so your volunteer clicks it live and uses ProPresenter's next/previous for the verses around it.
-- **Fast on modern computers:** uses the graphics chip on Apple silicon Macs, and on Windows PCs with an NVIDIA graphics card after a [guided setup](docs/135-guided-nvidia-speech-setup.md).
+- **Fast on modern computers:** recognition starts as soon as the preacher pauses (0.7 s) and uses the graphics card automatically: Metal on Macs, and any AMD, NVIDIA or Intel card on Windows. An optional [NVIDIA CUDA setup](docs/135-guided-nvidia-speech-setup.md) is also available.
 - **Calm, readable workspace:** a dark, compact design with a Large "booth distance" text size for reading from across the room.
 
 ## Getting started
 
 1. **Use a test setup first.** Open ProPresenter with your **Audience and Stage screens turned off**.
 2. **Open VerseCue.** It starts in a safe **dry run**: everything works, but nothing is sent to ProPresenter.
-3. **Settings > ProPresenter:** enter the address (`127.0.0.1` if ProPresenter is on the same computer) and the port shown in ProPresenter's Network settings, then choose **Test saved connection**.
-4. **Settings > Audio:** choose the preacher's input and channel, and run the 10-second input test.
+3. **Connect ProPresenter.** VerseCue tries the usual address (`127.0.0.1`, port `1025`) on its own and keeps trying. If ProPresenter is on another computer or uses a different port, enter them in **Settings > ProPresenter**. This is the only setting you need.
+4. **Everything else is ready.** VerseCue uses the computer's default microphone and starts listening when it opens. It warms up the graphics card in the background, using the processor until the card is ready. To use a different input, such as the preacher's channel on an audio interface, choose it in **Settings > Audio** and run the 10-second input test.
 5. **Start listening** and say "Please turn to John chapter three verse sixteen", then pause. The reference appears with its badge and progress.
 6. When you're comfortable, choose your mode (Auto, Confirm or Prepare for volunteer), arm output and test with a real passage, still with the screens off.
 

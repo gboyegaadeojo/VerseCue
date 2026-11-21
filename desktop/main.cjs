@@ -122,6 +122,8 @@ async function bootstrap(){
     const bundledModel=path.join(speechDir,'ggml-base.en.bin');
     if(await exists(bundledWorker)&&await exists(bundledModel)){settings.executable=bundledWorker;settings.model=bundledModel;if(savedMissing)service.log('SPEECH_ENGINE_REPLACED_MISSING','warning');}
   }
+  // Out of the box (NR-017): with no input chosen, use the computer's default microphone (channel 1).
+  if(!settings.audioDevice)settings.audioDevice='default';
   connector.configure(settings.host,settings.port);service.configure({translation:settings.translation,dryRun:true,duplicateCooldownSeconds:settings.duplicateCooldownSeconds,maxPassageVerses:settings.maxPassageVerses});applySessionPreferences();speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);if(!service.settingsRecoveryRequired)service.applyStartMode();
   if(loaded.recovered)service.log('CORRUPT_SETTINGS_RECOVERED','warning');
   session.defaultSession.setPermissionRequestHandler(async(webContents,permission,callback,details)=>{
@@ -231,8 +233,9 @@ async function bootstrap(){
     }
     service.speechStabilization={state:stabilized.assembled?'assembled':'idle',...(stabilized.assembled?{fragmentCount:stabilized.fragmentCount,reason:'Reference assembled from adjacent speech windows. Review before showing.'}:{})};
     if(!evidence.contextUsable){service.context=null;service.queue=[];automatic.cancel();if(passageCoordinator?.review||passageCoordinator?.busy)cancelPreparation();}
-    service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});const candidates=await service.ingestChecked(stabilized.text,{authorized:true,...(evidence.windowId?{id:evidence.windowId}:{}),sourceAgeMs:stabilized.sourceAgeMs,additionalGuard:stillAuthorized});
+    service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});const heard=Number.isFinite(result.heardConfidence)&&!stabilized.assembled?result.heardConfidence:null;const candidates=await service.ingestChecked(stabilized.text,{authorized:true,...(evidence.windowId?{id:evidence.windowId}:{}),sourceAgeMs:stabilized.sourceAgeMs,additionalGuard:stillAuthorized});
     if(!sameLease())throw new Error('Stale recognition discarded');
+    if(heard!==null)for(const candidate of candidates)if(candidate.recognition!=='quote')candidate.heardConfidence=heard;
     if(stabilized.assembled)for(const candidate of candidates){candidate.phrase=stabilized.sourcePhrase;candidate.reference.autoEligible=false;candidate.issues.push('Assembled from adjacent speech windows; confirm the complete reference.');candidate.stabilization={fragmentCount:stabilized.fragmentCount};}
     if(candidates.length&&(passageCoordinator?.active||passageCoordinator?.review||passageCoordinator?.busy))cancelPreparation();
     if(!evidence.timingKnown||!evidence.lossFree)for(const candidate of candidates)candidate.issues.push(!evidence.timingKnown?'Original audio timing is unavailable; review this full reference.':'Audio was dropped, clipped or its quality is unknown; review the full reference before continuing.');
@@ -285,6 +288,14 @@ async function bootstrap(){
       else{connector.status={state:'offline'};cancelAudio();connector.arm(false);service.setMode('paused');service.log('LINK_LOST','warning');}
     }finally{healthBusy=false;service.notify();}
   },2000);
+  // Every engine change warms the graphics card up in the background; recognition uses the processor until it is ready.
+  const configureSpeech=speech.configure.bind(speech);speech.configure=(...args)=>{configureSpeech(...args);service.speechGpu=speech.gpuState;setImmediate(()=>speech.warmUp().then(r=>{service.speechGpu=speech.gpuState;if(r.state==='ready')service.log('SPEECH_GPU_READY','info');else if(r.state==='unavailable')service.log('SPEECH_GPU_UNAVAILABLE','info');service.notify();}).catch(()=>{}));};
+  speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);
+  // Connect to the saved ProPresenter automatically: a read-only /version check every 3 s until it answers.
+  // Once connected the health check above takes over (slow/lost handling unchanged). Never arms output.
+  let autoConnectBusy=false;
+  const autoConnect=async()=>{if(autoConnectBusy||connector.version||settings.autoConnect===false||!settings.host||service.stopped)return;autoConnectBusy=true;const generation=connector.generation;try{await connector.test();if(generation===connector.generation){service.log('AUTO_CONNECTED','info');service.notify();}}catch{}finally{autoConnectBusy=false;}};
+  setInterval(autoConnect,3000);setTimeout(autoConnect,300);
   mainWindow=createWindow();
 }
 if(!app.requestSingleInstanceLock())app.quit();else{
