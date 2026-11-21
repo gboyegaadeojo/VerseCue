@@ -848,3 +848,15 @@ Opt-in, session-only provisional snapshots from the bounded CLI worker. Complete
 ## PR75 merged and integrated - 2026-11-21
 
 Exact 7322fe5 passed 559 local modules, check, audit, source and packaged Windows provisional/reset scenarios, offline CI 44856755751 (Windows/Mac ARM/Intel 559/0 fail) and Mac 44856843979. First run 44855773130 failed on a tick-bounded test wait and remains historical. Merged at 83e298e and integrated into the aggregate branch. P0 remains pending.
+
+## Loopback input guidance - 2026-11-21
+
+FR-008: Setup names system-loopback and virtual inputs from their reported labels, explains Windows/macOS prerequisites and keeps listening not-ready until a session-only routing check for the saved input. No routing, driver or OS changes. 562 modules, check and source scenarios pass. No real device evidence. See docs/115.
+
+## PR76 merged and integrated - 2026-11-21
+
+PR76 passed 562 local modules, check, audit, source loopback/input/reset/provisional/workspace scenarios, Mac 44860541062 and diagnostics 44861062245 (Windows/Mac ARM/Intel). Merged at 8b82af8.
+
+## Product decision NR-010 - 2026-11-21
+
+User chose the Auto-first Route operator design (design canvas https://claude.ai/artifact/W11qaVvxvvBWuCMro8fSPs, board C) and asked VerseCue to start in Auto, because operator confirmation of every reference defeats the product's purpose. The 10-hour wrong-output rehearsal is the trust gate. Auto keeps its eligibility, approval, dry-run, Stop and fault safeguards. Recorded in NEW_REQUESTS.md.

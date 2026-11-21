@@ -51,3 +51,11 @@ NR-008 selection and implementation: user chooses Studio with Focus readability,
 ## NR-009 - Complete reference-driven Bible workflow implementation PR
 
 2026-11-18: user rejects per-passage Library/Presentation/Cue selection and asks for every required fix plus an implementation PR. Desired workflow: pastor cites a passage; VerseCue prepares the exact installed Bible/edition and uses passage-level Confirm or explicitly validated Auto while preserving Sunday Service playlist and existing Looks. docs/51 contains22 tracked fixes and full demonstration. Initial draft code adds exact-reference lookup, internal full cue-index planning and KJV range-label completeness checks; it does not finish arbitrary preparation, normal UI orchestration or unattended output. Keep draft unmerged until its exit criteria pass.
+
+## NR-010 - Start in Auto with an Auto-first Route workspace
+
+2026-11-21: the user, as IFC product owner, decides VerseCue should start in Auto. Confirming every reference defeats the purpose of the product. They chose design direction C (Route) from three clickable concepts, adapted to Auto-first: the main view shows the automatic pipeline (Heard, Matched, Ready, On screen) and the primary control is Hold rather than Show.
+
+This changes the FR-028 startup default from Confirm to Auto by explicit product decision. It does not remove Auto's safeguards. Ambiguous, relative, corrected, quoted, slow, lossy, unprepared or unapproved references still go to review; actual output still needs an armed target and cues approved for Auto; Emergency Stop, connection loss, wake and configuration changes still drop Auto and require a deliberate resume; settings import and profiles cannot turn Auto on. A configurable hold window (within the existing 0.75-3 second correction grace) lets the operator Hold a pending automatic send.
+
+Trust gate: the original 10-hour representative rehearsal with zero unapproved wrong displays (NFR-003), plus precision/recall on held-out labelled recordings (NFR-002), before Auto is relied on in a real service. P0 remains pending.
