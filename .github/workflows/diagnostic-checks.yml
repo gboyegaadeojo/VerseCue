@@ -4,6 +4,13 @@ on:
   pull_request:
     paths:
       - '.github/workflows/diagnostic-checks.yml'
+      - 'scripts/speech-replay-fixture.cjs'
+      - 'scripts/test-local-speech.cjs'
+      - 'scripts/test-resident-speech.cjs'
+      - 'scripts/test-packaged-speech.cjs'
+      - 'scripts/test-background-quotes.cjs'
+      - 'scripts/soak-desktop.cjs'
+      - 'tests/speech-replay-fixture.test.cjs'
       - 'scripts/recognition-evaluation.cjs'
       - 'scripts/score-recognition.cjs'
       - 'tests/recognition-evaluation.test.cjs'
