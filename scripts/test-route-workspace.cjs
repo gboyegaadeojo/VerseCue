@@ -6,6 +6,7 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
   const app=await _electron.launch({...(executable?{executablePath:executable}:{}),args:[...(executable?[]:[path.resolve('.')]),'--user-data-dir='+path.resolve('test-results','route-'+randomUUID())],env});
   try{
     const page=await app.firstWindow(),errors=[];page.on('pageerror',error=>errors.push(error.message));await page.waitForFunction(()=>document.getElementById('message')?.textContent.length>0);
+    await page.setViewportSize({width:1280,height:800});
     const pipeline=()=>page.evaluate(()=>[...document.querySelectorAll('#auto-pipeline li')].map(li=>li.dataset.step+':'+li.dataset.state+':'+li.querySelector('.pipeline-label').textContent));
     const look=await page.evaluate(()=>({body:getComputedStyle(document.body).backgroundColor,header:getComputedStyle(document.querySelector('header')).backgroundColor,eyebrow:document.querySelector('.page-heading .eyebrow').textContent}));
     assert.equal(look.body,'rgb(255, 255, 255)');assert.equal(look.header,'rgb(0, 0, 0)');assert.equal(look.eyebrow,'LIVE SCRIPTURE');
@@ -13,8 +14,8 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
     const [candidate]=(await page.evaluate(()=>window.versecue.command('ingest',{text:'John 3:16'}))).value;
     await page.waitForFunction(()=>document.getElementById('reference').textContent==='John 3:16');
     assert.deepEqual(await pipeline(),['heard:done:Heard','matched:done:Matched','ready:review:Needs review','shown:todo:On screen'],'A manual reference waits for review');
-    const pending=await page.evaluate(async()=>{const st=(await window.versecue.state()).value;render({...st,autoStatus:{state:'pending',reason:'SYNTHETIC',dueAt:Date.now()+1000}});const hold=document.getElementById('hold-auto'),siblings=[...hold.parentElement.children].filter(e=>e.getClientRects().length);return {visible:!hold.hidden,firstVisual:siblings.sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top)[0]?.id,height:hold.getBoundingClientRect().height};});
-    assert.equal(pending.visible,true);assert.equal(pending.firstVisual,'hold-auto','Hold is the first action while a send is pending');assert.ok(pending.height>=44);
+    const pending=await page.evaluate(async()=>{const st=(await window.versecue.state()).value;render({...st,autoStatus:{state:'pending',reason:'SYNTHETIC',dueAt:Date.now()+1000}});const hold=document.getElementById('hold-auto'),r=hold.getBoundingClientRect(),actions=[...document.querySelectorAll('.output-actions button')].filter(e=>e.getClientRects().length);return {visible:!hold.hidden,aboveReference:r.bottom<=document.getElementById('reference').getBoundingClientRect().top,aboveActions:actions.every(b=>r.top<b.getBoundingClientRect().top),inView:r.top>=0&&r.bottom<=innerHeight,height:r.height};});
+    assert.equal(pending.visible,true);assert.equal(pending.aboveReference,true,'Hold sits above the reference while a send is pending');assert.equal(pending.aboveActions,true);assert.equal(pending.inView,true,'Hold is visible without scrolling');assert.ok(pending.height>=44);
     assert.deepEqual((await pipeline())[2],'ready:current:Sending');
     const sent=await page.evaluate(id=>window.versecue.command('send',id),candidate.id);assert.equal(sent.ok,true,sent.error);assert.equal(sent.value.state,'simulated');
     await page.waitForFunction(()=>document.querySelector('#auto-pipeline [data-step="shown"]').dataset.state==='done');
