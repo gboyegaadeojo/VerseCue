@@ -1,12 +1,12 @@
 # VerseCue - resume here
 
-Checked: 2026-11-21 08:35 UTC. P0 and full service acceptance PENDING.
+Checked: 2026-11-21 09:30 UTC. P0 and full service acceptance PENDING.
 
 Read AGENTS.md, the entire master specification, HANDOFF.md, PROGRESS.md, NEW_REQUESTS.md, docs/107 and the complete docs/99 original audit. Keep all original 62 FR/24 NFR/86 trace/66 corpus and RF01-22 gates.
 
 ## Takeover
 
-Use [HANDOFF.md](HANDOFF.md) as the takeover document. Main is 4353cb0 (PR75-87 merged by Claude on 2026-11-21). Draft PR22 integrates main: 588 modules, check (syntax, inventory, SBOM), documentation audit and all source scenarios pass. An exact-source packaged Windows build of main db866b9 passed all 42 scenarios after the PR87 scenario fix. Source 0.6.0 unreleased. History is in PROGRESS.md.
+Use [HANDOFF.md](HANDOFF.md) as the takeover document. Main is ad57f65 (PR75-89 merged by Claude on 2026-11-21). Draft PR22 integrates main: 588 modules, check (syntax, inventory, SBOM), documentation audit and all source scenarios pass. The exact-source Windows review build of main ad57f65 passed all 42 packaged scenarios: test-results/pr-split/packaged-main-check/test-results/build-review-ad57f656-1cbceebe-cbfd-4a81-8c36-07cbaa9d8bad/dist/VerseCue-0.6.0-win32-x64/VerseCue.exe (local, ignored).
 
 ## Current authoritative state
 
@@ -18,8 +18,14 @@ Use [HANDOFF.md](HANDOFF.md) as the takeover document. Main is 4353cb0 (PR75-87 
 
 ## Next queue
 
-1. Write a personal Auto-first test guide for the user (docs/124) and build a fresh exact-source Windows review package of main for them to run.
-2. Remaining items need the user, hardware or labelled data: real ProPresenter tests (user will test when software is complete), Mac native route (Mac access), labelled recordings for the ten-hour rehearsal and precision/recall, code signing (paid, not authorized), volunteer/screen-reader/booth sessions.
+The user plans to test once the software is complete; the review build above and [docs/124](docs/124-personal-auto-first-test-guide.md) are ready for that. Remaining work needs the user, hardware or data:
+
+1. Personal ProPresenter testing with the user (Audience/Stage verified off first).
+2. Labelled, held-out real sermon recordings for the ten-hour Auto rehearsal (docs/117) and precision/recall (docs/112).
+3. Mac native preparation (needs an authorized Mac and accessibility profile).
+4. Code signing/notarization (paid; not authorized), volunteer, screen-reader and booth sessions, latency and soak on representative hosts.
+
+Small software follow-ups if time allows: configurable STT confusion aliases only with labelled evidence (FR-024); rollback/uninstall procedure for the portable build (FR-060 v1). Do not change Auto safety rules without a recorded reason.
 
 ## Integration and authorization
 

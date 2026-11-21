@@ -1,6 +1,6 @@
 # VerseCue takeover handoff
 
-Checked 2026-11-21 06:10 UTC. Start here after reading CLAUDE.md. The historical work is in PROGRESS.md. The aggregate implementation is on feat/reference-driven-bible-workflow, open as [draft PR22](https://github.com/gboyegaadeojo/VerseCue/pull/22). Main at 54242b2 includes merged components through PR81. PR75-81 were built by Claude on 2026-11-21; see CLAUDE.md for the current queue and NR-010 (start in Auto, Route workspace). Fetch origin and verify both refs before editing. The local main branch was behind origin/main at handoff.
+Checked 2026-11-21 09:30 UTC. Start here after reading CLAUDE.md. The historical work is in PROGRESS.md. The aggregate implementation is on feat/reference-driven-bible-workflow, open as [draft PR22](https://github.com/gboyegaadeojo/VerseCue/pull/22). Main at ad57f65 includes merged components through PR89. PR75-89 were built by Claude on 2026-11-21 (latest packaged Windows review build passed all 42 scenarios; personal test guide in docs/124); see CLAUDE.md for the current queue and NR-010 (start in Auto, Route workspace). Fetch origin and verify both refs before editing. The local main branch was behind origin/main at handoff.
 
 ## Read before changing code
 
