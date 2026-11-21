@@ -456,3 +456,7 @@ H holds a pending automatic send (focused only, never while typing). A polite li
 ## Resident worker folder ownership - 2026-11-21
 
 The resident worker's whisper-server folder moved from the global temp directory into the app-owned speech scratch, so stop and startup recovery remove it after a crash. 580 modules, check, private real-server check pass. See docs/121.
+
+## Signed manual updates with a service lock - 2026-11-21
+
+FR-060 MVP: Ed25519 release manifests signed with IFC's offline key (no key shipped), in-app verification that never installs, refused while capturing or armed. 584 modules, check, sweep, update-check scenario and a one-off signed/tampered source check pass. Code signing/notarization, rollback and update channel remain open. See docs/122.
