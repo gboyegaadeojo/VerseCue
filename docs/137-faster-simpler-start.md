@@ -30,7 +30,14 @@ It is display-only. It is never used to decide whether anything is sent.
 
 ## Measurements
 
-To be recorded on an idle CPU (the same clip, CLI, base.en, before and after).
+The test laptop was heavily loaded during this check: ProPresenter alone was using about a quarter of all cores. So the default and new settings were run alternately on the same 5 s private clip (CLI, base.en, CPU, three rounds each). Absolute times are inflated; the comparison is fair.
+
+| Audio context | Round 1 | Round 2 | Round 3 | Mean | Text |
+| --- | --- | --- | --- | --- | --- |
+| Default (1500) | 23.6 s | 22.2 s | 21.0 s | 22.3 s | "Let's open our Bible" |
+| 768 | 12.9 s | 13.3 s | 13.0 s | 13.1 s | "Let's open our Bible." |
+
+That is about 41% less recognition time per phrase, with the same words. Add the 0.3 s from the shorter silence, plus the graphics card where available.
 
 ## Verification
 
