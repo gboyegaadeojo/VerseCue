@@ -1,0 +1,723 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "version": 1,
+  "serialNumber": "urn:uuid:1caf982d-ed2c-51f5-8957-d85f2723c970",
+  "metadata": {
+    "component": {
+      "type": "application",
+      "bom-ref": "versecue",
+      "name": "VerseCue",
+      "version": "0.6.0",
+      "licenses": [
+        {
+          "expression": "LicenseRef-VerseCue-Private"
+        }
+      ]
+    },
+    "properties": [
+      {
+        "name": "versecue:lockfileSha256",
+        "value": "7191a643ae782a9d0417896717db851c74ecf91c541d19dc1ba53cf8d608d436"
+      },
+      {
+        "name": "versecue:inventoryApplicationVersion",
+        "value": "0.6.0"
+      },
+      {
+        "name": "versecue:limits",
+        "value": "Built from reviewed inventories; not a vulnerability scan or license clearance."
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40electron-internal/extract-zip@1.0.8",
+      "name": "@electron-internal/extract-zip",
+      "version": "1.0.8",
+      "purl": "pkg:npm/%40electron-internal/extract-zip@1.0.8",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "f226a378b15bccdc0cd26dc0b106526606111168250089b21afbc5496537e0580c5bcb079737708fd40abeff5d80dee330fe7dd4415417fb0b382dc997d6088d"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/@electron-internal/extract-zip"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40electron/get@5.1.0",
+      "name": "@electron/get",
+      "version": "5.1.0",
+      "purl": "pkg:npm/%40electron/get@5.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "de4481b46f0e6dc4d57d76a79b9bd527a52704b115995b1193533ebc6a82b8c055f972c26c962e5907ee97ec88cb41900ec4a52b490712b8841e7ed23e4e049c"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/@electron/get"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/node@24.19.2",
+      "name": "@types/node",
+      "version": "24.19.2",
+      "purl": "pkg:npm/%40types/node@24.19.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "f77778f700962640b237ceccc4ba4d37a2973c2c05c3b6d5520efd986515d4e4b8d09196c150abf27eb50d7092ab3ec257afd57cf91bef179ceee3f633e40759"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/@types/node"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/bible-passage-reference-parser@4.0.0",
+      "name": "bible-passage-reference-parser",
+      "version": "4.0.0",
+      "purl": "pkg:npm/bible-passage-reference-parser@4.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "8250aae1155cbdb78d308da1f97a69bab676cf269e96c236ddd5f552ffb15d0d8a463916469213c8d1c3dbeaaf2c6f07492598c3fef530e11ae0382c63e8b5a0"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/bible-passage-reference-parser"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/debug@4.4.3",
+      "name": "debug",
+      "version": "4.4.3",
+      "purl": "pkg:npm/debug@4.4.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "446c305a7c10be455f6af295b76d8518bc3ec5849dcc04709b4aeee83853540dee994e6165cdbc57790ee2cb6062bcab4e52e9baf808f468a28e5b408cd6dca8"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/debug"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/electron@45.3.3",
+      "name": "electron",
+      "version": "45.3.3",
+      "purl": "pkg:npm/electron@45.3.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "612d358ff00c5866cf01f6d78a390b3942461619ab220ea97fd027f3e2f36353c8739b23c2a11c48cb040578144225b0d6549f3c23fb469c5bbe4375250443f0"
+        }
+      ],
+      "scope": "required",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/electron"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/env-paths@3.0.0",
+      "name": "env-paths",
+      "version": "3.0.0",
+      "purl": "pkg:npm/env-paths@3.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "76d2544dea73316dcb9bf34fc517f7c0fe3ae365168632f6b10c5cfb29b660c8f59bf1f6cc33503a57b369fce41f09fab0cb2d8c74f01ba89042c72d0d6fdbd4"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/env-paths"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/graceful-fs@4.2.12",
+      "name": "graceful-fs",
+      "version": "4.2.12",
+      "purl": "pkg:npm/graceful-fs@4.2.12",
+      "licenses": [
+        {
+          "license": {
+            "id": "BlueOak-1.0.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "8aec86176138a1a7d07cfb11ac6db0b58d882eea4c86fb5dae1cebc41fb455c8ec3e948fb6da5f61d8e71851ac4e2e4c6891632358ce2873d0e944db4e3f5303"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/graceful-fs"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/ms@2.1.3",
+      "name": "ms",
+      "version": "2.1.3",
+      "purl": "pkg:npm/ms@2.1.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "e85973b9b4cb646dc9d9afcd542025784863ceae68c601f268253dc985ef70bb2fa1568726afece715c8ebf5d73fab73ed1f7100eb479d23bfb57b45dd645394"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/ms"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/playwright@1.65.1",
+      "name": "playwright",
+      "version": "1.65.1",
+      "purl": "pkg:npm/playwright@1.65.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "bc9d45ba83ab37038a1d421512f4adde34f52fec238c3a7087022cb4ab5fbd387c5c81b8146e1b205baf35d3318bcd4b19f02152051995e54568e2d8e1121453"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/playwright"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/playwright-core@1.65.1",
+      "name": "playwright-core",
+      "version": "1.65.1",
+      "purl": "pkg:npm/playwright-core@1.65.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "86a3e9cfb6e548c3f1595768784d728814b35ec2a254e77693e9230af994cb00f618f3b60ddf477dc5a7abd34dd061db3590c5819f497c116bf97e7f04ba34ab"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/playwright-core"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/progress@2.0.3",
+      "name": "progress",
+      "version": "2.0.3",
+      "purl": "pkg:npm/progress@2.0.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "ecf887b4b965e4b767288330d74d08fbcc495d1e605b6430598913ea226f6b46d78ad64a6bf5ccad26dd9a0debd979da89dcfd42e99dd153da32b66517d57db0"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/progress"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/semver@7.8.6",
+      "name": "semver",
+      "version": "7.8.6",
+      "purl": "pkg:npm/semver@7.8.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "f65a52494e0c972de6aedaeec0bb3578b2bafa0cdbcea78117044d8c88c4fbd2ee0e959d61cb6b4254377a3d489608bb8249e9b134673e82cff03a421ea1c827"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/semver"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/sumchecker@3.0.1",
+      "name": "sumchecker",
+      "version": "3.0.1",
+      "purl": "pkg:npm/sumchecker@3.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "32f8d7ce4cff04e7f2543906d2814eb41c475f6bb780a6cc1c817f7576e566c803dc158e14b987a2f229658ec1ca425d02372a442062d5660135d102f7223bbe"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/sumchecker"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/undici@7.30.2",
+      "name": "undici",
+      "version": "7.30.2",
+      "purl": "pkg:npm/undici@7.30.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "98bc8f4271f053168cfeb89d7a82bff8a2fc0da0092d197868109f997e38e1a0922e721aa26a8f2ed3517b68dd09872c939c19cd7ac32100bc65e60d44063220"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/undici"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/undici-types@7.24.6",
+      "name": "undici-types",
+      "version": "7.24.6",
+      "purl": "pkg:npm/undici-types@7.24.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "591356fac2608f9381378ff42691c5aadab38696e75741ae07e3a8cc0f6008bedaf7ddd2994fb5241642ccb37162c6cc7c87832fe953b29843e6337937e9f4ce"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/undici-types"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "bom-ref": "file:ui/fonts/IBMPlexSans-Regular.woff2",
+      "name": "IBMPlexSans-Regular.woff2",
+      "group": "IBM Plex Sans",
+      "licenses": [
+        {
+          "license": {
+            "id": "OFL-1.1"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "78efbe80177406a1b80d5925e706e3366290bf0d5309d7b0bd2d7f0d607f3c4c"
+        }
+      ],
+      "scope": "required",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/IBM/plex"
+        }
+      ],
+      "properties": [
+        {
+          "name": "versecue:sourceCommit",
+          "value": "bc6a7e4b37634eb79785d59781893db63ee3edcb"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "bom-ref": "file:ui/fonts/IBMPlexSans-Medium.woff2",
+      "name": "IBMPlexSans-Medium.woff2",
+      "group": "IBM Plex Sans",
+      "licenses": [
+        {
+          "license": {
+            "id": "OFL-1.1"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0497fab52b9c10f9efbec00be509b16d449a1e277098f03af929ef1e7cbddb54"
+        }
+      ],
+      "scope": "required",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/IBM/plex"
+        }
+      ],
+      "properties": [
+        {
+          "name": "versecue:sourceCommit",
+          "value": "bc6a7e4b37634eb79785d59781893db63ee3edcb"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "bom-ref": "file:ui/fonts/IBMPlexSans-SemiBold.woff2",
+      "name": "IBMPlexSans-SemiBold.woff2",
+      "group": "IBM Plex Sans",
+      "licenses": [
+        {
+          "license": {
+            "id": "OFL-1.1"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0fe2655c3c88b0b4c578b0046333fde7fb60d18419b9d07b4a1e115ac893e7f6"
+        }
+      ],
+      "scope": "required",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/IBM/plex"
+        }
+      ],
+      "properties": [
+        {
+          "name": "versecue:sourceCommit",
+          "value": "bc6a7e4b37634eb79785d59781893db63ee3edcb"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "bom-ref": "file:ui/fonts/IBMPlexSans-Bold.woff2",
+      "name": "IBMPlexSans-Bold.woff2",
+      "group": "IBM Plex Sans",
+      "licenses": [
+        {
+          "license": {
+            "id": "OFL-1.1"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0ee7512b5d3b040fe7c0b874df0965b357777d3929f627dfea202ff63834d05d"
+        }
+      ],
+      "scope": "required",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/IBM/plex"
+        }
+      ],
+      "properties": [
+        {
+          "name": "versecue:sourceCommit",
+          "value": "bc6a7e4b37634eb79785d59781893db63ee3edcb"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "whisper.cpp-windows-x64",
+      "name": "whisper.cpp Windows x64 release archive",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6ba69e3482d7826214f90a6a9c84ca07782aec1e1d0c6a7c30c994fd5d816ccb"
+        }
+      ],
+      "scope": "optional",
+      "properties": [
+        {
+          "name": "versecue:bundledWith",
+          "value": "Windows builds with local speech"
+        }
+      ]
+    },
+    {
+      "type": "machine-learning-model",
+      "bom-ref": "ggml-base.en",
+      "name": "ggml-base.en.bin",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002"
+        }
+      ],
+      "scope": "optional",
+      "properties": [
+        {
+          "name": "versecue:bundledWith",
+          "value": "Windows builds with local speech"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "versecue",
+      "dependsOn": [
+        "pkg:npm/electron@45.3.3",
+        "file:ui/fonts/IBMPlexSans-Regular.woff2",
+        "file:ui/fonts/IBMPlexSans-Medium.woff2",
+        "file:ui/fonts/IBMPlexSans-SemiBold.woff2",
+        "file:ui/fonts/IBMPlexSans-Bold.woff2",
+        "whisper.cpp-windows-x64",
+        "ggml-base.en"
+      ]
+    }
+  ]
+}

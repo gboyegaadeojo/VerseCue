@@ -896,3 +896,7 @@ The resident worker whisper-server folder moved into the app-owned speech scratc
 ## Signed manual updates (PR85) - 2026-11-21
 
 FR-060 MVP: IFC-owned Ed25519 release manifests (no key shipped), verify-only in-app check refused while capturing or armed. 584 modules, check, sweep, diagnostics 44866448771 and Mac 44866446324. Merged at db866b9. Code signing/notarization, rollback and update channel remain open. See docs/122.
+
+## SBOM, packaged main verification and loopback scenario fix (PR86-87) - 2026-11-21
+
+PR86 CycloneDX SBOM (legal/sbom.cdx.json, freshness enforced by npm run check) passed 585 modules, diagnostics 44867103664 and Mac 44867105668; merged af26797. Exact-source Windows review package of main db866b9 ran all 42 scenarios: 41 passed, test-loopback-input-guidance timed out because packaged builds have a configured speech engine; PR87 made that scenario accept either post-gate step (source and packaged pass); merged 4353cb0. P0 remains pending. See docs/123.

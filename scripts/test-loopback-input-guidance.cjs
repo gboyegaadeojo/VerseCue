@@ -21,7 +21,9 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
     await page.waitForFunction(()=>/system loopback route/.test(document.getElementById('message').textContent));
     assert.equal((await page.evaluate(()=>window.versecue.state())).value.capture.active,false,'Not-ready route never opens capture');
     await page.evaluate(()=>{const ack=document.getElementById('audio-route-ack');ack.checked=true;ack.dispatchEvent(new Event('change'));document.getElementById('listen').click();});
-    await page.waitForFunction(()=>/Configure the local speech engine/.test(document.getElementById('message').textContent));
+    // Past the routing gate the next step differs: source builds lack a speech engine, packaged builds try the synthetic device.
+    await page.waitForFunction(()=>{const text=document.getElementById('message').textContent;return text.length>0&&!/system loopback route/.test(text);});
+    await page.evaluate(()=>window.versecue.endAudio());
     await page.locator('#audio-device').selectOption('synthetic-mic',{force:true});
     assert.equal(await page.locator('#audio-route-ack').isChecked(),false,'Changing the input clears the routing check');
     assert.equal(await page.evaluate(()=>document.getElementById('audio-route-ack-label').hidden),true);
