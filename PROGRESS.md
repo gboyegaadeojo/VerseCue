@@ -476,3 +476,7 @@ User asked to publish the latest build instead of 0.5.5. v0.6.0 pre-release from
 ## Missing saved speech engine - 2026-11-21
 
 User report: Speech engine showed 'Recognition stopped or failed' because settings still pointed at a deleted 0.5.1 copy. Startup now replaces a saved engine/model that no longer exists with the engine bundled in the running version (event SPEECH_ENGINE_REPLACED_MISSING); an existing chosen engine is kept. Source and packaged scenario pass.
+
+## Connection health tolerance - 2026-11-21
+
+User report: connection dropped to Not connected seconds after testing. One late health answer under recognition load paused the session. Now late answers show Slow to respond (sends blocked, listening continues); only 15 s of failures is a lost link. See docs/127.
