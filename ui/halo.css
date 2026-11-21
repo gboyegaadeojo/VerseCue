@@ -1,0 +1,199 @@
+/* Halo (design 5): graphite surfaces, one accent, Apple-style controls. Loaded last; works with halo-layout.js. */
+@font-face{font-family:'Inter';src:url('fonts/Inter-Variable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap}
+:root{--h-bg:#161618;--h-bar:#1C1C1F;--h-panel:#1E1E21;--h-raised:#2A2A2D;--h-line:rgba(255,255,255,.07);--h-text:#F5F5F7;--h-soft:#C7C7CC;--h-muted:#98989D;--h-accent:#0A6CDF;--h-green:#30D158;--h-orange:#FF9F0A;--h-red:#FF453A;--h-spring:cubic-bezier(.34,1.56,.64,1)}
+body.halo{background:var(--h-bg)!important;color:var(--h-text)!important;font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system-ui,sans-serif!important;font-size:13px;letter-spacing:-.006em;-webkit-font-smoothing:antialiased}
+.halo button,.halo input,.halo select,.halo textarea{font-family:inherit!important;letter-spacing:inherit}
+.halo h1,.halo h2,.halo h3,.halo p,.halo span,.halo label,.halo dt,.halo dd,.halo li,.halo strong,.halo small,.halo blockquote{color:inherit}
+.halo .muted,.halo .eyebrow,.halo small{color:var(--h-muted)!important}
+.halo .app-shell,.halo .app-body,.halo .workspace,.halo .workspace>main,.halo .studio-feed,.halo footer{background:var(--h-bg)!important;color:var(--h-text)}
+
+/* Buttons: quiet pills with a spring on hover and press. */
+.halo button{min-height:30px!important;height:auto;padding:5px 14px!important;border-radius:999px!important;border:0!important;background:rgba(255,255,255,.08)!important;color:var(--h-text)!important;font-size:12.5px!important;font-weight:500!important;box-shadow:none!important;transition:transform .35s var(--h-spring),background .2s ease,box-shadow .25s ease,filter .2s ease!important}
+.halo button:hover:not(:disabled){transform:scale(1.035);background:rgba(255,255,255,.13)!important}
+.halo button:active:not(:disabled){transform:scale(.96);transition-duration:.1s!important}
+.halo button:disabled{opacity:.38;cursor:default}
+.halo button:focus-visible,.halo input:focus-visible,.halo select:focus-visible{outline:none!important;box-shadow:0 0 0 3px rgba(10,108,223,.45)!important}
+.halo #show,.halo .show,.halo #confirm-passage,.halo #reference-form button[type=submit],.halo .settings-footer button.show{background:var(--h-accent)!important;color:#fff!important}
+.halo #show:hover:not(:disabled),.halo #confirm-passage:hover:not(:disabled),.halo #reference-form button[type=submit]:hover:not(:disabled){filter:brightness(1.12);box-shadow:0 8px 20px -10px var(--h-accent)!important}
+.halo #stop,.halo .danger{background:transparent!important;color:#FF6961!important;box-shadow:inset 0 0 0 1px rgba(255,105,97,.38)!important}
+.halo #stop:hover{background:rgba(255,69,58,.12)!important}
+.halo kbd{font-size:10.5px;font-weight:600;padding:1px 6px;border-radius:5px;background:rgba(0,0,0,.28);color:inherit;border:0;opacity:.8}
+.halo #hold-auto{background:var(--h-orange)!important;color:#1D1200!important;font-weight:600!important}
+
+/* Inputs */
+.halo input:not([type=checkbox]):not([type=radio]):not([type=range]),.halo select,.halo textarea{min-height:30px!important;border-radius:8px!important;border:1px solid rgba(255,255,255,.1)!important;background:#1C1C1E!important;color:var(--h-text)!important;font-size:12.5px!important;padding:4px 10px!important}
+.halo input::placeholder{color:#6E6E73}
+.halo input[type=checkbox]{accent-color:var(--h-green)}
+.halo input[type=range],.halo meter{accent-color:var(--h-accent)}
+
+/* Toolbar: brand, page tabs, mode switch, actions. */
+.halo .sidebar{display:flex!important;flex-direction:row!important;flex-wrap:wrap;align-items:center;gap:6px 10px!important;position:static!important;width:auto!important;height:auto!important;min-height:52px!important;padding:8px 18px!important;background:var(--h-bar)!important;border:0!important;border-bottom:1px solid var(--h-line)!important;color:var(--h-text)!important}
+.halo .sidebar .nav-label,.halo .workspace-identity,.halo .brand small,.halo .sidebar .nav-icon{display:none!important}
+.halo .brand{display:flex;align-items:center;gap:9px;padding:0 10px 0 0!important}
+.halo .brand h1{font-size:14px!important;font-weight:600!important;letter-spacing:-.02em!important;margin:0!important;color:var(--h-text)!important}
+.halo .mark{width:24px!important;height:24px!important;min-width:24px;border-radius:7px!important;background:var(--h-accent)!important;color:#fff!important;border:0!important;font-size:12px!important;display:inline-flex!important;align-items:center;justify-content:center}
+.halo .sidebar>button{min-height:26px!important;padding:3px 10px!important;background:transparent!important;color:var(--h-muted)!important;font-size:12px!important}
+.halo .sidebar>button:hover{color:var(--h-text)!important;background:rgba(255,255,255,.06)!important;transform:none}
+.halo .sidebar>button[aria-current=page]{color:var(--h-text)!important;background:rgba(255,255,255,.08)!important}
+.halo #setup{font-size:0!important;width:30px;min-width:30px;padding:0!important;display:inline-flex!important;align-items:center;justify-content:center;background:rgba(255,255,255,.07)!important;color:var(--h-text)!important}
+.halo #setup::before{content:"";width:14px;height:14px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z'/%3E%3C/svg%3E") center/contain no-repeat}
+.halo #setup:hover{transform:rotate(60deg) scale(1.06)!important}
+.halo .halo-seg{display:flex;padding:2px;background:rgba(118,118,128,.2);border-radius:9px;margin:0 auto}
+.halo .halo-seg button{min-height:26px!important;padding:3px 14px!important;border-radius:7px!important;background:transparent!important;color:var(--h-text)!important;opacity:.7;font-size:12px!important}
+.halo .halo-seg button:hover:not(:disabled){opacity:1;transform:none;background:transparent!important}
+.halo .halo-seg button[aria-pressed=true]{background:#5A5A5E!important;opacity:1;font-weight:600!important;box-shadow:0 3px 8px rgba(0,0,0,.3)!important}
+.halo .header-actions{display:flex!important;gap:8px;margin:0!important}
+.halo .header-actions .compact-settings{display:none!important}
+.halo .app-body>header{display:none!important}
+
+/* Three columns: heard references | reference stage | status. */
+.halo .workspace{display:grid!important;grid-template-columns:minmax(260px,300px) minmax(0,1fr) minmax(240px,290px)!important;gap:14px;padding:14px 18px 18px;background:var(--h-bg)!important;align-items:start}
+.halo .studio-feed,.halo .halo-side{display:flex;flex-direction:column;gap:12px;padding:0!important;border:0!important;min-width:0}
+.halo .workspace>main{padding:0!important;min-width:0;display:flex;flex-direction:column;gap:14px}
+.halo .inspector.route-inspector{display:none!important}
+.halo .studio-feed>section,.halo .halo-side>section,.halo .candidate-panel,.halo .passage-workflow,.halo .halo-live,.halo main>.mode-bar,.halo .preview-note,.halo .halo-side>#target-banner{background:var(--h-panel)!important;border:1px solid var(--h-line)!important;border-radius:14px!important;box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 12px 30px -22px rgba(0,0,0,.7)!important;color:var(--h-text)!important;margin:0!important}
+.halo h2,.halo h3{font-size:13px!important;font-weight:600!important;letter-spacing:-.01em!important;margin:0 0 6px!important;color:var(--h-text)!important}
+
+/* Left column */
+.halo .studio-feed>.manual{padding:12px!important}
+.halo .studio-feed>.manual label[for="reference-input"]{display:block;font-size:13px!important;font-weight:600!important;letter-spacing:-.01em!important;margin:0 0 8px!important}
+.halo .studio-feed>.manual .input-row{display:flex!important;flex-direction:row!important;gap:6px!important}
+.halo .studio-feed>.manual input{flex:1;min-width:0;border-radius:999px!important;padding:4px 12px!important}
+.halo .studio-feed>.manual button{flex:none}
+.halo .studio-feed .studio-detections{padding:12px 8px!important}
+.halo .studio-feed .queue-panel{padding:0!important;background:transparent!important;border:0!important}
+.halo .studio-feed .queue-panel h2{padding:0 8px}
+.halo .studio-feed .queue-panel>p{padding:0 8px;font-size:11px!important}
+.halo .queue-item{border:0!important;padding:0!important;background:transparent!important;position:relative}
+.halo .queue-item button,.halo #queue button{width:100%;text-align:left;justify-content:flex-start;border-radius:10px!important;padding:9px 12px 9px 30px!important;background:transparent!important;position:relative;font-weight:600!important}
+.halo #queue button::before{content:"";position:absolute;left:12px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:#48484A;transition:transform .3s var(--h-spring),background .2s ease}
+.halo #queue button:hover{background:rgba(255,255,255,.045)!important;transform:translateX(2px)!important}
+.halo #queue button:hover::before{transform:scale(1.35);background:#8E8E93}
+.halo #queue [aria-current=true] button,.halo #queue button[aria-pressed=true],.halo #queue .selected button{background:rgba(255,255,255,.07)!important}
+.halo .studio-feed .audio-panel{padding:12px!important}
+.halo .audio-controls{display:flex!important;flex-wrap:wrap;gap:6px;align-items:center}
+.halo .audio-controls meter{flex:1 1 100%;height:5px}
+.halo .consent{display:flex;gap:8px;align-items:flex-start;font-size:12px!important;color:var(--h-soft)!important;line-height:1.45}
+.halo .route-session{padding:12px!important}
+.halo .route-session section{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+
+/* Centre: live strip, mode line, stage */
+.halo .halo-live{display:flex;align-items:center;gap:12px;padding:9px 14px!important;overflow:hidden}
+.halo .halo-live>span{flex:none;font-size:10.5px!important;font-weight:600;letter-spacing:.05em;color:var(--h-soft)!important;display:inline-flex;align-items:center;gap:6px}
+.halo .halo-live>span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--h-red);animation:haloRec 1.6s ease-in-out infinite}
+.halo .halo-live #transcript{margin:0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px;color:var(--h-muted)!important;min-width:0;flex:1}
+.halo .halo-live #provisional-speech{margin:0!important;font-size:12px}
+.halo .page-heading{display:none!important}
+.halo main>.mode-bar{display:flex!important;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 18px;padding:10px 14px!important}
+.halo main>.mode-bar h2{display:none!important}
+.halo main>.mode-bar p{margin:0!important;font-size:12px!important;color:var(--h-soft)!important}
+.halo main>.mode-bar label{display:none!important}
+.halo .candidate-panel{padding:26px 28px!important}
+.halo .candidate-panel>.eyebrow{display:flex;justify-content:space-between;font-size:11px!important;font-weight:500!important;letter-spacing:0!important;text-transform:none!important}
+.halo .auto-pipeline{margin:12px 0!important}
+.halo .halo-head{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin:4px 0 14px}
+.halo .halo-titles{display:flex;flex-direction:column;gap:8px;min-width:0}
+.halo .candidate-panel #reference{margin:0!important;font-size:46px!important;font-weight:600!important;letter-spacing:-.045em!important;line-height:1!important;color:var(--h-text)!important}
+.halo .halo-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.halo .pill,.halo #candidate-translation{background:rgba(255,255,255,.08)!important;color:var(--h-soft)!important;border:0!important;border-radius:999px!important;font-size:11px!important;font-weight:500!important;padding:2px 9px!important}
+.halo .halo-tag{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:500;padding:2px 9px 2px 7px;border-radius:999px;white-space:nowrap}
+.halo .halo-tag::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.halo .halo-tag[data-level=clear]{color:#5EE07A;background:rgba(50,215,75,.12)}
+.halo .halo-tag[data-level=likely]{color:#FFB340;background:rgba(255,159,10,.13)}
+.halo .halo-tag[data-level=check]{color:#FF6961;background:rgba(255,69,58,.14)}
+.halo .halo-orb{position:relative;width:92px;height:92px;flex:none;display:flex;align-items:center;justify-content:center}
+.halo .halo-orb svg{position:absolute;inset:0}
+.halo .halo-ring-track{fill:none;stroke:rgba(255,255,255,.07);stroke-width:3.5}
+.halo .halo-ring{fill:none;stroke:rgba(255,255,255,.25);stroke-width:3.5;stroke-linecap:round;transition:stroke-dashoffset .7s cubic-bezier(.2,.9,.3,1),stroke .3s ease}
+.halo .halo-ring[data-level=clear]{stroke:#5EE07A}.halo .halo-ring[data-level=likely]{stroke:#FFB340}.halo .halo-ring[data-level=check]{stroke:#FF6961}
+.halo .halo-core{width:30px;height:30px;border-radius:50%;background:var(--h-text);animation:haloBreath 2.6s ease-in-out infinite}
+.halo .halo-wave{position:absolute;width:30px;height:30px;border-radius:50%;border:1px solid rgba(245,245,247,.45);animation:haloRipple 2.6s ease-out infinite}
+.halo .halo-wave-b{animation-delay:1.3s}
+.halo .source-label{margin:14px 0 4px!important;font-size:11px!important;letter-spacing:0!important;text-transform:none!important}
+.halo blockquote,.halo #phrase{margin:0 0 10px!important;padding:0!important;border:0!important;font-size:13px!important;line-height:1.6;color:var(--h-soft)!important;background:transparent!important}
+.halo #review-note{font-size:12.5px;color:var(--h-soft)!important;background:rgba(255,255,255,.04)!important;border-radius:10px;padding:10px 12px!important;border:0!important}
+.halo .candidate-actions,.halo .output-actions,.halo .review-actions{display:flex!important;flex-wrap:wrap;gap:8px!important}
+.halo .candidate-actions{flex-direction:column;align-items:flex-start;margin-top:10px}
+.halo #candidate-empty{text-align:left;padding:8px 0!important}
+.halo #candidate-empty .empty-symbol{display:none}
+.halo #candidate-empty h2{font-size:22px!important;letter-spacing:-.03em!important}
+.halo #candidate-empty p{color:var(--h-muted)!important}
+.halo .preview-note{padding:12px 14px!important;font-size:12px}
+
+/* Right column: grouped status rows */
+.halo .halo-status{display:flex!important;flex-direction:column!important;gap:0!important;padding:0!important;overflow:hidden;background:var(--h-panel)!important;border:1px solid var(--h-line)!important;border-radius:14px!important}
+.halo .halo-status>div{display:flex!important;justify-content:space-between;align-items:center;gap:12px;padding:11px 14px!important;border:0!important;border-radius:0!important;background:transparent!important}
+.halo .halo-status>div+div{border-top:1px solid var(--h-line)!important}
+.halo .halo-status>div:hover{background:rgba(255,255,255,.025)!important}
+.halo .halo-status span{font-size:12.5px!important;letter-spacing:0!important;text-transform:capitalize;color:var(--h-text)!important;font-weight:500}
+.halo .halo-status strong{font-size:12px!important;font-weight:400!important;color:var(--h-muted)!important;text-align:right;margin:0!important}
+.halo .halo-side>#target-banner{padding:11px 14px!important;font-size:12px;color:var(--h-soft)!important}
+
+/* Footer status line */
+.halo footer{border-top:1px solid var(--h-line)!important;color:var(--h-muted)!important;padding:8px 18px!important;font-size:12px}
+
+/* Dialogs: macOS sheet */
+.halo dialog{background:var(--h-panel)!important;color:var(--h-text)!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:14px!important;box-shadow:0 40px 90px -30px rgba(0,0,0,.9)!important;animation:haloIn .38s cubic-bezier(.34,1.3,.64,1)}
+.halo dialog::backdrop{background:rgba(0,0,0,.5)}
+.halo .settings-nav{background:#252528!important;border-right:1px solid var(--h-line)!important}
+.halo .settings-nav button{width:100%;justify-content:flex-start;text-align:left;border-radius:7px!important;background:transparent!important;font-weight:500!important}
+.halo .settings-nav button:hover{background:rgba(255,255,255,.06)!important;transform:none}
+.halo .settings-nav button[aria-current=page]{background:var(--h-accent)!important;color:#fff!important}
+.halo fieldset,.halo .private-api-panel,.halo .saved-cue-browser{background:var(--h-raised)!important;border:1px solid rgba(255,255,255,.05)!important;border-radius:10px!important;color:var(--h-text)!important}
+.halo legend{color:var(--h-text)!important;font-weight:600}
+
+@keyframes haloBreath{0%,100%{transform:scale(1);opacity:.95}50%{transform:scale(1.1);opacity:1}}
+@keyframes haloRipple{from{transform:scale(1);opacity:.6}to{transform:scale(2.2);opacity:0}}
+@keyframes haloRec{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes haloIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.halo *{animation:none!important;transition:none!important}}
+@media (max-width:1100px){.halo .workspace{grid-template-columns:minmax(0,1fr)!important}.halo .halo-seg{margin:0}}
+
+/* Pass 2: one type scale everywhere, quieter details. */
+body.halo p,body.halo li,body.halo dd,body.halo dt,body.halo label,body.halo .consent{font-size:12.5px!important;line-height:1.5}
+body.halo .workspace h2,body.halo .workspace h3,body.halo .studio-feed .queue-panel h2,body.halo .route-session h2{font-size:13px!important;font-weight:600!important;letter-spacing:-.01em!important}
+body.halo .studio-feed .queue-panel>p,body.halo .studio-feed .audio-panel p.muted,body.halo .route-session p{font-size:11.5px!important;color:var(--h-muted)!important}
+body.halo #device-name{font-size:12px!important;color:var(--h-muted)!important;margin:2px 0 8px!important}
+body.halo meter,body.halo #meter{appearance:none;-webkit-appearance:none;height:5px!important;border:0!important;border-radius:3px;background:rgba(255,255,255,.1)!important;overflow:hidden}
+body.halo meter::-webkit-meter-bar{background:rgba(255,255,255,.1);border:0;border-radius:3px;height:5px}
+body.halo meter::-webkit-meter-optimum-value,body.halo meter::-webkit-meter-suboptimum-value,body.halo meter::-webkit-meter-even-less-good-value{background:var(--h-green);border-radius:3px}
+body.halo .review-actions,body.halo .candidate-actions,body.halo .output-actions,body.halo details{border-top:0!important;border-bottom:0!important}
+body.halo hr{border:0;border-top:1px solid var(--h-line)}
+body.halo .candidate-actions{flex-direction:row!important;align-items:center}
+body.halo .auto-pipeline li .pipeline-label{color:var(--h-muted)!important;font-size:11.5px!important;font-weight:500!important}
+body.halo .auto-pipeline li[data-state=done] .pipeline-label,body.halo .auto-pipeline li[data-state=active] .pipeline-label{color:var(--h-text)!important}
+body.halo .auto-pipeline::before,body.halo .auto-pipeline li::before,body.halo .auto-pipeline li::after{background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.12)!important}
+body.halo .pipeline-dot{background:#48484A!important;border-color:#48484A!important;box-shadow:none!important}
+body.halo .auto-pipeline li[data-state=done] .pipeline-dot{background:var(--h-text)!important;border-color:var(--h-text)!important}
+body.halo .auto-pipeline li[data-state=active] .pipeline-dot{background:var(--h-accent)!important;border-color:var(--h-accent)!important;box-shadow:0 0 0 4px rgba(10,108,223,.25)!important}
+body.halo .halo-status>div>span{display:inline-flex;align-items:center;gap:9px}
+body.halo .halo-status>div>span::before{content:"";width:18px;height:18px;border-radius:5px;flex:none;background:#8E8E93}
+body.halo .halo-status>div:nth-child(1)>span::before{background:var(--h-green)}
+body.halo .halo-status>div:nth-child(2)>span::before{background:var(--h-red)}
+body.halo .halo-status>div:nth-child(3)>span::before{background:#5E5CE6}
+body.halo .halo-status>div:nth-child(4)>span::before{background:var(--h-orange)}
+body.halo summary{color:var(--h-muted);font-size:12px;cursor:pointer}
+body.halo .studio-feed>.manual input{font-size:12.5px!important}
+body.halo .halo-status span{text-transform:none!important}
+body.halo .candidate-actions>.output-actions,body.halo .output-actions{display:flex!important;flex-direction:row!important;flex-wrap:wrap;gap:8px!important;width:auto!important}
+body.halo .output-actions>button{width:auto!important;flex:none!important}
+body.halo .candidate-panel>.eyebrow,body.halo .candidate-panel .eyebrow{border-color:var(--h-line)!important}
+body.halo details>summary{font-size:12px!important;color:var(--h-muted)!important}
+body.halo input[type=checkbox]{accent-color:var(--h-green);width:15px;height:15px}
+body.halo .halo-side>.preview-note{padding:12px 14px!important}
+body.halo .halo-side>.preview-note strong{display:block;font-size:12.5px;font-weight:600;margin-bottom:4px}
+body.halo .halo-side>.preview-note p{font-size:11.5px!important;color:var(--h-muted)!important;margin:0}
+body.halo .candidate-actions button,body.halo .output-actions>button,body.halo .review-actions>button{height:auto!important;min-height:30px!important;line-height:1.3!important;padding:6px 14px!important}
+body.halo #candidate-empty,body.halo #candidate-empty *{border-color:var(--h-line)!important}
+body.halo #candidate-empty .example{border-top:1px solid var(--h-line)!important;padding-top:12px;color:var(--h-muted)!important}
+body.halo .candidate-panel *{border-color:var(--h-line)}
+body.halo .workspace .candidate-panel button,body.halo .workspace .passage-workflow button{min-height:30px!important;height:auto!important;padding:6px 14px!important;line-height:1.3!important;align-self:center}
+body.halo .workspace .candidate-panel .candidate-actions *{align-items:center}
+body.halo dialog .dialog-heading,body.halo dialog .settings-footer,body.halo dialog form,body.halo dialog .settings-layout,body.halo dialog .settings-content{background:transparent!important;color:var(--h-text)!important;border-color:var(--h-line)!important}
+body.halo dialog .dialog-heading{border-bottom:1px solid var(--h-line)!important;padding:14px 18px!important}
+body.halo dialog .dialog-heading h2{font-size:15px!important}
+body.halo dialog .dialog-heading p{color:var(--h-muted)!important}
+body.halo #close-settings{width:30px;min-width:30px;padding:0!important}
+body.halo dialog .settings-footer{border-top:1px solid var(--h-line)!important;padding:12px 18px!important}
+body.halo dialog select,body.halo dialog input:not([type=checkbox]):not([type=range]){max-width:420px}
+body.halo .consent,body.halo dialog .consent,body.halo label.consent{background:transparent!important;border:0!important;box-shadow:none!important;color:var(--h-soft)!important;padding:8px 0!important}
