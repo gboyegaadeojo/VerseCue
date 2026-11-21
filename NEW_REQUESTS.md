@@ -72,6 +72,17 @@ Trust gate: the original 10-hour representative rehearsal with zero unapproved w
 
 2026-11-21: the user asked that a detected reference such as Proverbs 3:5 open the entire chapter in ProPresenter, positioned at the spoken verse, so the volunteer can go to earlier or later verses with next/previous instead of searching again. The user also asked to raise the verse limit in case a minister reads a whole chapter. Implemented for Prepare for volunteer (no output, no saved copy); the configurable limit now reaches 176 (Psalm 119). Auto keeps its 10-verse limit, because the user did not ask to change Auto and its safety rules need a recorded reason. See [docs/134](docs/134-whole-chapter-preparation.md).
 
+## NR-015 - Faster detection and a simple open-and-connect start
+
+2026-11-21: the user asked to "improve the application as a whole, make voice detection faster and every trigger faster" and to "turn on everything that makes it simple to just open and connect to ProPresenter". Implemented: automatic read-only connection to the saved ProPresenter, start listening on open once an input is set up (both settings, on by default), a 15 s audio context and 0.7 s end-of-speech silence for faster recognition, and heard-clarity values for the Halo badge. Auto's send rules, hold window and 10-verse limit are unchanged. See [docs/137](docs/137-faster-simpler-start.md).
+
 ## NR-016 - Halo design with compact controls in Standard size
 
 2026-11-21: the user chose design 5 (Halo) and asked for smaller fonts and smaller, better-looking buttons ("the buttons are too big"). Standard (the default text size) now uses Halo's compact controls: at least 28 px, 12–13 px text. Large ("booth distance") keeps the original booth readability: 18 px text and 44 px targets, every booth check unchanged (docs/111, docs/126). The Hold button stays 44 px in both sizes because it is the operator's safety control. See [docs/136](docs/136-halo-design.md).
+
+## NR-017 - Any ProPresenter version, any computer and graphics card, ready out of the box
+
+2026-11-21: the user asked that VerseCue (1) work with any ProPresenter version, current and future, on both Windows and Mac, because churches and media houses run different versions; (2) work on any computer and any AMD or NVIDIA graphics card; and (3) have every setting needed to "hit the ground running" preset out of the box, except connecting to ProPresenter.
+
+Implemented in this change: Bible preparation is no longer pinned to ProPresenter 21.4.2 (any ProPresenter on Windows; the helper still verifies every control and stops safely if a version differs, and never sends output). The Mac helper has no version pin. The computer's default microphone is preselected; the bundled engine, graphics card, quotes, authorizations, auto-connect and auto-listen are on by default. Graphics support for AMD/NVIDIA/Intel through a Vulkan speech engine and an Intel Mac download follow in their own change.
+
