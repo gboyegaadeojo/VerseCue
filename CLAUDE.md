@@ -1,12 +1,12 @@
 # VerseCue - resume here
 
-Checked: 2026-11-21 01:38 UTC. Implementation active; P0/full service acceptance PENDING.
+Checked: 2026-11-21 01:49 UTC. Implementation active; P0/full service acceptance PENDING.
 
 Read AGENTS.md, the entire master specification, HANDOFF.md, PROGRESS.md, NEW_REQUESTS.md, docs/107 and the complete docs/99 original audit. Keep all original62FR/24NFR/86 trace/66 corpus and RF01-22 gates.
 
 ## Current authoritative state
 
-- Main f88e65a includes merged PR72 and PR73. Integration passed 554 modules and syntax/inventory. Source0.6.0 unreleased; public0.5.5 older supervised-test build. Aggregate PR22 stays draft and unmerged.
+- Main adbc3bd includes merged PR72, PR73 and PR74. Integration passed 554 modules and syntax/inventory. Source0.6.0 unreleased; public0.5.5 older supervised-test build. Aggregate PR22 stays draft and unmerged.
 - PR69 exact71a699f2e0f1735e89de88ab69985cbbb5999d05 passed544 local and each standard public Windows/Mac ARM/Mac Intel modules/check/audit/synthetic CLI at44841778744. All jobs and logs inspected, terminal. No real data scored; evaluator is offline and does not pass acceptance.
 - PR70 merged into main at 103f427. Exact 32c3586 passed 550 local modules, syntax/inventory and Windows/Mac ARM/Intel offline CI 44845398423. No accepted private worker, packaged replay or soak result. Integrated main with both progress histories and the merged soak implementation. Root passed 553 module tests, syntax/inventory and the documentation audit. Private follow-up is recorded in ignored test-results/pr70-private-resume.txt.
 
@@ -14,6 +14,8 @@ Read AGENTS.md, the entire master specification, HANDOFF.md, PROGRESS.md, NEW_RE
 
 - PR72 at d827b8b, worktree test-results/pr-split/revoked-recognition-completion. Initial Mac 44850288022 failed unchanged expired-audio scenario; corrected guard preserves intentional context invalidation. Exact corrected source and Windows packaged audio-age, reset/privacy, stabilization and listening/preparation pass. Exact-head Mac 44850836751 passed. Merged at f88e65a. Aggregate audio age and reset scenarios passed.
 - PR73 at ba30ae8, worktree test-results/pr-split/private-soak-summary. Keeps development soak summaries in ignored local output. 551 modules, syntax/inventory and structural audit passed. Windows/Mac ARM/Intel diagnostic CI 44851126201 passed; merged as ce6acc5. Aggregate summary conflict resolved with the strengthened script and all existing tests preserved. 554 integration modules and syntax/inventory passed; docs/64 refreshed.
+
+- PR74 1c6f96a, worktree test-results/pr-split/provisional-speech-preview. Explicit provisional text stays separate and old evidence is withheld. 551 modules, syntax/inventory, Windows source and exact-source packaged stabilization/reset/audio-age checks passed. Exact-head Mac 44851728755 passed. Merged at adbc3bd and integrated into draft PR22; 554 modules and syntax/inventory passed. This is UI handling for a future provider; current providers return completed chunks.
 
 ## Integration and authorization
 

@@ -40,6 +40,8 @@ const {_electron}=require('playwright'),http=require('node:http'),path=require('
   newPhrase();await feed('John chapter three');assert.equal((await command('ingest',{text:'Romans 8:28'})).ok,true);await feed('verse sixteen');assert.equal((await state()).queue.some(c=>c.label==='John 3:16'),false);
   newPhrase();await feed('John chapter three');assert.equal((await command('audio-loss',{reason:'capture-gap',samples:1600})).ok,true);await feed('verse sixteen');assert.equal((await state()).queue.some(c=>c.stabilization),false);
   newPhrase();await feed('John 3:16',{final:false});assert.equal((await state()).queue.length,0);assert.equal((await state()).speechStabilization.state,'unstable');
+  newPhrase();const expiredPartial=await feed('John 3:16',{final:false,age:16000});
+  assert.equal(expiredPartial.ok,true);assert.equal(expiredPartial.value.discarded,true);assert.equal(expiredPartial.value.text,'');
   await command('dry-run');assert.equal((await command('enable-auto',{acknowledged:true})).ok,true);newPhrase();const historyCount=(await state()).history.length;
   await feed('Please read John chapter three');await feed('verse sixteen');await new Promise(resolve=>setTimeout(resolve,900));s=await state();assert.equal(s.history.length,historyCount);assert.match(s.autoStatus.reason,/review/);assert.equal(triggers,1);
   await command('stop');s=await state();assert.equal(s.capture.active,false);assert.equal(s.speechStabilization.state,'idle');assert.deepEqual(errors,[]);

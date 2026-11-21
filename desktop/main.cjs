@@ -195,7 +195,7 @@ async function bootstrap(){
     const stabilized=citationStabilizer.feed({text:result.text,final:result.final,metadata,evidence,receivedAt,now:service.clock(),scope:`${event.sender.id}/${service.referenceEpoch??0}/${service.mode}/${service.maxPassageVerses}`,translation:service.translation,maxVerses:service.maxPassageVerses});
     if(stabilized.suppress){
       if(stabilized.state==='duplicate')return {...result,text:'',discarded:true,reason:'Duplicate recognition window discarded.'};
-      automatic.cancel();cancelPreparation();service.invalidate();service.speechStabilization={state:stabilized.state,reason:stabilized.reason};service.notify();return {...result,stabilization:service.speechStabilization};
+      automatic.cancel();cancelPreparation();service.invalidate();service.speechStabilization={state:stabilized.state,reason:stabilized.reason};service.notify();return evidence.stale?{...result,text:'',discarded:true,reason:'Audio evidence expired during recognition. Repeat the full reference.'}:{...result,stabilization:service.speechStabilization};
     }
     service.speechStabilization={state:stabilized.assembled?'assembled':'idle',...(stabilized.assembled?{fragmentCount:stabilized.fragmentCount,reason:'Reference assembled from adjacent speech windows. Review before showing.'}:{})};
     if(!evidence.contextUsable){service.context=null;service.queue=[];automatic.cancel();if(passageCoordinator?.review||passageCoordinator?.busy)cancelPreparation();}

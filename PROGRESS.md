@@ -832,3 +832,7 @@ Exact 119e8f2 passed 550 modules, source and packaged Windows synthetic verifica
 ## PR72 and PR73 integration
 
 PR72 d827b8b passed four targeted Windows source and packaged scenarios plus Mac 44850836751 after preserving intentional expiry responses. PR73 ba30ae8 passed 551 modules and diagnostics 44851126201. Both merged. Aggregate 554 modules, syntax/inventory and audio age/reset passed. P0 remains pending.
+
+## PR74 provisional preview
+
+Exact 1c6f96a passed 551 modules, Windows source and packaged synthetic coverage and Mac 44851728755. Main adbc3bd and aggregate 554 modules/check. Provisional provider text is separate and expires; real streaming provider acceptance remains pending.

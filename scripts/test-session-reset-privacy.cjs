@@ -89,7 +89,16 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
     await app.evaluate(()=>globalThis.resetReplies[9]({ok:true,value:{text:'SYNTHETIC STOPPED REPLY',elapsedMs:10}}));
     await primary.evaluate(()=>window.stoppedReply);
     assert.equal(await primary.locator('#transcript').textContent(),'No audio has been processed.');
-    const report={passed:true,lateStoppedReplyDiscarded:true,rollingPreviewBoundedAndReset:true,packaged:!!executable,allWindowsCleared:true,unsubmittedReferenceCleared:true,hiddenCandidateContentCleared:true,lateSuccessCannotRestoreOldTranscript:true,newSessionRecognitionStillDisplayed:true,dryRunRestored:true,actualProPresenterAccess:false,microphoneCapture:false};
+    await primary.evaluate(()=>{window.provisionalReply=audio.onWindow([],{});});
+    await waitReplies(11);
+    await app.evaluate(()=>globalThis.resetReplies[10]({ok:true,value:{text:'SYNTHETIC PARTIAL',final:false,elapsedMs:10}}));
+    await primary.evaluate(()=>window.provisionalReply);
+    assert.equal(await primary.locator('#provisional-speech').textContent(),'Provisional speech: SYNTHETIC PARTIAL');
+    assert.equal(await primary.locator('#transcript').textContent(),'No audio has been processed.');
+    assert.equal((await compact.evaluate(()=>window.versecue.command('reset'))).ok,true);
+    await primary.waitForFunction(()=>document.getElementById('provisional-speech').hidden);
+    assert.equal(await primary.locator('#provisional-speech').textContent(),'');
+    const report={passed:true,provisionalPreviewCleared:true,lateStoppedReplyDiscarded:true,rollingPreviewBoundedAndReset:true,packaged:!!executable,allWindowsCleared:true,unsubmittedReferenceCleared:true,hiddenCandidateContentCleared:true,lateSuccessCannotRestoreOldTranscript:true,newSessionRecognitionStillDisplayed:true,dryRunRestored:true,actualProPresenterAccess:false,microphoneCapture:false};
     await fs.mkdir('test-results',{recursive:true});await fs.writeFile(executable?'test-results/packaged-session-reset-privacy.json':'test-results/session-reset-privacy.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report));
   }finally{await app.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});
