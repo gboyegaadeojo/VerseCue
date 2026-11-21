@@ -488,3 +488,7 @@ User report: 6.2 s audio dropped. The 2 s queued-speech budget lost speech const
 ## Connection health tolerance - 2026-11-21
 
 User report: connection dropped to Not connected seconds after testing. One late health answer under recognition load paused the session. Now late answers show Slow to respond (sends blocked, listening continues); only 15 s of failures is a lost link. See docs/127.
+
+## Pre-ticked setup boxes (NR-011) - 2026-11-21
+
+Audio authorization, preparation focus changes and saved-copy creation start ticked (opt-out). Output arming and Auto approval stay deliberate. See docs/129.

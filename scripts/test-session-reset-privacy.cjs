@@ -21,7 +21,7 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
       assert.equal(await page.locator('#reference-input').inputValue(),'','Reset must clear unsubmitted reference text');
       assert.equal(await page.locator('#native-preparation-reference').inputValue(),'');
       assert.equal(await page.locator('#saved-cue-preview').textContent(),'');
-      assert.equal(await page.locator('#audio-consent').isChecked(),false);
+      assert.equal(await page.locator('#audio-consent').isChecked(),true,'NR-011: audio authorization returns to its pre-ticked default after reset');
       assert.equal(await page.locator('#reference').textContent(),'','Hidden candidate reference must be cleared');
       assert.equal(await page.locator('#phrase').textContent(),'','Hidden source phrase must be cleared');
       const state=(await page.evaluate(()=>window.versecue.state())).value;assert.equal(state.dryRun,true);assert.equal(state.mode,'auto','Reset returns to the saved start preference (NR-010 default Auto)');assert.equal(state.history.length,0);
