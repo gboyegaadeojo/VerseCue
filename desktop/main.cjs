@@ -280,6 +280,9 @@ async function bootstrap(){
       else{connector.status={state:'offline'};cancelAudio();connector.arm(false);service.setMode('paused');service.log('LINK_LOST','warning');}
     }finally{healthBusy=false;service.notify();}
   },2000);
+  // Every engine change warms the graphics card up in the background; recognition uses the processor until it is ready.
+  const configureSpeech=speech.configure.bind(speech);speech.configure=(...args)=>{configureSpeech(...args);service.speechGpu=speech.gpuState;setImmediate(()=>speech.warmUp().then(r=>{service.speechGpu=speech.gpuState;if(r.state==='ready')service.log('SPEECH_GPU_READY','info');else if(r.state==='unavailable')service.log('SPEECH_GPU_UNAVAILABLE','info');service.notify();}).catch(()=>{}));};
+  speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);
   // Connect to the saved ProPresenter automatically: a read-only /version check every 3 s until it answers.
   // Once connected the health check above takes over (slow/lost handling unchanged). Never arms output.
   let autoConnectBusy=false;

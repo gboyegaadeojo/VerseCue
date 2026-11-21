@@ -112,6 +112,8 @@ function render(next){
     for(const c of state.history){const row=document.createElement('div');row.className='history-item';const title=document.createElement('strong');title.textContent=c.label;const detail=document.createElement('small');detail.textContent=`${c.translation} · ${c.state==='simulated'?'Simulated':c.state==='readback-matched'?'Receipt + matching readback':'Uncertain · inspect ProPresenter'}`;const review=document.createElement('button');review.textContent='Review again';review.onclick=()=>action('ingest',{text:`${c.label} in ${c.translation}`}).catch(e=>message(e.message));row.append(title,detail,review);$('history').append(row);}
   }
   const ownsCapture=state.capture.active&&state.capture.ownerId===selfWindowId;
+  // Which processor recognition is using (docs/137): the graphics card is used once its background warm-up succeeds.
+  if(settings?.executable&&settings?.model){const gpu={pending:'Local · starting',warming:'Local · preparing graphics card (first start can take a few minutes)',ready:'Local · graphics card',unavailable:'Local · processor (no graphics card found)',cpu:'Local · processor'}[state.speechGpu];if(gpu)setText('speech-health',gpu);}
   if(state.capture.active&&['waiting','expired','unstable'].includes(state.speechStabilization?.state))setText('speech-health',state.speechStabilization.reason);
   if((state.mode==='paused'||state.stopped||(!ownsCapture&&!inputTestRequestPending))&&(listening||startingAudio))stopAudio().catch(error=>message(error.message));
   $('listen').disabled=listening||startingAudio||state.capture.active;

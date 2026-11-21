@@ -16,10 +16,10 @@ const AUDIO_CONTEXT='768',MAX_WINDOW_SECONDS=10;
 function heardConfidence(tokens){if(!Array.isArray(tokens))return null;const p=tokens.filter(t=>typeof t?.text==='string'&&!/^\s*\[/.test(t.text)&&/[A-Za-z0-9]/.test(t.text)&&Number.isFinite(t.p)).map(t=>Math.max(0,Math.min(1,t.p)));return p.length?Math.round(p.reduce((a,b)=>a+b,0)/p.length*1000)/1000:null;}
 const PROVISIONAL_TIMEOUT_MS=8000,SUPERSEDED='Provisional recognition superseded by a completed window';
 class LocalSpeech {
-  constructor(){this.executable=null;this.model=null;this.child=null;this.busy=false;this.epoch=0;this.mode='cli';this.scratch=null;this.resident=new ResidentSpeech();this.job=null;}
+  constructor(){this.executable=null;this.model=null;this.child=null;this.busy=false;this.epoch=0;this.mode='cli';this.scratch=null;this.resident=new ResidentSpeech();this.job=null;this.gpuReady=false;this.gpuState='cpu';this.warmEpoch=0;this.warmup=null;}
   async initializeScratch(root){if(this.busy)throw Error('Stop recognition before scratch recovery');const scratch=new SpeechScratch(root);await scratch.initialize();this.scratch=scratch;this.resident.scratch=scratch;}
   // acceleration 'gpu' lets a GPU-enabled engine (Metal, CUDA) use the graphics card; CPU-only engines ignore it.
-  configure(executable,model,mode='cli',acceleration='gpu'){if(this.busy)throw new Error('Stop recognition before changing worker');if(!['cli','resident'].includes(mode))throw new Error('Invalid local speech mode');if(!['gpu','cpu'].includes(acceleration))throw new Error('Invalid speech acceleration');this.resident.stop();this.executable=executable;this.model=model;this.mode=mode;this.acceleration=acceleration;this.resident.acceleration=acceleration;this.resident.warmedUp=false;this.warmedUp=false;}
+  configure(executable,model,mode='cli',acceleration='gpu'){if(this.busy)throw new Error('Stop recognition before changing worker');if(!['cli','resident'].includes(mode))throw new Error('Invalid local speech mode');if(!['gpu','cpu'].includes(acceleration))throw new Error('Invalid speech acceleration');this.resident.stop();this.executable=executable;this.model=model;this.mode=mode;this.acceleration=acceleration;this.resident.acceleration='cpu';this.resident.warmedUp=false;this.gpuReady=false;this.gpuState=acceleration==='gpu'?'pending':'cpu';this.warmEpoch++;this.warmup=null;this.warmedUp=false;}
   capabilities(){return {provisional:this.mode==='cli',final:true};}
   cancel(){this.epoch++;this.child?.kill();this.resident.stop();}
   async transcribe(samples){
@@ -41,15 +41,17 @@ class LocalSpeech {
     try{
       if(this.mode==='resident'){
         const server=path.join(path.dirname(this.executable),process.platform==='win32'?'whisper-server.exe':'whisper-server');
+        this.resident.acceleration=this.acceleration==='gpu'&&this.gpuReady?'gpu':'cpu';
         const start=performance.now(),{text,confidence}=await this.resident.recognize(bytes,server,this.model);
         canceled();
         return {text,heardConfidence:confidence,elapsedMs:Math.round(performance.now()-start),provider:'local whisper.cpp resident',final:true};
       }
       if(!this.scratch)throw Error('Speech scratch recovery must finish before recognition');const scratch=await this.scratch.create(bytes);dir=scratch.directory;const file=scratch.file;canceled();
       // A graphics-card engine may compile its kernels on first use (about a minute once); allow that only for the first request.
-      const limit=provisional?PROVISIONAL_TIMEOUT_MS:this.acceleration==='gpu'&&!this.warmedUp?90000:20000;
+      // The graphics card is used only after warmUp() proved it (first-run shader compilation can take minutes), so every request keeps the normal limit.
+      const limit=provisional?PROVISIONAL_TIMEOUT_MS:20000;
       const start=performance.now();const output=await new Promise((resolve,reject)=>{
-        const child=spawn(this.executable,['-m',this.model,'-f',file,'-l','en','-t','4',...(this.acceleration==='cpu'?['-ng']:[]),'-bs','1','-bo','1','-ac',AUDIO_CONTEXT,'-nt','-np',...(provisional?[]:['-ojf','-of',path.join(dir,'out')])],{windowsHide:true,shell:false,stdio:['ignore','pipe','pipe']});
+        const child=spawn(this.executable,['-m',this.model,'-f',file,'-l','en','-t','4',...(this.acceleration==='cpu'||!this.gpuReady?['-ng']:[]),'-bs','1','-bo','1','-ac',AUDIO_CONTEXT,'-nt','-np',...(provisional?[]:['-ojf','-of',path.join(dir,'out')])],{windowsHide:true,shell:false,stdio:['ignore','pipe','pipe']});
         this.child=child;job.child=child;let stdout='';let size=0;let timedOut=false;
         const timer=setTimeout(()=>{timedOut=true;child.kill();},limit);
         child.stdout.on('data',b=>{size+=b.length;if(size>65536)child.kill();else stdout+=b.toString();});
@@ -66,4 +68,29 @@ class LocalSpeech {
     }
   }
 }
+// Warm the graphics card up in the background: one second of silence through the engine on the GPU. Recognition stays on
+// the processor until this proves a GPU backend loaded (Vulkan, CUDA or Metal); a failure or no card keeps the processor.
+LocalSpeech.prototype.warmUp=function({timeoutMs=300000,spawnImpl=spawn}={}){
+  if(this.acceleration!=='gpu'||!this.executable||!this.model||!this.scratch?.ready)return Promise.resolve({state:this.gpuState});
+  if(this.warmup)return this.warmup;
+  const epoch=this.warmEpoch,executable=this.executable,model=this.model;this.gpuState='warming';
+  this.warmup=(async()=>{
+    let dir;
+    try{
+      const scratch=await this.scratch.create(wav(new Array(16000).fill(0)));dir=scratch.directory;
+      const result=await new Promise(resolve=>{
+        const child=spawnImpl(executable,['-m',model,'-f',scratch.file,'-l','en','-t','4','-bs','1','-bo','1','-ac',AUDIO_CONTEXT,'-nt'],{windowsHide:true,shell:false,stdio:['ignore','ignore','pipe']});
+        let err='';const timer=setTimeout(()=>child.kill(),timeoutMs);
+        child.stderr.on('data',b=>{err=(err+b).slice(-20000);});
+        child.once('error',()=>{clearTimeout(timer);resolve({ok:false});});
+        child.once('close',code=>{clearTimeout(timer);const gpu=/loaded (CUDA|Vulkan) backend|using (Metal|Vulkan|CUDA)|ggml_metal_init: (found|picking|GPU name)/i.test(err);resolve({ok:code===0&&gpu,gpu,device:/(?:Device 0|0 =|GPU name):?\s*([^|,\r\n]+)/.exec(err)?.[1]?.trim()??null});});
+      });
+      if(epoch!==this.warmEpoch)return {state:'superseded'};
+      this.gpuReady=result.ok;this.gpuState=result.ok?'ready':'unavailable';this.gpuDevice=result.device;
+      return {state:this.gpuState,device:result.device};
+    }catch{if(epoch===this.warmEpoch){this.gpuState='unavailable';}return {state:'unavailable'};}
+    finally{if(dir)await this.scratch.remove(dir).catch(()=>{});}
+  })();
+  return this.warmup;
+};
 module.exports={LocalSpeech,wav,PROVISIONAL_TIMEOUT_MS,heardConfidence,AUDIO_CONTEXT,MAX_WINDOW_SECONDS};
