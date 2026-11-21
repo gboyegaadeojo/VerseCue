@@ -492,3 +492,7 @@ User report: connection dropped to Not connected seconds after testing. One late
 ## Pre-ticked setup boxes (NR-011) - 2026-11-21
 
 Audio authorization, preparation focus changes and saved-copy creation start ticked (opt-out). Output arming and Auto approval stay deliberate. See docs/129.
+
+## Version 0.6.1 - 2026-11-21
+
+Version bump for a public 0.6.1 pre-release with the user-reported fixes: bundled speech engine fallback (PR93), ordinal/comma references and the 1st John wrong-book bug (PR94), connection health tolerance (PR95), 5 s queued speech (PR96) and pre-ticked setup boxes (PR97). README downloads point to v0.6.1.
