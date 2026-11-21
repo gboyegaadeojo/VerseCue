@@ -14,7 +14,7 @@ function validateSettings(value){
   s.port=value.port??s.port;s.channel=value.channel??0;targetURL(s.host,s.port);
   if(value.speechMode!==undefined){if(!['cli','resident'].includes(value.speechMode))throw new Error('Invalid speech mode');s.speechMode=value.speechMode;}
   // NR-010: start in Auto by product decision; the hold window stays inside the existing Auto correction grace.
-  if(value.startMode!==undefined){if(!['auto','confirm'].includes(value.startMode))throw Error('Invalid start mode');s.startMode=value.startMode;}
+  if(value.startMode!==undefined){if(!['auto','confirm','prepare'].includes(value.startMode))throw Error('Invalid start mode');s.startMode=value.startMode;}
   if(value.preTickConsents!==undefined){if(typeof value.preTickConsents!=='boolean')throw Error('Invalid consent default');s.preTickConsents=value.preTickConsents;}
   if(value.textSize!==undefined){if(!['standard','booth'].includes(value.textSize))throw Error('Invalid text size');s.textSize=value.textSize;}
   if(value.autoHoldMs!==undefined){if(!Number.isSafeInteger(value.autoHoldMs)||value.autoHoldMs<750||value.autoHoldMs>3000)throw Error('Invalid Auto hold window');s.autoHoldMs=value.autoHoldMs;}

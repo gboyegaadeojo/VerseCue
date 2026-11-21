@@ -59,3 +59,7 @@ Trust gate: the original 10-hour representative rehearsal with zero unapproved w
 ## NR-011 - Pre-ticked setup boxes
 
 2026-11-21: after testing 0.6.0, the user asked that the setup boxes be turned on by default in the next build. Audio authorization, experimental preparation focus changes and saved-copy creation now start ticked (opt-out setting). Arming output and per-passage Auto approval remain deliberate steps. See [docs/129](docs/129-pre-ticked-consents.md).
+
+## NR-012 - Prepare for volunteer
+
+2026-11-21: the user asked for an option where VerseCue triggers the referenced Bible passage in ProPresenter and the volunteer clicks it live, so nobody has to babysit VerseCue or type the reference. Implemented as the start mode Prepare for volunteer: Confirm mode, no output, automatic preparation of each clear detected reference through ProPresenter's Bible. See [docs/130](docs/130-prepare-for-volunteer.md).
