@@ -5,8 +5,11 @@ class PreparationController {
   readiness(){
     if(!this.preparation?.available())return {available:false,reason:'Automatic Bible preparation is unavailable on this platform/build. Prepare the exact passage in ProPresenter, then enter its reference again to review the saved copy.'};
     if(!this.connector.base||new URL(this.connector.base).hostname!=='127.0.0.1')return {available:false,reason:'Native Bible preparation must run on the ProPresenter computer. This LAN target supports saved-passage review; prepare new passages in ProPresenter first.'};
-    if(this.connector.version?.host_description!=='ProPresenter 21.4.2'||this.connector.version?.platform!=='win')return {available:false,reason:'Automatic preparation is verified only for the inspected Windows ProPresenter 21.4.2 profile. This target can use exact saved passages; its native preparation route is not verified.'};
-    return {available:true,scope:'personal-windows21.4.2-loopback-test'};
+    // Any ProPresenter version on Windows (NR-017). The helper verifies every control (Bible view, reference field,
+    // edition, generated labels) before acting and stops safely if a future version differs; it never sends output.
+    const host=this.connector.version?.host_description??'';
+    if(!/^ProPresenter(\s|$)/.test(host)||this.connector.version?.platform!=='win')return {available:false,reason:'Automatic preparation uses the Windows ProPresenter Bible view. This target can use exact saved passages.'};
+    return {available:true,scope:'windows-loopback',verifiedVersion:'ProPresenter 21.4.2',version:host,versionVerified:host==='ProPresenter 21.4.2'};
   }
   async prepare(reference,translation,guard=()=>true,{saveCopy=false,keepListening=false,focusVerse=null}={}){
     const {service,connector,speech,preparation}=this;
@@ -19,7 +22,7 @@ class PreparationController {
     if(!connector.base||new URL(connector.base).hostname!=='127.0.0.1')throw new Error('Experimental UI preparation requires the local loopback ProPresenter target');
     const targetGeneration=service.generation,targetBase=connector.base;
     const version=await connector.read('/version');
-    if(version.host_description!=='ProPresenter 21.4.2'||version.platform!=='win')throw new Error('This experimental UI profile is restricted to the inspected Windows ProPresenter 21.4.2 build');
+    if(!/^ProPresenter(\s|$)/.test(version.host_description??'')||version.platform!=='win')throw new Error('Automatic preparation needs ProPresenter on Windows');
     if(blocked()||targetGeneration!==service.generation||targetBase!==connector.base)throw new Error('Preparation canceled during target validation');
     const confirmPreparation=keepListening===true&&service.mode==='confirm'&&typeof this.cancelRecognition==='function';
     const listeningPreserved=confirmPreparation&&service.capture?.active===true;

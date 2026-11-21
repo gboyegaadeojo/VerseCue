@@ -9,6 +9,11 @@ function wav(samples){
   const b=Buffer.alloc(44+samples.length*2);b.write('RIFF');b.writeUInt32LE(b.length-8,4);b.write('WAVEfmt ',8);b.writeUInt32LE(16,16);b.writeUInt16LE(1,20);b.writeUInt16LE(1,22);b.writeUInt32LE(16000,24);b.writeUInt32LE(32000,28);b.writeUInt16LE(2,32);b.writeUInt16LE(16,34);b.write('data',36);b.writeUInt32LE(samples.length*2,40);samples.forEach((s,i)=>b.writeInt16LE(Math.round(s<0?s*32768:s*32767),44+i*2));return b;
 }
 // Provisional runs are display-only snapshots of a still-growing window. A completed window preempts them.
+// Windows are at most 10 s, so a 15.36 s audio context (768) is enough; the default 30 s context wastes most of the encoder's work.
+// The context must stay longer than any window: a shorter one makes whisper loop. Change both together.
+const AUDIO_CONTEXT='768',MAX_WINDOW_SECONDS=10;
+// How clearly the words were heard: the mean probability of the engine's word tokens (0-1). Display only; never used to decide output.
+function heardConfidence(tokens){if(!Array.isArray(tokens))return null;const p=tokens.filter(t=>typeof t?.text==='string'&&!/^\s*\[/.test(t.text)&&/[A-Za-z0-9]/.test(t.text)&&Number.isFinite(t.p)).map(t=>Math.max(0,Math.min(1,t.p)));return p.length?Math.round(p.reduce((a,b)=>a+b,0)/p.length*1000)/1000:null;}
 const PROVISIONAL_TIMEOUT_MS=8000,SUPERSEDED='Provisional recognition superseded by a completed window';
 class LocalSpeech {
   constructor(){this.executable=null;this.model=null;this.child=null;this.busy=false;this.epoch=0;this.mode='cli';this.scratch=null;this.resident=new ResidentSpeech();this.job=null;}
@@ -36,15 +41,15 @@ class LocalSpeech {
     try{
       if(this.mode==='resident'){
         const server=path.join(path.dirname(this.executable),process.platform==='win32'?'whisper-server.exe':'whisper-server');
-        const start=performance.now(),text=await this.resident.recognize(bytes,server,this.model);
+        const start=performance.now(),{text,confidence}=await this.resident.recognize(bytes,server,this.model);
         canceled();
-        return {text,elapsedMs:Math.round(performance.now()-start),provider:'local whisper.cpp resident',final:true};
+        return {text,heardConfidence:confidence,elapsedMs:Math.round(performance.now()-start),provider:'local whisper.cpp resident',final:true};
       }
       if(!this.scratch)throw Error('Speech scratch recovery must finish before recognition');const scratch=await this.scratch.create(bytes);dir=scratch.directory;const file=scratch.file;canceled();
       // A graphics-card engine may compile its kernels on first use (about a minute once); allow that only for the first request.
       const limit=provisional?PROVISIONAL_TIMEOUT_MS:this.acceleration==='gpu'&&!this.warmedUp?90000:20000;
       const start=performance.now();const output=await new Promise((resolve,reject)=>{
-        const child=spawn(this.executable,['-m',this.model,'-f',file,'-l','en','-t','4',...(this.acceleration==='cpu'?['-ng']:[]),'-bs','1','-bo','1','-nt','-np'],{windowsHide:true,shell:false,stdio:['ignore','pipe','pipe']});
+        const child=spawn(this.executable,['-m',this.model,'-f',file,'-l','en','-t','4',...(this.acceleration==='cpu'?['-ng']:[]),'-bs','1','-bo','1','-ac',AUDIO_CONTEXT,'-nt','-np',...(provisional?[]:['-ojf','-of',path.join(dir,'out')])],{windowsHide:true,shell:false,stdio:['ignore','pipe','pipe']});
         this.child=child;job.child=child;let stdout='';let size=0;let timedOut=false;
         const timer=setTimeout(()=>{timedOut=true;child.kill();},limit);
         child.stdout.on('data',b=>{size+=b.length;if(size>65536)child.kill();else stdout+=b.toString();});
@@ -53,11 +58,12 @@ class LocalSpeech {
         child.once('close',code=>{clearTimeout(timer);if(job.preempted)reject(new Error(SUPERSEDED));else if(timedOut)reject(new Error(provisional?'Provisional recognition exceeded 8 seconds; preview skipped':'Recognition exceeded 20 seconds; window discarded'));else if(code!==0||size>65536)reject(new Error('Local speech worker failed'));else resolve(stdout.trim());});
       });
       canceled();
-      this.warmedUp=true;return {text:output.slice(0,8192),elapsedMs:Math.round(performance.now()-start),provider:'local whisper.cpp',final:true};
+      let confidence=null;if(!provisional){try{const json=JSON.parse(await fs.readFile(path.join(dir,'out.json'),'utf8'));confidence=heardConfidence((json.transcription??[]).flatMap(s=>s.tokens??[]));}catch{}}
+      this.warmedUp=true;return {text:output.slice(0,8192),heardConfidence:confidence,elapsedMs:Math.round(performance.now()-start),provider:'local whisper.cpp',final:true};
     }finally{
       try{this.child=null;this.busy=false;if(this.job===job)this.job=null;if(dir)try{await this.scratch.remove(dir);}catch{this.scratch.ready=false;throw Error('Temporary speech cleanup failed; stop recognition and restart VerseCue');}}
       finally{finish();}
     }
   }
 }
-module.exports={LocalSpeech,wav,PROVISIONAL_TIMEOUT_MS};
+module.exports={LocalSpeech,wav,PROVISIONAL_TIMEOUT_MS,heardConfidence,AUDIO_CONTEXT,MAX_WINDOW_SECONDS};
