@@ -464,3 +464,7 @@ FR-060 MVP: Ed25519 release manifests signed with IFC's offline key (no key ship
 ## Software bill of materials - 2026-11-21
 
 CycloneDX 1.5 legal/sbom.cdx.json built deterministically from the reviewed dependency/font inventories and pinned speech hashes; npm run check fails if it is stale. 585 modules and check pass. Not a vulnerability scan or license clearance. See docs/123.
+
+## Text size setting - 2026-11-21
+
+User found the fonts too big. Settings > Display > Text size: Standard 15 px (new default) or Large 18 px booth size; 44 px targets in both. Booth scenario runs in Large and checks Standard. 586 modules, check, 42/42 scenarios. See docs/126.
