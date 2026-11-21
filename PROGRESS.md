@@ -836,3 +836,7 @@ PR72 d827b8b passed four targeted Windows source and packaged scenarios plus Mac
 ## PR74 provisional preview
 
 Exact 1c6f96a passed 551 modules, Windows source and packaged synthetic coverage and Mac 44851728755. Main adbc3bd and aggregate 554 modules/check. Provisional provider text is separate and expires; real streaming provider acceptance remains pending.
+
+## Claude takeover checkpoint
+
+Main adbc3bd, aggregate code baseline 149313d. All committed project work is on GitHub. Handoff in HANDOFF.md records verification, remaining work and precise resume steps. Local private material and original design references preserved. P0 and draft PR22 acceptance remain pending.

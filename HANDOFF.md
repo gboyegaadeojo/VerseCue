@@ -1,60 +1,36 @@
-# VerseCue development handoff
+﻿# VerseCue takeover handoff
 
-Checked: 2026-11-21 00:25 UTC. Read [CLAUDE.md](CLAUDE.md) for the short current checkpoint and [PROGRESS.md](PROGRESS.md) for history. Main has stable links to this maintained integration-branch handoff.
+Checked 2026-11-21 01:52 UTC. Start here after reading CLAUDE.md. The historical work is in PROGRESS.md. The aggregate implementation is on feat/reference-driven-bible-workflow, open as [draft PR22](https://github.com/gboyegaadeojo/VerseCue/pull/22). Main at adbc3bd includes merged components through PR74. The aggregate code baseline before this handoff is 149313d. Fetch origin and verify both refs before editing. The local main branch was behind origin/main at handoff.
 
-## Start safely
+## Read before changing code
 
-Read the entire [master specification](VerseCue_Master_Development_Prompt_v2_Codex.md), [AGENTS.md](AGENTS.md), [NEW_REQUESTS.md](NEW_REQUESTS.md), [remaining work](docs/107-remaining-work-and-acceptance.md), [original86-row audit](docs/99-original-requirement-evidence-audit.md), [RF01-22 map](docs/90-pr22-acceptance-state.md) and original acceptance plan. Do not replace requirements with this handoff.
+1. Read AGENTS.md and the entire [master specification](VerseCue_Master_Development_Prompt_v2_Codex.md).
+2. Read [CLAUDE.md](CLAUDE.md), [PROGRESS.md](PROGRESS.md) and [NEW_REQUESTS.md](NEW_REQUESTS.md).
+3. Read [remaining work](docs/107-remaining-work-and-acceptance.md), the complete [86-row original requirement audit](docs/99-original-requirement-evidence-audit.md), the [RF01–22 map](docs/90-pr22-acceptance-state.md) and [acceptance plan](docs/06-test-and-acceptance-plan.md). Preserve all 62 FRs, 24 NFRs, 86 trace rows and the 66-row corpus.
 
-Inspect git status, branch/head, worktrees and actual process/CI state. A status file does not prove a job remains live. Preserve unrelated files; use small PRs and explicit staged paths. Never force-push, wipe test-results or restart based only on an observation timeout.
+## Last verified work
 
-## Repository and completed work
-
-Public repository: https://github.com/gboyegaadeojo/VerseCue. Aggregate PR22 remains open/draft.
-
-| Location | Checked state |
+| Component | Evidence |
 | --- | --- |
-| Main |2d93e73, through PR67 app changes and PR68 docs pointers;534 modules|
-| Root |feat/reference-driven-bible-workflow,dc627c6 before this checkpoint;537 module/check pass on its app source, later changes docs only|
-| Active code |feat/labeled-recognition-evaluation; test-results/pr-split/labeled-recognition-evaluation; uncommitted offline tool|
-| Unrelated material |Existing untracked design-reference/; preserve|
+| PR69 offline labeled recognition evaluator | 71a699f, 544 module tests and Windows/macOS ARM/Intel diagnostics 44841778744. Zero real recordings scored. |
+| PR70 bounded replay | 32c3586, 550 module tests and Windows/macOS ARM/Intel diagnostics 44845398423. Five readers share the ten-second PCM fixture contract. |
+| PR71 rolling speech preview | 119e8f2, 550 tests, source and packaged Windows scenarios and Mac run 44848255375. Five completed windows in renderer memory. |
+| PR72 capture revocation | d827b8b, four targeted Windows source and packaged scenarios and Mac run 44850836751. Earlier run 44850288022 exposed an expired-audio response regression and remains historical. |
+| PR73 local soak summaries | ba30ae8, 551 tests and Windows/macOS ARM/Intel diagnostics 44851126201. Summaries default to ignored test-results/soak-summaries. |
+| PR74 provisional preview | 1c6f96a, 551 tests, exact-source Windows source/package scenarios and Mac run 44851728755. Provisional text is separate, clears on stop/reset and cannot enter candidate review. Current local providers still emit completed chunks. |
 
-Source0.6.0 is unreleased. Published0.5.5 is an older supervised-test download. Review packages do not replace installed apps or establish service readiness.
+Aggregate 149313d passed 554 module tests and syntax/dependency inventory. No active build or soak from this handoff. The ignored local checkpoint test-results/pr70-private-resume.txt records scoped exact-source Windows worker replay and one-minute minimized dry run. Historical and synthetic evidence carries only its recorded scope. Source 0.6.0 remains unreleased. Published 0.5.5 is an older supervised-test build.
 
-PR62 passage policy passed514 modules/28 source+packaged/Mac44787486654. PR63 introduced handoff docs. PR64 input information passed521 modules/29 source+packaged/Mac44791701176. PR65 scratch recovery corrected d2f6ac25 passed531 modules/30 source+packaged/Mac44794893453; retain initial parent-alias failure44794215980 historically. PR66 input test9d2735bd passed534 modules/31 source+packaged/Mac44800662569.
+## Resume in this order
 
-PR67 exact5bfb90513b9b61ae113b79204049008276313e84 passed534 modules/check, measured typography/targets/checkbox labels/compact/manual-no-send, existing Studio/workspace/smoothness, all32 source+32 packaged Windows scenarios,153-file current-source/native receipts and Mac44828146007. Initial footer-over-Stop at640px/200% was reproduced and corrected using the unchanged regression. All jobs are terminal. PR68 docs-only830e1dd merged at2d93e73 after audit; main entry points now direct fresh agents to current active work.
+1. Check git status, branch heads, worktrees and current CI. On Windows run npm.cmd test and npm.cmd run check. Use node scripts/audit-documentation.cjs for structural checks, and review its generated JSON before staging. For a new component, branch from fetched origin/main in a separate worktree. Use the existing synthetic Electron scenarios and relevant native workflows for the changed feature.
+2. Keep working on software that can be verified independently. The provisional speech UI is ready for a provider that emits partials. Inspect core/stt.cjs, core/resident-speech.cjs, the audio capture queue and desktop/main.cjs before changing providers. Keep inference bounded, preserve capture lease/age checks and keep provisional text out of candidate and output paths. Use label-backed fixtures for recognition behavior. The supplied sermon source and 4690-second offset are already in [source intake](docs/test-data/sermon-source-intake.md). Do not derive ground truth from captions or model output. Trusted installation, service update lock, rollback and privacy/recovery assurance remain open.
+3. For Windows native acceptance, the computer-use helper recovered app discovery. Automatic approval review blocked launching ProPresenter because launch could expose outputs before their state was verified. Resume when the personal ProPresenter instance is open and Audience and Stage can each be independently observed disabled before and during testing. Prioritize fresh-reference preparation timing and clipping, then the full translation/theme/Look, coexistence and failure matrix. Keep new host evidence private.
+4. For macOS, start from [the read-only accessibility probe](poc/macos/README.md). Native Bible preparation remains gated by an authorized Mac accessibility profile and actual observations of the installed app. Public Mac builds use synthetic targets and cannot establish a native control profile. Continue unaffected work while awaiting access.
+5. Finish representative audio, same-host/LAN, six-edition and physical screen verification, held-out sermon precision/recall, measured latency, stability/rehearsal, and operator accessibility. P0 remains pending. Keep aggregate PR22 draft until its full acceptance scope is met.
 
-## Active component work
+## Worktree and privacy notes
 
-PR69 merged atd7bc48a, root integration c4a16ef; both progress histories preserved and backlog refreshed. Exact71a699f passed544 local and all three standard public diagnostic jobs44841778744 (Windows/Mac ARM/Intel); logs inspected, no real recognition evidence. Main has544 modules; root rerun is next.
+GitHub received all committed project work; no stash or local-only commits were found at the audit. The root untracked design-reference directory predates this work and stays local. The normal-auto-backend worktree had a line-ending-only PROGRESS.md status, and private-soak-summary had a generated audit timestamp difference. Both were preserved. Do not stage the entire tree or remove existing worktrees. Isolated worktrees can use root node_modules via NODE_PATH. Review packages use node scripts/build-review-package.cjs and existing private worker/model assets. Match the revision and package receipt. A fresh clone lacks ignored recordings, assets, worktrees and reports.
 
-PR70 bounded replay diagnostics merged at 103f427. Exact 32c3586 passed 550 local modules, syntax/inventory and all three public diagnostic jobs 44845398423. Root before integration passed 547 modules and syntax/inventory. Private replay attempts remain unaccepted. No real-worker/GUI/package/soak/microphone/ProPresenter pass.
-
-## Next actual integration work
-
-The personal read-only prerequisite checks are terminal and records remain ignored/private. Computer Use list_apps timed out twice; documented JS reset/initialization/retry returned execution timeouts and kernel resets. No target selection or input was sent. Do not continue Windows UI actions until that helper recovers. Skill, guidance/API/confirmations were read; use node_repl + @oai/sky with actual returned windows and one observation-derived action per refresh. No guessed handles, PS UIA helpers, security/privacy changes or permission-dialog automation.
-
-Once tooling/prerequisites permit, prioritize Windows fresh-reference preparation speed/clipping and the full real-host fidelity matrix. Native testing needs fresh independent Audience=false and Stage=false observations. No actual native operation or output was attempted in this continuation. Do not publish new personal-host telemetry without specific authorization.
-
-The five diagnostic readers now use the ten-second limit. No long soak is active. Check package provenance and isolate a private worker smoke before attempting a current-source soak.
-
-Existing sermon pilot/spot-check/replay scripts are throwaway diagnostics, explicitly without independent labels/accuracy scores. The user already supplied the source and4690s start; [source intake](docs/test-data/sermon-source-intake.md) records it. Do not ask for source/timestamp again, manufacture labels from captions/model output or relabel synthetic cases as real. Formal consent/review/held-out evidence still matters.
-
-## Commands and evidence
-
-Use npm.cmd on Windows. Standard checks: npm.cmd test; npm.cmd run check; node scripts/audit-documentation.cjs. The audit modifies docs/evidence/documentation-consistency-audit.json and proves structure only. Dependency inventory is not independent legal/security approval.
-
-Isolated worktrees use root node_modules via NODE_PATH. Review builds: node scripts/build-review-package.cjs, using existing root private whisper-bin-x64.zip and ggml-base.en.bin assets; never publish them. Source/package helpers in worktree test-results derive cases from the checked-out macos-development workflow. Reports are settings-source-workflows.json, settings-packaged-workflows.json, review-package.json and scenario reports. Match exact revision/runtime source.
-
-A fresh clone lacks ignored assets, worktrees and reports. Run the listed workflow commands or reconstruct orchestration after inspecting source. Do not recreate processes from old notes. Source then packaged GUI suites run sequentially; CI is independent. Mac software/package CI does not prove installed ProPresenter on Mac.
-
-## Authorization and acceptance
-
-The user approved provisional implementation, routine builds/tests, public GitHub and small completed-component merges. Personal Windows test output is authorized only with disabled Audience/Stage independently observed before/during. No church production output, paid service/purchase, OS security/privacy/ACL change, blind uncertain-output retry, Clear/deletion or automatic restoration.
-
-Unanswered specific matters remain publication of new personal-host telemetry, an authorized Mac/native accessibility test profile, and separately named Text Down test styles for clipping investigation. Continue unaffected work without repeating questions; silence is not approval. Automatic review previously rejected new host telemetry publication without specific permission. Never commit/delete all test-results: it contains private evidence and active worktrees.
-
-P0 remains PENDING: route/fidelity/translation/platform/timing evidence and IFC approval are incomplete. Historical personal Windows21.4.2 evidence has scope and speed/clipping limitations; it does not establish six IFC editions, native Mac/LAN parity, physical room/stream outputs, real speech accuracy or service readiness. Preserve every original threshold, priority and release gate. ProPresenter owns themes/Looks/playlists; these are preservation tests, not new editors.
-
-Refresh the current checkpoint about every10 minutes while active, after merges/build checkpoints and before interruption. Keep exact next actions and actual live handles. Another agent needs its own credentials/runtime permissions; the conversation and handles do not transfer automatically.
+Continue authorized builds, tests, pushes and verified component merges without repeatedly asking. Post progress at start, verification, merge and blockers. Update CLAUDE.md about every ten active minutes and at meaningful checkpoints. Stage explicit paths. ProPresenter owns Bible text, appearance, Looks, playlists and output. Verify exact translation and actual output independently of HTTP success. No church production output, paid purchases, OS privacy/security changes, Clear/deletion, blind retry after uncertain output, automatic cue restoration or publication of new private host telemetry. No delegation without the user's explicit request.
