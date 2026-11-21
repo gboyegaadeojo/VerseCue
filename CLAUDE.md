@@ -1,18 +1,20 @@
 # VerseCue - resume here
 
-Checked: 2026-11-21 00:25 UTC. Implementation active; P0/full service acceptance PENDING.
+Checked: 2026-11-21 01:14 UTC. Implementation active; P0/full service acceptance PENDING.
 
 Read AGENTS.md, the entire master specification, HANDOFF.md, PROGRESS.md, NEW_REQUESTS.md, docs/107 and the complete docs/99 original audit. Keep all original62FR/24NFR/86 trace/66 corpus and RF01-22 gates.
 
 ## Current authoritative state
 
-- Main d7bc48a includes merged PR69 evaluator; root c4a16ef integrated it after preserving both progress histories. Root app source is unchanged by69. Main544 module tests pass; root integration rerun remains. Source0.6.0 unreleased; public0.5.5 older supervised-test build. Aggregate PR22 stays draft and unmerged.
+- Main 9ceb18f includes merged PR71. Integration passed 553 modules and syntax/inventory. Source0.6.0 unreleased; public0.5.5 older supervised-test build. Aggregate PR22 stays draft and unmerged.
 - PR69 exact71a699f2e0f1735e89de88ab69985cbbb5999d05 passed544 local and each standard public Windows/Mac ARM/Mac Intel modules/check/audit/synthetic CLI at44841778744. All jobs and logs inspected, terminal. No real data scored; evaluator is offline and does not pass acceptance.
-- PR70 merged into main at 103f427. Exact 32c3586 passed 550 local modules, syntax/inventory and Windows/Mac ARM/Intel offline CI 44845398423. No accepted private worker, packaged replay or soak result. Integrated main with both progress histories and the merged soak implementation. Root passed 553 module tests, syntax/inventory and the documentation audit. Next verify matching private package provenance and isolate the worker smoke before any soak.
+- PR70 merged into main at 103f427. Exact 32c3586 passed 550 local modules, syntax/inventory and Windows/Mac ARM/Intel offline CI 44845398423. No accepted private worker, packaged replay or soak result. Integrated main with both progress histories and the merged soak implementation. Root passed 553 module tests, syntax/inventory and the documentation audit. Private follow-up is recorded in ignored test-results/pr70-private-resume.txt.
+
+- PR71 recent recognition preview at 119e8f2, worktree test-results/pr-split/recent-recognition-preview. Source and Windows packaged synthetic reset/preview checks, 550 modules and syntax/inventory passed. Exact-head Mac run 44848255375 passed. Merged at 9ceb18f and integrated into draft PR22; root preview/reset scenario passed. Next inspect recognition-stop races and keep hardware prerequisites pending. Five completed windows in renderer memory; provider streaming partials remain pending.
 
 ## Integration and authorization
 
-Computer Use exhausted documented timeout recovery; no app/window selection or UI input. Do not retry Windows automation until external recovery. Personal native tests need fresh independent Audience=false/Stage=false observations before/during. No church production, paid purchases, OS security/privacy/ACL changes, Clear/deletion, blind uncertain-output retry or auto restoration. New personal-host telemetry remains private pending specific publication authorization. Mac native accessibility profile/access and separately named clipping test styles remain unanswered; continue unaffected coding.
+Windows helper app discovery recovered. ProPresenter launch was blocked by automatic approval review pending independent verification of both disabled outputs. Personal native tests need fresh independent Audience=false/Stage=false observations before/during. No church production, paid purchases, OS security/privacy/ACL changes, Clear/deletion, blind uncertain-output retry or auto restoration. New personal-host telemetry remains private pending specific publication authorization. Mac native accessibility profile/access and separately named clipping test styles remain unanswered; continue unaffected coding.
 
 PR67 exact5bfb9051 passed534 modules/check,32 source+32 packaged Windows scenarios,153-file receipts and Mac44828146007. This does not certify real audio, native Mac/LAN, six editions, physical room/stream, latency or field readiness. Remaining speech-preview/native/performance/privacy/distribution software and actual acceptance are in docs/107/99. Preserve unrelated design-reference/ and all test-results worktrees/private assets.
 

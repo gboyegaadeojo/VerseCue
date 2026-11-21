@@ -28,3 +28,6 @@ body{font-synthesis:none}button,input,select{font-size:13px;font-weight:400;bord
 #saved-slide-image{display:block;width:100%;max-height:300px;object-fit:contain}
 #saved-slide-preview figcaption{margin-top:8px;font-size:11px;color:var(--muted);line-height:1.5}
 #settings-recovery-panel{margin-top:18px;scroll-margin-top:110px}#backup-preview{display:grid;grid-template-columns:minmax(110px,.4fr) minmax(0,1fr);gap:6px 14px;font-size:13px}#backup-preview dt{color:var(--muted)}#backup-preview dd{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}#backup-preview[hidden]{display:none}#settings-recovery-notice{display:flex;align-items:center;justify-content:space-between;gap:12px}#settings-recovery-notice[hidden]{display:none}@media(max-width:700px){#backup-preview{grid-template-columns:1fr}#settings-recovery-notice{align-items:flex-start;flex-direction:column}}
+
+#transcript span{display:block;overflow-wrap:anywhere}
+#transcript span+span{margin-top:8px}
