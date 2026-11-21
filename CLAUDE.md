@@ -1,12 +1,12 @@
 # VerseCue - resume here
 
-Checked: 2026-11-21 18:40 UTC. P0 and full service acceptance PENDING.
+Checked: 2026-11-21 (late). P0 and full service acceptance PENDING.
 
 Read AGENTS.md, the entire master specification, HANDOFF.md, PROGRESS.md, NEW_REQUESTS.md, docs/107 and the complete docs/99 original audit. Keep all original 62 FR/24 NFR/86 trace/66 corpus and RF01-22 gates.
 
 ## Takeover
 
-Use [HANDOFF.md](HANDOFF.md) as the takeover document. Public v0.6.1 pre-release is live; **v0.6.2** (Prepare for volunteer + Route layout/DM Sans) is being built from main 8ec534d (Windows ZIP in test-results/pr-split/packaged-main-check/dist, Mac via macos-development on main). Main includes PR75-101. Draft PR22 integrates main: 592 modules, check, audit.
+Use [HANDOFF.md](HANDOFF.md) as the takeover document. Public v0.6.1 pre-release is live. **v0.6.2 is NOT yet published**: the user asked for all improvements to go in first. Merged into main since 0.6.2 bump: PR102 public-domain quotes (NR-013, docs/132), PR103 GPU speech (docs/133). Open: PR104 whole chapter at the spoken verse + verse limit 176 (NR-014, docs/134), real-tested on the personal ProPresenter. Then rebuild 0.6.2 from main and publish. Draft PR22 integrates main.
 
 ## Current authoritative state
 
@@ -20,9 +20,10 @@ Use [HANDOFF.md](HANDOFF.md) as the takeover document. Public v0.6.1 pre-release
 
 ## Next queue
 
-1. Publish v0.6.2 once the Windows packaged sweep and Mac build pass (same steps as v0.6.1: checksums, gh release create --prerelease with full target SHA, verify public links).
-2. GPU speech engines per target computer (user's church machines: Mac mini M4/M5 or Intel 13th gen + RTX 4070): whisper.cpp Metal on Mac, CUDA on NVIDIA; this test laptop has an RTX 2060 (CUDA build 0.9 s vs CPU 1.5-2 s after a one-time warm-up). Keep measurements private.
-3. Public-domain quote index (KJV/WEB) import for quoted-wording matching (user request).
+0. Merge PR104 after its sweep (scratchpad sweep-chapter.txt) and CI (runs 44930385126, 44930389096); integrate PR103+PR104 into PR22.
+1. Rebuild and publish v0.6.2 from the new main once the Windows packaged sweep and Mac build pass (same steps as v0.6.1: checksums, gh release create --prerelease with full target SHA, verify public links).
+2. (Done in PR103: GPU setting, Metal Mac build; NVIDIA users select the CUDA whisper-cli.) Optional CUDA add-on asset for (user's church machines: Mac mini M4/M5 or Intel 13th gen + RTX 4070): whisper.cpp Metal on Mac, CUDA on NVIDIA; this test laptop has an RTX 2060 (CUDA build 0.9 s vs CPU 1.5-2 s after a one-time warm-up). Keep measurements private.
+3. (Done in PR102.) Quote index KJV/WEB.
 4. Live voice test with the user; labelled recordings; Mac native route; code signing; volunteer/screen-reader sessions.
 
 ## Integration and authorization
