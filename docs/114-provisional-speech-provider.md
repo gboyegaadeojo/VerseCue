@@ -21,6 +21,8 @@ Late provisional replies are discarded when a completed window has started, the 
 | `tests/provisional-speech.test.cjs` | Fake worker processes: non-final marking, scratch cleanup, preemption, no overlap with completed windows, Stop, resident refusal and buffer snapshot policy | 8/8 pass |
 | `npm.cmd test` and `npm.cmd run check` | All module tests, JavaScript syntax and dependency inventory | 559/559 pass; check passes |
 | `scripts/test-provisional-speech.cjs` (source) | Electron IPC with synthetic replies: off by default, opt-in required, other window rejected, Paused/stopped capture rejected, queue/history/stabilization unchanged, late reply discarded, reset clears opt-in | Pass |
+| Packaged Windows review build of 38d04f8 | `test-provisional-speech.cjs` and `test-session-reset-privacy.cjs` against the packaged executable | Pass |
+| Test stability | The first CI run failed because a test helper waited a fixed number of event-loop ticks during slow scratch I/O. It now waits up to five seconds | 30/30 local reruns pass |
 | Existing source scenarios | Session reset privacy, citation stabilization, audio age, listening preparation, safe input test, booth readability, workspace | Pass |
 | Real whisper-cli b5454 + base.en, synthetic low-level noise | A completed window preempted a running provisional worker process; the completed window returned final; no scratch audio remained | Pass. Timings on noise are not speech latency and are not recorded as evidence |
 

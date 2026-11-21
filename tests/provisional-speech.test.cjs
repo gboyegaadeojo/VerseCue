@@ -1,15 +1,16 @@
-'use strict';
+﻿'use strict';
 // SYNTHETIC worker processes only. No microphone, model or ProPresenter.
 const test=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs/promises');const os=require('node:os');const path=require('node:path');const {EventEmitter}=require('node:events');
 const childProcess=require('node:child_process');const spawned=[];
 childProcess.spawn=()=>{const child=new EventEmitter();child.stdout=new EventEmitter();child.stderr=new EventEmitter();child.killed=false;child.kill=()=>{if(child.killed)return;child.killed=true;setImmediate(()=>child.emit('close',null));};child.finish=text=>{child.stdout.emit('data',Buffer.from(text));child.emit('close',0);};spawned.push(child);return child;};
 const {LocalSpeech}=require('../core/stt.cjs');const {AudioWindowBuffer}=require('../ui/audio-buffer.js');
-const tick=()=>new Promise(resolve=>setImmediate(resolve));const until=async predicate=>{for(let i=0;i<200&&!predicate();i++)await tick();assert.ok(predicate());};
-async function cli(){const root=await fs.mkdtemp(path.join(os.tmpdir(),'versecue-provisional-'));const speech=new LocalSpeech();await speech.initializeScratch(root);speech.configure('trusted-cli','model','cli');return {speech,root};}
+const tick=()=>new Promise(resolve=>setImmediate(resolve));const until=async predicate=>{const deadline=Date.now()+5000;while(!predicate()&&Date.now()<deadline)await new Promise(resolve=>setTimeout(resolve,5));assert.ok(predicate());};
+// Same layout as the scratch tests: an app-owned scratch directory inside a disposable parent.
+async function cli(){const root=await fs.mkdtemp(path.join(os.tmpdir(),'versecue-provisional-'));const speech=new LocalSpeech();await speech.initializeScratch(path.join(root,'scratch'));speech.configure('trusted-cli','model','cli');return {speech,root};}
 const audio=new Array(32000).fill(.1);
 
 test('provisional recognition is marked non-final and leaves no scratch audio',async()=>{
-  const {speech,root}=await cli();try{const pending=speech.transcribeProvisional(audio);await until(()=>spawned.length===1);spawned[0].finish('turn to John chapter');const result=await pending;assert.equal(result.final,false);assert.equal(result.text,'turn to John chapter');assert.equal(speech.busy,false);assert.deepEqual((await fs.readdir(root)).filter(name=>!name.startsWith('.')),[]);}finally{spawned.length=0;await fs.rm(root,{recursive:true,force:true});}
+  const {speech,root}=await cli();try{const pending=speech.transcribeProvisional(audio);await until(()=>spawned.length===1);spawned[0].finish('turn to John chapter');const result=await pending;assert.equal(result.final,false);assert.equal(result.text,'turn to John chapter');assert.equal(speech.busy,false);assert.deepEqual(await fs.readdir(path.join(root,'scratch')),[]);}finally{spawned.length=0;await fs.rm(root,{recursive:true,force:true});}
 });
 test('a completed window preempts an in-flight provisional run instead of waiting or being dropped',async()=>{
   const {speech,root}=await cli();try{const provisional=speech.transcribeProvisional(audio);await until(()=>spawned.length===1);const final=speech.transcribe(audio);await assert.rejects(provisional,/superseded/);assert.equal(spawned[0].killed,true);await until(()=>spawned.length===2);spawned[1].finish('John 3:16');const result=await final;assert.equal(result.final,true);assert.equal(result.text,'John 3:16');assert.equal(speech.busy,false);}finally{spawned.length=0;await fs.rm(root,{recursive:true,force:true});}
@@ -18,7 +19,7 @@ test('provisional runs never interrupt or overlap a completed window',async()=>{
   const {speech,root}=await cli();try{const final=speech.transcribe(audio);await until(()=>spawned.length===1);await assert.rejects(speech.transcribeProvisional(audio),/busy/);assert.equal(spawned[0].killed,false);spawned[0].finish('Romans 8:28');assert.equal((await final).text,'Romans 8:28');assert.equal(spawned.length,1);}finally{spawned.length=0;await fs.rm(root,{recursive:true,force:true});}
 });
 test('stop cancels provisional work and the resident worker cannot run provisional previews',async()=>{
-  const {speech,root}=await cli();try{const provisional=speech.transcribeProvisional(audio);await until(()=>spawned.length===1);speech.cancel();await assert.rejects(provisional,/canceled|failed/);assert.equal(speech.busy,false);assert.deepEqual(speech.capabilities(),{provisional:true,final:true});speech.configure('trusted-cli','model','resident');assert.deepEqual(speech.capabilities(),{provisional:false,final:true});await assert.rejects(speech.transcribeProvisional(audio),/bounded CLI/);}finally{spawned.length=0;await fs.rm(root,{recursive:true,force:true});}
+  const {speech,root}=await cli();try{const provisional=speech.transcribeProvisional(audio);await until(()=>spawned.length===1);speech.cancel();await assert.rejects(provisional,/^Error: (Recognition canceled|Local speech worker failed)$/);assert.equal(speech.busy,false);assert.deepEqual(speech.capabilities(),{provisional:true,final:true});speech.configure('trusted-cli','model','resident');assert.deepEqual(speech.capabilities(),{provisional:false,final:true});await assert.rejects(speech.transcribeProvisional(audio),/bounded CLI/);}finally{spawned.length=0;await fs.rm(root,{recursive:true,force:true});}
 });
 
 const voiced=(buffer,packets)=>{for(let i=0;i<packets;i++)buffer.push(new Array(1600).fill(.1),.1);};
