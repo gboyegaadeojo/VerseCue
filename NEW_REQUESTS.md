@@ -63,3 +63,7 @@ Trust gate: the original 10-hour representative rehearsal with zero unapproved w
 ## NR-012 - Prepare for volunteer
 
 2026-11-21: the user asked for an option where VerseCue triggers the referenced Bible passage in ProPresenter and the volunteer clicks it live, so nobody has to babysit VerseCue or type the reference. Implemented as the start mode Prepare for volunteer: Confirm mode, no output, automatic preparation of each clear detected reference through ProPresenter's Bible. See [docs/130](docs/130-prepare-for-volunteer.md).
+
+## NR-013 - Quotes prepare passages with free public-domain Bibles
+
+2026-11-21: the user asked that recognized quotes use the Prepare-for-volunteer workflow, with a free public-domain Bible (KJV or WEB) via one-click import, labelled as matched from quoted wording, on by default in Prepare for volunteer, prepared in the default installed translation. See [docs/132](docs/132-public-domain-quote-preparation.md).

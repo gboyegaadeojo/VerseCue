@@ -688,6 +688,78 @@
       ]
     },
     {
+      "type": "data",
+      "bom-ref": "data:core/data/quote-index-kjv.json",
+      "name": "quote-index-kjv.json",
+      "description": "King James Version (1769, public domain outside the UK)",
+      "licenses": [
+        {
+          "license": {
+            "name": "Public domain"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a69f15900090793eb7510ffd417e31384950fa76dcd1507652c3900f645f2513"
+        }
+      ],
+      "scope": "required",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://ebible.org/Scriptures/eng-kjv2006_vpl.zip"
+        }
+      ],
+      "properties": [
+        {
+          "name": "versecue:sourceSha256",
+          "value": "079e779dde42448b5da4b05bf771b2943499ce8ccf60193eef215d739b1567e0"
+        },
+        {
+          "name": "versecue:passages",
+          "value": "30704"
+        }
+      ]
+    },
+    {
+      "type": "data",
+      "bom-ref": "data:core/data/quote-index-web.json",
+      "name": "quote-index-web.json",
+      "description": "World English Bible (public domain)",
+      "licenses": [
+        {
+          "license": {
+            "name": "Public domain"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b46eafb441323788b41578ab4a5545816fe6ad6f33fdaeab6755310e8897c50a"
+        }
+      ],
+      "scope": "required",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://ebible.org/Scriptures/engwebp_vpl.zip"
+        }
+      ],
+      "properties": [
+        {
+          "name": "versecue:sourceSha256",
+          "value": "f1e570fecb8ab80cf6d9e764172eb06e078b179aae3159a131ab98424267c3e6"
+        },
+        {
+          "name": "versecue:passages",
+          "value": "30583"
+        }
+      ]
+    },
+    {
       "type": "application",
       "bom-ref": "whisper.cpp-windows-x64",
       "name": "whisper.cpp Windows x64 release archive",
@@ -748,6 +820,8 @@
         "file:ui/fonts/IBMPlexSans-Medium.woff2",
         "file:ui/fonts/IBMPlexSans-SemiBold.woff2",
         "file:ui/fonts/IBMPlexSans-Bold.woff2",
+        "data:core/data/quote-index-kjv.json",
+        "data:core/data/quote-index-web.json",
         "whisper.cpp-windows-x64",
         "ggml-base.en"
       ]
