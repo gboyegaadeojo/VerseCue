@@ -1,6 +1,7 @@
 'use strict';
 const {citationIntent}=require('./auto-citation-policy.cjs');
-function assessAuto(service,candidates,evidence={},{allowBusy=false}={}){
+// extraAgeMs: the operator's configured hold window, allowed on top of the 4 s freshness limit only when re-checking at send time.
+function assessAuto(service,candidates,evidence={},{allowBusy=false,extraAgeMs=0}={}){
   if(service.mode!=='auto'||service.stopped||service.recovery?.required)return {eligible:false,reason:'Auto is paused or not enabled'};
   if(service.operationOwner)return {eligible:false,reason:'A passage operation is in progress'};
   if(service.busy&&!allowBusy)return {eligible:false,reason:'Another command is already in flight'};
@@ -8,7 +9,7 @@ function assessAuto(service,candidates,evidence={},{allowBusy=false}={}){
   if(evidence.source!=='local-speech'||evidence.final!==true||evidence.endEvidence!=='silence'||evidence.droppedSamples!==0)return {eligible:false,reason:'Completed, loss-free speech with silence evidence is required'};
   if(!Number.isFinite(evidence.elapsedMs)||evidence.elapsedMs>4000||evidence.elapsedMs<0)return {eligible:false,reason:'Recognition is too slow or its age is unknown'};
   const age=evidence.endAgeMs+service.clock()-evidence.observedAt;
-  if(!Number.isFinite(evidence.endAgeMs)||!Number.isFinite(evidence.observedAt)||!Number.isFinite(age)||age<0||age>4000)return {eligible:false,reason:'Original audio timing is missing or too old for Auto'};
+  if(!Number.isFinite(evidence.endAgeMs)||!Number.isFinite(evidence.observedAt)||!Number.isFinite(age)||age<0||age>4000+extraAgeMs)return {eligible:false,reason:'Original audio timing is missing or too old for Auto'};
   if(!candidates.length&&service.interpretation?.kind==='duplicate-reference')return {eligible:false,reason:service.interpretation.reason};
   if(candidates.length!==1)return {eligible:false,reason:'Only one unambiguous reference can Auto-send'};
   const c=candidates[0],r=c.reference;
@@ -30,9 +31,9 @@ class GuardedAuto {
     this.cancel();const s=this.service;if(s.mode!=='auto')return;
     const decision=assessAuto(s,candidates,evidence);s.autoStatus={state:decision.eligible?'pending':'review',reason:decision.reason,...(decision.eligible?{candidateId:candidates[0].id,dueAt:s.clock()+this.delayMs,holdMs:this.delayMs}:{})};
     if(!decision.eligible){for(const c of candidates)c.autoReviewReason=decision.reason;s.notify();return;}
-    const c=candidates[0],epoch=this.epoch,inputEpoch=s.inputEpoch,resetEpoch=s.resetEpoch;let dispatching=false;c.autoEvidence={eligible:true,endEvidence:'silence',droppedSamples:0};
-    const guard=()=>epoch===this.epoch&&inputEpoch===s.inputEpoch&&s.queue.at(-1)?.id===c.id&&assessAuto(s,[c],evidence,{allowBusy:dispatching}).eligible;
-    this.timer=this.schedule(async()=>{if(s.resetEpoch!==resetEpoch)return;this.timer=null;if(!guard()){s.autoStatus={state:'review',reason:'New speech or a session change canceled Auto'};s.notify();return;}try{dispatching=true;s.autoStatus={state:'sending',reason:'Checking the exact cue before Auto dispatch'};s.notify();const result=await s.send(c.id,{origin:'auto',additionalGuard:guard});if(s.resetEpoch!==resetEpoch)return;s.autoStatus={state:result.state,reason:result.state==='simulated'?'Auto simulated; zero output requests':result.state==='readback-matched'?'Auto receipt/readback matched; physical output not independently observed':'Uncertain output; Auto paused'};}catch(error){if(s.resetEpoch!==resetEpoch)return;s.connector.arm?.(false);s.setMode('paused');s.autoStatus={state:'paused',reason:error?.code==='AUTO_APPEARANCE_CHANGED'?'The approved slide or current Look changed. Resume in Confirm, review the passage and approve it again.':'Auto validation/dispatch failed; inspect ProPresenter and resume in Confirm'};s.log('AUTO_BLOCKED_PAUSED','warning');}finally{s.notify();}},this.delayMs);this.timer?.unref?.();s.notify();
+    const c=candidates[0],epoch=this.epoch,inputEpoch=s.inputEpoch,resetEpoch=s.resetEpoch,holdMs=this.delayMs;let dispatching=false;c.autoEvidence={eligible:true,endEvidence:'silence',droppedSamples:0};
+    const guard=()=>epoch===this.epoch&&inputEpoch===s.inputEpoch&&s.queue.at(-1)?.id===c.id&&assessAuto(s,[c],evidence,{allowBusy:dispatching,extraAgeMs:holdMs}).eligible;
+    this.timer=this.schedule(async()=>{if(s.resetEpoch!==resetEpoch)return;this.timer=null;if(!guard()){const changed=epoch!==this.epoch||inputEpoch!==s.inputEpoch||s.queue.at(-1)?.id!==c.id;s.autoStatus={state:'review',reason:changed?'New speech or a session change canceled Auto':assessAuto(s,[c],evidence,{extraAgeMs:holdMs}).reason};s.notify();return;}try{dispatching=true;s.autoStatus={state:'sending',reason:'Checking the exact cue before Auto dispatch'};s.notify();const result=await s.send(c.id,{origin:'auto',additionalGuard:guard});if(s.resetEpoch!==resetEpoch)return;s.autoStatus={state:result.state,reason:result.state==='simulated'?'Auto simulated; zero output requests':result.state==='readback-matched'?'Auto receipt/readback matched; physical output not independently observed':'Uncertain output; Auto paused'};}catch(error){if(s.resetEpoch!==resetEpoch)return;s.connector.arm?.(false);s.setMode('paused');s.autoStatus={state:'paused',reason:error?.code==='AUTO_APPEARANCE_CHANGED'?'The approved slide or current Look changed. Resume in Confirm, review the passage and approve it again.':'Auto validation/dispatch failed; inspect ProPresenter and resume in Confirm'};s.log('AUTO_BLOCKED_PAUSED','warning');}finally{s.notify();}},this.delayMs);this.timer?.unref?.();s.notify();
   }
 }
 module.exports={GuardedAuto,assessAuto};
