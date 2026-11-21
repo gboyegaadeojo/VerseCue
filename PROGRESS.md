@@ -810,3 +810,12 @@ Final local evaluator checks:544/544 module tests, JavaScript syntax/dependency 
 ## 2026-11-21 00:20 UTC - PR69 integrated
 
 PR69 exact71a699f merged atd7bc48a after544 local and all three standard Windows/Mac diagnostic checks passed. Both progress histories preserved. Offline evaluator has zero real scored clips. Bounded replay fix is active in its own worktree, including the existing integration soak safeguards. Root module rerun follows; all original physical/platform/field/release gates remain open.
+
+
+## 2026-11-21 00:25 UTC - bounded replay code complete; checks running
+
+All five diagnostic WAV readers now delegate to the strict10-second helper, with explicit original/processed length and untimed provenance. Packaged replay uses a fresh profile; local scratch is isolated. Existing integration soak safeguards retained. Six synthetic regression groups pass; full modules74602 and syntax40855 running. Actual worker replay is not accepted; private records stay ignored, old reports archived. Package re-verification probe separator error corrected; await result. No actual microphone/ProPresenter/physical/service acceptance or new release. Next finish diagnostic docs/PR/CI and root checks.
+
+## 2026-11-21 00:42 UTC - PR70 merged
+
+Exact 32c3586 passed 550 module tests, syntax/inventory and Windows/Mac ARM/Intel offline diagnostics in 44845398423. Main merge 103f427. Integration before this merge passed 547 modules and syntax/inventory. No accepted private worker/package/soak result. P0 remains pending.

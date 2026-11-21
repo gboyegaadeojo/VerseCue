@@ -1,6 +1,6 @@
 # VerseCue development handoff
 
-Checked: 2026-11-21 00:15 UTC. Read [CLAUDE.md](CLAUDE.md) for the short current checkpoint and [PROGRESS.md](PROGRESS.md) for history. Main has stable links to this maintained integration-branch handoff.
+Checked: 2026-11-21 00:25 UTC. Read [CLAUDE.md](CLAUDE.md) for the short current checkpoint and [PROGRESS.md](PROGRESS.md) for history. Main has stable links to this maintained integration-branch handoff.
 
 ## Start safely
 
@@ -27,9 +27,9 @@ PR67 exact5bfb90513b9b61ae113b79204049008276313e84 passed534 modules/check, meas
 
 ## Active component work
 
-PR69 offline evaluator merged atd7bc48a after exact71a699f passed544 local modules/check/audit and all three public diagnostic jobs44841778744 (Windows/Mac ARM/Mac Intel). Job logs include exact head,544 pass/0fail and zero-real synthetic CLI. No actual recordings were scored. Main is fetched but not yet integrated into root/replay. Preserve live root handoff on conflict and retain both progress histories.
+PR69 merged atd7bc48a, root integration c4a16ef; both progress histories preserved and backlog refreshed. Exact71a699f passed544 local and all three standard public diagnostic jobs44841778744 (Windows/Mac ARM/Intel); logs inspected, no real recognition evidence. Main has544 modules; root rerun is next.
 
-Active branch feat/bounded-speech-replay, worktree test-results/pr-split/bounded-speech-replay, contains uncommitted shared diagnostic PCM decoder and6 passing synthetic groups plus edits to local/resident/packaged/background speech scripts. A later sequential Node edit changed background successfully but stopped before writing soak-desktop because its expected reader marker differed; inspect actual soak source next. Do not blindly repeat the background replacement. Terminal helper-test output and PR69 jobs are not live processes. No real replay, GUI test or long soak has run for this component. Next finish readers/provenance, isolated profiles, modules/check/audit and appropriately scoped private worker/desktop smokes, then public diagnostic CI/small PR. Replay metadata must remain untimed and cannot become measured audible-end evidence.
+PR70 bounded replay diagnostics merged at 103f427. Exact 32c3586 passed 550 local modules, syntax/inventory and all three public diagnostic jobs 44845398423. Root before integration passed 547 modules and syntax/inventory. Private replay attempts remain unaccepted. No real-worker/GUI/package/soak/microphone/ProPresenter pass.
 
 ## Next actual integration work
 
@@ -37,7 +37,7 @@ The personal read-only prerequisite checks are terminal and records remain ignor
 
 Once tooling/prerequisites permit, prioritize Windows fresh-reference preparation speed/clipping and the full real-host fidelity matrix. Native testing needs fresh independent Audience=false and Stage=false observations. No actual native operation or output was attempted in this continuation. Do not publish new personal-host telemetry without specific authorization.
 
-The diagnostic bug currently being repaired is: soak-desktop, test-background-quotes, test-local-speech, test-packaged-speech and test-resident-speech still slice up to12 seconds, conflicting with the runtime10-second/160000-sample contract. Repair bounds and current capture/age/ownership semantics before running or claiming new replay/soak evidence. No long soak is active.
+The five diagnostic readers now use the ten-second limit. No long soak is active. Check package provenance and isolate a private worker smoke before attempting a current-source soak.
 
 Existing sermon pilot/spot-check/replay scripts are throwaway diagnostics, explicitly without independent labels/accuracy scores. The user already supplied the source and4690s start; [source intake](docs/test-data/sermon-source-intake.md) records it. Do not ask for source/timestamp again, manufacture labels from captions/model output or relabel synthetic cases as real. Formal consent/review/held-out evidence still matters.
 
