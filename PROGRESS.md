@@ -460,3 +460,7 @@ The resident worker's whisper-server folder moved from the global temp directory
 ## Signed manual updates with a service lock - 2026-11-21
 
 FR-060 MVP: Ed25519 release manifests signed with IFC's offline key (no key shipped), in-app verification that never installs, refused while capturing or armed. 584 modules, check, sweep, update-check scenario and a one-off signed/tampered source check pass. Code signing/notarization, rollback and update channel remain open. See docs/122.
+
+## Software bill of materials - 2026-11-21
+
+CycloneDX 1.5 legal/sbom.cdx.json built deterministically from the reviewed dependency/font inventories and pinned speech hashes; npm run check fails if it is stale. 585 modules and check pass. Not a vulnerability scan or license clearance. See docs/123.
