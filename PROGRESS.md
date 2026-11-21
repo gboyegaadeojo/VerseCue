@@ -472,3 +472,7 @@ User found the fonts too big. Settings > Display > Text size: Standard 15 px (ne
 ## Public 0.6.0 pre-release - 2026-11-21
 
 User asked to publish the latest build instead of 0.5.5. v0.6.0 pre-release from main 04e3be1 with Windows x64 (local speech) and Apple Silicon ZIPs and SHA-256 files (Mac from run 44902526866). Packaged Windows release build: 42 scenarios, test-background-quotes timed out once in the full run and passed twice on rerun. README download section, first test, modes and limits rewritten for Auto-first 0.6.0. Not a live-service release; P0 pending.
+
+## Missing saved speech engine - 2026-11-21
+
+User report: Speech engine showed 'Recognition stopped or failed' because settings still pointed at a deleted 0.5.1 copy. Startup now replaces a saved engine/model that no longer exists with the engine bundled in the running version (event SPEECH_ENGINE_REPLACED_MISSING); an existing chosen engine is kept. Source and packaged scenario pass.
