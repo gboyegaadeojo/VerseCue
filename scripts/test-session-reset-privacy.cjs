@@ -24,7 +24,7 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
       assert.equal(await page.locator('#audio-consent').isChecked(),false);
       assert.equal(await page.locator('#reference').textContent(),'','Hidden candidate reference must be cleared');
       assert.equal(await page.locator('#phrase').textContent(),'','Hidden source phrase must be cleared');
-      const state=(await page.evaluate(()=>window.versecue.state())).value;assert.equal(state.dryRun,true);assert.equal(state.mode,'confirm');assert.equal(state.history.length,0);
+      const state=(await page.evaluate(()=>window.versecue.state())).value;assert.equal(state.dryRun,true);assert.equal(state.mode,'auto','Reset returns to the saved start preference (NR-010 default Auto)');assert.equal(state.history.length,0);
     }
     await primary.evaluate(snapshot=>render(snapshot),staleSnapshot);
     assert.equal(await primary.locator('#queue-count').textContent(),'0','Late pre-reset snapshot must not restore private candidates');

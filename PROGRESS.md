@@ -860,3 +860,15 @@ PR76 passed 562 local modules, check, audit, source loopback/input/reset/provisi
 ## Product decision NR-010 - 2026-11-21
 
 User chose the Auto-first Route operator design (design canvas https://claude.ai/artifact/W11qaVvxvvBWuCMro8fSPs, board C) and asked VerseCue to start in Auto, because operator confirmation of every reference defeats the product's purpose. The 10-hour wrong-output rehearsal is the trust gate. Auto keeps its eligibility, approval, dry-run, Stop and fault safeguards. Recorded in NEW_REQUESTS.md.
+
+## Start in Auto with hold window (NR-010) - 2026-11-21
+
+Saved startMode (default auto) applies at launch and session reset only, in dry run; Stop/resume, wake, corrupt-settings recovery, arming and setup changes still return to Confirm or Paused; import/profile keep the current preference. Configurable 0.75-3 s hold window and Hold command. See docs/116.
+
+## Ten-hour Auto rehearsal harness - 2026-11-21
+
+Offline dry-run replay through the app's stabilizer, Session and GuardedAuto, scored against reviewed display/mention labels. Gate: 36,000 s of reviewed held-out REAL-RECORDING with zero wrong outputs. Smoke run found session-cumulative audio loss would block Auto after the first overflow. See docs/117.
+
+## PR77 and PR78 merged and integrated - 2026-11-21
+
+PR77 (start in Auto, Hold) passed 566 modules, check, audit, source sweep (background-quotes and power-recovery fail identically on unchanged main: stale fixtures/private assets), packaged Windows start-in-Auto/reset/guarded-Auto/workspace, diagnostics 44861813924 and Mac 44861811317. Merged at e291021. PR78 (rehearsal harness) passed 569 modules, check, audit and diagnostics 44862065187; after merging main, 573 modules. Merged at 192b327. P0 remains pending.
