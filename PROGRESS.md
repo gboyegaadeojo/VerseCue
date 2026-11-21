@@ -468,3 +468,7 @@ CycloneDX 1.5 legal/sbom.cdx.json built deterministically from the reviewed depe
 ## Text size setting - 2026-11-21
 
 User found the fonts too big. Settings > Display > Text size: Standard 15 px (new default) or Large 18 px booth size; 44 px targets in both. Booth scenario runs in Large and checks Standard. 586 modules, check, 42/42 scenarios. See docs/126.
+
+## Public 0.6.0 pre-release - 2026-11-21
+
+User asked to publish the latest build instead of 0.5.5. v0.6.0 pre-release from main 04e3be1 with Windows x64 (local speech) and Apple Silicon ZIPs and SHA-256 files (Mac from run 44902526866). Packaged Windows release build: 42 scenarios, test-background-quotes timed out once in the full run and passed twice on rerun. README download section, first test, modes and limits rewritten for Auto-first 0.6.0. Not a live-service release; P0 pending.
