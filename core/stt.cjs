@@ -13,7 +13,8 @@ const PROVISIONAL_TIMEOUT_MS=8000,SUPERSEDED='Provisional recognition superseded
 class LocalSpeech {
   constructor(){this.executable=null;this.model=null;this.child=null;this.busy=false;this.epoch=0;this.mode='cli';this.scratch=null;this.resident=new ResidentSpeech();this.job=null;}
   async initializeScratch(root){if(this.busy)throw Error('Stop recognition before scratch recovery');const scratch=new SpeechScratch(root);await scratch.initialize();this.scratch=scratch;this.resident.scratch=scratch;}
-  configure(executable,model,mode='cli'){if(this.busy)throw new Error('Stop recognition before changing worker');if(!['cli','resident'].includes(mode))throw new Error('Invalid local speech mode');this.resident.stop();this.executable=executable;this.model=model;this.mode=mode;}
+  // acceleration 'gpu' lets a GPU-enabled engine (Metal, CUDA) use the graphics card; CPU-only engines ignore it.
+  configure(executable,model,mode='cli',acceleration='gpu'){if(this.busy)throw new Error('Stop recognition before changing worker');if(!['cli','resident'].includes(mode))throw new Error('Invalid local speech mode');if(!['gpu','cpu'].includes(acceleration))throw new Error('Invalid speech acceleration');this.resident.stop();this.executable=executable;this.model=model;this.mode=mode;this.acceleration=acceleration;this.resident.acceleration=acceleration;this.resident.warmedUp=false;this.warmedUp=false;}
   capabilities(){return {provisional:this.mode==='cli',final:true};}
   cancel(){this.epoch++;this.child?.kill();this.resident.stop();}
   async transcribe(samples){
@@ -40,9 +41,10 @@ class LocalSpeech {
         return {text,elapsedMs:Math.round(performance.now()-start),provider:'local whisper.cpp resident',final:true};
       }
       if(!this.scratch)throw Error('Speech scratch recovery must finish before recognition');const scratch=await this.scratch.create(bytes);dir=scratch.directory;const file=scratch.file;canceled();
-      const limit=provisional?PROVISIONAL_TIMEOUT_MS:20000;
+      // A graphics-card engine may compile its kernels on first use (about a minute once); allow that only for the first request.
+      const limit=provisional?PROVISIONAL_TIMEOUT_MS:this.acceleration==='gpu'&&!this.warmedUp?90000:20000;
       const start=performance.now();const output=await new Promise((resolve,reject)=>{
-        const child=spawn(this.executable,['-m',this.model,'-f',file,'-l','en','-t','4','-ng','-bs','1','-bo','1','-nt','-np'],{windowsHide:true,shell:false,stdio:['ignore','pipe','pipe']});
+        const child=spawn(this.executable,['-m',this.model,'-f',file,'-l','en','-t','4',...(this.acceleration==='cpu'?['-ng']:[]),'-bs','1','-bo','1','-nt','-np'],{windowsHide:true,shell:false,stdio:['ignore','pipe','pipe']});
         this.child=child;job.child=child;let stdout='';let size=0;let timedOut=false;
         const timer=setTimeout(()=>{timedOut=true;child.kill();},limit);
         child.stdout.on('data',b=>{size+=b.length;if(size>65536)child.kill();else stdout+=b.toString();});
@@ -51,7 +53,7 @@ class LocalSpeech {
         child.once('close',code=>{clearTimeout(timer);if(job.preempted)reject(new Error(SUPERSEDED));else if(timedOut)reject(new Error(provisional?'Provisional recognition exceeded 8 seconds; preview skipped':'Recognition exceeded 20 seconds; window discarded'));else if(code!==0||size>65536)reject(new Error('Local speech worker failed'));else resolve(stdout.trim());});
       });
       canceled();
-      return {text:output.slice(0,8192),elapsedMs:Math.round(performance.now()-start),provider:'local whisper.cpp',final:true};
+      this.warmedUp=true;return {text:output.slice(0,8192),elapsedMs:Math.round(performance.now()-start),provider:'local whisper.cpp',final:true};
     }finally{
       try{this.child=null;this.busy=false;if(this.job===job)this.job=null;if(dir)try{await this.scratch.remove(dir);}catch{this.scratch.ready=false;throw Error('Temporary speech cleanup failed; stop recognition and restart VerseCue');}}
       finally{finish();}

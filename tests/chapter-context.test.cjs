@@ -41,3 +41,10 @@ test('settings: whole chapter on by default, verse limit reaches 176',()=>{
   assert.throws(()=>settings.validateSettings({...settings.defaults(),maxPassageVerses:177}));assert.throws(()=>settings.validateSettings({...settings.defaults(),chapterContext:'yes'}));
   assert.equal(parse('Psalm 119:1-176',{maxVerses:176}).references[0].overLimit,false);
 });
+test('a relative reference ("next verse") keeps the exact-passage path in Prepare for volunteer',async()=>{
+  const {r,calls}=preparation(service({prepareForVolunteer:true}));
+  const reference=parse('next verse',{context:{...parse('Hosea 1:1').references[0],translation:'KJV',verified:true,verifiedAt:Date.now()},now:Date.now()}).references[0];
+  assert.equal(reference.relative,true);
+  r.consider([{id:'next',authorized:true,reference,issues:reference.issues}],1);await new Promise(setImmediate);
+  assert.equal(calls.length,1);assert.equal(calls[0].options.chapter,undefined);
+});

@@ -29,8 +29,9 @@ class ReferencePreparation {
   if(candidates.length!==1)return;
   const candidate=candidates[0];
   // Prepare for volunteer opens the whole chapter, so a chapter-only or long reference is still useful there.
-  const chapterMode=this.service.prepareForVolunteer===true&&this.service.chapterContext!==false;
-  if(!candidate.authorized||candidate.reference.valid!==true||candidate.reference.relative||(!chapterMode&&(candidate.reference.verse==null||candidate.reference.overLimit))||candidate.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))return;
+  // Relative references ("next verse") keep the exact-passage path, which verifies their source context.
+  const chapterMode=this.service.prepareForVolunteer===true&&this.service.chapterContext!==false&&!candidate.reference.relative;
+  if(!candidate.authorized||candidate.reference.valid!==true||(!chapterMode&&(candidate.reference.verse==null||candidate.reference.overLimit))||candidate.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))return;
   this.pending={chapter:chapterMode,id:candidate.id,owner,epoch:this.epoch,referenceEpoch:this.service.referenceEpoch,queuedAt:performance.now()};
   void this.drain();
  }
