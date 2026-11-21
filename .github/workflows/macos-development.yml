@@ -31,6 +31,7 @@ jobs:
           node scripts/test-provisional-speech.cjs
           node scripts/test-loopback-input-guidance.cjs
           node scripts/test-start-in-auto.cjs
+          node scripts/test-route-workspace.cjs
           node scripts/test-settings-recovery-ui.cjs
           node scripts/test-settings-transition-ui.cjs
           node scripts/test-reference-passage-ui.cjs
