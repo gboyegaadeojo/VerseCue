@@ -186,9 +186,11 @@ async function bootstrap(){
   handler('audio',async(event,samples,metadata)=>{
     if(!capture.owns(event.sender.id))throw new Error('This window does not own an authorized audio session');
     if(capture.purpose!=='recognition')throw Error('Input test is meter-only; recognition is disabled');
-    if(service.stopped||service.mode==='paused')throw new Error('Listening is paused');const epoch=service.generation,receivedAt=service.clock();
+    if(service.stopped||service.mode==='paused')throw new Error('Listening is paused');const epoch=service.generation,receivedAt=service.clock(),leaseEpoch=capture.epoch;
+    const sameLease=()=>capture.epoch===leaseEpoch&&capture.owns(event.sender.id);
+    const stillAuthorized=()=>sameLease()&&epoch===service.generation&&!service.stopped&&service.mode!=='paused';
     const result=await speech.transcribe(samples);
-    if(epoch!==service.generation||service.stopped||service.mode==='paused')throw new Error('Stale recognition discarded');
+    if(!stillAuthorized())throw new Error('Stale recognition discarded');
     const evidence=speechEvidence(metadata,samples.length,receivedAt,service.clock());
     const stabilized=citationStabilizer.feed({text:result.text,final:result.final,metadata,evidence,receivedAt,now:service.clock(),scope:`${event.sender.id}/${service.referenceEpoch??0}/${service.mode}/${service.maxPassageVerses}`,translation:service.translation,maxVerses:service.maxPassageVerses});
     if(stabilized.suppress){
@@ -197,7 +199,8 @@ async function bootstrap(){
     }
     service.speechStabilization={state:stabilized.assembled?'assembled':'idle',...(stabilized.assembled?{fragmentCount:stabilized.fragmentCount,reason:'Reference assembled from adjacent speech windows. Review before showing.'}:{})};
     if(!evidence.contextUsable){service.context=null;service.queue=[];automatic.cancel();if(passageCoordinator?.review||passageCoordinator?.busy)cancelPreparation();}
-    service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});const candidates=await service.ingestChecked(stabilized.text,{authorized:true,...(evidence.windowId?{id:evidence.windowId}:{}),sourceAgeMs:stabilized.sourceAgeMs,additionalGuard:()=>capture.owns(event.sender.id)&&epoch===service.generation});
+    service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});const candidates=await service.ingestChecked(stabilized.text,{authorized:true,...(evidence.windowId?{id:evidence.windowId}:{}),sourceAgeMs:stabilized.sourceAgeMs,additionalGuard:stillAuthorized});
+    if(!sameLease())throw new Error('Stale recognition discarded');
     if(stabilized.assembled)for(const candidate of candidates){candidate.phrase=stabilized.sourcePhrase;candidate.reference.autoEligible=false;candidate.issues.push('Assembled from adjacent speech windows; confirm the complete reference.');candidate.stabilization={fragmentCount:stabilized.fragmentCount};}
     if(candidates.length&&(passageCoordinator?.active||passageCoordinator?.review||passageCoordinator?.busy))cancelPreparation();
     if(!evidence.timingKnown||!evidence.lossFree)for(const candidate of candidates)candidate.issues.push(!evidence.timingKnown?'Original audio timing is unavailable; review this full reference.':'Audio was dropped, clipped or its quality is unknown; review the full reference before continuing.');
