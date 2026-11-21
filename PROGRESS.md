@@ -476,3 +476,7 @@ User asked to publish the latest build instead of 0.5.5. v0.6.0 pre-release from
 ## Missing saved speech engine - 2026-11-21
 
 User report: Speech engine showed 'Recognition stopped or failed' because settings still pointed at a deleted 0.5.1 copy. Startup now replaces a saved engine/model that no longer exists with the engine bundled in the running version (event SPEECH_ENGINE_REPLACED_MISSING); an existing chosen engine is kept. Source and packaged scenario pass.
+
+## Whisper ordinals, commas and spellings - 2026-11-21
+
+User report: '1st Peter 2 verse 1', 'Psalm 21 vs 1', 'Philippians 4 19' showed nothing. Found: '1st/2nd/3rd' before a book was dropped, so '1st John 4:8' parsed as John 4:8 (wrong book); commas between book/chapter/verse lost the verse; Phillipians spellings unrecognized. Fixed with ordinal mapping, a guard that refuses leftover ordinals, comma handling that keeps lists ('Matthew 5, 6 and 7') in review, and exact spelling aliases. Regressions added. Resident cleanup test now waits up to 3 s instead of 50 ms.

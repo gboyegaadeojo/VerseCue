@@ -18,7 +18,9 @@ function normalize(text) {
   });
   s=s.replace(/\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[ -]+(one|two|three|four|five|six|seven|eight|nine))?\b/g,(_,a,b)=>String(tens[a]+(b?small.indexOf(b):0)));
   s=s.replace(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)\b/g,m=>String(small.indexOf(m)));
-  return s.replace(/\b(first|i)\s+(?=samuel|kings|chronicles|corinthians|thessalonians|timothy|peter|john)/g,'1 ').replace(/\b(second|ii)\s+(?=samuel|kings|chronicles|corinthians|thessalonians|timothy|peter|john)/g,'2 ').replace(/\b(third|iii)\s+(?=john)/g,'3 ').replace(/\bpsalms\b/g,'psalm').replace(/\brevelations\b/g,'revelation').replace(/song of solomon/g,'song of songs');
+  // Whisper often writes spoken ordinals as 1st/2nd/3rd; never drop them (1st John is not John).
+  s=s.replace(/\b(phill?ipp?ians)\b/g,'philippians');
+  return s.replace(/\b(1st|first|i)\s+(?=samuel|kings|chronicles|corinthians|thessalonians|timothy|peter|john)/g,'1 ').replace(/\b(2nd|second|ii)\s+(?=samuel|kings|chronicles|corinthians|thessalonians|timothy|peter|john)/g,'2 ').replace(/\b(3rd|third|iii)\s+(?=john)/g,'3 ').replace(/\bpsalms\b/g,'psalm').replace(/\brevelations\b/g,'revelation').replace(/song of solomon/g,'song of songs');
 }
 // Exact common abbreviations and the reported transcription spelling only.
 const aliases={gen:'Genesis',exod:'Exodus',exo:'Exodus',lev:'Leviticus',num:'Numbers',deut:'Deuteronomy',josh:'Joshua',judg:'Judges',ps:'Psalm',psa:'Psalm',prov:'Proverbs',eccl:'Ecclesiastes',isa:'Isaiah',jer:'Jeremiah',lam:'Lamentations',ezek:'Ezekiel',dan:'Daniel',hos:'Hosea',obad:'Obadiah',mic:'Micah',hab:'Habakkuk',zeph:'Zephaniah',zech:'Zechariah',mal:'Malachi',matt:'Matthew',mt:'Matthew',mk:'Mark',lk:'Luke',jn:'John',rom:'Romans',cor:'Corinthians',gal:'Galatians',eph:'Ephesians',phil:'Philippians',col:'Colossians',thess:'Thessalonians',tim:'Timothy',phlm:'Philemon',heb:'Hebrews',jas:'James',pet:'Peter',rev:'Revelation',revelaations:'Revelation'};
@@ -41,7 +43,10 @@ function validate(r, bounds) {
 function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslation='KJV',maxVerses=10}={}) {
   if(!Number.isSafeInteger(maxVerses)||maxVerses<1||maxVerses>50)throw Error('Invalid passage verse limit');
   if(typeof text!=='string'||text.length>8192) return {references:[],issues:['Invalid transcript size']};
-  let s=normalize(citationForms(normalize(text))); const corrected=/\b(sorry|i meant|rather|correction|not)\b/.test(s);
+  let s=normalize(citationForms(normalize(text)));
+  // Commas Whisper inserts between book, chapter and verse ("Psalm 21, verse 1", "First Peter, chapter 2, verse 1").
+  s=s.replace(new RegExp(`((?:${bookPattern}))\\s*,\\s*(?=chapter\\b|\\d)`,'g'),'$1 ').replace(/\b(chapter|verses?)\s*,\s*(?=\d)/g,'$1 ').replace(new RegExp(`((?:${bookPattern})(?:\\s+chapter)?\\s+\\d+)\\s*,\\s*(?=(?:verses?\\s+)?\\d+(?![\\d,]|\\s*(?:,|and\\b|&)))`,'g'),'$1 ');
+  const corrected=/\b(sorry|i meant|rather|correction|not)\b/.test(s);
   if(/\bnot\b/.test(s)&&/\bi meant\b/.test(s)) s=s.split(/\bnot\b/)[0];
   else if(/\b(sorry|rather|correction)\b/.test(s)) s=s.split(/\b(?:sorry|rather|correction)\b/).at(-1);
   const translationAlias={'NEW INTERNATIONAL VERSION':'NIV','NEW INTERNATIONAL':'NIV','NEW KING JAMES VERSION':'NKJV','NEW KING JAMES':'NKJV','KING JAMES VERSION':'KJV','KING JAMES':'KJV','AMPLIFIED BIBLE CLASSIC EDITION':'AMPC','AMPLIFIED CLASSIC VERSION':'AMPC','AMPLIFIED CLASSIC':'AMPC','AMPLIFIED BIBLE':'AMP','AMPLIFIED VERSION':'AMP','AMPLIFIED':'AMP','THE MESSAGE':'MSG','MESSAGE':'MSG','KJV':'KJV','NKJV':'NKJV','NIV':'NIV','ASV':'ASV','ESV':'ESV','AMPC':'AMPC','AMP':'AMP','MSG':'MSG'};
@@ -52,7 +57,7 @@ function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslat
   const re=new RegExp(`(?<![a-z0-9])(${bookPattern})\\s+(?:chapter\\s+)?(\\d+)(?:\\s*[:.\\-]\\s*|\\s+(?:verses?\\s+)?)(\\d+)(?:\\s*(?:through|to|-)\\s*(?:verses?\\s+)?(?:(\\d+)(?:\\s*:\\s*|\\s+(?:verse\\s+)?))?(\\d+))?`,'g');
   let m;
   while((m=re.exec(s))) {
-    if(/\b[1-9]\s+$/.test(s.slice(Math.max(0,m.index-3),m.index)) && !/^\d/.test(m[1])) {issues.push('Invalid or ambiguous book ordinal');continue;}
+    if(/(?:\b[1-9](?:\s*(?:st|nd|rd))?|\b(?:first|second|third))\s+$/.test(s.slice(Math.max(0,m.index-8),m.index)) && !/^\d/.test(m[1])) {issues.push('Invalid or ambiguous book ordinal');continue;}
     const book=names.find(n=>n.toLowerCase()===m[1]);
     references.push({book,chapter:+m[2],verse:+m[3],endChapter:m[4]?+m[4]:undefined,endVerse:m[5]?+m[5]:undefined,translation,relative:false,corrected});
   }
@@ -63,7 +68,7 @@ function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslat
   if(!references.length) {
     const chapterRe=new RegExp(`(?<![a-z0-9])(${bookPattern})\\s+(?:chapter\\s+)?(\\d+)(?:\\s+verse\\s+(\\d+))?`,'g');
     while((m=chapterRe.exec(s))) {
-      if(/\b[1-9]\s+$/.test(s.slice(Math.max(0,m.index-3),m.index))&&!/^\d/.test(m[1])){issues.push('Invalid or ambiguous book ordinal');continue;}
+      if(/(?:\b[1-9](?:\s*(?:st|nd|rd))?|\b(?:first|second|third))\s+$/.test(s.slice(Math.max(0,m.index-8),m.index))&&!/^\d/.test(m[1])){issues.push('Invalid or ambiguous book ordinal');continue;}
       references.push({book:names.find(n=>n.toLowerCase()===m[1]),chapter:+m[2],verse:m[3]?+m[3]:null,translation,relative:false,corrected});
     }
   }
