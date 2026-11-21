@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld('versecue',{
   chooseWorker:()=>ipcRenderer.invoke('choose-worker'),
   chooseModel:()=>ipcRenderer.invoke('choose-model'),
   audio:(samples,metadata)=>ipcRenderer.invoke('audio',samples,metadata),
+  audioProvisional:samples=>ipcRenderer.invoke('audio-provisional',samples),
   beginAudio:options=>ipcRenderer.invoke('audio-start',options),
   endAudio:()=>ipcRenderer.invoke('audio-stop'),
   identity:()=>ipcRenderer.invoke('window-identity'),
