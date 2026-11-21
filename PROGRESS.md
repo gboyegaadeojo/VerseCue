@@ -484,3 +484,7 @@ User report: '1st Peter 2 verse 1', 'Psalm 21 vs 1', 'Philippians 4 19' showed n
 ## Queued speech budget - 2026-11-21
 
 User report: 6.2 s audio dropped. The 2 s queued-speech budget lost speech constantly with ~2 s CPU recognition; now 5 s, and a forming window is no longer timed as queued once the worker is free. See docs/128.
+
+## Connection health tolerance - 2026-11-21
+
+User report: connection dropped to Not connected seconds after testing. One late health answer under recognition load paused the session. Now late answers show Slow to respond (sends blocked, listening continues); only 15 s of failures is a lost link. See docs/127.
