@@ -496,3 +496,7 @@ Audio authorization, preparation focus changes and saved-copy creation start tic
 ## Version 0.6.1 - 2026-11-21
 
 Version bump for a public 0.6.1 pre-release with the user-reported fixes: bundled speech engine fallback (PR93), ordinal/comma references and the 1st John wrong-book bug (PR94), connection health tolerance (PR95), 5 s queued speech (PR96) and pre-ticked setup boxes (PR97). README downloads point to v0.6.1.
+
+## Prepare for volunteer (NR-012) - 2026-11-21
+
+New start mode: Confirm, no output, detected-reference preparation (native ProPresenter Bible) switched on when listening starts; volunteer takes it live in ProPresenter. Unit and synthetic scenario pass; real ProPresenter run pending (ProPresenter not running). See docs/130.
