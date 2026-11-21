@@ -900,3 +900,7 @@ FR-060 MVP: IFC-owned Ed25519 release manifests (no key shipped), verify-only in
 ## SBOM, packaged main verification and loopback scenario fix (PR86-87) - 2026-11-21
 
 PR86 CycloneDX SBOM (legal/sbom.cdx.json, freshness enforced by npm run check) passed 585 modules, diagnostics 44867103664 and Mac 44867105668; merged af26797. Exact-source Windows review package of main db866b9 ran all 42 scenarios: 41 passed, test-loopback-input-guidance timed out because packaged builds have a configured speech engine; PR87 made that scenario accept either post-gate step (source and packaged pass); merged 4353cb0. P0 remains pending. See docs/123.
+
+## Hold placement, test guide and packaged main (PR88-89) - 2026-11-21
+
+PR88 adds docs/124, a personal Auto-first test guide. Exact-source packaged Windows build of main 4353cb0 passed every scenario. PR89 moved Hold under the progress line so it is visible without scrolling in the compact window; Mac 44868029936 (after pinning the scenario viewport) and diagnostics 44867902584 passed.

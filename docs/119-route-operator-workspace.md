@@ -25,3 +25,7 @@ All element IDs, keyboard shortcuts, IPC calls and output gates are unchanged. B
 ## Not established
 
 No volunteer usability session, screen-reader pass, booth-distance viewing or physical-screen check has been done with this look. Those remain required by NFR-015, NFR-016 and NFR-017.
+
+## 2026-11-21 follow-up
+
+Hold moved from the action row to directly under the progress line, above the reference. In the compact window the action row was below the fold, so Hold could need scrolling; it is now visible without scrolling in both views. The Route scenario asserts Hold is above the reference and other actions and within the window.
