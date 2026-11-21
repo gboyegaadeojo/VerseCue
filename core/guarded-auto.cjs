@@ -23,9 +23,12 @@ function assessAuto(service,candidates,evidence={},{allowBusy=false}={}){
 class GuardedAuto {
   constructor(service,{delayMs=750,schedule=setTimeout,clear=clearTimeout}={}){if(!Number.isInteger(delayMs)||delayMs<750||delayMs>3000)throw new Error('Invalid Auto correction grace');Object.assign(this,{service,delayMs,schedule,clear});this.epoch=0;this.timer=null;}
   cancel(){this.epoch++;if(this.timer!==null)this.clear(this.timer);this.timer=null;}
+  // NR-010 hold window: the correction grace doubles as the operator's chance to Hold. Bounds are unchanged.
+  configureDelay(delayMs){if(!Number.isInteger(delayMs)||delayMs<750||delayMs>3000)throw new Error('Invalid Auto hold window');this.cancel();this.delayMs=delayMs;}
+  hold(){const s=this.service;if(this.timer===null||s.autoStatus?.state!=='pending')return {held:false,reason:'No automatic send is waiting'};this.cancel();s.autoStatus={state:'held',reason:'Held. Review this reference and show it yourself if it is right.'};s.log('AUTO_HELD');s.notify();return {held:true};}
   consider(candidates,evidence){
     this.cancel();const s=this.service;if(s.mode!=='auto')return;
-    const decision=assessAuto(s,candidates,evidence);s.autoStatus={state:decision.eligible?'pending':'review',reason:decision.reason};
+    const decision=assessAuto(s,candidates,evidence);s.autoStatus={state:decision.eligible?'pending':'review',reason:decision.reason,...(decision.eligible?{candidateId:candidates[0].id,dueAt:s.clock()+this.delayMs,holdMs:this.delayMs}:{})};
     if(!decision.eligible){for(const c of candidates)c.autoReviewReason=decision.reason;s.notify();return;}
     const c=candidates[0],epoch=this.epoch,inputEpoch=s.inputEpoch,resetEpoch=s.resetEpoch;let dispatching=false;c.autoEvidence={eligible:true,endEvidence:'silence',droppedSamples:0};
     const guard=()=>epoch===this.epoch&&inputEpoch===s.inputEpoch&&s.queue.at(-1)?.id===c.id&&assessAuto(s,[c],evidence,{allowBusy:dispatching}).eligible;
