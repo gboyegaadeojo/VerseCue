@@ -432,3 +432,7 @@ Opt-in, session-only provisional snapshots from the bounded CLI worker. Complete
 ## Loopback input guidance - 2026-11-21
 
 FR-008: Setup names system-loopback and virtual inputs from their reported labels, explains Windows/macOS prerequisites and keeps listening not-ready until a session-only routing check for the saved input. No routing, driver or OS changes. 562 modules, check and source scenarios pass. No real device evidence. See docs/115.
+
+## Ten-hour Auto rehearsal harness - 2026-11-21
+
+Offline dry-run replay of timed recognition windows through the app's stabilizer, Session and GuardedAuto, scoring automatic sends against reviewed display/mention labels. Gate: 36,000 s of reviewed held-out REAL-RECORDING with zero wrong outputs. Stream builder uses the app's AudioWindowBuffer in simulated real time with the real worker. Smoke run found session-cumulative audio loss would block Auto after the first overflow; per-window loss is the next component. See docs/117.
