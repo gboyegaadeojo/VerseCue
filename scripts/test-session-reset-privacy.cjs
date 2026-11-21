@@ -41,7 +41,23 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
     assert.equal(await primary.locator('#transcript').textContent(),'SYNTHETIC NEW SESSION','Late old success must not replace new-session transcript');
     assert.equal((await primary.evaluate(()=>window.versecue.command('reset'))).ok,true);
     await primary.waitForFunction(()=>document.getElementById('transcript').textContent==='No audio has been processed.');
-    const report={passed:true,packaged:!!executable,allWindowsCleared:true,unsubmittedReferenceCleared:true,hiddenCandidateContentCleared:true,lateSuccessCannotRestoreOldTranscript:true,newSessionRecognitionStillDisplayed:true,dryRunRestored:true,actualProPresenterAccess:false,microphoneCapture:false};
+    for(let index=0;index<6;index++){
+      await primary.evaluate(()=>{window.previewReply=audio.onWindow([],{});});
+      await waitReplies(3+index);
+      assert.equal(await primary.locator('#transcript').getAttribute('aria-busy'),'true');
+      await app.evaluate((_,index)=>globalThis.resetReplies[2+index]({ok:true,value:{text:'SYNTHETIC WINDOW '+index,elapsedMs:10}}),index);
+      await primary.evaluate(()=>window.previewReply);
+    }
+    assert.deepEqual(await primary.locator('#transcript span').allTextContents(),[1,2,3,4,5].map(index=>'SYNTHETIC WINDOW '+index));
+    assert.equal(await primary.locator('#transcript').getAttribute('aria-busy'),'false');
+    await primary.evaluate(()=>{window.previewReply=audio.onWindow([],{});});
+    await waitReplies(9);
+    await app.evaluate(()=>globalThis.resetReplies[8]({ok:true,value:{text:'',elapsedMs:10}}));
+    await primary.evaluate(()=>window.previewReply);
+    assert.equal(await primary.locator('#transcript span').count(),5,'Silence must preserve completed windows');
+    assert.equal((await compact.evaluate(()=>window.versecue.command('reset'))).ok,true);
+    await primary.waitForFunction(()=>document.getElementById('transcript').textContent==='No audio has been processed.');
+    const report={passed:true,rollingPreviewBoundedAndReset:true,packaged:!!executable,allWindowsCleared:true,unsubmittedReferenceCleared:true,hiddenCandidateContentCleared:true,lateSuccessCannotRestoreOldTranscript:true,newSessionRecognitionStillDisplayed:true,dryRunRestored:true,actualProPresenterAccess:false,microphoneCapture:false};
     await fs.mkdir('test-results',{recursive:true});await fs.writeFile(executable?'test-results/packaged-session-reset-privacy.json':'test-results/session-reset-privacy.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report));
   }finally{await app.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});
