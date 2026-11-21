@@ -243,3 +243,7 @@ body.halo .passage-workflow *{min-width:0;max-width:100%}
 body.halo .passage-workflow div,body.halo .candidate-panel div{flex-wrap:wrap}
 body.halo .passage-workflow select{flex:1 1 200px}
 body.halo .passage-workflow img{max-width:100%;height:auto}
+/* Earlier layouts pin columns to grid row 1; Halo places them itself so the one-column view stacks instead of overlapping. */
+body.halo .workspace>*{grid-row:auto!important;grid-column:auto!important;grid-area:auto!important}
+body.halo .workspace{grid-template-rows:none!important;grid-auto-rows:auto!important}
+body.halo .workspace>*{height:auto!important;max-height:none!important;overflow:visible!important;align-self:start}
