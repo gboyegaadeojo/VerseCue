@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld('versecue',{
   removeProfile:id=>ipcRenderer.invoke('profiles-remove',id),
   chooseWorker:()=>ipcRenderer.invoke('choose-worker'),
   chooseModel:()=>ipcRenderer.invoke('choose-model'),
+  macInspect:()=>ipcRenderer.invoke('mac-inspect'),
   setupCuda:()=>ipcRenderer.invoke('cuda-setup'),
   useBuiltInEngine:()=>ipcRenderer.invoke('cuda-builtin'),
   openCudaDownloads:()=>ipcRenderer.invoke('cuda-open-downloads'),
