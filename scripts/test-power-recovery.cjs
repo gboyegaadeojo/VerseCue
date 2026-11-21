@@ -1,10 +1,11 @@
 'use strict';
+const {apiJSON}=require('./synthetic-presentation.cjs');
 // Simulated Electron power events; does not sleep/lock the computer or open audio.
 const {_electron}=require('playwright');const http=require('node:http');const fs=require('node:fs/promises');const path=require('node:path');const assert=require('node:assert/strict');const {randomUUID}=require('node:crypto');
 (async()=>{
   const exe=process.argv[2]?path.resolve(process.argv[2]):null,profile=path.resolve('test-results','power-recovery-'+randomUUID());await fs.mkdir(profile,{recursive:true});const env={...process.env};delete env.ELECTRON_RUN_AS_NODE;
   const uuid='b1c6194a-50d9-461f-9d27-33b388b7d8a1',presentation={id:{uuid},destination:'presentation',has_timeline:false,groups:[{slides:[{enabled:true,label:'John 3:16',text:'SYNTHETIC POWER FIXTURE'}]}]};let outputRequests=0;
-  const server=http.createServer((req,res)=>{res.setHeader('Content-Type','application/json');if(req.url==='/version')return res.end(JSON.stringify({host_description:'ProPresenter synthetic power fixture'}));if(req.url.includes('/trigger'))outputRequests++;if(req.url===`/v1/presentation/${uuid}`)return res.end(JSON.stringify({presentation}));res.writeHead(404);res.end('{}');});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  const server=http.createServer((req,res)=>{res.setHeader('Content-Type','application/json');if(req.url==='/version')return res.end(apiJSON({host_description:'ProPresenter synthetic power fixture'}));if(req.url.includes('/trigger'))outputRequests++;if(req.url===`/v1/presentation/${uuid}`)return res.end(apiJSON({presentation}));res.writeHead(404);res.end('{}');});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   const electron=await _electron.launch({...(exe?{executablePath:exe}:{}),args:[...(exe?[]:[path.resolve('.')]),`--user-data-dir=${profile}`],env});
   try{
     const page=await electron.firstWindow();await page.waitForFunction(()=>document.querySelector('#message').textContent.length>0);
