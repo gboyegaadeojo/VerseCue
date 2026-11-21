@@ -61,5 +61,16 @@
   ring.setAttribute('stroke-dashoffset',String(Math.round(264*(1-value))));ring.dataset.level=level;
   tag.hidden=false;tag.dataset.level=level;tag.textContent=text+' · '+Math.round(value*100)+'%';
  };
- if(typeof window.render==='function'){const original=window.render;window.render=function(state){const result=original.apply(this,arguments);try{updateRing(state);}catch{}return result;};}
+ // "Heard this service" timeline: under each reference, what was heard and how clearly (as in the Halo design).
+ const badge=value=>{const [,level,text]=levels.find(([min])=>value>=min);const el=make('span','halo-tag',{'data-level':level});el.textContent=text+' · '+Math.round(value*100)+'%';return el;};
+ const enrichQueue=state=>{
+  for(const row of document.querySelectorAll('#queue .queue-item')){
+   const button=row.querySelector('button[data-candidate-id]');const item=(state?.queue??[]).find(c=>c.id===button?.dataset.candidateId);if(!item||row.querySelector('.halo-heard'))continue;
+   const detail=make('div','halo-heard');detail.addEventListener('click',()=>button.click());
+   if(item.phrase){const words=make('span','halo-phrase');words.textContent='“'+item.phrase.slice(0,90)+(item.phrase.length>90?'…':'')+'”';detail.append(words);}
+   const meta=make('span','halo-heard-meta');if(Number.isFinite(item.heardConfidence))meta.append(badge(Math.max(0,Math.min(1,item.heardConfidence))));
+   const kind=make('span','halo-kind');kind.textContent=item.recognition==='quote'?'Quoted wording':'Spoken';meta.append(kind);detail.append(meta);row.append(detail);
+  }
+ };
+ if(typeof window.render==='function'){const original=window.render;window.render=function(state){const result=original.apply(this,arguments);try{updateRing(state);enrichQueue(state);}catch{}return result;};}
 })();

@@ -146,7 +146,7 @@ body.halo{background:var(--h-bg)!important;color:var(--h-text)!important;font-fa
 @keyframes haloBreath{0%,100%{transform:scale(1);opacity:.95}50%{transform:scale(1.1);opacity:1}}
 @keyframes haloRipple{from{transform:scale(1);opacity:.6}to{transform:scale(2.2);opacity:0}}
 @keyframes haloRec{0%,100%{opacity:1}50%{opacity:.35}}
-@keyframes haloIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes haloIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.halo *{animation:none!important;transition:none!important}}
 @media (max-width:1100px){.halo .workspace{grid-template-columns:minmax(0,1fr)!important}.halo .halo-seg{margin:0}}
 
@@ -230,3 +230,10 @@ body.halo .passage-workflow p,body.halo .passage-workflow label,body.halo .passa
 body.halo #passage-previews pre{background:#161618!important;color:var(--h-text)!important;border:1px solid var(--h-line)!important;border-radius:10px!important;font:13px/1.7 Inter,system-ui,sans-serif!important;padding:12px 14px!important}
 body.halo main>.mode-bar label{flex-direction:row!important}
 body.halo #hold-auto{min-height:44px!important;font-size:14px!important;font-weight:600!important;border-radius:12px!important}
+body.halo #queue .queue-item{border-radius:10px;transition:background .2s ease}
+body.halo #queue .queue-item:hover{background:rgba(255,255,255,.04)}
+body.halo .halo-heard{display:flex;flex-direction:column;gap:5px;padding:0 12px 10px 30px;margin-top:-4px;cursor:pointer}
+body.halo .halo-phrase{font-size:11.5px;line-height:1.45;color:var(--h-muted)}
+body.halo .halo-heard-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+body.halo .halo-kind{font-size:11px;color:var(--h-muted)}
+html:not(.text-standard) body.halo .halo-phrase,html:not(.text-standard) body.halo .halo-kind,html:not(.text-standard) body.halo .halo-tag{font-size:16px}
