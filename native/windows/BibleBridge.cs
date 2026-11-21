@@ -19,6 +19,7 @@ class BibleBridge {
     [DllImport("user32.dll")] static extern bool SetCursorPos(int x,int y);
     [DllImport("user32.dll")] static extern IntPtr WindowFromPoint(ScreenPoint point);
     [DllImport("user32.dll")] static extern bool SetProcessDPIAware();
+    [DllImport("user32.dll")] static extern bool GetCursorPos(out ScreenPoint point);
     [StructLayout(LayoutKind.Sequential)] struct ScreenPoint { public int x,y; }
     [DllImport("user32.dll",SetLastError=true)] static extern uint SendInput(uint count,Input[] inputs,int size);
     [StructLayout(LayoutKind.Sequential)] struct KeyInput { public ushort vk,scan;public uint flags,time;public UIntPtr extra; }
@@ -159,12 +160,93 @@ class BibleBridge {
         }
         throw new InvalidOperationException("SAVE_COPY_MENU_NOT_VERIFIED");
     }
+    // Bring one verse slide into view by scrolling the Bible preview. Never clicks, selects or invokes a slide.
+    static AutomationElement VerseLabel(AutomationElement scope,string target) {
+        foreach(AutomationElement e in scope.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text))){var name=Canonical(e.Current.Name);if(name==target)return e;}
+        return null;
+    }
+    static bool InView(AutomationElement label,AutomationElement viewer) {
+        var r=label.Current.BoundingRectangle;if(label.Current.IsOffscreen||r.IsEmpty)return false;if(viewer==null)return true;
+        var v=viewer.Current.BoundingRectangle;return r.Top>=v.Top&&r.Bottom<=v.Bottom;
+    }
+    static AutomationElement ScrollableAncestor(AutomationElement element) {
+        for(var e=TreeWalker.RawViewWalker.GetParent(element);e!=null;e=TreeWalker.RawViewWalker.GetParent(e)) {
+            object pattern;if(e.TryGetCurrentPattern(ScrollPattern.Pattern,out pattern)&&((ScrollPattern)pattern).Current.VerticallyScrollable)return e;
+            if(e.Current.ControlType==ControlType.Window)break;
+        }
+        return null;
+    }
+    // ProPresenter 21's slide grid exposes no scroll control, so turn the mouse wheel over it.
+    // A wheel turn only scrolls; it never selects or takes a slide live. The pointer is put back afterwards.
+    static bool WheelToVerse(AutomationElement anchor,string reference,string target,int verse) {
+        AutomationElement grid=null;for(var e=TreeWalker.RawViewWalker.GetParent(anchor);e!=null&&e.Current.ControlType!=ControlType.Window;e=TreeWalker.RawViewWalker.GetParent(e))if(e.Current.ClassName=="BiblesViewer"){grid=e;break;}
+        if(grid==null)return false;
+        var processId=grid.Current.ProcessId;var rect=grid.Current.BoundingRectangle;if(rect.IsEmpty)return false;
+        var centre=new ScreenPoint{x=(int)(rect.Left+rect.Width/2),y=(int)(rect.Top+rect.Height/2)};
+        uint owner;GetWindowThreadProcessId(WindowFromPoint(centre),out owner);if(owner!=processId)return false;
+        ScreenPoint saved;bool restore=GetCursorPos(out saved);
+        var prefix=Canonical(reference)+":";
+        try {
+            SetCursorPos(centre.x,centre.y);
+            // Reading labels costs about a second, so turn the wheel in estimated batches (about two verses per turn).
+            for(int check=0;check<10;check++) {
+                uint focusOwner;GetWindowThreadProcessId(GetForegroundWindow(),out focusOwner);if(focusOwner!=processId)return false;
+                var cache=new CacheRequest();cache.TreeScope=TreeScope.Element;cache.Add(AutomationElement.NameProperty);cache.Add(AutomationElement.IsOffscreenProperty);cache.Add(AutomationElement.BoundingRectangleProperty);
+                AutomationElementCollection texts;using(cache.Activate()){texts=grid.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text));}
+                int highest=0,lowest=int.MaxValue;System.Windows.Rect found=System.Windows.Rect.Empty;
+                foreach(AutomationElement e in texts){
+                    var name=Canonical(e.Cached.Name);if(!name.StartsWith(prefix))continue;int n;if(!int.TryParse(name.Substring(prefix.Length),out n))continue;
+                    var r=e.Cached.BoundingRectangle;bool visible=!e.Cached.IsOffscreen&&!r.IsEmpty&&r.Top>=rect.Top&&r.Bottom<=rect.Bottom;
+                    if(visible){highest=Math.Max(highest,n);lowest=Math.Min(lowest,n);if(n==verse)return true;}
+                }
+                // Just after ProPresenter rebuilds the grid the labels can be briefly missing; look again.
+                if(highest==0){Thread.Sleep(300);continue;}
+                int turns=verse>highest?(verse-highest+1)/2+1:verse<lowest?-((lowest-verse+1)/2+1):0;if(turns==0){Thread.Sleep(300);continue;}
+                turns=Math.Max(-20,Math.Min(20,turns));
+                for(int i=0;i<Math.Abs(turns);i++){var wheel=new Input{type=0,data=new InputUnion{mouse=new MouseInput{data=unchecked((uint)(turns>0?-120:120)),flags=0x0800}}};Require(SendInput(1,new[]{wheel},Marshal.SizeOf(typeof(Input)))==1,"KEYBOARD_INPUT_BLOCKED");Thread.Sleep(40);}
+                Thread.Sleep(200);
+            }
+            return false;
+        } finally { if(restore)SetCursorPos(saved.x,saved.y); }
+    }
+    static bool ScrollToVerse(AutomationElement bible,string reference,int verse,int chapterVerses) {
+        string target=Canonical(reference+":"+verse);
+        var label=VerseLabel(bible,target);
+        // Any realised verse label shares the slide grid's scrollable parent.
+        var anchor=label??bible.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text)).Cast<AutomationElement>().FirstOrDefault(e=>Regex.IsMatch(Canonical(e.Current.Name),"^"+Regex.Escape(Canonical(reference))+@":[0-9]+$"));
+        if(anchor==null)return false;
+        var viewer=ScrollableAncestor(anchor);
+        if(label!=null&&InView(label,viewer))return true;
+        if(viewer==null)return WheelToVerse(anchor,reference,target,verse);
+        var scroll=(ScrollPattern)viewer.GetCurrentPattern(ScrollPattern.Pattern);
+        double percent=chapterVerses>1?100.0*(verse-1)/(chapterVerses-1):0;
+        for(int attempt=0;attempt<8;attempt++) {
+            scroll.SetScrollPercent(ScrollPattern.NoScroll,Math.Max(0,Math.Min(100,percent)));Thread.Sleep(150);
+            label=VerseLabel(viewer,target);
+            if(label!=null&&InView(label,viewer))return true;
+            if(label!=null) {
+                var view=viewer.Current.BoundingRectangle;var r=label.Current.BoundingRectangle;
+                double content=view.Height*100.0/Math.Max(1,scroll.Current.VerticalViewSize);
+                percent=scroll.Current.VerticalScrollPercent+100.0*(r.Top-view.Top-view.Height/4)/Math.Max(1,content-view.Height);
+            } else percent+=attempt%2==0?6*(attempt+1):-6*(attempt+1);
+        }
+        return false;
+    }
     static object Run(Dictionary<string,object> request) {
         Stage("validate-target");
         string operation=Convert.ToString(request.ContainsKey("operation")?request["operation"]:"inspect");
-        Require(operation=="inspect"||operation=="prepare"||operation=="prepare-save","UNKNOWN_OPERATION");
-        string reference=null,translation=null;
-        if(operation!="inspect") {
+        Require(operation=="inspect"||operation=="prepare"||operation=="prepare-save"||operation=="prepare-chapter","UNKNOWN_OPERATION");
+        string reference=null,translation=null;bool chapter=operation=="prepare-chapter";int focusVerse=0,chapterVerses=0;
+        if(chapter) {
+            // Whole chapter for a volunteer: "Proverbs 3", positioned at the spoken verse. Scrolling only; no slide is clicked or selected.
+            Require(request.Count==5&&request.ContainsKey("reference")&&request.ContainsKey("translation")&&request.ContainsKey("focusVerse")&&request.ContainsKey("chapterVerses"),"INVALID_PREPARE_REQUEST");
+            reference=Convert.ToString(request["reference"]);translation=Convert.ToString(request["translation"]);
+            Require(request["focusVerse"] is int&&request["chapterVerses"] is int,"INVALID_PREPARE_REQUEST");focusVerse=(int)request["focusVerse"];chapterVerses=(int)request["chapterVerses"];
+            Require(reference.Length<=100&&Regex.IsMatch(reference,@"^[1-3]?[A-Za-z ]+ [1-9][0-9]{0,2}$"),"INVALID_REFERENCE_SHAPE");
+            Require(chapterVerses>=1&&chapterVerses<=176&&focusVerse>=1&&focusVerse<=chapterVerses,"INVALID_FOCUS_VERSE");
+            Require(Translations.ContainsKey(translation),"UNSUPPORTED_REQUESTED_TRANSLATION");
+        }
+        if(operation!="inspect"&&!chapter) {
             Require(request.Count==3&&request.ContainsKey("reference")&&request.ContainsKey("translation"),"INVALID_PREPARE_REQUEST");
             reference=Convert.ToString(request["reference"]);translation=Convert.ToString(request["translation"]);
             Require(reference.Length<=100&&Regex.IsMatch(reference,@"^[1-3]?[A-Za-z ]+ [1-9][0-9]{0,2}:[1-9][0-9]{0,2}(-([1-9][0-9]{0,2}:)?[1-9][0-9]{0,2})?$"),"INVALID_REFERENCE_SHAPE");
@@ -220,7 +302,7 @@ class BibleBridge {
         var bible=TreeWalker.RawViewWalker.GetParent(header);Require(bible!=null,"BIBLE_VIEW_CONTAINER_MISSING");
         Stage("verify-generated-labels");
         var watch=Stopwatch.StartNew();int stable=0,count=0;bool clipped=false;
-        while(watch.ElapsedMilliseconds<5000) {
+        while(watch.ElapsedMilliseconds<(chapter?15000:5000)) {
             Stage("verify-translation");
             Require(SelectedTranslation(selector)==selected,"TRANSLATION_CHANGED_DURING_PREPARATION");
             // Query only citation text during readiness polling. Enumerating
@@ -233,8 +315,9 @@ class BibleBridge {
             using(cache.Activate()) { elements=bible.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text)); }
             var labels=elements.Cast<AutomationElement>().Select(e=>e.Cached.Name).ToArray();
             string expectedReference=Canonical(reference);
-            bool rangeFound=labels.Any(n=>Canonical(n)==expectedReference||Canonical(n).StartsWith(expectedReference+" ",StringComparison.OrdinalIgnoreCase));count=labels.Count(n=>Regex.IsMatch(n??"",@"^[1-3]?[A-Za-z ]+ [1-9][0-9]*:[1-9][0-9]*"));
-            bool fieldMatches=Canonical(Value(field))==expectedReference;
+            bool rangeFound=chapter?labels.Any(n=>Canonical(n).StartsWith(expectedReference+":",StringComparison.OrdinalIgnoreCase)):labels.Any(n=>Canonical(n)==expectedReference||Canonical(n).StartsWith(expectedReference+" ",StringComparison.OrdinalIgnoreCase));count=labels.Count(n=>Regex.IsMatch(n??"",@"^[1-3]?[A-Za-z ]+ [1-9][0-9]*:[1-9][0-9]*"));
+            // ProPresenter expands a chapter to its full range, e.g. "Proverbs 3" becomes "Proverbs 3:1-35".
+            string fieldValue=Canonical(Value(field));bool fieldMatches=fieldValue==expectedReference||chapter&&fieldValue==expectedReference+":1-"+chapterVerses;
             Console.Error.WriteLine(Json.Serialize(new {stage="verify-check",elapsedMs=Total.ElapsedMilliseconds,fieldMatches=fieldMatches,rangeFound=rangeFound,elementCount=elements.Count,labelCount=count}));Console.Error.Flush();
             stable=fieldMatches&&rangeFound&&count>0?stable+1:0;
             if(stable>=2) {
@@ -243,6 +326,10 @@ class BibleBridge {
                 AutomationElementCollection warnings;using(warningCache.Activate()){warnings=bible.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Image));}
                 clipped=warnings.Cast<AutomationElement>().Any(e=>(e.Cached.HelpText??"").IndexOf("clipped",StringComparison.OrdinalIgnoreCase)>=0||(e.Cached.Name??"").IndexOf("clipped",StringComparison.OrdinalIgnoreCase)>=0);
                 Stage("prepared-review");
+                if(chapter) {
+                    Stage("scroll-to-verse");bool visible=ScrollToVerse(bible,reference,focusVerse,chapterVerses);
+                    return new {ok=true,state="chapter-prepared-no-output",reference=reference,translation=translation,focusVerse=focusVerse,focusVisible=visible,referenceLabels=count,clippingWarning=clipped,saveCopyRequested=false,formattingVerified=false,outputRequests=0,outputObserved=false,elapsedMs=Total.ElapsedMilliseconds,timingsMs=Timings};
+                }
                 bool saveCopy=operation=="prepare-save";
                 if(saveCopy)SaveBibleCopy(bible,process,field,selector,reference,selected);
                 return new {ok=true,state="prepared-needs-operator-review",reference=reference,translation=translation,referenceLabels=count,clippingWarning=clipped,saveCopyRequested=saveCopy,formattingVerified=false,outputRequests=0,outputObserved=false,elapsedMs=Total.ElapsedMilliseconds,timingsMs=Timings};

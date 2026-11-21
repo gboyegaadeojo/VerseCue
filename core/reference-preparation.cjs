@@ -28,8 +28,11 @@ class ReferencePreparation {
   // A sentence with multiple destinations needs an operator choice.
   if(candidates.length!==1)return;
   const candidate=candidates[0];
-  if(!candidate.authorized||candidate.reference.valid!==true||candidate.reference.verse==null||candidate.reference.overLimit||candidate.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))return;
-  this.pending={id:candidate.id,owner,epoch:this.epoch,referenceEpoch:this.service.referenceEpoch,queuedAt:performance.now()};
+  // Prepare for volunteer opens the whole chapter, so a chapter-only or long reference is still useful there.
+  // Relative references ("next verse") keep the exact-passage path, which verifies their source context.
+  const chapterMode=this.service.prepareForVolunteer===true&&this.service.chapterContext!==false&&!candidate.reference.relative;
+  if(!candidate.authorized||candidate.reference.valid!==true||(!chapterMode&&(candidate.reference.verse==null||candidate.reference.overLimit))||candidate.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))return;
+  this.pending={chapter:chapterMode,id:candidate.id,owner,epoch:this.epoch,referenceEpoch:this.service.referenceEpoch,queuedAt:performance.now()};
   void this.drain();
  }
  async drain(){
@@ -40,7 +43,7 @@ class ReferencePreparation {
     this.pending=null;this.waiting=false;if(!this.needsInspection)this.reason=null;this.onChange(this.status());
     this.activeReferenceEpoch=work.referenceEpoch;
     const ownerId=Number.isSafeInteger(work.owner)?work.owner:work.owner?.sender?.id;
-    this.preparing=true;try{await this.prepare(work.id,work.owner,this.owns(ownerId)?{acknowledgeFocusChange:true,acknowledgeCreateCopy:true}:{});}catch(error){if(work.epoch===this.epoch){this.service.log('REFERENCE_PREPARATION_BLOCKED','warning');}}finally{this.preparing=false;}
+    this.preparing=true;try{await this.prepare(work.id,work.owner,{...(this.owns(ownerId)?{acknowledgeFocusChange:true,acknowledgeCreateCopy:true}:{}),...(work.chapter?{chapter:true}:{})});}catch(error){if(work.epoch===this.epoch){this.service.log('REFERENCE_PREPARATION_BLOCKED','warning');}}finally{this.preparing=false;}
    }}finally{this.waiting=false;this.running=false;this.onChange(this.status());}
  }
 }

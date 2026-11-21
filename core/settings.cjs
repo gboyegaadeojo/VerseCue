@@ -4,12 +4,13 @@ const path=require('node:path');
 const {randomUUID,createHash}=require('node:crypto');
 const MAX_SETTINGS_BYTES=16384,writes=new Set();
 const {targetURL}=require('./connector.cjs');
-const defaults=()=>({schemaVersion:1,host:'127.0.0.1',port:1025,translation:'KJV',audioDevice:'',channel:0,executable:'',model:'',speechMode:'cli',speechAcceleration:'gpu',duplicateCooldownSeconds:10,maxPassageVerses:10,startMode:'auto',autoHoldMs:1000,textSize:'standard',preTickConsents:true});
+const defaults=()=>({schemaVersion:1,host:'127.0.0.1',port:1025,translation:'KJV',audioDevice:'',channel:0,executable:'',model:'',speechMode:'cli',speechAcceleration:'gpu',duplicateCooldownSeconds:10,maxPassageVerses:10,startMode:'auto',chapterContext:true,autoHoldMs:1000,textSize:'standard',preTickConsents:true});
 function validateSettings(value){
   if(!value||typeof value!=='object'||Array.isArray(value)||value.schemaVersion!==1)throw new Error('Unsupported settings schema');
   const s=defaults();
   for(const key of ['host','translation','audioDevice','executable','model'])if(value[key]!==undefined){if(typeof value[key]!=='string'||value[key].length>1000)throw new Error('Invalid settings field');s[key]=value[key];}
-  if(value.maxPassageVerses!==undefined){if(!Number.isSafeInteger(value.maxPassageVerses)||value.maxPassageVerses<1||value.maxPassageVerses>50)throw Error('Invalid passage verse limit');s.maxPassageVerses=value.maxPassageVerses;}
+  if(value.chapterContext!==undefined){if(typeof value.chapterContext!=='boolean')throw Error('Invalid chapter choice');s.chapterContext=value.chapterContext;}
+  if(value.maxPassageVerses!==undefined){if(!Number.isSafeInteger(value.maxPassageVerses)||value.maxPassageVerses<1||value.maxPassageVerses>176)throw Error('Invalid passage verse limit');s.maxPassageVerses=value.maxPassageVerses;}
   if(value.duplicateCooldownSeconds!==undefined){if(!Number.isSafeInteger(value.duplicateCooldownSeconds)||value.duplicateCooldownSeconds<1||value.duplicateCooldownSeconds>300)throw Error('Invalid duplicate cooldown');s.duplicateCooldownSeconds=value.duplicateCooldownSeconds;}
   s.port=value.port??s.port;s.channel=value.channel??0;targetURL(s.host,s.port);
   if(value.speechMode!==undefined){if(!['cli','resident'].includes(value.speechMode))throw new Error('Invalid speech mode');s.speechMode=value.speechMode;}

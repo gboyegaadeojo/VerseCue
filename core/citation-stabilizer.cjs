@@ -27,7 +27,7 @@ class CitationStabilizer{
   return r?.valid?{prefix:r.label,expect:'verse',bare:!!match[3]}:null;
  }
  feed({text,final,metadata,evidence,receivedAt,now,scope,translation='KJV',maxVerses=10}){
-  if(!Number.isSafeInteger(maxVerses)||maxVerses<1||maxVerses>50){this.reset();throw Error('Invalid citation verse limit');}
+  if(!Number.isSafeInteger(maxVerses)||maxVerses<1||maxVerses>176){this.reset();throw Error('Invalid citation verse limit');}
   const ordinary={text,sourceAgeMs:evidence.sourceAgeMs??0,assembled:false,suppress:false};
   const identity=typeof metadata?.captureSessionId==='string'&&/^[a-f0-9-]{36}$/i.test(metadata.captureSessionId)&&Number.isSafeInteger(metadata.windowSequence)&&metadata.windowSequence>0;
   if(final!==true){this.reset();return {...ordinary,suppress:true,state:'unstable',reason:'Waiting for final recognition.'};}

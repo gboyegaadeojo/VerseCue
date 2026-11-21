@@ -8,11 +8,12 @@ class PreparationController {
     if(this.connector.version?.host_description!=='ProPresenter 21.4.2'||this.connector.version?.platform!=='win')return {available:false,reason:'Automatic preparation is verified only for the inspected Windows ProPresenter 21.4.2 profile. This target can use exact saved passages; its native preparation route is not verified.'};
     return {available:true,scope:'personal-windows21.4.2-loopback-test'};
   }
-  async prepare(reference,translation,guard=()=>true,{saveCopy=false,keepListening=false}={}){
+  async prepare(reference,translation,guard=()=>true,{saveCopy=false,keepListening=false,focusVerse=null}={}){
     const {service,connector,speech,preparation}=this;
     if(!preparation?.available())throw new Error('Experimental Windows preparation helper is unavailable');
     const maxVerses=service.maxPassageVerses??10,parsed=parse(reference,{defaultTranslation:translation,maxVerses}),requested=parsed.references[0];
-    if(parsed.references.length!==1||!requested||requested.label!==reference||requested.valid!==true||requested.verse==null||requested.overLimit||requested.rangeLength===null)throw Error('Use one bounded canonical passage within the configured verse limit; cross-chapter numbering must be verified');
+    const chapter=focusVerse!==null&&parsed.references.length===1&&requested?.label===reference&&requested.valid===true&&requested.verse==null;
+    if(!chapter&&(parsed.references.length!==1||!requested||requested.label!==reference||requested.valid!==true||requested.verse==null||requested.overLimit||requested.rangeLength===null))throw Error('Use one bounded canonical passage within the configured verse limit; cross-chapter numbering must be verified');
     const blocked=()=>!guard()||service.stopped||service.recovery?.required||service.busy||preparation.busy;
     if(blocked())throw new Error('Stop/busy state blocks Bible preparation');
     if(!connector.base||new URL(connector.base).hostname!=='127.0.0.1')throw new Error('Experimental UI preparation requires the local loopback ProPresenter target');
@@ -24,7 +25,7 @@ class PreparationController {
     const listeningPreserved=confirmPreparation&&service.capture?.active===true;
     if(confirmPreparation)this.cancelRecognition();else speech.cancel();connector.arm(false);service.configure({dryRun:true,translation:this.getTranslation()});if(!confirmPreparation)service.setMode('paused');
     const generation=service.generation;
-    const result=await preparation.prepare(reference,translation,{guard:()=>guard()&&!service.stopped&&generation===service.generation,saveCopy,maxVerses});
+    const result=await preparation.prepare(reference,translation,{guard:()=>guard()&&!service.stopped&&generation===service.generation,saveCopy,maxVerses,...(chapter?{focusVerse}:{})});
     service.log('NATIVE_BIBLE_PREPARED_REVIEW','info',{nativeWorkerMs:result.workerElapsedMs});service.notify();return {...result,preparedGeneration:generation,listeningPreserved};
   }
   prepareCandidate(id){

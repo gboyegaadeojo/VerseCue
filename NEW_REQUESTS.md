@@ -67,3 +67,7 @@ Trust gate: the original 10-hour representative rehearsal with zero unapproved w
 ## NR-013 - Quotes prepare passages with free public-domain Bibles
 
 2026-11-21: the user asked that recognized quotes use the Prepare-for-volunteer workflow, with a free public-domain Bible (KJV or WEB) via one-click import, labelled as matched from quoted wording, on by default in Prepare for volunteer, prepared in the default installed translation. See [docs/132](docs/132-public-domain-quote-preparation.md).
+
+## NR-014 - Whole chapter at the spoken verse; higher verse limit
+
+2026-11-21: the user asked that a detected reference such as Proverbs 3:5 open the entire chapter in ProPresenter, positioned at the spoken verse, so the volunteer can go to earlier or later verses with next/previous instead of searching again. The user also asked to raise the verse limit in case a minister reads a whole chapter. Implemented for Prepare for volunteer (no output, no saved copy); the configurable limit now reaches 176 (Psalm 119). Auto keeps its 10-verse limit, because the user did not ask to change Auto and its safety rules need a recorded reason. See [docs/134](docs/134-whole-chapter-preparation.md).
