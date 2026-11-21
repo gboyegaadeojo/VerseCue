@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "datasetId": "SYNTHETIC-EVALUATION-EXAMPLE",
+  "experimentId": "SYNTHETIC-EXAMPLE-NO-RECOGNIZER",
+  "cases": [
+    {"id":"SYNTHETIC-correct","source":"SYNTHETIC-TEXT","split":"held-out","expected":[{"reference":"John 3:16","translation":"KJV"}],"predicted":[{"reference":"John 3:16","translation":"KJV"}]},
+    {"id":"SYNTHETIC-wrong-edition","source":"SYNTHETIC-TEXT","split":"held-out","expected":[{"reference":"John 5:10","translation":"AMP"}],"predicted":[{"reference":"John 5:10","translation":"KJV"}]},
+    {"id":"SYNTHETIC-missed","source":"SYNTHETIC-TEXT","split":"held-out","expected":[{"reference":"Genesis 1:1","translation":"KJV"}],"predicted":[]},
+    {"id":"SYNTHETIC-spurious","source":"SYNTHETIC-TEXT","split":"held-out","expected":[],"predicted":[{"reference":"Romans 8:28","translation":"KJV"}]},
+    {"id":"SYNTHETIC-negative","source":"SYNTHETIC-TEXT","split":"held-out","expected":[],"predicted":[]}
+  ]
+}

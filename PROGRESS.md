@@ -4,7 +4,7 @@ Updated: 2026-11-20 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Cod
 
 ## Current stage
 
-IMPLEMENTING - aggregate PR22 remains draft. Components through PR67 and the PR68 documentation pointers are merged. Main534/integration537 module checks and PR67 full32 source/32 packaged Windows plus Mac software checks passed. Actual personal ProPresenter inspection is pending failed Windows helper recovery; no app input or output was sent. Independent labeled-recognition evaluator code/tests have10 focused groups and544 branch modules passing, with synthetic example run; documentation/CI/PR remain. Five replay/soak scripts still require10-second contract repair before any new long-soak claim. Preserve P0, speech/platform/physical/field/privacy/distribution gates. See CLAUDE.md and the full original audit.
+IMPLEMENTING - aggregate PR22 remains draft. Components through PR69 are merged, including the offline recognition evaluator (544 local and each public Windows/Mac ARM/Intel checks). No real recognition accuracy is claimed. Root integration rerun follows. Bounded replay/soak repair is active in a separate worktree; actual personal ProPresenter testing remains pending helper recovery and fresh disabled-screen observations. Preserve P0 and original speech/platform/physical/field/privacy/distribution gates. See CLAUDE.md and the complete original audit.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -798,3 +798,15 @@ Continued after the status question; prior turn supplied status, not implementat
 ## 2026-11-21 00:15 UTC - evaluator merged; replay repair active
 
 PR69 merged atd7bc48a7d1648346623d84a7ae760a215ce52ec1. Exact71a699f passed544 local checks and all Windows/Mac ARM/Intel jobs44841778744; job logs verify544/0fail and synthetic CLI zero real clips. Shared replay decoder now passes6 synthetic groups; four script readers edited, soak reader still needs actual-source correction after a guarded marker failure. All actual replay/worker/native/output/soak evidence remains unperformed for this component. Next integrate main69, finish diagnostic repair and appropriately scoped tests; preserve original gates and private records.
+
+
+## 2026-11-21 - Offline recognition evaluator component
+
+Implemented bounded offline JSON scoring of supplied canonical citation/edition proposals, duplicate-counted precision/recall, separate sequence agreement and nominal Wilson intervals. Source/split isolation prevents synthetic/tuning cases inflating real held-out results. Explicit real-data authorization/review attestations and artifact hashes are required; unreviewed labels stay unscored. Private reports omit raw references/transcripts and refuse overwrite/traversal/linked output parents. This tool neither transcribes nor verifies media/ground truth/consent and never passes service acceptance. Ten synthetic groups cover counts, editions/order, leakage, exclusions, malformed schema, uncertainty and CLI/privacy guards. Prior local544 modules/check passed; exact-head final checks/three-platform diagnostic CI pending. Updated stale docs/107 to distinguish merged input/scratch/readability software from unperformed hardware/field tests. No real recording, microphone, ProPresenter output or new release. Original62FR/24NFR/86 trace/66 corpus requirements and RF01-22 gates retained.
+
+Final local evaluator checks:544/544 module tests, JavaScript syntax/dependency inventory and documentation audit passed. Structural audit retains62FR,24NFR,86 coverage rows and66 equal CSV/JSON corpus rows, with P0 PENDING. Cross-platform CI remains pending until the component PR runs.
+
+
+## 2026-11-21 00:20 UTC - PR69 integrated
+
+PR69 exact71a699f merged atd7bc48a after544 local and all three standard Windows/Mac diagnostic checks passed. Both progress histories preserved. Offline evaluator has zero real scored clips. Bounded replay fix is active in its own worktree, including the existing integration soak safeguards. Root module rerun follows; all original physical/platform/field/release gates remain open.
