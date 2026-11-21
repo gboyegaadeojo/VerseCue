@@ -11,6 +11,20 @@ function clearSessionView(){
   for(const id of ['audio-consent','native-save-consent','input-test-consent'])$(id).checked=false;
 }
 
+function showRecognizedWindow(text){
+  const transcript=$('transcript');
+  if(!text){
+    if(!transcript.childElementCount)transcript.textContent='No speech recognized.';
+    return;
+  }
+  if(!transcript.childElementCount)transcript.replaceChildren();
+  const line=document.createElement('span');
+  line.textContent=text;
+  transcript.append(line);
+  if(transcript.childElementCount>5)transcript.firstElementChild.remove();
+  transcript.scrollTop=transcript.scrollHeight;
+}
+
 function setText(id,text){const element=$(id);if(element.textContent!==String(text))element.textContent=String(text);}
 function message(text,setup=false){$(setup?'setup-message':'message').textContent=text;}
 async function call(method,...args){const result=await api[method](...args);if(!result.ok)throw new Error(result.error);return result.value;}
@@ -68,7 +82,7 @@ function renderInputInfo(info){
   const range=(value,unit='')=>value?`${value.min}?${value.max}${unit}`:'unknown';
   setText('audio-input-info',`Selected channel ${info.channel}. Reported: ${known(info.channelCount)} channels ? ${known(info.sampleRate,' Hz')} ? ${known(info.sampleSize,' bit')}. Available ranges: channels ${range(info.channels)}, sample rate ${range(info.rates,' Hz')}, sample size ${range(info.sizes,' bit')}.`);
 }
-const audio=new PastorAudio({onInputInfo:renderInputInfo,onDiscontinuity:drop=>(inputTesting?Promise.resolve():action('audio-loss',drop)).catch(error=>message(error.message)),onLevel:v=>{$('meter').value=v;$('input-test-meter').value=v;},onHealth:text=>{setText('audio-health',inputTesting?'Input test - no recognition':text);if(inputTesting)setText('input-test-status','Input test - '+text);},onLost:()=>{stopAudio().then(()=>action('mode','paused')).then(()=>message('Input lost. Recognition paused; choose the intended feed again.')).catch(e=>message(e.message));},onWindow:async (samples,metadata)=>{const resetEpoch=lastResetEpoch;setText('speech-health','Recognizing locally - capture continues');$('transcript').setAttribute('aria-busy','true');setText('recognition-progress','Processing the latest speech window...');try{const result=await call('audio',samples,metadata);if(resetEpoch!==lastResetEpoch)return;if(result.discarded){message(result.reason);setText('speech-health','Expired recognition discarded');return;}$('transcript').textContent=result.text||'No speech recognized.';if(result.stabilization){setText('speech-health',result.stabilization.reason);return;}$('speech-health').textContent=`Local · last window ${(result.elapsedMs/1000).toFixed(1)}s`;if(result.elapsedMs>4000)message('Recognition is slower than the proposed live target. Review suggestions; slow recognitions are withheld from Auto.');}catch(e){if(resetEpoch!==lastResetEpoch)return;if(state?.capture.active&&state.preparation?.phase==='preparing'&&/canceled|Stale recognition/i.test(e.message))setText('speech-health','Input remains active; recognition reset for preparation');else{setText('speech-health','Recognition stopped or failed - check status');message(e.message);}}finally{if(resetEpoch===lastResetEpoch){$('transcript').setAttribute('aria-busy','false');setText('recognition-progress','');}}}});
+const audio=new PastorAudio({onInputInfo:renderInputInfo,onDiscontinuity:drop=>(inputTesting?Promise.resolve():action('audio-loss',drop)).catch(error=>message(error.message)),onLevel:v=>{$('meter').value=v;$('input-test-meter').value=v;},onHealth:text=>{setText('audio-health',inputTesting?'Input test - no recognition':text);if(inputTesting)setText('input-test-status','Input test - '+text);},onLost:()=>{stopAudio().then(()=>action('mode','paused')).then(()=>message('Input lost. Recognition paused; choose the intended feed again.')).catch(e=>message(e.message));},onWindow:async (samples,metadata)=>{const resetEpoch=lastResetEpoch;setText('speech-health','Recognizing locally - capture continues');$('transcript').setAttribute('aria-busy','true');setText('recognition-progress','Processing the latest speech window...');try{const result=await call('audio',samples,metadata);if(resetEpoch!==lastResetEpoch)return;if(result.discarded){message(result.reason);setText('speech-health','Expired recognition discarded');return;}showRecognizedWindow(result.text);if(result.stabilization){setText('speech-health',result.stabilization.reason);return;}$('speech-health').textContent=`Local · last window ${(result.elapsedMs/1000).toFixed(1)}s`;if(result.elapsedMs>4000)message('Recognition is slower than the proposed live target. Review suggestions; slow recognitions are withheld from Auto.');}catch(e){if(resetEpoch!==lastResetEpoch)return;if(state?.capture.active&&state.preparation?.phase==='preparing'&&/canceled|Stale recognition/i.test(e.message))setText('speech-health','Input remains active; recognition reset for preparation');else{setText('speech-health','Recognition stopped or failed - check status');message(e.message);}}finally{if(resetEpoch===lastResetEpoch){$('transcript').setAttribute('aria-busy','false');setText('recognition-progress','');}}}});
 async function stopAudio(){inputTestEpoch++;inputTestRequestPending=false;const wasTest=inputTesting;inputTesting=false;listening=false;startingAudio=false;$('test-input').disabled=false;$('stop-input-test').disabled=true;if(wasTest)setText('input-test-status','Input test finished. Capture closed. This test sent no speech for recognition or output.');await audio.stop();await call('endAudio');$('listen').disabled=Boolean(state?.capture.active&&state.capture.ownerId!==selfWindowId);$('mute').disabled=true;$('audio-health').textContent=state?.capture.active?'Listening in the other VerseCue window':'Not listening';}
 bind('test-input',async()=>{
   if(!$('input-test-consent').checked)throw Error('Confirm authorization for the selected feed before testing');
