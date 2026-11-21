@@ -23,7 +23,7 @@ const {PreparationController}=require('../core/preparation-controller.cjs');
 const {Profiles}=require('../core/profiles.cjs');
 const {CaptureLease}=require('../core/capture-lease.cjs');
 const {PowerRecovery}=require('../core/power-recovery.cjs');
-const {GuardedAuto}=require('../core/guarded-auto.cjs');const {AudioLossPolicy}=require('../core/audio-loss-policy.cjs');
+const {GuardedAuto}=require('../core/guarded-auto.cjs');const {AudioLossPolicy}=require('../core/audio-loss-policy.cjs');const {verifyRelease,loadTrustedKeys}=require('../core/update-verify.cjs');
 const connector=new Connector();const catalog=new PreparedCatalog(connector);const service=new Session(connector);const speech=new LocalSpeech();
 const citationStabilizer=new CitationStabilizer({onExpire:()=>{service.speechStabilization={state:'expired',reason:'Incomplete reference expired. Repeat the full book, chapter and verse.'};service.notify();}});
 function resetSpeechStabilization(){citationStabilizer.reset();service.speechStabilization={state:'idle'};}
@@ -218,7 +218,15 @@ async function bootstrap(){
     if(capture.epoch!==leaseEpoch||!capture.owns(event.sender.id)||epoch!==service.generation||service.stopped||service.mode==='paused')throw new Error('Stale provisional speech discarded');
     return {text:String(result.text).trim().slice(0,500),final:false,elapsedMs:result.elapsedMs};
   },{withEvent:true});
-  handler('export-settings',async()=>{const r=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-settings.json'});if(!r.canceled){const safe={...settings,executable:'',model:'',audioDevice:''};await fs.writeFile(r.filePath,JSON.stringify(safe,null,2));return true;}return false;});
+  // FR-060 manual signed updates: verify only, never install, and only outside a service.
+  handler('check-update',async()=>{
+    if(capture.snapshot().active||!service.dryRun||connector.armed)throw Error('Update checks wait until the service ends: stop listening and return to dry run.');
+    const keys=await loadTrustedKeys(path.join(app.getAppPath(),'legal','update-keys'));
+    if(!keys.length)return {valid:false,reason:'No trusted update key is installed in this build. IFC must add its public signing key before releases can be verified.'};
+    const pick=await dialog.showOpenDialog(mainWindow,{properties:['openFile'],filters:[{name:'VerseCue release',extensions:['zip']}]});if(pick.canceled||!pick.filePaths[0])return null;
+    const file=pick.filePaths[0];let signed;try{const text=await fs.readFile(file+'.sig.json','utf8');if(text.length>16384)throw Error('oversized');signed=JSON.parse(text);}catch{return {valid:false,reason:'The matching .sig.json signature file was not found or could not be read next to the release.'};}
+    try{return await verifyRelease(file,signed,keys,app.getVersion());}catch(error){if(error.code==='UPDATE_REJECTED')return {valid:false,reason:error.message};throw error;}
+  });  handler('export-settings',async()=>{const r=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-settings.json'});if(!r.canceled){const safe={...settings,executable:'',model:'',audioDevice:''};await fs.writeFile(r.filePath,JSON.stringify(safe,null,2));return true;}return false;});
   handler('import-settings',async()=>{const r=await dialog.showOpenDialog(mainWindow,{properties:['openFile'],filters:[{name:'JSON',extensions:['json']}]});if(r.canceled)return null;const bytes=await fs.readFile(r.filePaths[0],'utf8');if(bytes.length>16384)throw new Error('Settings file too large');const incoming=store.validateSettings(JSON.parse(bytes));incoming.executable='';incoming.startMode=settings.startMode;incoming.model='';incoming.audioDevice='';return changeConfiguration(async()=>{if(speech.busy)throw new Error('Stop recognition before import');settings=await store.save(settingsFile,incoming);connector.configure(settings.host,settings.port);speech.configure('','',settings.speechMode);service.configure({translation:settings.translation,dryRun:true,duplicateCooldownSeconds:settings.duplicateCooldownSeconds,maxPassageVerses:settings.maxPassageVerses});applySessionPreferences();return settings;});});
   handler('export-diagnostics',async()=>{const preview={schemaVersion:1,appVersion:app.getVersion(),referenceMetadata:referenceMetadataVersions(),platform:process.platform,p0:'PENDING',events:service.events,capabilities:service.snapshot().capabilities};const r=await dialog.showMessageBox(mainWindow,{type:'info',buttons:['Cancel','Save redacted diagnostics'],defaultId:0,message:`Export ${preview.events.length} event codes and times, app/platform and reference dictionary/versification versions, and capability flags. No references, transcripts, audio, paths or addresses are included.`});if(r.response!==1)return false;const dest=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-diagnostics.json'});if(!dest.canceled)await fs.writeFile(dest.filePath,JSON.stringify(preview,null,2));return !dest.canceled;});
   handler('compact',()=>{if(compactWindow)compactWindow.focus();else compactWindow=createWindow(true);});

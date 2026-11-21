@@ -892,3 +892,7 @@ H holds a pending automatic send (focused only, never while typing). A polite li
 ## Resident worker folder ownership (PR84) - 2026-11-21
 
 The resident worker whisper-server folder moved into the app-owned speech scratch, so stop and startup recovery remove it after a crash. 580 modules, check, private real-server check, diagnostics 44865605363 and Mac 44865608219. Merged at abf354d. See docs/121.
+
+## Signed manual updates (PR85) - 2026-11-21
+
+FR-060 MVP: IFC-owned Ed25519 release manifests (no key shipped), verify-only in-app check refused while capturing or armed. 584 modules, check, sweep, diagnostics 44866448771 and Mac 44866446324. Merged at db866b9. Code signing/notarization, rollback and update channel remain open. See docs/122.
