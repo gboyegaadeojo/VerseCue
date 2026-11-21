@@ -1,8 +1,10 @@
 'use strict';
 // Bounded capture continues while one inference request owns the worker.
+// 2026-11-21: queued speech while recognizing is 5 s (was 2 s). CPU recognition takes about 2 s per window, so a 2 s
+// queue dropped speech constantly during continuous preaching. Age checks in the main process still apply.
 class AudioWindowBuffer {
   // Optional provisional snapshots copy a still-growing window for display only. They never clear or delay it.
-  constructor({onWindow,onDrop=()=>{},onError=()=>{},clock=()=>performance.now(),capacity=160000,pendingCapacity=32000,maxPendingAgeMs=2000,onProvisional=null,provisionalEnabled=()=>false,provisionalMinSamples=32000,provisionalStepSamples=32000}){Object.assign(this,{onWindow,onDrop,onError,clock,capacity,pendingCapacity,maxPendingAgeMs,onProvisional,provisionalEnabled,provisionalMinSamples,provisionalStepSamples});this.busy=false;this.provisionalBusy=false;this.epoch=0;this.active=false;this.clear();}
+  constructor({onWindow,onDrop=()=>{},onError=()=>{},clock=()=>performance.now(),capacity=160000,pendingCapacity=80000,maxPendingAgeMs=5000,onProvisional=null,provisionalEnabled=()=>false,provisionalMinSamples=32000,provisionalStepSamples=32000}){Object.assign(this,{onWindow,onDrop,onError,clock,capacity,pendingCapacity,maxPendingAgeMs,onProvisional,provisionalEnabled,provisionalMinSamples,provisionalStepSamples});this.busy=false;this.provisionalBusy=false;this.epoch=0;this.active=false;this.clear();}
   clear(){this.samples=[];this.silent=0;this.readyAt=null;this.firstSampleAt=null;this.lastVoicedAt=null;this.pendingAt=null;this.provisionalMark=0;}
   start(){this.epoch++;this.clear();this.captureSessionId=globalThis.crypto.randomUUID();this.windowSequence=0;this.active=true;}
   stop(){this.epoch++;this.active=false;this.clear();}
@@ -32,7 +34,7 @@ class AudioWindowBuffer {
     if(this.readyAt===null)return;
     if(this.clock()-this.readyAt>this.maxPendingAgeMs){const count=this.samples.length;this.clear();this.onDrop({reason:'stale',samples:count});return;}
     const samples=this.samples,endEvidence=this.silent>=16000?'silence':'window-limit',firstSampleAt=this.firstSampleAt,lastVoicedAt=this.lastVoicedAt,windowId=globalThis.crypto.randomUUID(),captureSessionId=this.captureSessionId,windowSequence=++this.windowSequence;this.clear();this.busy=true;const epoch=this.epoch;
-    Promise.resolve().then(()=>this.active&&epoch===this.epoch?this.onWindow(samples,{windowId,captureSessionId,windowSequence,endEvidence,windowDurationMs:samples.length/16,bufferedAgeMs:Math.max(samples.length/16,this.clock()-firstSampleAt),speechEndAgeMs:lastVoicedAt===null?null:Math.max(0,this.clock()-lastVoicedAt),timingBasis:'capture-monotonic-proxy'}):undefined).catch(error=>{if(this.active&&epoch===this.epoch)this.onError(error);}).finally(()=>{this.busy=false;this.drain();});
+    Promise.resolve().then(()=>this.active&&epoch===this.epoch?this.onWindow(samples,{windowId,captureSessionId,windowSequence,endEvidence,windowDurationMs:samples.length/16,bufferedAgeMs:Math.max(samples.length/16,this.clock()-firstSampleAt),speechEndAgeMs:lastVoicedAt===null?null:Math.max(0,this.clock()-lastVoicedAt),timingBasis:'capture-monotonic-proxy'}):undefined).catch(error=>{if(this.active&&epoch===this.epoch)this.onError(error);}).finally(()=>{this.busy=false;this.drain();if(!this.busy)this.pendingAt=null;});
   }
 }
 if(typeof module!=='undefined'&&module.exports)module.exports={AudioWindowBuffer};else window.AudioWindowBuffer=AudioWindowBuffer;
