@@ -8,14 +8,14 @@ VerseCue listens to an authorized pastor audio feed, identifies Bible references
 
 ## Download
 
-**Current downloadable development version: 0.6.1.** This is a supervised-test build, not an approved live-service release.
+**Current downloadable development version: 0.6.2.** This is a supervised-test build, not an approved live-service release.
 
 | Computer | Download | Status |
 |---|---|---|
-| Windows, Intel/AMD 64-bit | [Download Windows ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.1/VerseCue-0.6.1-win32-x64.zip) | Packaged desktop scenarios passed; Auto sent a saved test passage to a personal ProPresenter 21.4.2 with Audience and Stage off |
-| Mac, Apple Silicon (M1/M2/M3/M4) | [Download Mac Apple Silicon ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.1/VerseCue-0.6.1-darwin-arm64.zip) | Native CPU speech build, local signature verification and packaged workspace check passed; Mac Bible preparation and church-device acceptance pending |
+| Windows, Intel/AMD 64-bit | [Download Windows ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.2/VerseCue-0.6.2-win32-x64.zip) | Packaged desktop scenarios passed; Auto sent a saved test passage to a personal ProPresenter 21.4.2 with Audience and Stage off |
+| Mac, Apple Silicon (M1/M2/M3/M4) | [Download Mac Apple Silicon ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.2/VerseCue-0.6.2-darwin-arm64.zip) | Native CPU speech build, local signature verification and packaged workspace check passed; Mac Bible preparation and church-device acceptance pending |
 
-[All release files and checksums](https://github.com/gboyegaadeojo/VerseCue/releases/tag/v0.6.1). Do not use the automatically generated source-code ZIP as the installed application. Older builds remain on the [releases page](https://github.com/gboyegaadeojo/VerseCue/releases).
+[All release files and checksums](https://github.com/gboyegaadeojo/VerseCue/releases/tag/v0.6.2). Do not use the automatically generated source-code ZIP as the installed application. Older builds remain on the [releases page](https://github.com/gboyegaadeojo/VerseCue/releases).
 
 Windows: extract the **entire ZIP**, then open **VerseCue.exe** inside the extracted folder. Keep its supporting files together. The Windows package includes the verified local speech engine and model. It is not signed by a trusted software publisher, so Windows may warn you.
 
@@ -49,10 +49,11 @@ Follow the [personal test guide](docs/124-personal-auto-first-test-guide.md). In
 | Dry run | Recognition and review work, but sends are simulated. Nothing reaches ProPresenter. This is the startup state. |
 | Auto (startup default) | Complete, explicit references send automatically after a short hold window, but only when output is armed and the passage is approved for Auto. Otherwise they simulate or wait for review. |
 | Confirm | An operator reviews and explicitly confirms each passage. Choose it as the start mode in Settings if you prefer. |
+| Prepare for volunteer | VerseCue never sends. Each clear reference the preacher gives is opened in ProPresenter's own Bible, ready; the volunteer clicks it live in ProPresenter. Choose it as the start mode in Settings > Output. |
 | Suggest only | References are offered for review; sending is blocked. |
 | Paused / Emergency stopped | Recognition and output are paused or blocked. Resuming returns to Confirm; Auto is re-enabled deliberately. |
 
-## Limits of the 0.6.1 build
+## Limits of the 0.6.2 build
 
 - Trusting Auto in a real service needs the ten-hour rehearsal with labelled real sermon recordings ([docs/117](docs/117-auto-rehearsal-harness.md)) and measured accuracy. That has not been done.
 - On a typical computer, recognition takes about 2 seconds per speech chunk, so verses appear about 3-4 seconds after the pastor finishes, plus the 1-second hold.

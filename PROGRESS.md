@@ -912,3 +912,7 @@ PR91 text size (Standard 15 px default, Large 18 px booth) merged at 04e3be1 aft
 ## User-reported fixes and public 0.6.1 - 2026-11-21
 
 PR93 bundled speech engine fallback; PR94 ordinal/comma references (1st John was read as John); PR95 connection health tolerance (slow answers no longer pause the session); PR96 5 s queued speech; PR97 pre-ticked setup boxes (NR-011); PR98 version 0.6.1. Public v0.6.1 pre-release from d304541 with Windows and Apple Silicon ZIPs; packaged Windows build passed all 45 scenarios; Mac CI 44912264640. Next: evaluate the RTX 2060 GPU speech path. P0 pending.
+
+## Prepare for volunteer, Route layout and 0.6.2 - 2026-11-21
+
+PR99 Prepare for volunteer start mode (NR-012), verified on the user personal ProPresenter (outputs off; details local). PR100 Route artboard layout with bundled DM Sans. PR101 version 0.6.2. Public 0.6.2 release being built.

@@ -1,16 +1,17 @@
 # VerseCue - resume here
 
-Checked: 2026-11-21 16:10 UTC. P0 and full service acceptance PENDING.
+Checked: 2026-11-21 18:40 UTC. P0 and full service acceptance PENDING.
 
 Read AGENTS.md, the entire master specification, HANDOFF.md, PROGRESS.md, NEW_REQUESTS.md, docs/107 and the complete docs/99 original audit. Keep all original 62 FR/24 NFR/86 trace/66 corpus and RF01-22 gates.
 
 ## Takeover
 
-Use [HANDOFF.md](HANDOFF.md) as the takeover document. **Public v0.6.1 pre-release** (Windows + Apple Silicon) published 2026-11-21 from main d304541; v0.6.0 is the previous release. Main d304541 includes PR75-98. Draft PR22 integrates main: 591 modules, check (syntax, inventory, SBOM), audit. The packaged Windows 0.6.1 build (test-results/pr-split/packaged-main-check/dist, local) passed all 45 scenarios.
+Use [HANDOFF.md](HANDOFF.md) as the takeover document. Public v0.6.1 pre-release is live; **v0.6.2** (Prepare for volunteer + Route layout/DM Sans) is being built from main 8ec534d (Windows ZIP in test-results/pr-split/packaged-main-check/dist, Mac via macos-development on main). Main includes PR75-101. Draft PR22 integrates main: 592 modules, check, audit.
 
 ## Current authoritative state
 
 - **NR-010 (user product decision):** VerseCue starts in Auto (dry run), with an Auto-first Route workspace (design canvas https://claude.ai/artifact/W11qaVvxvvBWuCMro8fSPs, board C). Trust gate: the 10-hour wrong-output rehearsal plus held-out precision/recall. Recorded in NEW_REQUESTS.md.
+- NR-012 Prepare for volunteer (PR99, docs/130): start mode that prepares each clear detected reference in ProPresenter's Bible with no output; verified on the user's personal ProPresenter. PR100 Route artboard layout + DM Sans (docs/131).
 - User-reported fixes merged 2026-11-21 (PR93-97): bundled speech engine fallback when the saved engine is missing; 1st/2nd/3rd ordinals and Whisper commas (1st John was read as John); connection health tolerance (slow answers show Slow to respond, 15 s to lost); 5 s queued speech (was 2 s); pre-ticked setup boxes NR-011 (docs/127-129). PR98 version 0.6.1.
 - Also merged: PR82 H hold shortcut + announcements + hold-window age fix (docs/120), PR83 docs/107 refresh, PR84 resident worker folder in app scratch (docs/121). PR85 (docs/122) IFC-owned Ed25519 release signing and a verify-only update check, locked while capturing/armed; no key shipped. PR86 CycloneDX SBOM enforced by npm run check (docs/123). PR87 loopback scenario packaged expectation.
 - Merged earlier today: PR75 provisional speech (docs/114), PR76 loopback guidance FR-008 (docs/115), PR77 start in Auto + Hold window (docs/116), PR78 ten-hour Auto rehearsal harness (docs/117), PR79 per-window audio loss, Auto pauses only after 3 losses/60 s (docs/118), PR80 Route workspace (docs/119), PR81 repaired stale power-recovery/background-quotes fixtures.
@@ -19,11 +20,10 @@ Use [HANDOFF.md](HANDOFF.md) as the takeover document. **Public v0.6.1 pre-relea
 
 ## Next queue
 
-1. Evaluate a faster free speech path on this PC: RTX 2060 GPU (whisper.cpp CUDA build exists at poc/private/tools/whisper-b5454-cuda-11.8.0; earlier inference stalled) or Vulkan; measure only with the user's VerseCue closed. Keep results private.
-2. Live test with the user (their voice, their mic, personal ProPresenter, Audience/Stage verified off).
-3. Labelled recordings for the ten-hour rehearsal and precision/recall; Mac native route; code signing (paid); volunteer/screen-reader sessions.
-
-Known: Auto sends only passages approved once per session (Approve and arm for Auto); prepare-detected works only in Confirm mode. Changing that is a product decision to raise with the user, not a silent change.
+1. Publish v0.6.2 once the Windows packaged sweep and Mac build pass (same steps as v0.6.1: checksums, gh release create --prerelease with full target SHA, verify public links).
+2. GPU speech engines per target computer (user's church machines: Mac mini M4/M5 or Intel 13th gen + RTX 4070): whisper.cpp Metal on Mac, CUDA on NVIDIA; this test laptop has an RTX 2060 (CUDA build 0.9 s vs CPU 1.5-2 s after a one-time warm-up). Keep measurements private.
+3. Public-domain quote index (KJV/WEB) import for quoted-wording matching (user request).
+4. Live voice test with the user; labelled recordings; Mac native route; code signing; volunteer/screen-reader sessions.
 
 ## Integration and authorization
 
