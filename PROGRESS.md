@@ -904,3 +904,7 @@ PR86 CycloneDX SBOM (legal/sbom.cdx.json, freshness enforced by npm run check) p
 ## Hold placement, test guide and packaged main (PR88-89) - 2026-11-21
 
 PR88 adds docs/124, a personal Auto-first test guide. Exact-source packaged Windows build of main 4353cb0 passed every scenario. PR89 moved Hold under the progress line so it is visible without scrolling in the compact window; Mac 44868029936 (after pinning the scenario viewport) and diagnostics 44867902584 passed.
+
+## Text size setting and public 0.6.0 pre-release - 2026-11-21
+
+PR91 text size (Standard 15 px default, Large 18 px booth) merged at 04e3be1 after 586 modules, 42/42 scenarios, Mac 44902068349 and diagnostics. Public v0.6.0 pre-release published from 04e3be1 with Windows and Apple Silicon ZIPs and checksums at the user request (replacing 0.5.5 as current). PR92 updated README downloads; merged 587be79. Not a live-service release; P0 pending.

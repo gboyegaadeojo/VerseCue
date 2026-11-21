@@ -1,6 +1,6 @@
 # Development downloads and native Mac build
 
-Current download links are maintained in the [README](../README.md). Windows and Apple Silicon 0.5.5 packages have been published from the now-public repository; the earlier private-runner rejection below is historical and was resolved by explicit public-repository authorization. Version 0.5.8 Windows is built and verified; matching Mac run 44314557897 is queued, not yet published.
+Current download links are maintained in the [README](../README.md). Windows and Apple Silicon 0.6.0 packages (2026-11-21, Auto-first Route build) are the current published development builds; 0.5.5 and earlier remain on the releases page. Historical notes below: the earlier private-runner rejection below is historical and was resolved by explicit public-repository authorization. Version 0.5.8 Windows is built and verified; matching Mac run 44314557897 is queued, not yet published.
 
 2026-11-18. User requested a readable README and downloadable Windows/Mac applications. Current application version0.5.1 already includes merged PRs #2-4. Merging those PRs does not invalidate the matching packaged application. These distribution/documentation changes do not change runtime application contents or silently update downloaded applications.
 

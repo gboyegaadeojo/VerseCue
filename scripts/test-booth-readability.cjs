@@ -4,7 +4,10 @@ const {_electron}=require('playwright'),fs=require('node:fs/promises'),path=requ
 (async()=>{const executable=process.argv[2]?path.resolve(process.argv[2]):null,env={...process.env};delete env.ELECTRON_RUN_AS_NODE;let app;
 try{
  await fs.mkdir('test-results',{recursive:true});app=await _electron.launch({...(executable?{executablePath:executable}:{}),args:[...(executable?[]:[path.resolve('.')]),'--user-data-dir='+path.resolve('test-results','booth-'+randomUUID())],env});const page=await app.firstWindow(),errors=[];page.on('pageerror',error=>errors.push(error.message));await page.waitForFunction(()=>document.getElementById('message')?.textContent.length>0);
- await page.locator('#reference-input').fill('John 3:16');await page.locator('#reference-form button').click();await page.waitForFunction(()=>document.getElementById('reference').textContent==='John 3:16');
+ // Standard (default) text is smaller, with the same 44px targets; the booth requirements below run in Large.
+ const standard=await page.evaluate(()=>({base:parseFloat(getComputedStyle(document.documentElement).fontSize),small:[...document.querySelectorAll('button,input:not([type="checkbox"]),select')].filter(e=>e.getClientRects().length&&!e.hidden).filter(e=>e.getBoundingClientRect().height<44).map(e=>e.id||e.textContent.trim().slice(0,30))}));assert.equal(standard.base,15,'Standard text is 15px');assert.deepEqual(standard.small,[],'Standard keeps 44px targets');
+ assert.equal((await page.evaluate(async()=>{const s=(await window.versecue.settings()).value;const r=await window.versecue.saveSettings({...s,textSize:'booth'});fillSettings((await window.versecue.settings()).value);return r.ok;})),true);
+ await page.waitForFunction(()=>parseFloat(getComputedStyle(document.documentElement).fontSize)===18); await page.locator('#reference-input').fill('John 3:16');await page.locator('#reference-form button').click();await page.waitForFunction(()=>document.getElementById('reference').textContent==='John 3:16');
  const measure=async()=>page.evaluate(()=>{
   const visible=e=>!!e.getClientRects().length&&!e.hidden;
   const controls=[...document.querySelectorAll('button,input:not([type="checkbox"]),select,summary')].filter(visible);

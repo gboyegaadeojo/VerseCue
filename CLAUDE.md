@@ -1,12 +1,12 @@
 # VerseCue - resume here
 
-Checked: 2026-11-21 10:00 UTC. P0 and full service acceptance PENDING.
+Checked: 2026-11-21 13:30 UTC. P0 and full service acceptance PENDING.
 
 Read AGENTS.md, the entire master specification, HANDOFF.md, PROGRESS.md, NEW_REQUESTS.md, docs/107 and the complete docs/99 original audit. Keep all original 62 FR/24 NFR/86 trace/66 corpus and RF01-22 gates.
 
 ## Takeover
 
-Use [HANDOFF.md](HANDOFF.md) as the takeover document. Main is ad57f65 (PR75-89 merged by Claude on 2026-11-21). Draft PR22 integrates main: 588 modules, check (syntax, inventory, SBOM), documentation audit and all source scenarios pass. The exact-source Windows review build of main ad57f65 passed all 42 packaged scenarios: test-results/pr-split/packaged-main-check/test-results/build-review-ad57f656-1cbceebe-cbfd-4a81-8c36-07cbaa9d8bad/dist/VerseCue-0.6.0-win32-x64/VerseCue.exe (local, ignored).
+Use [HANDOFF.md](HANDOFF.md) as the takeover document. Public v0.6.0 pre-release (Windows + Apple Silicon) published 2026-11-21 from 04e3be1. Main is 587be79 (PR75-92; earlier note: ad57f65) (PR75-89 merged by Claude on 2026-11-21). Draft PR22 integrates main: 588 modules, check (syntax, inventory, SBOM), documentation audit and all source scenarios pass. The exact-source Windows review build of main ad57f65 passed all 42 packaged scenarios: test-results/pr-split/packaged-main-check/test-results/build-review-ad57f656-1cbceebe-cbfd-4a81-8c36-07cbaa9d8bad/dist/VerseCue-0.6.0-win32-x64/VerseCue.exe (local, ignored).
 
 ## Current authoritative state
 
