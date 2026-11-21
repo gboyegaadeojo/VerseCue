@@ -1,6 +1,6 @@
 # Third-party software and content
 
-VerseCue distributes no Bible text or paid translation database. Bible text and presentation assets remain in the user's licensed ProPresenter installation.
+VerseCue distributes no paid or copyrighted Bible translation. For quoted-wording recognition only, it bundles two public-domain texts from eBible.org: the King James Version (1769 standard text, protocanon; public domain outside the United Kingdom, where Crown letters patent restrict printing) and the World English Bible (public domain). VerseCue never displays this text; it only uses it to recognise which verse a preacher is quoting. Displayed Bible text and presentation assets remain in the user's licensed ProPresenter installation. Sources and hashes: PUBLIC-DOMAIN-BIBLES.md.
 
 Electron is distributed under the MIT license and contains Chromium, Node.js and their notices. Preserve the runtime's LICENSE and LICENSES.chromium.html in packaged output. Exact dependency versions and integrity hashes are recorded in package-lock.json. Playwright is a development test dependency and is not included in the desktop package. Packaging uses Electron's documented manual distribution layout without a third-party packaging framework.
 
