@@ -1,5 +1,6 @@
 'use strict';
-const {app,BrowserWindow,ipcMain,dialog,session,systemPreferences,clipboard,powerSaveBlocker,powerMonitor}=require('electron');
+const {app,BrowserWindow,ipcMain,dialog,session,systemPreferences,clipboard,powerSaveBlocker,powerMonitor,shell}=require('electron');
+const {installCudaEngine,checkCudaEngine,OFFICIAL:CUDA_OFFICIAL}=require('../core/cuda-engine.cjs');
 const path=require('node:path');
 const fs=require('node:fs/promises');
 const {pathToFileURL}=require('node:url');
@@ -71,6 +72,26 @@ async function choose(kind){
   if(result.canceled)return null;const file=result.filePaths[0];const stat=await fs.stat(file);if(!stat.isFile())throw new Error('Select a file');
   return changeConfiguration(async()=>{if(speech.busy)throw Error('Recognition is stopping; retry in a moment');const next={...settings,[kind==='worker'?'executable':'model']:file};settings=await store.save(settingsFile,next);speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);return settings;});
 }
+const fileExists=async file=>{if(!file)return false;try{await fs.access(file);return true;}catch{return false;}};
+// Guided NVIDIA engine: the operator downloads the two official archives; VerseCue verifies, unpacks and checks them.
+async function setupCudaEngine(){
+  if(process.platform!=='win32')throw Error('The NVIDIA engine is for Windows PCs with an NVIDIA graphics card. Macs already use the graphics chip through the built-in engine.');
+  if(speech.busy)throw Error('Stop listening before changing the speech engine');
+  if(!await fileExists(settings.model))throw Error('The speech model is missing. Choose the model in Settings > Speech first.');
+  const result=await dialog.showOpenDialog(mainWindow,{title:'Choose the two downloaded ZIP files (whisper.cpp CUDA and NVIDIA cuBLAS)',properties:['openFile','multiSelections'],filters:[{name:'ZIP archives',extensions:['zip']}]});
+  if(result.canceled)return null;
+  const {executable}=await installCudaEngine(result.filePaths,{root:path.join(app.getPath('userData'),'speech-engines')});
+  const check=await checkCudaEngine(executable,settings.model);
+  if(!check.ok){service.log('CUDA_ENGINE_CHECK_FAILED','warning');return {ok:false,reason:check.reason+' VerseCue is still using the built-in engine.',settings};}
+  const saved=await changeConfiguration(async()=>{if(speech.busy)throw Error('Recognition is stopping; retry in a moment');settings=await store.save(settingsFile,{...settings,executable,speechAcceleration:'gpu'});speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);speech.warmedUp=true;return settings;});
+  service.log('CUDA_ENGINE_SELECTED','info');return {ok:true,device:check.device,elapsedMs:check.elapsedMs,settings:saved};
+}
+async function useBuiltInEngine(){
+  if(speech.busy)throw Error('Stop listening before changing the speech engine');
+  const dir=path.join(process.resourcesPath,'speech'),worker=path.join(dir,process.platform==='win32'?'whisper-cli.exe':'whisper-cli');
+  if(!await fileExists(worker))throw Error('The built-in speech engine is not part of this copy of VerseCue. Choose an engine in Settings > Speech.');
+  return changeConfiguration(async()=>{if(speech.busy)throw Error('Recognition is stopping; retry in a moment');settings=await store.save(settingsFile,{...settings,executable:worker});speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);return settings;});
+}
 async function bootstrap(){
   await fs.mkdir(app.getPath('userData'),{recursive:true});await speech.initializeScratch(path.join(app.getPath('userData'),'speech-scratch'));
   settingsFile=path.join(app.getPath('userData'),'settings.json');const loaded=await store.load(settingsFile);settings=loaded.settings;service.settingsRecoveryRequired=loaded.recovered;
@@ -139,7 +160,7 @@ async function bootstrap(){
   handler('private-api-stop',()=>privateApi.stop());
   handler('private-api-copy-token',()=>{if(!privateApi.accepting||!privateApi.token)throw new Error('Enable the private API first');clipboard.writeText(privateApi.token);return true;});
   handler('save-settings',value=>{const valid=store.validateSettings(value);return changeConfiguration(async()=>{if(speech.busy)throw new Error('Recognition is stopping; retry in a moment');settings=await store.save(settingsFile,valid);connector.configure(settings.host,settings.port);speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);service.configure({translation:settings.translation,dryRun:true,duplicateCooldownSeconds:settings.duplicateCooldownSeconds,maxPassageVerses:settings.maxPassageVerses});applySessionPreferences();return settings;});});
-  handler('choose-worker',()=>choose('worker'));handler('choose-model',()=>choose('model'));
+  handler('choose-worker',()=>choose('worker'));handler('cuda-setup',()=>setupCudaEngine());handler('cuda-builtin',()=>useBuiltInEngine());handler('cuda-open-downloads',async()=>{for(const source of Object.values(CUDA_OFFICIAL))await shell.openExternal(source.page);return true;});handler('choose-model',()=>choose('model'));
   handler('command',async(event,command,payload)=>{
     if(configurationTransition.busy&&!['stop','reset'].includes(command))throw Error('Settings are changing; wait for setup to finish');
     switch(command){
