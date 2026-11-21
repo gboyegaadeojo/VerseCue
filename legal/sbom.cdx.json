@@ -561,6 +561,38 @@
     },
     {
       "type": "file",
+      "bom-ref": "file:ui/fonts/Inter-Variable.ttf",
+      "name": "Inter-Variable.ttf",
+      "group": "Inter",
+      "licenses": [
+        {
+          "license": {
+            "id": "OFL-1.1"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031"
+        }
+      ],
+      "scope": "required",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/google/fonts/tree/main/ofl/inter"
+        }
+      ],
+      "properties": [
+        {
+          "name": "versecue:sourceCommit",
+          "value": "0b58fb370093f9a9f4ff785d94405710b79de67c"
+        }
+      ]
+    },
+    {
+      "type": "file",
       "bom-ref": "file:ui/fonts/IBMPlexSans-Regular.woff2",
       "name": "IBMPlexSans-Regular.woff2",
       "group": "IBM Plex Sans",
@@ -816,6 +848,7 @@
       "dependsOn": [
         "pkg:npm/electron@45.3.3",
         "file:ui/fonts/DMSans-Variable.ttf",
+        "file:ui/fonts/Inter-Variable.ttf",
         "file:ui/fonts/IBMPlexSans-Regular.woff2",
         "file:ui/fonts/IBMPlexSans-Medium.woff2",
         "file:ui/fonts/IBMPlexSans-SemiBold.woff2",
