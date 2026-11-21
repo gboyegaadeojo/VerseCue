@@ -58,6 +58,25 @@ class PassageCoordinator {
    return this.publish({...result,phase:'review-required',reviewToken,reviewExpiresAt:this.review.expiresAt,reviewGeneration:this.review.generation,reviewSourceMode:sourceMode,reviewInputEpoch:this.review.inputEpoch,reviewReferenceEpoch:this.review.referenceEpoch,sourceCandidateId:id,bibleTextVerified:false,formattingVerified:false,outputObserved:false,outputRequests:0});
   }catch(error){const diagnostics=nativeFailureDiagnostics(error);this.publish({phase:guard()?'blocked':'canceled',reference:c.label,translation:c.translation,reason:error.message,...(diagnostics?{nativeFailure:diagnostics}:{}),outputRequests:0});throw error;}finally{this.release();}
  }
+ // Prepare for volunteer: open the whole chapter in ProPresenter's Bible view, scrolled to the spoken verse,
+ // so the volunteer can go back or forward without searching again. No saved copy and no output.
+ async prepareChapter(id,{acknowledgeFocusChange=false,additionalGuard=()=>true}={}){
+  if(typeof additionalGuard!=='function'||!additionalGuard())throw Error('Passage review request was revoked');
+  if(this.busy)throw Error('A passage preparation is already in progress');
+  this.service.expire();const c=this.service.queue.find(row=>row.id===id);
+  if(!c||this.service.stopped||this.service.recovery?.required||!c.authorized||c.generation!==this.service.generation||c.reference.valid!==true||c.reference.relative||!c.reference.book||!Number.isInteger(c.reference.chapter)||c.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))throw Error('Review a valid current reference first');
+  const chapter=`${c.reference.book} ${c.reference.chapter}`,focusVerse=c.reference.verse??1,sourceReferenceEpoch=this.service.referenceEpoch,epoch=++this.epoch,target=this.connector.generation,base=this.connector.base;this.review=null;this.active=null;
+  const readiness=this.savedBible.readiness();if(readiness.available!==true)return this.publish({phase:'manual-preparation-required',reference:c.label,translation:c.translation,reason:readiness.reason,outputRequests:0});
+  if(acknowledgeFocusChange!==true)return this.publish({phase:'consent-required',reference:c.label,translation:c.translation,reason:'Preparation may move ProPresenter focus. Explicit session consent is required.',outputRequests:0});
+  this.acquire();
+  const guard=()=>additionalGuard()&&epoch===this.epoch&&target===this.connector.generation&&base===this.connector.base&&sourceReferenceEpoch===this.service.referenceEpoch&&!this.service.stopped&&!this.service.recovery?.required;
+  try{
+   this.publish({phase:'preparing',reference:c.label,chapter,focusVerse,translation:c.translation,outputRequests:0});
+   const result=await this.savedBible.controller.prepare(chapter,c.translation,guard,{keepListening:true,focusVerse});
+   if(!guard())throw Error('Passage preparation canceled or target changed');
+   return this.publish({phase:'chapter-prepared',reference:c.label,chapter,focusVerse,focusVisible:result.focusVisible===true,chapterVerses:result.chapterVerses,translation:c.translation,recognition:c.recognition,nativeWorkerMs:result.workerElapsedMs,outputRequests:0,outputObserved:false});
+  }catch(error){const diagnostics=nativeFailureDiagnostics(error);this.publish({phase:guard()?'blocked':'canceled',reference:c.label,translation:c.translation,reason:error.message,...(diagnostics?{nativeFailure:diagnostics}:{}),outputRequests:0});throw error;}finally{this.release();}
+ }
  async rebuildClipped(reviewToken,{formattingCorrected=false,acknowledgeFocusChange=false,acknowledgeCreateCopy=false}={}){
   const r=this.review,s=this.service,c=this.connector;
   if(this.busy||s.busy||s.operationOwner||!r||r.token!==reviewToken||r.plan.clippingWarning!==true||r.epoch!==this.epoch||r.target!==c.generation||r.base!==c.base||r.generation!==s.generation||r.referenceEpoch!==s.referenceEpoch||s.stopped||s.recovery?.required||s.mode!=='confirm'||s.clock()>=r.expiresAt)throw Error('Review the current clipped passage in Confirm before rebuilding');

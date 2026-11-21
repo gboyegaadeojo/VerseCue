@@ -920,3 +920,7 @@ PR99 Prepare for volunteer start mode (NR-012), verified on the user personal Pr
 ## Public-domain quote preparation (NR-013) and GPU speech - 2026-11-21
 
 PR102 merged: bundled KJV and WEB quote indexes (public domain), one-click, on by default in Prepare for volunteer, prepared in the configured translation and labelled "matched from quoted wording" (docs/132). PR103 open: graphics-card speech, Metal on Mac and CUDA-selectable on NVIDIA (docs/133). Both go into 0.6.2 before publishing.
+
+## GPU speech and whole chapter at the spoken verse (NR-014) - 2026-11-21
+
+PR103 merged: graphics-card speech (Metal Mac build, CUDA-selectable on NVIDIA; docs/133). PR104 merged: Prepare for volunteer opens the whole chapter in ProPresenter's Bible scrolled to the spoken verse, no saved copy, no output; verse limit 176, Auto stays 10 (docs/134). Verified on the personal ProPresenter with outputs off (Proverbs 3:5, Psalm 119:105, Psalm 119:11, Romans 8; details local). Next: rebuild and publish 0.6.2.
