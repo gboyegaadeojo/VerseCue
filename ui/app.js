@@ -22,7 +22,13 @@ function routeAcknowledged(){return $('audio-route-ack').checked&&Boolean(settin
 function routeBlockedMessage(route){return `The saved input is a ${route.kind==='virtual'?'virtual':'system loopback'} route. Open Setup > Audio, review its guidance and confirm only the pastor feed is routed into it before listening.`;}
 async function savedInputRoute(){let label='';try{const device=(await navigator.mediaDevices.enumerateDevices()).find(d=>d.kind==='audioinput'&&d.deviceId===settings?.audioDevice);label=device?.label??'';}catch{}return classifyInputRoute(label,navigator.platform);}
 function describeInputRoute(){const select=$('audio-device'),option=select.selectedOptions[0],route=select.value?classifyInputRoute(option?.textContent??'',navigator.platform):null;setText('audio-route-info',route?route.guidance:'Choose an input to see what kind of route it reports.');$('audio-route-ack-label').hidden=!route?.needsAcknowledgment;if(!route?.needsAcknowledgment){$('audio-route-ack').checked=false;routeAckDevice=null;}}
-function showProvisionalSpeech(text){
+// Route pipeline (NR-010): Heard, Matched, Ready, On screen for the latest reference. Readback is not physical output.
+function renderPipeline(candidate){
+  const last=state.history?.[0],sent=Boolean(last&&['simulated','readback-matched'].includes(last.state)&&(!candidate||last.id===candidate.id)),focus=candidate??(sent?last:null),auto=state.mode==='auto'?state.autoStatus?.state:null;
+  const ready=sent?['done','Ready']:auto==='pending'||auto==='sending'?['current','Sending']:auto==='held'?['review','Held']:focus?['review','Needs review']:['todo','Ready'];
+  const steps={heard:[focus||state.capture?.active?'done':'todo','Heard'],matched:[focus?'done':'todo','Matched'],ready,shown:sent?['done',last.state==='simulated'?'Simulated':'ProPresenter confirmed']:['todo','On screen']};
+  for(const item of $('auto-pipeline').children){const [value,label]=steps[item.dataset.step];if(item.dataset.state!==value)item.dataset.state=value;const text=item.querySelector('.pipeline-label');if(text.textContent!==label)text.textContent=label;}
+}function showProvisionalSpeech(text){
   const preview=$('provisional-speech');
   preview.hidden=!text;
   preview.textContent=text?'Provisional speech: '+text:'';
@@ -60,7 +66,7 @@ function render(next){
   $('mode').value=state.mode;$('mode').disabled=state.stopped;$('resume').hidden=!state.stopped&&state.mode!=='paused';$('resume').textContent=state.stopped?'Re-arm in Confirm':'Resume in Confirm';
   $('mode-explanation').textContent=state.mode==='auto'?(state.dryRun?'AUTO SIMULATION - no ProPresenter output. Eligible explicit references simulate after a correction grace.':'AUTO TEST OUTPUT - only explicitly verified complete cues. Quotes and withheld detections need confirmation.'):'Review every passage before sending.';
   $('auto-policy-status').hidden=state.mode!=='auto';$('auto-policy-status').textContent=state.autoCitationPolicy==='bare-citation'?'Speech policy: complete bare citations or current show/read instructions.':'Speech policy: explicit show/read instructions only.';
-  $('auto-status').textContent=state.mode==='auto'?(state.autoStatus?.reason??'Waiting for completed authorized speech'):'Auto is off.';{const pending=state.mode==='auto'&&state.autoStatus?.state==='pending'&&!state.stopped;$('hold-auto').hidden=!pending;if(pending)$('hold-auto').textContent='Hold - sending in '+Math.max(0,((state.autoStatus.dueAt??0)-Date.now())/1000).toFixed(1)+'s';}
+  $('auto-status').textContent=state.mode==='auto'?(state.autoStatus?.reason??'Waiting for completed authorized speech'):'Auto is off.';{const pending=state.mode==='auto'&&state.autoStatus?.state==='pending'&&!state.stopped;$('hold-auto').hidden=!pending;if(pending)$('hold-auto').textContent='Hold - sending in '+Math.max(0,((state.autoStatus.dueAt??0)-Date.now())/1000).toFixed(1)+'s';}renderPipeline(candidate);
   $('inspector-reference').textContent=candidate?`${candidate.label} / ${candidate.translation}`:'No reference selected';$('inspector-state').textContent=state.stopped?'Stopped':state.recovery?.required?'Preflight required':candidate?'Needs review':'Awaiting reference';$('inspector-review').textContent=candidate?(candidate.issues.join('; ')||'Reference validated; operator review required'):(state.interpretation?.reason??'Waiting for a reference');
   $('candidate-empty').hidden=Boolean(candidate);$('candidate').hidden=!candidate;
   if(candidate){
