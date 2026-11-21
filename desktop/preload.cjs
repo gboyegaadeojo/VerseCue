@@ -24,6 +24,7 @@ contextBridge.exposeInMainWorld('versecue',{
   exportSettings:()=>ipcRenderer.invoke('export-settings'),
   importSettings:()=>ipcRenderer.invoke('import-settings'),
   exportDiagnostics:()=>ipcRenderer.invoke('export-diagnostics'),
+  checkUpdate:()=>ipcRenderer.invoke('check-update'),
   compact:()=>ipcRenderer.invoke('compact'),
   privateApiStatus:()=>ipcRenderer.invoke('private-api-status'),
   startPrivateApi:options=>ipcRenderer.invoke('private-api-start',options),

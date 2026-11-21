@@ -138,6 +138,7 @@ bind('reject',()=>action('reject',selectedId));
 bind('edit',()=>{const c=state.queue.find(c=>c.id===selectedId);if(c){$('reference-input').value=`${c.label} in ${c.translation}`;action('reject',c.id).catch(e=>message(e.message));$('reference-input').focus();}});
 $('provisional-consent').addEventListener('change',()=>{if(!$('provisional-consent').checked){provisionalToken++;showProvisionalSpeech('');}});
 bind('hold-auto',async()=>{const r=await action('hold-auto');message(r?.held?'Held. The reference stays for your review; nothing was sent.':'Nothing was waiting to send.');});
+bind('check-update',async()=>{const r=await call('checkUpdate');if(r===null)return;setText('update-status',r.valid?`Verified: VerseCue ${r.version}, signed by trusted key ${r.keyId}. ${r.newer?'It is newer than':'It is not newer than'} this version (${r.currentVersion}). Install it yourself after the service; nothing was installed.`:'Not verified: '+r.reason);});
 bind('reset',async()=>{await action('reset');await stopAudio();$('provisional-consent').checked=false;$('transcript').textContent='No audio has been processed.';$('audio-consent').checked=false;$('native-save-consent').checked=false;message('Session reset. Transient references and history cleared; dry run restored.');});
 bind('compact',()=>call('compact'));
 bind('previous-verse',async()=>{await action('navigate',{id:selectedId,direction:-1});message('Previous verse proposed for review; no output change.');});
