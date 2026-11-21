@@ -27,9 +27,12 @@ jobs:
       - name: Build whisper.cpp with Vulkan and all CPU variants
         shell: pwsh
         run: |
+          git clone --depth 1 --branch vulkan-sdk-1.3.296.0 https://github.com/KhronosGroup/SPIRV-Headers.git spirv
+          cmake -S spirv -B spirv-build -DCMAKE_INSTALL_PREFIX="$PWD\spirv-install"
+          cmake --build spirv-build --target install --config Release
           git clone https://github.com/ggml-org/whisper.cpp.git src
           git -C src checkout $env:WHISPER_COMMIT
-          cmake -S src -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DGGML_BACKEND_DL=ON -DGGML_CPU_ALL_VARIANTS=ON -DGGML_NATIVE=OFF -DGGML_VULKAN=ON -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_EXAMPLES=ON
+          cmake -S src -B build -DCMAKE_PREFIX_PATH="$env:VULKAN_SDK;$PWD\spirv-install" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DGGML_BACKEND_DL=ON -DGGML_CPU_ALL_VARIANTS=ON -DGGML_NATIVE=OFF -DGGML_VULKAN=ON -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_EXAMPLES=ON
           cmake --build build --config Release -j 4 --target whisper-cli whisper-server
           New-Item -ItemType Directory engine | Out-Null
           Copy-Item build\bin\Release\*.exe,build\bin\Release\*.dll engine\
@@ -53,6 +56,7 @@ jobs:
           name: whisper-b5454-vulkan-win-x64
           path: whisper-b5454-vulkan-win-x64.zip
   mac-intel:
+    if: false  # built successfully in run 44948825635
     runs-on: macos-15-intel
     timeout-minutes: 40
     steps:
