@@ -840,3 +840,11 @@ Exact 1c6f96a passed 551 modules, Windows source and packaged synthetic coverage
 ## Claude takeover checkpoint
 
 Main adbc3bd, aggregate code baseline 149313d. All committed project work is on GitHub. Handoff in HANDOFF.md records verification, remaining work and precise resume steps. Local private material and original design references preserved. P0 and draft PR22 acceptance remain pending.
+
+## Provisional speech provider - 2026-11-21
+
+Opt-in, session-only provisional snapshots from the bounded CLI worker. Completed windows preempt provisional runs; provisional text uses a separate display-only IPC path and never reaches stabilizer, candidates, Auto, preparation or output. 559 modules, check and source scenarios pass; real whisper-cli preemption verified on synthetic noise. No real speech, latency, CPU or ProPresenter evidence. P0 remains pending. See docs/114.
+
+## PR75 merged and integrated - 2026-11-21
+
+Exact 7322fe5 passed 559 local modules, check, audit, source and packaged Windows provisional/reset scenarios, offline CI 44856755751 (Windows/Mac ARM/Intel 559/0 fail) and Mac 44856843979. First run 44855773130 failed on a tick-bounded test wait and remains historical. Merged at 83e298e and integrated into the aggregate branch. P0 remains pending.
