@@ -4,7 +4,7 @@ Updated: 2026-11-20 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Cod
 
 ## Current stage
 
-IMPLEMENTING - aggregate PR22 remains draft. Components through PR69 are merged, including the offline recognition evaluator (544 local and each public Windows/Mac ARM/Intel checks). No real recognition accuracy is claimed. Root integration rerun follows. Bounded replay/soak repair is active in a separate worktree; actual personal ProPresenter testing remains pending helper recovery and fresh disabled-screen observations. Preserve P0 and original speech/platform/physical/field/privacy/distribution gates. See CLAUDE.md and the complete original audit.
+IMPLEMENTING - PR70 is merged into main. Aggregate PR22 remains draft. Native personal testing awaits helper recovery and fresh disabled-screen observations. Real speech, hardware, platform, physical output and release gates remain pending.
 
 ## Deliverable register
 Status vocabulary: not started / drafted / audited. Audited means checked for the current stage, not approval or proof of feasibility.
@@ -819,3 +819,8 @@ All five diagnostic WAV readers now delegate to the strict10-second helper, with
 ## 2026-11-21 00:42 UTC - PR70 merged
 
 Exact 32c3586 passed 550 module tests, syntax/inventory and Windows/Mac ARM/Intel offline diagnostics in 44845398423. Main merge 103f427. Integration before this merge passed 547 modules and syntax/inventory. No accepted private worker/package/soak result. P0 remains pending.
+## 2026-11-21 - Bounded replay diagnostic repair
+
+Replaced five duplicated legacy12-second WAV readers with strict bounded PCM16 mono16k RIFF parsing and first0.2-10second selection. Reports distinguish original and processed length/truncation/hashes, explicitly untimed and without fabricated audible-end clocks. Isolated packaged profiles and local scratch, no global temp scan; retained integration soak manifest/minimized/failure safeguards. Six synthetic groups pass; JavaScript syntax/inventory pass. Initial full local550-case run:549 passes, zero assertion failures, one canceled existing real-loopback lifecycle test at its5second timeout; isolated rerun and final full checks pending. All fresh personal-host worker/package observations remain ignored/private; no new actual worker/performance or long-soak pass published. No application runtime changes, microphone/ProPresenter output or release. See docs/113.
+
+Final local replay checks: unchanged isolated loopback suite7/7 and full550/550 rerun passed; initial5second timeout remains above. Six decoder groups, syntax/dependency inventory and103-document structural audit pass. No production deadline or assertion changed. Actual worker/package/long-soak acceptance is not inferred. Cross-platform diagnostic CI remains pending.

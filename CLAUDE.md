@@ -8,7 +8,7 @@ Read AGENTS.md, the entire master specification, HANDOFF.md, PROGRESS.md, NEW_RE
 
 - Main d7bc48a includes merged PR69 evaluator; root c4a16ef integrated it after preserving both progress histories. Root app source is unchanged by69. Main544 module tests pass; root integration rerun remains. Source0.6.0 unreleased; public0.5.5 older supervised-test build. Aggregate PR22 stays draft and unmerged.
 - PR69 exact71a699f2e0f1735e89de88ab69985cbbb5999d05 passed544 local and each standard public Windows/Mac ARM/Mac Intel modules/check/audit/synthetic CLI at44841778744. All jobs and logs inspected, terminal. No real data scored; evaluator is offline and does not pass acceptance.
-- PR70 merged into main at 103f427. Exact 32c3586 passed 550 local modules, syntax/inventory and Windows/Mac ARM/Intel offline CI 44845398423. No accepted private worker, packaged replay or soak result. Integrate main, retaining both progress histories and the merged soak implementation.
+- PR70 merged into main at 103f427. Exact 32c3586 passed 550 local modules, syntax/inventory and Windows/Mac ARM/Intel offline CI 44845398423. No accepted private worker, packaged replay or soak result. Integrated main with both progress histories and the merged soak implementation. Root passed 553 module tests, syntax/inventory and the documentation audit. Next verify matching private package provenance and isolate the worker smoke before any soak.
 
 ## Integration and authorization
 
