@@ -17,29 +17,41 @@ function alignedMatch(input,verse){
   return best;
 }
 class QuoteMatcher {
-  constructor(document,{rightsAcknowledged=false}={}){
+  // anyTranslation: a bundled public-domain index used only to recognise wording; the reference is prepared in the configured translation.
+  // defer: validate the header now and add passages later with buildAsync(), so a large index never blocks the app.
+  constructor(document,{rightsAcknowledged=false,anyTranslation=false,trustedReferences=false,shortlistLimit=256,defer=false}={}){
     if(rightsAcknowledged!==true)throw new Error('Acknowledge rights to use the local passage text');
     if(document?.schemaVersion!==1||!/^[- A-Z0-9]{2,30}$/.test(document.translation??'')||!Array.isArray(document.passages)||!document.passages.length||document.passages.length>40000)throw new Error('Invalid local quote index');
-    this.translation=document.translation;this.rows=[];this.index=new Map();const seen=new Set();let total=0;
-    for(const entry of document.passages){
-      if(typeof entry?.reference!=='string'||typeof entry.text!=='string'||entry.text.length>8000)throw new Error('Invalid quote-index passage');
-      const parsed=parse(entry.reference,{defaultTranslation:this.translation}),reference=parsed.references[0];const words=tokens(entry.text);total+=entry.text.length;
-      if(parsed.references.length!==1||!reference||reference.label!==entry.reference||reference.verse==null||reference.endVerse||reference.valid===false||words.length<8||words.length>400||seen.has(entry.reference)||total>12000000)throw new Error('Use unique valid single-verse references and bounded passage text');
-      seen.add(entry.reference);const id=this.rows.length;this.rows.push({reference:entry.reference,words});for(const word of new Set(words.filter(word=>!ignored.has(word)))){if(!this.index.has(word))this.index.set(word,[]);this.index.get(word).push(id);}
-    }
+    this.translation=document.translation;this.anyTranslation=anyTranslation===true;this.trustedReferences=trustedReferences===true;this.shortlistLimit=Math.max(1,Math.min(20000,shortlistLimit|0));this.rows=[];this.index=new Map();this.seen=new Set();this.total=0;this.pending=document.passages;
+    if(!defer){for(const entry of this.pending)this.add(entry);this.pending=null;}
   }
-  status(){return {translation:this.translation,passages:this.rows.length};}
+  add(entry){
+    if(typeof entry?.reference!=='string'||typeof entry.text!=='string'||entry.text.length>8000)throw new Error('Invalid quote-index passage');
+    // Bundled indexes were checked reference by reference when built (scripts/build-public-domain-quote-index.cjs).
+    const parsed=this.trustedReferences?{references:[{label:entry.reference,verse:1,valid:true}]}:parse(entry.reference,{defaultTranslation:this.translation}),reference=parsed.references[0];const words=tokens(entry.text);this.total+=entry.text.length;
+    if(parsed.references.length!==1||!reference||reference.label!==entry.reference||reference.verse==null||reference.endVerse||reference.valid===false||words.length<8||words.length>400||this.seen.has(entry.reference)||this.total>12000000)throw new Error('Use unique valid single-verse references and bounded passage text');
+    this.seen.add(entry.reference);const id=this.rows.length;this.rows.push({reference:entry.reference,words});for(const word of new Set(words.filter(word=>!ignored.has(word)))){if(!this.index.has(word))this.index.set(word,[]);this.index.get(word).push(id);}
+  }
+  async buildAsync(chunk=1500){const passages=this.pending??[];for(let i=0;i<passages.length;i++){this.add(passages[i]);if(i%chunk===chunk-1)await new Promise(resolve=>setImmediate(resolve));}this.pending=null;return this;}
+  status(){return {translation:this.translation,passages:this.rows.length,anyTranslation:this.anyTranslation};}
   match(text,translation){
-    if(typeof text!=='string'||text.length>8192||translation!==this.translation||/\b(do not|don['’]t|not now|never show|not scripture|not a bible|wrong verse|correction|i meant|in french|in spanish|in german|in portuguese|in arabic|in yoruba|in igbo)\b/i.test(text))return null;
+    if(this.pending)return null;
+    if(typeof text!=='string'||text.length>8192||(!this.anyTranslation&&translation!==this.translation)||/\b(do not|don['’]t|not now|never show|not scripture|not a bible|wrong verse|correction|i meant|in french|in spanish|in german|in portuguese|in arabic|in yoruba|in igbo)\b/i.test(text))return null;
     const requested=text.match(/\b(?:in|from|using)\s+(KJV|NKJV|NIV|ASV|ESV|AMP|AMPC|MSG)\b/i)?.[1]?.toUpperCase();if(requested&&requested!==translation)return null;
     const input=tokens(text).slice(-160);if(input.length<8)return null;const candidates=new Map();
     for(const word of new Set(input.filter(word=>!ignored.has(word))))for(const id of this.index.get(word)??[])candidates.set(id,(candidates.get(id)??0)+1);
     const shortlist=[...candidates].filter(([,overlap])=>overlap>=3).sort((a,b)=>b[1]-a[1]);
     // Never discard a possible competing match to manufacture uniqueness.
-    if(shortlist.length>256)return null;
+    if(shortlist.length>this.shortlistLimit)return null;
     const matches=shortlist.map(([id])=>{const evidence=alignedMatch(input,this.rows[id].words);return evidence?{reference:this.rows[id].reference,translation,...evidence}:null;}).filter(Boolean).sort((a,b)=>b.score-a.score);
     if(!matches.length||matches[1]&&matches[0].score-matches[1].score<2)return null;
     const {score,...match}=matches[0];return {...match,method:match.wordDifferences?'near-verbatim':'partial-quote',calibratedProbability:false,autoEligible:false};
   }
 }
-module.exports={QuoteMatcher};
+// Several public-domain wordings (KJV and WEB). A quote counts only when every matching index agrees on one reference.
+class MultiQuoteMatcher {
+  constructor(matchers){if(!Array.isArray(matchers)||!matchers.length)throw Error('No quote indexes');this.matchers=matchers;this.anyTranslation=true;this.translation=matchers.map(m=>m.translation).join(' + ');}
+  status(){return {translation:this.translation,passages:this.matchers.reduce((n,m)=>n+m.rows.length,0),anyTranslation:true,publicDomain:true};}
+  match(text,translation){const found=this.matchers.map(m=>({wording:m.translation,match:m.match(text,translation)})).filter(f=>f.match);if(!found.length||new Set(found.map(f=>f.match.reference)).size!==1)return null;return {...found[0].match,matchedWording:found.map(f=>f.wording)};}
+}
+module.exports={QuoteMatcher,MultiQuoteMatcher};

@@ -916,3 +916,7 @@ PR93 bundled speech engine fallback; PR94 ordinal/comma references (1st John was
 ## Prepare for volunteer, Route layout and 0.6.2 - 2026-11-21
 
 PR99 Prepare for volunteer start mode (NR-012), verified on the user personal ProPresenter (outputs off; details local). PR100 Route artboard layout with bundled DM Sans. PR101 version 0.6.2. Public 0.6.2 release being built.
+
+## Public-domain quote preparation (NR-013) and GPU speech - 2026-11-21
+
+PR102 merged: bundled KJV and WEB quote indexes (public domain), one-click, on by default in Prepare for volunteer, prepared in the configured translation and labelled "matched from quoted wording" (docs/132). PR103 open: graphics-card speech, Metal on Mac and CUDA-selectable on NVIDIA (docs/133). Both go into 0.6.2 before publishing.
