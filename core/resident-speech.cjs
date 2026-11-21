@@ -3,7 +3,7 @@ const {spawn}=require('node:child_process');const net=require('node:net');const 
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function unusedPort(){return new Promise((resolve,reject)=>{const server=net.createServer();server.once('error',reject);server.listen(0,'127.0.0.1',()=>{const port=server.address().port;server.close(error=>error?reject(error):resolve(port));});});}
 class ResidentSpeech {
-  constructor(){this.scratch=null;this.child=null;this.base=null;this.directory=null;this.epoch=0;this.controller=null;this.idle=null;this.starting=null;}
+  constructor(){this.acceleration='gpu';this.warmedUp=false;this.scratch=null;this.child=null;this.base=null;this.directory=null;this.epoch=0;this.controller=null;this.idle=null;this.starting=null;}
   stop(){this.epoch++;clearTimeout(this.idle);this.controller?.abort();this.controller=null;const child=this.child;this.child=null;this.base=null;child?.kill();const directory=this.directory;this.directory=null;this.discard(directory);}
   // App-owned scratch folders are recovered at startup; the temp-folder fallback is only for callers without scratch.
   discard(directory){if(!directory)return;if(this.scratch&&path.dirname(directory)===this.scratch.root)this.scratch.remove(directory).catch(()=>{});else if(path.dirname(directory)===os.tmpdir()&&path.basename(directory).startsWith('versecue-worker-'))fs.rm(directory,{recursive:true,force:true}).catch(()=>{});}
@@ -13,7 +13,7 @@ class ResidentSpeech {
     this.directory=directory;const port=await unusedPort();
     if(epoch!==this.epoch)throw new Error('Recognition canceled');
     const prefix='/'+randomBytes(32).toString('hex');
-    const child=spawn(executable,['--host','127.0.0.1','--port',String(port),'--public',directory,'--request-path',prefix,'-m',model,'-t','4','-p','1','-ng','-l','en','-bs','1','-bo','1'],{windowsHide:true,shell:false,stdio:['ignore','pipe','pipe']});
+    const child=spawn(executable,['--host','127.0.0.1','--port',String(port),'--public',directory,'--request-path',prefix,'-m',model,'-t','4','-p','1',...(this.acceleration==='cpu'?['-ng']:[]),'-l','en','-bs','1','-bo','1'],{windowsHide:true,shell:false,stdio:['ignore','pipe','pipe']});
     this.child=child;let exited=false;child.stdout.on('data',()=>{});child.stderr.on('data',()=>{});child.once('error',()=>{exited=true;});child.once('close',()=>{exited=true;if(this.child===child){this.child=null;this.base=null;}if(this.directory===directory)this.directory=null;this.discard(directory);});
     const base=`http://127.0.0.1:${port}${prefix}`;
     while(Date.now()<deadline&&!exited&&epoch===this.epoch){
@@ -23,13 +23,14 @@ class ResidentSpeech {
     throw new Error(epoch!==this.epoch?'Recognition canceled':'Resident speech worker could not become ready');
   }
   async recognize(bytes,executable,model){
-    const epoch=this.epoch,deadline=Date.now()+20000;clearTimeout(this.idle);
+    // The first graphics-card request may compile kernels (about a minute once per machine).
+    const epoch=this.epoch,deadline=Date.now()+(this.acceleration==='gpu'&&!this.warmedUp?90000:20000);clearTimeout(this.idle);
     try{
       if(!this.child||!this.base)await this.start(executable,model,deadline,epoch);
       if(epoch!==this.epoch||!this.base||!this.child)throw new Error('Recognition canceled');
       const child=this.child,body=new FormData();body.set('file',new Blob([bytes],{type:'audio/wav'}),'window.wav');body.set('response_format','json');body.set('language','en');body.set('temperature','0.0');body.set('temperature_inc','0.2');
       this.controller=new AbortController();const timer=setTimeout(()=>this.controller?.abort(),Math.max(1,deadline-Date.now()));let response;
-      try{response=await fetch(this.base+'/inference',{method:'POST',body,redirect:'error',signal:this.controller.signal});if(!response.ok)throw new Error('Inference rejected');const text=await response.text();if(text.length>65536)throw new Error('Oversized result');const data=JSON.parse(text);if(epoch!==this.epoch||this.child!==child)throw new Error('Recognition canceled');if(typeof data.text!=='string')throw new Error('Invalid response');return data.text.trim().slice(0,8192);}finally{clearTimeout(timer);this.controller=null;}
+      try{response=await fetch(this.base+'/inference',{method:'POST',body,redirect:'error',signal:this.controller.signal});if(!response.ok)throw new Error('Inference rejected');const text=await response.text();if(text.length>65536)throw new Error('Oversized result');const data=JSON.parse(text);if(epoch!==this.epoch||this.child!==child)throw new Error('Recognition canceled');if(typeof data.text!=='string')throw new Error('Invalid response');this.warmedUp=true;return data.text.trim().slice(0,8192);}finally{clearTimeout(timer);this.controller=null;}
     }catch(error){this.stop();throw new Error(error.message==='Recognition canceled'?'Recognition canceled':'Resident recognition failed or exceeded 20 seconds; worker stopped');}
     finally{if(this.child){this.idle=setTimeout(()=>this.stop(),90000);this.idle.unref?.();}}
   }
