@@ -440,3 +440,7 @@ User product decision: start in Auto. Saved startMode (default auto) applies at 
 ## Ten-hour Auto rehearsal harness - 2026-11-21
 
 Offline dry-run replay of timed recognition windows through the app's stabilizer, Session and GuardedAuto, scoring automatic sends against reviewed display/mention labels. Gate: 36,000 s of reviewed held-out REAL-RECORDING with zero wrong outputs. Stream builder uses the app's AudioWindowBuffer in simulated real time with the real worker. Smoke run found session-cumulative audio loss would block Auto after the first overflow; per-window loss is the next component. See docs/117.
+
+## Per-window audio loss for Auto - 2026-11-21
+
+Loss evidence is per window (since the previous dispatch) with the session total kept for the operator. Each loss still resets context and cancels pending work; Auto pauses and disarms only after three losses within 60 s. Shared core/audio-loss-policy.cjs used by the desktop handler and rehearsal harness. 576 modules, check, new scenario pass. See docs/118.

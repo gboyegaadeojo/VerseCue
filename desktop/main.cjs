@@ -23,11 +23,11 @@ const {PreparationController}=require('../core/preparation-controller.cjs');
 const {Profiles}=require('../core/profiles.cjs');
 const {CaptureLease}=require('../core/capture-lease.cjs');
 const {PowerRecovery}=require('../core/power-recovery.cjs');
-const {GuardedAuto}=require('../core/guarded-auto.cjs');
+const {GuardedAuto}=require('../core/guarded-auto.cjs');const {AudioLossPolicy}=require('../core/audio-loss-policy.cjs');
 const connector=new Connector();const catalog=new PreparedCatalog(connector);const service=new Session(connector);const speech=new LocalSpeech();
 const citationStabilizer=new CitationStabilizer({onExpire:()=>{service.speechStabilization={state:'expired',reason:'Incomplete reference expired. Repeat the full book, chapter and verse.'};service.notify();}});
 function resetSpeechStabilization(){citationStabilizer.reset();service.speechStabilization={state:'idle'};}
-const automatic=new GuardedAuto(service);
+const automatic=new GuardedAuto(service);const audioLoss=new AudioLossPolicy();
 let nativeCopyLedger=null;
 const referencePassages=new ReferencePassages({connector,catalog,getRangeLimit:()=>service.maxPassageVerses,knownClipping:(base,id,fingerprint)=>nativeCopyLedger?.knownClipping(base,id,fingerprint)===true,knownNativeCopy:(base,id,fingerprint)=>nativeCopyLedger?.hasVerifiedCopy(base,id,fingerprint)===true});
 let preparation,preparationController,savedBible,passageCoordinator,referencePreparation,reviewOwnerId=null,preparationOwner=null,suspensionBlocker=null;
@@ -139,7 +139,7 @@ async function bootstrap(){
     if(configurationTransition.busy&&!['stop','reset'].includes(command))throw Error('Settings are changing; wait for setup to finish');
     switch(command){
       case 'ingest':{if(typeof payload?.text!=='string')throw new Error('Invalid reference');resetSpeechStabilization();if(preparation.busy||savedBible?.busy||passageCoordinator?.busy||passageCoordinator?.review||passageCoordinator?.active)cancelPreparation();const candidates=await service.ingestChecked(payload.text,{manual:true});referencePreparation.consider(candidates,event);return candidates;}
-      case 'audio-loss':{if(!capture.owns(event.sender.id)||!['overflow','stale','clipping','capture-gap'].includes(payload?.reason)||!Number.isSafeInteger(payload.samples)||payload.samples<1)throw Error('Invalid audio discontinuity');resetSpeechStabilization();automatic.cancel();cancelPreparation();service.invalidate();if(service.mode==='auto'){connector.arm(false);service.setMode('paused');}service.log('AUDIO_LOSS_CONTEXT_RESET','warning');service.notify();return true;}
+      case 'audio-loss':{if(!capture.owns(event.sender.id)||!['overflow','stale','clipping','capture-gap'].includes(payload?.reason)||!Number.isSafeInteger(payload.samples)||payload.samples<1)throw Error('Invalid audio discontinuity');resetSpeechStabilization();automatic.cancel();cancelPreparation();service.invalidate();if(service.mode==='auto'){const loss=audioLoss.record(service.clock());if(loss.pauseAuto){connector.arm(false);service.setMode('paused');service.log('AUTO_PAUSED_PERSISTENT_AUDIO_LOSS','warning');}else service.autoStatus={state:'review',reason:'Audio was dropped. Auto continues with the next complete reference heard without loss.'};}service.log('AUDIO_LOSS_CONTEXT_RESET','warning');service.notify();return true;}
       case 'reference-preparation':if(service.stopped||service.recovery?.required)throw Error('Resume Confirm before enabling preparation');return referencePreparation.configure(payload,event.sender.id);
       case 'reconcile-native-copies':return ownedPreparation(event,async()=>{
         if(service.busy||service.operationOwner||service.stopped||service.recovery?.required)throw Error('Resume Confirm and finish pending operations before checking managed copies');
@@ -150,10 +150,10 @@ async function bootstrap(){
         finally{if(service.operationOwner===owner)service.operationOwner=null;service.notify();}
       });
       case 'mode':cancelAudio();cancelPreparation();return service.setMode(payload);
-      case 'enable-auto':if(preparation.busy||savedBible?.busy||passageCoordinator?.busy)throw new Error('Finish Bible preparation before enabling Auto');referencePreparation.configure(false);resetSpeechStabilization();automatic.cancel();speech.cancel();return service.enableAuto({acknowledged:payload?.acknowledged===true,citationPolicy:payload?.citationPolicy??'explicit-command',acknowledgeBareCitations:payload?.acknowledgeBareCitations===true,ownerId:event.sender.id});
+      case 'enable-auto':audioLoss.reset();if(preparation.busy||savedBible?.busy||passageCoordinator?.busy)throw new Error('Finish Bible preparation before enabling Auto');referencePreparation.configure(false);resetSpeechStabilization();automatic.cancel();speech.cancel();return service.enableAuto({acknowledged:payload?.acknowledged===true,citationPolicy:payload?.citationPolicy??'explicit-command',acknowledgeBareCitations:payload?.acknowledgeBareCitations===true,ownerId:event.sender.id});
       case 'stop':cancelAudio();cancelPreparation();connector.arm(false);return service.stop();
       case 'resume':cancelPreparation();return service.resume();
-      case 'reset':cancelAudio();cancelPreparation();connector.arm(false);return service.reset();
+      case 'reset':audioLoss.reset();cancelAudio();cancelPreparation();connector.arm(false);return service.reset();
       case 'hold-auto':return automatic.hold();
       case 'prepare-bible':if(payload?.acknowledgeFocusChange!==true)throw new Error('Acknowledge experimental preparation and focus change');return ownedPreparation(event,()=>prepareBible(payload.reference,settings.translation));
       case 'prepare-save-candidate':{
