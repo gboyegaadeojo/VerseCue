@@ -508,3 +508,7 @@ User said the app did not look like the chosen artboard. Bundled DM Sans (OFL), 
 ## Version 0.6.2 - 2026-11-21
 
 Adds Prepare for volunteer (PR99, verified on the user's personal ProPresenter with outputs off; details local) and the Route layout with DM Sans (PR100). README modes and downloads updated.
+
+## Public-domain quote preparation (NR-013) - 2026-11-21
+
+Bundled KJV and WEB quote indexes (eBible.org, public domain), one-click enable, on by default in Prepare for volunteer, quotes prepared in the configured translation and labelled. Verified on the user's personal ProPresenter (Proverbs 3:5 from modern wording; outputs off; details local). See docs/132.

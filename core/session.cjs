@@ -2,7 +2,7 @@
 const {EventEmitter}=require('node:events');
 const {randomUUID}=require('node:crypto');
 const {parse}=require('./parser.cjs');
-const {QuoteMatcher}=require('./quote-matcher.cjs');
+const {QuoteMatcher}=require('./quote-matcher.cjs');const {publicDomainQuoteMatcher}=require('./public-domain-quotes.cjs');
 const {validateAutoPolicy}=require('./auto-citation-policy.cjs');
 class Session extends EventEmitter {
   constructor(connector,{clock=()=>performance.timeOrigin+performance.now()}={}) {
@@ -13,7 +13,8 @@ class Session extends EventEmitter {
   enableAuto({acknowledged=false,citationPolicy='explicit-command',acknowledgeBareCitations=false,ownerId=null}={}){if(acknowledged!==true)throw new Error('Explicit Auto acknowledgment is required');const policy=validateAutoPolicy(citationPolicy,acknowledgeBareCitations);if(this.stopped||this.recovery?.required||this.busy)throw new Error('Resume Confirm and finish pending work before enabling Auto');if(!this.dryRun){const c=this.connector;if(!c.base||new URL(c.base).hostname!=='127.0.0.1'||!c.armed||c.status?.state!=='connected'||![...c.mappings.values()].some(map=>map.autoVerified===true&&(!map.autoApproval||map.ownerId===ownerId)))throw new Error('Auto test output requires an armed loopback target and a complete cue explicitly verified for Auto');}this.invalidate();this.mode='auto';this.autoCitationPolicy=policy;this.autoStatus={state:'ready',reason:this.dryRun?'AUTO SIMULATION: no output requests':'AUTO TEST OUTPUT: verified complete cues only'};this.log('AUTO_EXPLICITLY_ENABLED','warning');this.notify();}
   quoteStatus(){return {enabled:this.quoteEnabled===true,...(this.quoteMatcher?.status()??{translation:null,passages:0})};}
   loadQuoteIndex(document,consent){const matcher=new QuoteMatcher(document,{rightsAcknowledged:consent===true});this.invalidate();this.quoteMatcher=matcher;this.quoteEnabled=false;this.log('QUOTE_INDEX_LOADED');this.notify();return this.quoteStatus();}
-  enableQuotes(enabled){if(typeof enabled!=='boolean'||enabled&&(!this.quoteMatcher||this.quoteMatcher.translation!==this.translation))throw new Error('Import a rights-acknowledged index matching the selected translation first');this.invalidate();this.quoteEnabled=enabled;this.log(enabled?'QUOTE_MATCHING_ENABLED':'QUOTE_MATCHING_DISABLED');this.notify();return this.quoteStatus();}
+  async loadPublicDomainQuotes(){const matcher=await publicDomainQuoteMatcher();this.invalidate();this.quoteMatcher=matcher;this.quoteEnabled=false;this.log('QUOTE_INDEX_LOADED');this.notify();return this.quoteStatus();}
+  enableQuotes(enabled){if(typeof enabled!=='boolean'||enabled&&(!this.quoteMatcher||!this.quoteMatcher.anyTranslation&&this.quoteMatcher.translation!==this.translation))throw new Error('Import a rights-acknowledged index matching the selected translation first');this.invalidate();this.quoteEnabled=enabled;this.log(enabled?'QUOTE_MATCHING_ENABLED':'QUOTE_MATCHING_DISABLED');this.notify();return this.quoteStatus();}
   log(code,state='info',metrics=null){const safe={};for(const key of ['nativeWorkerMs','sttWorkerMs'])if(Number.isFinite(metrics?.[key])&&metrics[key]>=0&&metrics[key]<=120000)safe[key]=Math.round(metrics[key]);this.events.push({id:randomUUID(),at:this.clock(),code,state,...(Object.keys(safe).length?{metrics:safe}:{})});this.events=this.events.slice(-100);}
   invalidate(){this.interpretation=null;this.inputEpoch=(this.inputEpoch??0)+1;this.autoStatus=null;this.generation++;this.queue=[];this.context=null;}
   expire(){this.queue=this.queue.filter(c=>c.expiresAt>this.clock());}
@@ -64,7 +65,7 @@ class Session extends EventEmitter {
     let quote=null;
     if(!parsed.references.length&&!parsed.issues.length&&this.quoteEnabled&&authorized&&this.mode!=='paused'){
       quote=this.quoteMatcher?.match(text,this.translation);
-      if(quote){parsed.references=parse(quote.reference,{defaultTranslation:this.translation,maxVerses:this.maxPassageVerses}).references;parsed.issues.push('Quoted wording match; operator confirmation required. Translation is configured, not inferred from wording.');}
+      if(quote){parsed.references=parse(quote.reference,{defaultTranslation:this.translation,maxVerses:this.maxPassageVerses}).references;parsed.issues.push('Matched from quoted wording, not a spoken reference. Uses the configured translation; review before showing.');}
     }
     // A new explicit book/reference or a failed parse cannot preserve a prior
     // remote context for later relative references.
