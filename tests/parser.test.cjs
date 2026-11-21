@@ -49,3 +49,12 @@ test('reported impossible Philippians transcription is retained as invalid, neve
 test('chapter-only explanation asks for missing verse; wrong books are not silently rewritten',()=>{assert.match(parse('Genesis 1').references[0].issues.join(' '),/Verse number missing/);assert.equal(parse('John 1-1').references[0].book,'John');assert.equal(parse('Philippians 419').references[0].valid,false);});
 
 for(const [spoken,code]of [['Amplified version','AMP'],['Amplified Bible','AMP'],['Amplified Classic','AMPC'],['Amplified Bible, Classic Edition','AMPC'],['New International Version','NIV'],['New King James Version','NKJV'],['King James Version','KJV'],['The Message','MSG']])test('spoken translation: '+spoken,()=>{const r=parse('John 5:10 in the '+spoken).references[0];assert.equal(r.label,'John 5:10');assert.equal(r.translation,code);if(code!=='KJV')assert.equal(r.numberingSystem,null);});
+
+// 2026-11-21 user report: Whisper writes 1st/2nd/3rd and commas; these must never lose the book number or the verse.
+test('Whisper ordinals, commas and Philippians spellings resolve to the exact reference or stay in review',()=>{
+  const {Session}=require('../core/session.cjs');
+  const one=text=>{const s=new Session({});s.configure({dryRun:true});return s.ingest(text).map(c=>c.label+(c.issues.length?' [review]':''));};
+  for(const [text,expected] of [['1st Peter 2 verse 1','1 Peter 2:1'],['Please show 1st Peter 2 verse 1','1 Peter 2:1'],['1st John 4:8','1 John 4:8'],['3rd John 1 2','3 John 1:2'],['2nd Timothy 1 7','2 Timothy 1:7'],['First Peter, chapter 2, verse 1.','1 Peter 2:1'],['Psalm 21, verse 1.','Psalm 21:1'],['Psalm 21 vs 1','Psalm 21:1'],['Philippians 4, 19.','Philippians 4:19'],['Phillipians 4 19','Philippians 4:19'],['Philipians 4:13','Philippians 4:13'],['Phillippians 4:13','Philippians 4:13'],['Romans 8, 28 through 30','Romans 8:28-30']])assert.deepEqual(one(text),[expected],text);
+  for(const text of ['3rd Peter 1 1','1st Genesis 1 1','2nd Psalm 23 1'])assert.deepEqual(one(text),[],text+' must not drop its ordinal');
+  for(const text of ['Romans 8, 28 and 29','Matthew 5, 6 and 7'])assert.ok(one(text).every(label=>label.endsWith('[review]')),text+' stays in review');
+});
