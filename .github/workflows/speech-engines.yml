@@ -1,0 +1,75 @@
+name: Speech engines (Vulkan for Windows, Intel Mac)
+# Builds the pinned whisper.cpp source (release b5454) so VerseCue can use any AMD, NVIDIA or Intel graphics card on
+# Windows through Vulkan, with every processor variant as fallback, and an Intel Mac engine. The Vulkan runtime itself
+# (vulkan-1.dll) ships with graphics drivers and is not bundled.
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/vulkan-speech]
+    paths: ['.github/workflows/speech-engines.yml']
+permissions:
+  contents: read
+env:
+  WHISPER_COMMIT: d1be6fde11ac6e0407606b4e42fe72d34add8037
+jobs:
+  windows-vulkan:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - name: Install Vulkan SDK (build-time headers and shader compiler only)
+        shell: pwsh
+        run: |
+          $sdk='1.3.296.0'
+          Invoke-WebRequest "https://sdk.lunarg.com/sdk/download/$sdk/windows/VulkanSDK-$sdk-Installer.exe" -OutFile vulkan.exe
+          Start-Process .\vulkan.exe -ArgumentList '--root',"C:\VulkanSDK\$sdk",'--accept-licenses','--default-answer','--confirm-command','install' -Wait
+          "VULKAN_SDK=C:\VulkanSDK\$sdk" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "C:\VulkanSDK\$sdk\Bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+      - name: Build whisper.cpp with Vulkan and all CPU variants
+        shell: pwsh
+        run: |
+          git clone https://github.com/ggml-org/whisper.cpp.git src
+          git -C src checkout $env:WHISPER_COMMIT
+          cmake -S src -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DGGML_BACKEND_DL=ON -DGGML_CPU_ALL_VARIANTS=ON -DGGML_NATIVE=OFF -DGGML_VULKAN=ON -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_EXAMPLES=ON
+          cmake --build build --config Release -j 4 --target whisper-cli whisper-server
+          New-Item -ItemType Directory engine | Out-Null
+          Copy-Item build\bin\Release\*.exe,build\bin\Release\*.dll engine\
+          Get-ChildItem engine | Format-Table Name,Length
+      - name: Smoke test (no GPU on the runner: must fall back to the processor)
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin -OutFile base.bin
+          if((Get-FileHash base.bin).Hash.ToLower() -ne 'a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002'){throw 'model checksum'}
+          Invoke-WebRequest https://github.com/ggml-org/whisper.cpp/raw/$env:WHISPER_COMMIT/samples/jfk.wav -OutFile jfk.wav
+          .\engine\whisper-cli.exe -m base.bin -f jfk.wav -l en -t 4 -ac 768 -nt -np > out.txt
+          Get-Content out.txt
+          if(-not (Select-String -Path out.txt -Pattern 'country' -Quiet)){throw 'transcription failed'}
+      - name: Package
+        shell: pwsh
+        run: |
+          Compress-Archive -Path engine\* -DestinationPath whisper-b5454-vulkan-win-x64.zip
+          (Get-FileHash whisper-b5454-vulkan-win-x64.zip).Hash.ToLower()
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: whisper-b5454-vulkan-win-x64
+          path: whisper-b5454-vulkan-win-x64.zip
+  mac-intel:
+    runs-on: macos-15-intel
+    timeout-minutes: 40
+    steps:
+      - name: Build whisper.cpp for Intel Macs (Metal where available, CPU otherwise)
+        run: |
+          git clone https://github.com/ggml-org/whisper.cpp.git src
+          git -C src checkout $WHISPER_COMMIT
+          cmake -S src -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DGGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=ON -DGGML_BLAS=OFF -DGGML_NATIVE=OFF -DWHISPER_BUILD_TESTS=OFF
+          cmake --build build --config Release -j 3 --target whisper-cli whisper-server
+          mkdir engine && cp build/bin/whisper-cli build/bin/whisper-server engine/
+          curl --fail -L https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin -o base.bin
+          echo 'a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002  base.bin' | shasum -a 256 --check
+          ./engine/whisper-cli -m base.bin -f src/samples/jfk.wav -l en -t 4 -ac 768 -nt -np | tee out.txt
+          grep -q country out.txt
+          tar -czf whisper-b5454-mac-x64.tar.gz -C engine .
+          shasum -a 256 whisper-b5454-mac-x64.tar.gz
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: whisper-b5454-mac-x64
+          path: whisper-b5454-mac-x64.tar.gz
