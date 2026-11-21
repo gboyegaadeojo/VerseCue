@@ -17,6 +17,8 @@
 - **Audio context 768 (15.36 s) instead of the default 1500 (30 s).** Speech windows are never longer than 10 s, so most of the default encoder work was wasted. The context must stay longer than any window: a 512 context (10.24 s) on a 12 s recording made whisper loop for over two minutes. So the 10 s window limit and the 768 context are documented together in `core/stt.cjs`. This applies to both the CLI worker and the resident server.
 - **A window ends after 0.7 s of silence (was 1.0 s).** Every trigger is about 0.3 s sooner. A reference split by a longer pause ("Romans eight, verse twenty… twenty-eight") is still joined by the citation stabilizer, as before.
 
+- **Graphics card warm-up.** The first time an engine runs on a computer's graphics card, the driver compiles shaders. That took 156 s on the loaded test laptop with the Vulkan engine, once only. So every engine change now runs one second of silence through the engine on the GPU in the background, with up to 5 minutes allowed. Recognition uses the processor (`-ng`) until that run proves a GPU backend loaded (Vulkan, CUDA or Metal), then switches automatically. With no card, or if the warm-up fails, VerseCue stays on the processor. The Speech status shows "preparing graphics card", "graphics card" or "processor". This replaces the earlier 90 s first-request allowance: no service phrase ever waits for the warm-up.
+
 Auto's rules are unchanged: the 4 s speech-end age limit, the hold window, explicit references only and the 10-verse limit.
 
 ## Heard clarity
