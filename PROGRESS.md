@@ -432,3 +432,7 @@ Opt-in, session-only provisional snapshots from the bounded CLI worker. Complete
 ## Loopback input guidance - 2026-11-21
 
 FR-008: Setup names system-loopback and virtual inputs from their reported labels, explains Windows/macOS prerequisites and keeps listening not-ready until a session-only routing check for the saved input. No routing, driver or OS changes. 562 modules, check and source scenarios pass. No real device evidence. See docs/115.
+
+## Start in Auto with hold window (NR-010) - 2026-11-21
+
+User product decision: start in Auto. Saved startMode (default auto) applies at launch and session reset only, in dry run; Stop/resume, wake, corrupt-settings recovery, arming and setup changes still return to Confirm or Paused; import/profile keep the current preference. Configurable 0.75-3 s hold window and Hold command. 566 modules, check, new and updated source scenarios pass. Background-quotes and power-recovery scenarios fail identically on unchanged main and PR22 (stale fixtures/private assets); tracked separately. Trust gate: 10-hour wrong-output rehearsal and held-out precision/recall remain pending. See docs/116.
