@@ -4,7 +4,7 @@ const path=require('node:path');
 const {randomUUID,createHash}=require('node:crypto');
 const MAX_SETTINGS_BYTES=16384,writes=new Set();
 const {targetURL}=require('./connector.cjs');
-const defaults=()=>({schemaVersion:1,host:'127.0.0.1',port:1025,translation:'KJV',audioDevice:'',channel:0,executable:'',model:'',speechMode:'cli',duplicateCooldownSeconds:10,maxPassageVerses:10,startMode:'auto',autoHoldMs:1000,textSize:'standard'});
+const defaults=()=>({schemaVersion:1,host:'127.0.0.1',port:1025,translation:'KJV',audioDevice:'',channel:0,executable:'',model:'',speechMode:'cli',duplicateCooldownSeconds:10,maxPassageVerses:10,startMode:'auto',autoHoldMs:1000,textSize:'standard',preTickConsents:true});
 function validateSettings(value){
   if(!value||typeof value!=='object'||Array.isArray(value)||value.schemaVersion!==1)throw new Error('Unsupported settings schema');
   const s=defaults();
@@ -15,6 +15,7 @@ function validateSettings(value){
   if(value.speechMode!==undefined){if(!['cli','resident'].includes(value.speechMode))throw new Error('Invalid speech mode');s.speechMode=value.speechMode;}
   // NR-010: start in Auto by product decision; the hold window stays inside the existing Auto correction grace.
   if(value.startMode!==undefined){if(!['auto','confirm'].includes(value.startMode))throw Error('Invalid start mode');s.startMode=value.startMode;}
+  if(value.preTickConsents!==undefined){if(typeof value.preTickConsents!=='boolean')throw Error('Invalid consent default');s.preTickConsents=value.preTickConsents;}
   if(value.textSize!==undefined){if(!['standard','booth'].includes(value.textSize))throw Error('Invalid text size');s.textSize=value.textSize;}
   if(value.autoHoldMs!==undefined){if(!Number.isSafeInteger(value.autoHoldMs)||value.autoHoldMs<750||value.autoHoldMs>3000)throw Error('Invalid Auto hold window');s.autoHoldMs=value.autoHoldMs;}
   if(!/^[- A-Z0-9]{2,30}$/.test(s.translation)||![0,1,2,3,4,5,6,7].includes(s.channel))throw new Error('Invalid translation or audio channel');

@@ -480,3 +480,7 @@ User report: Speech engine showed 'Recognition stopped or failed' because settin
 ## Whisper ordinals, commas and spellings - 2026-11-21
 
 User report: '1st Peter 2 verse 1', 'Psalm 21 vs 1', 'Philippians 4 19' showed nothing. Found: '1st/2nd/3rd' before a book was dropped, so '1st John 4:8' parsed as John 4:8 (wrong book); commas between book/chapter/verse lost the verse; Phillipians spellings unrecognized. Fixed with ordinal mapping, a guard that refuses leftover ordinals, comma handling that keeps lists ('Matthew 5, 6 and 7') in review, and exact spelling aliases. Regressions added. Resident cleanup test now waits up to 3 s instead of 50 ms.
+
+## Pre-ticked setup boxes (NR-011) - 2026-11-21
+
+Audio authorization, preparation focus changes and saved-copy creation start ticked (opt-out). Output arming and Auto approval stay deliberate. See docs/129.

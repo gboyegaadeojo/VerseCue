@@ -55,3 +55,7 @@ NR-008 selection and implementation: user chooses Studio with Focus readability,
 This changes the FR-028 startup default from Confirm to Auto by explicit product decision. It does not remove Auto's safeguards. Ambiguous, relative, corrected, quoted, slow, lossy, unprepared or unapproved references still go to review; actual output still needs an armed target and cues approved for Auto; Emergency Stop, connection loss, wake and configuration changes still drop Auto and require a deliberate resume; settings import and profiles cannot turn Auto on. A configurable hold window (within the existing 0.75-3 second correction grace) lets the operator Hold a pending automatic send.
 
 Trust gate: the original 10-hour representative rehearsal with zero unapproved wrong displays (NFR-003), plus precision/recall on held-out labelled recordings (NFR-002), before Auto is relied on in a real service. P0 remains pending.
+
+## NR-011 - Pre-ticked setup boxes
+
+2026-11-21: after testing 0.6.0, the user asked that the setup boxes be turned on by default in the next build. Audio authorization, experimental preparation focus changes and saved-copy creation now start ticked (opt-out setting). Arming output and per-passage Auto approval remain deliberate steps. See [docs/129](docs/129-pre-ticked-consents.md).
