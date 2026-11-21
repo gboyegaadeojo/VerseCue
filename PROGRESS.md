@@ -436,3 +436,7 @@ FR-008: Setup names system-loopback and virtual inputs from their reported label
 ## Start in Auto with hold window (NR-010) - 2026-11-21
 
 User product decision: start in Auto. Saved startMode (default auto) applies at launch and session reset only, in dry run; Stop/resume, wake, corrupt-settings recovery, arming and setup changes still return to Confirm or Paused; import/profile keep the current preference. Configurable 0.75-3 s hold window and Hold command. 566 modules, check, new and updated source scenarios pass. Background-quotes and power-recovery scenarios fail identically on unchanged main and PR22 (stale fixtures/private assets); tracked separately. Trust gate: 10-hour wrong-output rehearsal and held-out precision/recall remain pending. See docs/116.
+
+## Ten-hour Auto rehearsal harness - 2026-11-21
+
+Offline dry-run replay of timed recognition windows through the app's stabilizer, Session and GuardedAuto, scoring automatic sends against reviewed display/mention labels. Gate: 36,000 s of reviewed held-out REAL-RECORDING with zero wrong outputs. Stream builder uses the app's AudioWindowBuffer in simulated real time with the real worker. Smoke run found session-cumulative audio loss would block Auto after the first overflow; per-window loss is the next component. See docs/117.
