@@ -12,7 +12,7 @@ function wav(samples){
 const PROVISIONAL_TIMEOUT_MS=8000,SUPERSEDED='Provisional recognition superseded by a completed window';
 class LocalSpeech {
   constructor(){this.executable=null;this.model=null;this.child=null;this.busy=false;this.epoch=0;this.mode='cli';this.scratch=null;this.resident=new ResidentSpeech();this.job=null;}
-  async initializeScratch(root){if(this.busy)throw Error('Stop recognition before scratch recovery');const scratch=new SpeechScratch(root);await scratch.initialize();this.scratch=scratch;}
+  async initializeScratch(root){if(this.busy)throw Error('Stop recognition before scratch recovery');const scratch=new SpeechScratch(root);await scratch.initialize();this.scratch=scratch;this.resident.scratch=scratch;}
   configure(executable,model,mode='cli'){if(this.busy)throw new Error('Stop recognition before changing worker');if(!['cli','resident'].includes(mode))throw new Error('Invalid local speech mode');this.resident.stop();this.executable=executable;this.model=model;this.mode=mode;}
   capabilities(){return {provisional:this.mode==='cli',final:true};}
   cancel(){this.epoch++;this.child?.kill();this.resident.stop();}

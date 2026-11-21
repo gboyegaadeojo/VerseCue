@@ -888,3 +888,7 @@ PR79 per-window loss passed 576 modules, check, audit, new audio-loss Auto scena
 ## Hold shortcut, announcements and hold-window age fix (PR82) - 2026-11-21
 
 H holds a pending automatic send (focused only, never while typing). A polite live region announces scheduled, held, sent/simulated and paused states. Fixed: the hold window counted against the 4 s Auto age limit, so holds above about 1 s on this PC made Auto impossible; the hold is now allowed on top at send time. 577 modules, check, 41/41 source scenarios, diagnostics 44864887870 and Mac 44864885345. Merged at 2410c91. Private measurement (kept local): recognition time is roughly fixed per window on this CPU; resident mode saves little; reduced audio context was unreliable, so defaults are unchanged. See docs/120.
+
+## Resident worker folder ownership (PR84) - 2026-11-21
+
+The resident worker whisper-server folder moved into the app-owned speech scratch, so stop and startup recovery remove it after a crash. 580 modules, check, private real-server check, diagnostics 44865605363 and Mac 44865608219. Merged at abf354d. See docs/121.
