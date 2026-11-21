@@ -1,6 +1,6 @@
-﻿# VerseCue takeover handoff
+# VerseCue takeover handoff
 
-Checked 2026-11-21 01:52 UTC. Start here after reading CLAUDE.md. The historical work is in PROGRESS.md. The aggregate implementation is on feat/reference-driven-bible-workflow, open as [draft PR22](https://github.com/gboyegaadeojo/VerseCue/pull/22). Main at adbc3bd includes merged components through PR74. The aggregate code baseline before this handoff is 149313d. Fetch origin and verify both refs before editing. The local main branch was behind origin/main at handoff.
+Checked 2026-11-21 06:10 UTC. Start here after reading CLAUDE.md. The historical work is in PROGRESS.md. The aggregate implementation is on feat/reference-driven-bible-workflow, open as [draft PR22](https://github.com/gboyegaadeojo/VerseCue/pull/22). Main at 54242b2 includes merged components through PR81. PR75-81 were built by Claude on 2026-11-21; see CLAUDE.md for the current queue and NR-010 (start in Auto, Route workspace). Fetch origin and verify both refs before editing. The local main branch was behind origin/main at handoff.
 
 ## Read before changing code
 
@@ -17,6 +17,7 @@ Checked 2026-11-21 01:52 UTC. Start here after reading CLAUDE.md. The historical
 | PR71 rolling speech preview | 119e8f2, 550 tests, source and packaged Windows scenarios and Mac run 44848255375. Five completed windows in renderer memory. |
 | PR72 capture revocation | d827b8b, four targeted Windows source and packaged scenarios and Mac run 44850836751. Earlier run 44850288022 exposed an expired-audio response regression and remains historical. |
 | PR73 local soak summaries | ba30ae8, 551 tests and Windows/macOS ARM/Intel diagnostics 44851126201. Summaries default to ignored test-results/soak-summaries. |
+| PR75-81 (2026-11-21) | Provisional speech provider, loopback guidance, start in Auto + Hold, ten-hour rehearsal harness, per-window audio loss, Route workspace, stale fixture repair. Aggregate 579 modules and 40/40 source scenarios. Details in docs/114-119 and PROGRESS.md. |
 | PR74 provisional preview | 1c6f96a, 551 tests, exact-source Windows source/package scenarios and Mac run 44851728755. Provisional text is separate, clears on stop/reset and cannot enter candidate review. Current local providers still emit completed chunks. |
 
 Aggregate 149313d passed 554 module tests and syntax/dependency inventory. No active build or soak from this handoff. The ignored local checkpoint test-results/pr70-private-resume.txt records scoped exact-source Windows worker replay and one-minute minimized dry run. Historical and synthetic evidence carries only its recorded scope. Source 0.6.0 remains unreleased. Published 0.5.5 is an older supervised-test build.

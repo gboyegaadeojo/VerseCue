@@ -872,3 +872,15 @@ Offline dry-run replay through the app's stabilizer, Session and GuardedAuto, sc
 ## PR77 and PR78 merged and integrated - 2026-11-21
 
 PR77 (start in Auto, Hold) passed 566 modules, check, audit, source sweep (background-quotes and power-recovery fail identically on unchanged main: stale fixtures/private assets), packaged Windows start-in-Auto/reset/guarded-Auto/workspace, diagnostics 44861813924 and Mac 44861811317. Merged at e291021. PR78 (rehearsal harness) passed 569 modules, check, audit and diagnostics 44862065187; after merging main, 573 modules. Merged at 192b327. P0 remains pending.
+
+## Per-window audio loss for Auto - 2026-11-21
+
+Loss evidence is per window with the session total kept for the operator. Each loss still resets context and cancels pending work; Auto pauses and disarms only after three losses within 60 s. Shared core/audio-loss-policy.cjs used by the desktop handler and rehearsal harness. See docs/118.
+
+## Route operator workspace - 2026-11-21
+
+Chosen design C (Route), Auto-first: monochrome route.css theme, Heard/Matched/Ready/On screen pipeline, Hold first while a send is pending, Auto-first copy. IDs, gates and booth minimums unchanged. See docs/119.
+
+## PR79-81 merged and integrated - 2026-11-21
+
+PR79 per-window loss passed 576 modules, check, audit, new audio-loss Auto scenario, diagnostics 44862834535 and Mac 44862832299; merged 13a432d. PR80 Route workspace passed 576 modules after merging main, UI scenarios, diagnostics 44863407274 and Mac 44863404981; merged 42cc124. PR81 repaired the stale power-recovery and background-quotes fixtures (test-only; both pass locally); merged 54242b2. P0 remains pending.

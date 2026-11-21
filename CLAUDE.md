@@ -1,36 +1,32 @@
 # VerseCue - resume here
 
-Checked: 2026-11-21 04:50 UTC. P0 and full service acceptance PENDING.
+Checked: 2026-11-21 06:10 UTC. P0 and full service acceptance PENDING.
 
-Read AGENTS.md, the entire master specification, HANDOFF.md, PROGRESS.md, NEW_REQUESTS.md, docs/107 and the complete docs/99 original audit. Keep all original62FR/24NFR/86 trace/66 corpus and RF01-22 gates.
+Read AGENTS.md, the entire master specification, HANDOFF.md, PROGRESS.md, NEW_REQUESTS.md, docs/107 and the complete docs/99 original audit. Keep all original 62 FR/24 NFR/86 trace/66 corpus and RF01-22 gates.
 
 ## Takeover
 
-Use [HANDOFF.md](HANDOFF.md) as the current takeover document. The last verified aggregate code integrates main 192b327 (PR75-78) on draft PR22: 576 modules, check, audit, start-in-Auto and reset scenarios.
+Use [HANDOFF.md](HANDOFF.md) as the takeover document. Main is 54242b2 (PR75-81 merged by Claude on 2026-11-21). Draft PR22 (feat/reference-driven-bible-workflow) integrates main: 579 modules, check, documentation audit and all 40 source Electron scenarios pass. Source 0.6.0 unreleased. History is in PROGRESS.md.
 
 ## Current authoritative state
 
-- Main adbc3bd includes merged PR72, PR73 and PR74. Integration passed 554 modules and syntax/inventory. Source0.6.0 unreleased; public0.5.5 older supervised-test build. Aggregate PR22 stays draft and unmerged.
-- PR69 exact71a699f2e0f1735e89de88ab69985cbbb5999d05 passed544 local and each standard public Windows/Mac ARM/Mac Intel modules/check/audit/synthetic CLI at44841778744. All jobs and logs inspected, terminal. No real data scored; evaluator is offline and does not pass acceptance.
-- PR70 merged into main at 103f427. Exact 32c3586 passed 550 local modules, syntax/inventory and Windows/Mac ARM/Intel offline CI 44845398423. Scoped private follow-up was completed later and is recorded locally. Integrated main with both progress histories and the merged soak implementation. Root passed 553 module tests, syntax/inventory and the documentation audit. Private follow-up is recorded in ignored test-results/pr70-private-resume.txt.
+- **NR-010 (user product decision):** VerseCue starts in Auto (dry run), with an Auto-first Route workspace (design canvas https://claude.ai/artifact/W11qaVvxvvBWuCMro8fSPs, board C). Trust gate: the 10-hour wrong-output rehearsal plus held-out precision/recall. Recorded in NEW_REQUESTS.md.
+- Merged today: PR75 provisional speech (docs/114), PR76 loopback guidance FR-008 (docs/115), PR77 start in Auto + Hold window (docs/116), PR78 ten-hour Auto rehearsal harness (docs/117), PR79 per-window audio loss, Auto pauses only after 3 losses/60 s (docs/118), PR80 Route workspace (docs/119), PR81 repaired stale power-recovery/background-quotes fixtures.
+- CI notes: the diagnostics workflow triggers only on specific paths, so dispatch `diagnostic-checks.yml` and `macos-development.yml` manually on each component branch. PROGRESS.md/audit JSON conflict on every integration: take HEAD PROGRESS and append new entries; take theirs for the audit JSON, then rerun `node scripts/audit-documentation.cjs`.
+- Scenario sweep helper (scratch, recreate if missing): run every `scripts/test-*.cjs` except test-local-speech/test-packaged-speech/test-resident-speech. Worktrees need private assets copied from root (poc/private/tools/whisper-b5454, poc/private/models/ggml-base.en.bin, recordings/replay-private/REAL-PILOT-001-12.wav, poc/private/tools/whisper-bin-x64.zip for packaging) and NODE_PATH=root node_modules.
 
-- PR71 recent recognition preview at 119e8f2, worktree test-results/pr-split/recent-recognition-preview. Source and Windows packaged synthetic reset/preview checks, 550 modules and syntax/inventory passed. Exact-head Mac run 44848255375 passed. Merged at 9ceb18f and integrated into draft PR22; root preview/reset scenario passed. Recognition-stop coverage followed in PR72. Five completed windows in renderer memory; provider streaming partials remain pending.
+## Next queue
 
-- PR72 at d827b8b, worktree test-results/pr-split/revoked-recognition-completion. Initial Mac 44850288022 failed unchanged expired-audio scenario; corrected guard preserves intentional context invalidation. Exact corrected source and Windows packaged audio-age, reset/privacy, stabilization and listening/preparation pass. Exact-head Mac 44850836751 passed. Merged at f88e65a. Aggregate audio age and reset scenarios passed.
-- PR73 at ba30ae8, worktree test-results/pr-split/private-soak-summary. Keeps development soak summaries in ignored local output. 551 modules, syntax/inventory and structural audit passed. Windows/Mac ARM/Intel diagnostic CI 44851126201 passed; merged as ce6acc5. Aggregate summary conflict resolved with the strengthened script and all existing tests preserved. 554 integration modules and syntax/inventory passed; docs/64 refreshed.
-
-- PR74 1c6f96a, worktree test-results/pr-split/provisional-speech-preview. Explicit provisional text stays separate and old evidence is withheld. 551 modules, syntax/inventory, Windows source and exact-source packaged stabilization/reset/audio-age checks passed. Exact-head Mac 44851728755 passed. Merged at adbc3bd and integrated into draft PR22; 554 modules and syntax/inventory passed. This is UI handling for a future provider; current providers return completed chunks.
-
-- PR75 (Claude, 2026-11-21) feat/provisional-speech-provider, worktree test-results/pr-split/provisional-speech-provider. Opt-in session-only provisional snapshots on the bounded CLI worker; completed windows preempt them; separate display-only IPC. 559 modules, check, audit, source and packaged Windows scenarios passed; real whisper-cli preemption verified on synthetic noise. First Windows CI run 44855773130 failed on a tick-bounded test wait (fixed in 7322fe5, 30/30 reruns). Offline CI 44856755751 and Mac 44856843979 passed on 7322fe5. Merged at 83e298e; integrated as f63ee8e. Next: Windows personal ProPresenter native acceptance via computer use with fresh Audience=false/Stage=false observations, else next independent software item from docs/107.
-- PR76 FR-008 loopback guidance merged at 8b82af8 after local, Mac 44860541062 and diagnostics 44861062245. NR-010 (user decision): start in Auto, Auto-first Route workspace (design canvas https://claude.ai/artifact/W11qaVvxvvBWuCMro8fSPs board C), 10-hour wrong-output rehearsal as trust gate. PR77 start-in-Auto+Hold merged e291021; PR78 rehearsal harness merged 192b327. Queue: (1) per-window audio-loss accounting so one overflow does not block Auto for the whole session (found by harness smoke run); (2) Auto-first Route workspace redesign (IBM Plex already bundled; keep all element IDs used by app.js/scenarios); (3) repair stale test-background-quotes and test-power-recovery scenarios (fail on unchanged main). Session cron 3d8f1551 resumes work at :17/:47 when idle.
-- User (2026-11-21) approved running commands, merging component PRs and computer control for VerseCue/ProPresenter testing on the personal computer. The output safeguards below still apply.
+1. Hold keyboard shortcut (focused-only, no global hotkey) and screen-reader announcements for automatic sends, Hold and pause (FR-031, FR-061, NFR-016).
+2. Startup cleanup of leftover resident-worker temp folders (versecue-worker-*) after a crash (FR-059, NFR-010).
+3. Refresh docs/107 for the Auto-first state, the rehearsal harness and remaining gates.
+4. Privately measure CLI vs resident recognition time on the pilot clips; consider whether Auto-first needs the resident worker by default (keep results private).
+5. Real ProPresenter testing waits for the user (they said they will test once everything is complete). Mac native route still needs Mac access.
 
 ## Integration and authorization
 
-Windows helper app discovery recovered. ProPresenter launch was blocked by automatic approval review pending independent verification of both disabled outputs. Personal native tests need fresh independent Audience=false/Stage=false observations before/during. No church production, paid purchases, OS security/privacy/ACL changes, Clear/deletion, blind uncertain-output retry or auto restoration. New personal-host telemetry remains private pending specific publication authorization. Mac native accessibility profile/access and separately named clipping test styles remain unanswered; continue unaffected coding.
-
-PR67 exact5bfb9051 passed534 modules/check,32 source+32 packaged Windows scenarios,153-file receipts and Mac44828146007. This does not certify real audio, native Mac/LAN, six editions, physical room/stream, latency or field readiness. Remaining speech-preview/native/performance/privacy/distribution software and actual acceptance are in docs/107/99. Preserve unrelated design-reference/ and all test-results worktrees/private assets.
+User (2026-11-21) approved running commands, building everything, merging component PRs and computer control for personal-computer VerseCue/ProPresenter testing. Safeguards still apply: Audience and Stage must be independently observed disabled before and during any personal ProPresenter test; no church production output, paid purchases, OS security/privacy/ACL changes, ProPresenter Clear/deletion, blind uncertain-output retry or automatic cue restoration; new personal-host telemetry stays private. A session cron (3d8f1551, :17/:47, 7-day expiry, this session only) resumes work after interruptions. Preserve design-reference/ and all test-results worktrees/private assets.
 
 ## Maintenance
 
-Refresh about every10 minutes while actively working and at merges/before interruption. Replace stale current directions; keep history in PROGRESS.md. No updates occur while no agent runs. Fresh agents require their own credentials/permissions/runtime handles.
+Refresh about every 10 minutes while actively working and at merges/before interruption. Replace stale current directions; keep history in PROGRESS.md. Fresh agents require their own credentials, permissions and runtime handles.

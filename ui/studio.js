@@ -18,12 +18,12 @@
  feed.append(heading,audioPanel);
  document.querySelector('.workspace').prepend(feed);
  window.studioLayout={route(name){document.body.dataset.studioRoute=name;feed.hidden=compact||name!=='overview';if(name==='audio')audioHome.append(audioPanel);else feed.append(audioPanel);}};
- document.getElementById('candidate-heading').textContent='Passage review';
+ document.getElementById('candidate-heading').textContent='Latest reference';
  document.querySelector('.queue-panel h2').firstChild.textContent='Detected references ';
  document.querySelector('.queue-panel>.muted').textContent='Select to review. References expire after 15 seconds.';
- document.querySelector('.page-heading .eyebrow').textContent='SCRIPTURE DESK';
+ document.querySelector('.page-heading .eyebrow').textContent='LIVE SCRIPTURE';
  document.querySelector('.page-heading>.pill').remove();
- document.querySelector('.page-heading .muted').textContent='Listen. Review. Prepare. Present deliberately.';
+ document.querySelector('.page-heading .muted').textContent='Complete, explicit references go to ProPresenter automatically. Hold stops one. Emergency stop stops everything.';
  document.querySelector('[data-route="overview"]').textContent='Scripture desk';
  document.querySelector('.brand small').textContent='SCRIPTURE CONTROL';
  document.querySelector('#candidate-empty .empty-symbol').remove();
