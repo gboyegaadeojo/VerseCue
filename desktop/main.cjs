@@ -1,4 +1,5 @@
 'use strict';
+const {spawn}=require('node:child_process');
 const {app,BrowserWindow,ipcMain,dialog,session,systemPreferences,clipboard,powerSaveBlocker,powerMonitor,shell}=require('electron');
 const {installCudaEngine,checkCudaEngine,OFFICIAL:CUDA_OFFICIAL}=require('../core/cuda-engine.cjs');
 const path=require('node:path');
@@ -49,7 +50,7 @@ async function reviewApiPassage(id,guard){
 const privateApi=new LocalControlAPI(service,{onStop:()=>{cancelAudio();cancelPreparation();connector.arm(false);service.stop();},onPrepare:prepareBible,onReview:reviewApiPassage,onRevoke:()=>cancelPreparation(),onEvent:code=>{if(code==='PRIVATE_API_REFERENCE_REVIEW')resetSpeechStabilization();service.log(code);service.notify();}});
 const configurationTransition=new ConfigurationTransition({enterSafe:()=>{cancelAudio();cancelPreparation();connector.arm(false);connector.mappings.clear();service.setMode('paused');service.configure({translation:service.translation,dryRun:true});return privateApi.stop();}});
 async function changeConfiguration(operation,{restoreMode=true}={}){const previousMode=service.mode==='auto'?'confirm':service.mode;return configurationTransition.run(async()=>{const result=await operation();service.settingsRecoveryRequired=false;service.notify();if(restoreMode&&!service.stopped&&!service.recovery?.required&&service.mode==='paused')service.setMode(previousMode);return result;});}
-let settings,settingsFile,profiles,mainWindow,compactWindow,healthTimer,healthBusy=false,healthFailures=0,healthFailingSince=0;const windows=new Set();
+let macHelper=null,settings,settingsFile,profiles,mainWindow,compactWindow,healthTimer,healthBusy=false,healthFailures=0,healthFailingSince=0;const windows=new Set();
 const ui=pathToFileURL(path.join(__dirname,'../ui/index.html')).href;
 function trusted(e){if(!windows.has(BrowserWindow.fromWebContents(e.sender))||e.senderFrame!==e.sender.mainFrame||e.senderFrame.url.split('?')[0]!==ui)throw new Error('Untrusted caller');}
 // NR-010: saved Auto start preference and hold window. Start mode applies only at launch/reset (Session.applyStartMode).
@@ -96,7 +97,8 @@ async function bootstrap(){
   await fs.mkdir(app.getPath('userData'),{recursive:true});await speech.initializeScratch(path.join(app.getPath('userData'),'speech-scratch'));
   settingsFile=path.join(app.getPath('userData'),'settings.json');const loaded=await store.load(settingsFile);settings=loaded.settings;service.settingsRecoveryRequired=loaded.recovered;
   profiles=new Profiles(path.join(app.getPath('userData'),'profiles.json'));
-  const helper=app.isPackaged?path.join(process.resourcesPath,'native','VerseCue.BibleBridge.exe'):path.join(__dirname,'../native/bin/VerseCue.BibleBridge.exe');
+  const helperName=process.platform==='darwin'?'VerseCue.BibleBridge':'VerseCue.BibleBridge.exe';
+  const helper=app.isPackaged?path.join(process.resourcesPath,'native',helperName):path.join(__dirname,'../native/bin',helperName);macHelper=process.platform==='darwin'?helper:null;
   let helperExists=false;try{await fs.access(helper);helperExists=true;}catch{}
   preparation=new BiblePreparation({helper:helperExists?helper:null});
   preparationController=new PreparationController({service,connector,speech:{cancel:cancelAudio},cancelRecognition:()=>{resetSpeechStabilization();speech.cancel();},preparation,getTranslation:()=>settings.translation});
@@ -259,6 +261,12 @@ async function bootstrap(){
   });  handler('export-settings',async()=>{const r=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-settings.json'});if(!r.canceled){const safe={...settings,executable:'',model:'',audioDevice:''};await fs.writeFile(r.filePath,JSON.stringify(safe,null,2));return true;}return false;});
   handler('import-settings',async()=>{const r=await dialog.showOpenDialog(mainWindow,{properties:['openFile'],filters:[{name:'JSON',extensions:['json']}]});if(r.canceled)return null;const bytes=await fs.readFile(r.filePaths[0],'utf8');if(bytes.length>16384)throw new Error('Settings file too large');const incoming=store.validateSettings(JSON.parse(bytes));incoming.executable='';incoming.startMode=settings.startMode;incoming.model='';incoming.audioDevice='';return changeConfiguration(async()=>{if(speech.busy)throw new Error('Stop recognition before import');settings=await store.save(settingsFile,incoming);connector.configure(settings.host,settings.port);speech.configure('','',settings.speechMode,settings.speechAcceleration);service.configure({translation:settings.translation,dryRun:true,duplicateCooldownSeconds:settings.duplicateCooldownSeconds,maxPassageVerses:settings.maxPassageVerses});applySessionPreferences();return settings;});});
   handler('export-diagnostics',async()=>{const preview={schemaVersion:1,appVersion:app.getVersion(),referenceMetadata:referenceMetadataVersions(),platform:process.platform,p0:'PENDING',events:service.events,capabilities:service.snapshot().capabilities};const r=await dialog.showMessageBox(mainWindow,{type:'info',buttons:['Cancel','Save redacted diagnostics'],defaultId:0,message:`Export ${preview.events.length} event codes and times, app/platform and reference dictionary/versification versions, and capability flags. No references, transcripts, audio, paths or addresses are included.`});if(r.response!==1)return false;const dest=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-diagnostics.json'});if(!dest.canceled)await fs.writeFile(dest.filePath,JSON.stringify(preview,null,2));return !dest.canceled;});
+  // Mac: one read-only inspection of ProPresenter's accessibility tree, saved where the operator chooses, to verify the helper's element names.
+  handler('mac-inspect',async()=>{if(process.platform!=='darwin'||!macHelper)throw Error('The Mac inspection runs only in the Mac version of VerseCue');try{await fs.access(macHelper);}catch{throw Error('The Mac Bible helper is not part of this copy of VerseCue');}
+    const output=await new Promise((resolve,reject)=>{const child=spawn(macHelper,[],{stdio:['pipe','pipe','ignore'],shell:false});let out='',size=0;const timer=setTimeout(()=>child.kill(),20000);child.stdout.on('data',b=>{size+=b.length;if(size<8e6)out+=b;});child.once('error',()=>{clearTimeout(timer);reject(Error('The Mac Bible helper could not start'));});child.once('close',()=>{clearTimeout(timer);resolve(out);});child.stdin.end(JSON.stringify({operation:'inspect'})+String.fromCharCode(10));});
+    let data;try{data=JSON.parse(output);}catch{throw Error('The Mac inspection did not return a readable result');}
+    if(!data.ok)throw Error(data.code==='ACCESSIBILITY_PERMISSION_REQUIRED'?'macOS needs to allow VerseCue to read other apps: System Settings > Privacy & Security > Accessibility > turn on VerseCue. Then try again.':data.code==='ONE_PROPRESENTER_INSTANCE_REQUIRED'?'Open ProPresenter (one copy) and its Bible view, then try again.':'The inspection stopped: '+data.code);
+    const r=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-ProPresenter-inspection.json'});if(r.canceled)return {saved:false,fields:data.referenceFields};await fs.writeFile(r.filePath,JSON.stringify(data,null,1));return {saved:true,fields:data.referenceFields,nodes:data.nodes.length};});
   handler('compact',()=>{if(compactWindow)compactWindow.focus();else compactWindow=createWindow(true);});
   healthTimer=setInterval(async()=>{
     if(!connector.version||healthBusy)return;healthBusy=true;
