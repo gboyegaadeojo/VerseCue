@@ -1,4 +1,4 @@
-﻿# VerseCue progress
+# VerseCue progress
 
 Updated: 2026-11-18 (UTC). Authority: `VerseCue_Master_Development_Prompt_v2_Codex.md`, read in full before work; later authorized change requests recorded in NEW_REQUESTS.md.
 
@@ -428,3 +428,7 @@ Final local replay checks: unchanged isolated loopback suite7/7 and full550/550 
 
 Opt-in, session-only provisional snapshots from the bounded CLI worker. Completed windows preempt provisional runs; provisional text uses a separate display-only IPC path and never reaches stabilizer, candidates, Auto, preparation or output. 559 modules, check and source scenarios pass; real whisper-cli preemption verified on synthetic noise. No real speech, latency, CPU or ProPresenter evidence. P0 remains pending. See docs/114.
 
+
+## Loopback input guidance - 2026-11-21
+
+FR-008: Setup names system-loopback and virtual inputs from their reported labels, explains Windows/macOS prerequisites and keeps listening not-ready until a session-only routing check for the saved input. No routing, driver or OS changes. 562 modules, check and source scenarios pass. No real device evidence. See docs/115.
