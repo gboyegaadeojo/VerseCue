@@ -1,12 +1,12 @@
 # VerseCue - resume here
 
-Checked: 2026-11-21 01:52 UTC. P0 and full service acceptance PENDING.
+Checked: 2026-11-21 02:55 UTC. P0 and full service acceptance PENDING.
 
 Read AGENTS.md, the entire master specification, HANDOFF.md, PROGRESS.md, NEW_REQUESTS.md, docs/107 and the complete docs/99 original audit. Keep all original62FR/24NFR/86 trace/66 corpus and RF01-22 gates.
 
 ## Takeover
 
-Use [HANDOFF.md](HANDOFF.md) as the current takeover document. The last verified aggregate code is 149313d on draft PR22. No active task handles carry over.
+Use [HANDOFF.md](HANDOFF.md) as the current takeover document. The last verified aggregate code is f63ee8e on draft PR22 (562 modules, check, audit, provisional/reset scenarios). No active task handles carry over.
 
 ## Current authoritative state
 
@@ -20,6 +20,9 @@ Use [HANDOFF.md](HANDOFF.md) as the current takeover document. The last verified
 - PR73 at ba30ae8, worktree test-results/pr-split/private-soak-summary. Keeps development soak summaries in ignored local output. 551 modules, syntax/inventory and structural audit passed. Windows/Mac ARM/Intel diagnostic CI 44851126201 passed; merged as ce6acc5. Aggregate summary conflict resolved with the strengthened script and all existing tests preserved. 554 integration modules and syntax/inventory passed; docs/64 refreshed.
 
 - PR74 1c6f96a, worktree test-results/pr-split/provisional-speech-preview. Explicit provisional text stays separate and old evidence is withheld. 551 modules, syntax/inventory, Windows source and exact-source packaged stabilization/reset/audio-age checks passed. Exact-head Mac 44851728755 passed. Merged at adbc3bd and integrated into draft PR22; 554 modules and syntax/inventory passed. This is UI handling for a future provider; current providers return completed chunks.
+
+- PR75 (Claude, 2026-11-21) feat/provisional-speech-provider, worktree test-results/pr-split/provisional-speech-provider. Opt-in session-only provisional snapshots on the bounded CLI worker; completed windows preempt them; separate display-only IPC. 559 modules, check, audit, source and packaged Windows scenarios passed; real whisper-cli preemption verified on synthetic noise. First Windows CI run 44855773130 failed on a tick-bounded test wait (fixed in 7322fe5, 30/30 reruns). Offline CI 44856755751 and Mac 44856843979 passed on 7322fe5. Merged at 83e298e; integrated as f63ee8e. Next: Windows personal ProPresenter native acceptance via computer use with fresh Audience=false/Stage=false observations, else next independent software item from docs/107.
+- User (2026-11-21) approved running commands, merging component PRs and computer control for VerseCue/ProPresenter testing on the personal computer. The output safeguards below still apply.
 
 ## Integration and authorization
 
