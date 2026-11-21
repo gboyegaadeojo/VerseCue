@@ -884,3 +884,7 @@ Chosen design C (Route), Auto-first: monochrome route.css theme, Heard/Matched/R
 ## PR79-81 merged and integrated - 2026-11-21
 
 PR79 per-window loss passed 576 modules, check, audit, new audio-loss Auto scenario, diagnostics 44862834535 and Mac 44862832299; merged 13a432d. PR80 Route workspace passed 576 modules after merging main, UI scenarios, diagnostics 44863407274 and Mac 44863404981; merged 42cc124. PR81 repaired the stale power-recovery and background-quotes fixtures (test-only; both pass locally); merged 54242b2. P0 remains pending.
+
+## Hold shortcut, announcements and hold-window age fix (PR82) - 2026-11-21
+
+H holds a pending automatic send (focused only, never while typing). A polite live region announces scheduled, held, sent/simulated and paused states. Fixed: the hold window counted against the 4 s Auto age limit, so holds above about 1 s on this PC made Auto impossible; the hold is now allowed on top at send time. 577 modules, check, 41/41 source scenarios, diagnostics 44864887870 and Mac 44864885345. Merged at 2410c91. Private measurement (kept local): recognition time is roughly fixed per window on this CPU; resident mode saves little; reduced audio context was unreliable, so defaults are unchanged. See docs/120.
