@@ -36,3 +36,7 @@ The countdown adds to delay from speech to display. The p50 ≤ 2 s and p95 ≤ 
 ## Trust gate
 
 Starting in Auto is a product choice, not evidence that Auto is accurate. Before relying on Auto in a real service, IFC needs the 10-hour representative rehearsal with zero unapproved wrong displays (NFR-003) and precision/recall on held-out labelled sermon recordings (NFR-002). Both remain pending, as do P0 and physical output verification.
+
+## 2026-11-21 follow-up
+
+The send-time audio-age check now allows the configured hold on top of the 4-second limit; see [docs/120](120-hold-shortcut-and-auto-announcements.md). H holds a pending send while VerseCue is focused.

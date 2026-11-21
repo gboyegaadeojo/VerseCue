@@ -27,6 +27,10 @@ test('an eligible reference waits for the configured hold window and Hold leaves
   assert.equal(f.service.queue.length,1,'Held reference stays available for deliberate review');assert.equal(f.service.mode,'auto');
   assert.equal(f.automatic.hold().held,false,'Nothing left to hold');
 });
+test('a long hold window does not make a fresh reference too old to send, and staleness is still enforced',async()=>{
+  const f=fixture();f.service.applyStartMode();f.automatic.configureDelay(3000);f.next();f.service.clock=(()=>{const base=f.service.clock();return ()=>base+3000;})();await f.fire();assert.equal(f.simulations(),1,'Age 1.5 s + 3 s hold is allowed at send time');
+  const g=fixture();g.service.applyStartMode();g.automatic.configureDelay(1000);g.next();g.service.clock=(()=>{const base=g.service.clock();return ()=>base+4000;})();await g.fire();assert.equal(g.simulations(),0,'A send delayed past its hold allowance is dropped');assert.match(g.service.autoStatus.reason,/too old/);
+});
 test('without Hold the reference auto-simulates and the hold window keeps the existing bounds',async()=>{
   const f=fixture();f.service.applyStartMode();f.next();assert.equal(f.scheduledMs(),750);await f.fire();assert.equal(f.simulations(),1);
   for(const bad of [0,500,749,3001,1.5,'1000'])assert.throws(()=>f.automatic.configureDelay(bad));

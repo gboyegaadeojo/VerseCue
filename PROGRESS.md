@@ -448,3 +448,7 @@ Loss evidence is per window (since the previous dispatch) with the session total
 ## Route operator workspace - 2026-11-21
 
 Chosen design C (Route), Auto-first: monochrome route.css theme, Heard/Matched/Ready/On screen pipeline, Hold first while a send is pending, Auto-first copy. IDs, gates and booth minimums unchanged. 573 modules, check, UI scenarios pass. No volunteer/screen-reader/physical review yet. See docs/119.
+
+## Hold shortcut, announcements and hold-window age fix - 2026-11-21
+
+H holds a pending automatic send (focused only, never while typing). A polite live region announces scheduled, held, sent/simulated and paused states. Fixed: the hold window counted against the 4 s Auto age limit, so holds above about 1 s on this PC made Auto impossible; the hold is now allowed on top at send time. 577 modules, check, 41/41 source scenarios. See docs/120.
