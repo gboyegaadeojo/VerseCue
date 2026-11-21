@@ -504,3 +504,7 @@ New start mode: Confirm, no output, detected-reference preparation (native ProPr
 ## Route layout and DM Sans - 2026-11-21
 
 User said the app did not look like the chosen artboard. Bundled DM Sans (OFL), single black top bar with status pills, two columns (Which passage?/heard list/audio/session; reference card), inspector folded in. Layout-only. See docs/131.
+
+## Version 0.6.2 - 2026-11-21
+
+Adds Prepare for volunteer (PR99, verified on the user's personal ProPresenter with outputs off; details local) and the Route layout with DM Sans (PR100). README modes and downloads updated.

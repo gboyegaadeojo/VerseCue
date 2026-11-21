@@ -19,4 +19,4 @@ Unchanged safeguards: only a single, clear, valid reference is prepared (multipl
 | --- | --- |
 | `tests/prepare-for-volunteer.test.cjs`: valid start mode; starts and resets in Confirm; not after Emergency stop | Pass |
 | `scripts/test-prepare-for-volunteer.cjs` (synthetic target): starts in Confirm and dry run; preparation switches on with listening; status line shown; zero output requests | Pass (synthetic target has no native Bible route, so it used saved passages only) |
-| Real ProPresenter preparation from speech | Pending: ProPresenter was not running at the time of testing |
+| Real ProPresenter preparation from speech (user's personal ProPresenter 21.4.2, Audience and Stage reported off throughout, synthetic recognized text) | Pass: an unsaved passage was prepared through ProPresenter's Bible in about 3.6 s with the correct KJV text; the live slide did not change and VerseCue sent nothing. Details kept local. |
