@@ -20,10 +20,9 @@ Use [HANDOFF.md](HANDOFF.md) as the takeover document. **Public v0.6.2 pre-relea
 
 ## Next queue
 
-PUBLISHED v0.6.3 (97b331d). User asleep (2026-11-22 night) and asked: "test every single thing in the application to ensure they work as usual for both Mac and Windows".
-1. OVERNIGHT TEST PASS on main 97b331d (in progress): unit 609 + check PASS; Windows source sweep then packaged sweep running in background (scratchpad overnight-source.txt, overnight-packaged.txt; worktree packaged-main-check); Mac CI 44982204657 (both arches) + diagnostics 44982209533. Then: packaged speech CLI + --resident; source test-local-speech/test-resident-speech; rerun any failure alone to separate flakes; live API-only checks on the personal ProPresenter with Audience/Stage off (Auto dry run + saved-cue send via scratchpad live-pp-test.cjs); NO native-helper live tests tonight (ProPresenter is in the slowed UIA state). Write a morning report (docs + chat).
-2. Draft PR114 version switching: logic + list-translations verified; live switch blocked by the ProPresenter UI Automation slowdown (docs/140 finding: one helper connection raises ProPresenter ~3% -> 16-21% CPU until restart; hand-generated chapters do not). Needs a lighter Windows approach (short-lived connection or no UIA for the version menu) + a fresh ProPresenter restart (user) to retest.
-3. User: Mac inspection file, live voice test, licence (MIT/GPL-3.0), code signing.
+PUBLISHED v0.6.3 (97b331d). Overnight full test pass DONE and green (docs/141): Windows source 47/47, packaged 47/47, 609 unit, check, Mac arm64+Intel CI, diagnostics x3, packaged/local/resident speech, live network-only Auto send (Nahum 1:7, outputs off).
+1. Draft PR114 version switching: blocked live by the ProPresenter UI Automation slowdown (docs/140 on branch: one helper connection raises ProPresenter ~3% -> 16-21% CPU until restart; hand-made chapters do not). Needs a product decision from the user: (a) keep UIA but accept slowdown/restart guidance, (b) keyboard-only preparation without readback verification (no UIA, no slowdown, less safe), or (c) research a non-UIA verification (ProPresenter API). Do not merge until it passes live on a fresh ProPresenter.
+2. User: fresh ProPresenter restart for retest; Mac inspection file; live voice test; licence (MIT/GPL-3.0); code signing.
 Standing rules: README updated with every change; Halo look matches canvas; test runs set VERSECUE_AUTOMATION=1. Scheduler: one cron b47d9e7e (:17/:47).
 
 ## Integration and authorization
