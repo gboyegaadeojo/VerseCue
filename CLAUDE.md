@@ -20,13 +20,12 @@ Use [HANDOFF.md](HANDOFF.md) as the takeover document. **Public v0.6.2 pre-relea
 
 ## Next queue
 
-Merged today: PR105 NVIDIA setup, PR106 Halo design (NR-016), PR107 Mac helper (inspection-only until user's Mac inspection).
-1. PR109 feat/faster-simpler (NR-015/NR-017, docs/137): auto-connect, auto-listen, default mic, -ac 768 (41% faster), 0.7 s silence, background GPU warm-up (CPU until GPU proven), heard clarity, any ProPresenter version (keyword fallback in Windows bridge). Sweep running (scratchpad sweep-fast.txt), CI 44957455243/44957462245. Then merge.
-2. PR108 feat/vulkan-speech (docs/139): Vulkan Windows engine (any AMD/NVIDIA/Intel GPU) built in CI (speech-engines.yml, sha 9c16b302...), Intel Mac build (matrix in macos-development.yml). Merge main in, packaged sweep with the Vulkan engine (engine zip in poc/private/tools/engines/), then merge.
-3. Release 0.6.3: bump version, README downloads (+ Intel Mac row), Windows ZIP (Vulkan engine) + packaged sweep, Mac arm64 + Intel artifacts, checksums, gh release, verify links; integrate PR22.
-4. Retest live chapter preparation on personal ProPresenter once ProPresenter is not overloaded (it used ~25% CPU continuously; UIA queries took 78 s).
-5. User: Mac inspection file, live voice test, licence choice for public release, code signing.
-Standing rules: README updated with every change (public audience); Halo look must match canvas https://claude.ai/artifact/9sYtuXBtafLyrrDxZZUV5J. Scheduler: one cron b47d9e7e (:17/:47).
+Merged: PR105-PR111 (Halo, Mac helper, NVIDIA setup, faster start, Vulkan/Intel Mac, 0.6.3 bump at 581de48, automation mode). Main is version 0.6.3, NOT yet published.
+1. PR112 feat/resident-default: model stays loaded by default (per-phrase engine start dominated latency), 60 s startup budget, 10 min idle, verbose_json no_timestamps (50% faster). Packaged sweep 46/47 + provisional fixed; Mac CI rerun 44971725438. Merge when green.
+2. PUBLISH 0.6.3 BLOCKED on packaged real-speech checks (test-packaged-speech CLI and --resident exceed 20 s) because this laptop is at ~75% CPU: ProPresenter alone uses ~26% of all cores continuously (since the Psalm 119 chapter tests). Ask the user to restart ProPresenter; rerun with VERSECUE_AUTOMATION=1 when load < ~40%. Then: package main (packaged-main-check: engines zip + model + bridge), packaged sweep, speech checks, Mac artifacts (both arches) from main, checksums, gh release v0.6.3 with 6 assets (win x64, darwin arm64, darwin x64 + .sha256), verify links, release notes.
+3. Retest live chapter preparation on the personal ProPresenter after restart.
+4. User: Mac inspection file, live voice test, licence (MIT vs GPL-3.0) for public release, code signing.
+Standing rules: README updated with every change (public audience); Halo look matches canvas https://claude.ai/artifact/9sYtuXBtafLyrrDxZZUV5J; test runs set VERSECUE_AUTOMATION=1. Scheduler: one cron b47d9e7e (:17/:47).
 
 ## Integration and authorization
 
