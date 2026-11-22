@@ -30,7 +30,7 @@ test('buffer snapshots growing speech only when enabled and keeps the window int
 });
 test('a completed window dispatches immediately while a provisional snapshot is still running',async()=>{
   const windows=[];let releaseProvisional;const buffer=new AudioWindowBuffer({onWindow:samples=>{windows.push(samples.length);},onProvisional:()=>new Promise(resolve=>releaseProvisional=resolve),provisionalEnabled:()=>true});
-  buffer.start();voiced(buffer,25);await tick();assert.equal(typeof releaseProvisional,'function');for(let i=0;i<10;i++)buffer.push(new Array(1600).fill(0),0);await tick();assert.deepEqual(windows,[56000]);releaseProvisional();await tick();buffer.stop();
+  buffer.start();voiced(buffer,25);await tick();assert.equal(typeof releaseProvisional,'function');for(let i=0;i<10;i++)buffer.push(new Array(1600).fill(0),0);await tick();assert.deepEqual(windows,[51200]);releaseProvisional();await tick();buffer.stop();
 });
 test('no provisional snapshot while a completed window owns the worker, during silence or below two seconds',async()=>{
   let release;const snapshots=[];const buffer=new AudioWindowBuffer({capacity:48000,onWindow:()=>new Promise(resolve=>release=resolve),onProvisional:samples=>{snapshots.push(samples.length);},provisionalEnabled:()=>true});

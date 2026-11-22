@@ -2,13 +2,13 @@
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
   "version": 1,
-  "serialNumber": "urn:uuid:f5b0404b-fa85-59c7-87c1-eff13cd33e22",
+  "serialNumber": "urn:uuid:3b25d2c6-0dc6-5a9d-ba31-957f96049af2",
   "metadata": {
     "component": {
       "type": "application",
       "bom-ref": "versecue",
       "name": "VerseCue",
-      "version": "0.6.2",
+      "version": "0.6.3",
       "licenses": [
         {
           "expression": "LicenseRef-VerseCue-Private"
@@ -18,11 +18,11 @@
     "properties": [
       {
         "name": "versecue:lockfileSha256",
-        "value": "7dddefec27242946eef1af54317fe5475c48704e35ebec871f8538199d343502"
+        "value": "9fdafa684c404c57c896eb90297ef2bc23a762d3fb3f0e7f744606e3ef391fc8"
       },
       {
         "name": "versecue:inventoryApplicationVersion",
-        "value": "0.6.2"
+        "value": "0.6.3"
       },
       {
         "name": "versecue:limits",
@@ -561,6 +561,38 @@
     },
     {
       "type": "file",
+      "bom-ref": "file:ui/fonts/Inter-Variable.ttf",
+      "name": "Inter-Variable.ttf",
+      "group": "Inter",
+      "licenses": [
+        {
+          "license": {
+            "id": "OFL-1.1"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031"
+        }
+      ],
+      "scope": "required",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/google/fonts/tree/main/ofl/inter"
+        }
+      ],
+      "properties": [
+        {
+          "name": "versecue:sourceCommit",
+          "value": "0b58fb370093f9a9f4ff785d94405710b79de67c"
+        }
+      ]
+    },
+    {
+      "type": "file",
       "bom-ref": "file:ui/fonts/IBMPlexSans-Regular.woff2",
       "name": "IBMPlexSans-Regular.woff2",
       "group": "IBM Plex Sans",
@@ -762,7 +794,7 @@
     {
       "type": "application",
       "bom-ref": "whisper.cpp-windows-x64",
-      "name": "whisper.cpp Windows x64 release archive",
+      "name": "whisper.cpp b5454 Windows x64 engine (Vulkan + CPU variants, built from official source in CI)",
       "licenses": [
         {
           "license": {
@@ -773,7 +805,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "6ba69e3482d7826214f90a6a9c84ca07782aec1e1d0c6a7c30c994fd5d816ccb"
+          "content": "9c16b302a33997482d88154cac702ed030baf65d62d3580096bc6ddc09b03e6e"
         }
       ],
       "scope": "optional",
@@ -816,6 +848,7 @@
       "dependsOn": [
         "pkg:npm/electron@45.3.3",
         "file:ui/fonts/DMSans-Variable.ttf",
+        "file:ui/fonts/Inter-Variable.ttf",
         "file:ui/fonts/IBMPlexSans-Regular.woff2",
         "file:ui/fonts/IBMPlexSans-Medium.woff2",
         "file:ui/fonts/IBMPlexSans-SemiBold.woff2",

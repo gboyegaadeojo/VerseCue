@@ -9,7 +9,8 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
     await page.setViewportSize({width:1280,height:800});
     const pipeline=()=>page.evaluate(()=>[...document.querySelectorAll('#auto-pipeline li')].map(li=>li.dataset.step+':'+li.dataset.state+':'+li.querySelector('.pipeline-label').textContent));
     const look=await page.evaluate(()=>({body:getComputedStyle(document.body).backgroundColor,header:getComputedStyle(document.querySelector('header')).backgroundColor,eyebrow:document.querySelector('.page-heading .eyebrow').textContent}));
-    assert.equal(look.body,'rgb(255, 255, 255)');assert.equal(look.header,'rgb(0, 0, 0)');assert.equal(look.eyebrow,'LIVE SCRIPTURE');
+    // Halo (docs/136) replaced the white Route canvas: graphite page and toolbar.
+    assert.equal(look.body,'rgb(22, 22, 24)');assert.ok(await page.evaluate(()=>document.body.classList.contains('halo')));assert.equal(look.eyebrow,'LIVE SCRIPTURE');
     assert.deepEqual(await pipeline(),['heard:todo:Heard','matched:todo:Matched','ready:todo:Ready','shown:todo:On screen']);
     const [candidate]=(await page.evaluate(()=>window.versecue.command('ingest',{text:'John 3:16'}))).value;
     await page.waitForFunction(()=>document.getElementById('reference').textContent==='John 3:16');

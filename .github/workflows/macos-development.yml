@@ -3,10 +3,22 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+env:
+  VERSECUE_AUTOMATION: "1"
 jobs:
   mac:
-    runs-on: macos-15
-    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            arch: arm64
+            label: apple-silicon
+          - runner: macos-15-intel
+            arch: x64
+            label: intel
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -62,21 +74,26 @@ jobs:
         run: |
           git clone https://github.com/ggml-org/whisper.cpp.git .cache/whisper-source
           git -C .cache/whisper-source checkout d1be6fde11ac6e0407606b4e42fe72d34add8037
-          cmake -S .cache/whisper-source -B .cache/whisper-build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DGGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=ON -DGGML_BLAS=OFF -DWHISPER_BUILD_TESTS=OFF
+          cmake -S .cache/whisper-source -B .cache/whisper-build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DGGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=ON -DGGML_BLAS=OFF -DGGML_NATIVE=OFF -DWHISPER_BUILD_TESTS=OFF
           cmake --build .cache/whisper-build --config Release -j 3 --target whisper-cli whisper-server
           mkdir -p .cache/mac-speech
           cp .cache/whisper-build/bin/whisper-cli .cache/whisper-build/bin/whisper-server .cache/mac-speech/
           curl --fail --location --retry 2 https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin -o .cache/mac-speech/ggml-base.en.bin
           echo 'a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002  .cache/mac-speech/ggml-base.en.bin' | shasum -a 256 --check
+      - name: Build the experimental Mac Bible helper
+        run: |
+          mkdir -p .cache/mac-native
+          swiftc -O -framework Cocoa -framework ApplicationServices -o .cache/mac-native/VerseCue.BibleBridge native/macos/BibleBridge.swift
+          echo '{"operation":"bogus"}' | .cache/mac-native/VerseCue.BibleBridge | grep -q UNKNOWN_OPERATION
       - name: Package and locally sign development app
         run: node scripts/package-macos.cjs
       - name: Check native packaged workspace
         run: |
           APP_VERSION=$(node -p "require('./package.json').version")
-          node scripts/test-workspace.cjs "dist/VerseCue-$APP_VERSION-darwin-arm64/VerseCue.app/Contents/MacOS/Electron"
+          node scripts/test-workspace.cjs "dist/VerseCue-$APP_VERSION-darwin-${{ matrix.arch }}/VerseCue.app/Contents/MacOS/Electron"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: VerseCue-mac-apple-silicon
+          name: VerseCue-mac-${{ matrix.label }}
           path: |
             dist/*.zip
             dist/*.sha256

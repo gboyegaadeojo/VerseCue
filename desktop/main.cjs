@@ -1,5 +1,7 @@
 'use strict';
-const {app,BrowserWindow,ipcMain,dialog,session,systemPreferences,clipboard,powerSaveBlocker,powerMonitor}=require('electron');
+const {spawn}=require('node:child_process');
+const {app,BrowserWindow,ipcMain,dialog,session,systemPreferences,clipboard,powerSaveBlocker,powerMonitor,shell}=require('electron');
+const {installCudaEngine,checkCudaEngine,OFFICIAL:CUDA_OFFICIAL}=require('../core/cuda-engine.cjs');
 const path=require('node:path');
 const fs=require('node:fs/promises');
 const {pathToFileURL}=require('node:url');
@@ -48,7 +50,7 @@ async function reviewApiPassage(id,guard){
 const privateApi=new LocalControlAPI(service,{onStop:()=>{cancelAudio();cancelPreparation();connector.arm(false);service.stop();},onPrepare:prepareBible,onReview:reviewApiPassage,onRevoke:()=>cancelPreparation(),onEvent:code=>{if(code==='PRIVATE_API_REFERENCE_REVIEW')resetSpeechStabilization();service.log(code);service.notify();}});
 const configurationTransition=new ConfigurationTransition({enterSafe:()=>{cancelAudio();cancelPreparation();connector.arm(false);connector.mappings.clear();service.setMode('paused');service.configure({translation:service.translation,dryRun:true});return privateApi.stop();}});
 async function changeConfiguration(operation,{restoreMode=true}={}){const previousMode=service.mode==='auto'?'confirm':service.mode;return configurationTransition.run(async()=>{const result=await operation();service.settingsRecoveryRequired=false;service.notify();if(restoreMode&&!service.stopped&&!service.recovery?.required&&service.mode==='paused')service.setMode(previousMode);return result;});}
-let settings,settingsFile,profiles,mainWindow,compactWindow,healthTimer,healthBusy=false,healthFailures=0,healthFailingSince=0;const windows=new Set();
+let macHelper=null,settings,settingsFile,profiles,mainWindow,compactWindow,healthTimer,healthBusy=false,healthFailures=0,healthFailingSince=0;const windows=new Set();
 const ui=pathToFileURL(path.join(__dirname,'../ui/index.html')).href;
 function trusted(e){if(!windows.has(BrowserWindow.fromWebContents(e.sender))||e.senderFrame!==e.sender.mainFrame||e.senderFrame.url.split('?')[0]!==ui)throw new Error('Untrusted caller');}
 // NR-010: saved Auto start preference and hold window. Start mode applies only at launch/reset (Session.applyStartMode).
@@ -71,11 +73,32 @@ async function choose(kind){
   if(result.canceled)return null;const file=result.filePaths[0];const stat=await fs.stat(file);if(!stat.isFile())throw new Error('Select a file');
   return changeConfiguration(async()=>{if(speech.busy)throw Error('Recognition is stopping; retry in a moment');const next={...settings,[kind==='worker'?'executable':'model']:file};settings=await store.save(settingsFile,next);speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);return settings;});
 }
+const fileExists=async file=>{if(!file)return false;try{await fs.access(file);return true;}catch{return false;}};
+// Guided NVIDIA engine: the operator downloads the two official archives; VerseCue verifies, unpacks and checks them.
+async function setupCudaEngine(){
+  if(process.platform!=='win32')throw Error('The NVIDIA engine is for Windows PCs with an NVIDIA graphics card. Macs already use the graphics chip through the built-in engine.');
+  if(speech.busy)throw Error('Stop listening before changing the speech engine');
+  if(!await fileExists(settings.model))throw Error('The speech model is missing. Choose the model in Settings > Speech first.');
+  const result=await dialog.showOpenDialog(mainWindow,{title:'Choose the two downloaded ZIP files (whisper.cpp CUDA and NVIDIA cuBLAS)',properties:['openFile','multiSelections'],filters:[{name:'ZIP archives',extensions:['zip']}]});
+  if(result.canceled)return null;
+  const {executable}=await installCudaEngine(result.filePaths,{root:path.join(app.getPath('userData'),'speech-engines')});
+  const check=await checkCudaEngine(executable,settings.model);
+  if(!check.ok){service.log('CUDA_ENGINE_CHECK_FAILED','warning');return {ok:false,reason:check.reason+' VerseCue is still using the built-in engine.',settings};}
+  const saved=await changeConfiguration(async()=>{if(speech.busy)throw Error('Recognition is stopping; retry in a moment');settings=await store.save(settingsFile,{...settings,executable,speechAcceleration:'gpu'});speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);speech.warmedUp=true;return settings;});
+  service.log('CUDA_ENGINE_SELECTED','info');return {ok:true,device:check.device,elapsedMs:check.elapsedMs,settings:saved};
+}
+async function useBuiltInEngine(){
+  if(speech.busy)throw Error('Stop listening before changing the speech engine');
+  const dir=path.join(process.resourcesPath,'speech'),worker=path.join(dir,process.platform==='win32'?'whisper-cli.exe':'whisper-cli');
+  if(!await fileExists(worker))throw Error('The built-in speech engine is not part of this copy of VerseCue. Choose an engine in Settings > Speech.');
+  return changeConfiguration(async()=>{if(speech.busy)throw Error('Recognition is stopping; retry in a moment');settings=await store.save(settingsFile,{...settings,executable:worker});speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);return settings;});
+}
 async function bootstrap(){
   await fs.mkdir(app.getPath('userData'),{recursive:true});await speech.initializeScratch(path.join(app.getPath('userData'),'speech-scratch'));
   settingsFile=path.join(app.getPath('userData'),'settings.json');const loaded=await store.load(settingsFile);settings=loaded.settings;service.settingsRecoveryRequired=loaded.recovered;
   profiles=new Profiles(path.join(app.getPath('userData'),'profiles.json'));
-  const helper=app.isPackaged?path.join(process.resourcesPath,'native','VerseCue.BibleBridge.exe'):path.join(__dirname,'../native/bin/VerseCue.BibleBridge.exe');
+  const helperName=process.platform==='darwin'?'VerseCue.BibleBridge':'VerseCue.BibleBridge.exe';
+  const helper=app.isPackaged?path.join(process.resourcesPath,'native',helperName):path.join(__dirname,'../native/bin',helperName);macHelper=process.platform==='darwin'?helper:null;
   let helperExists=false;try{await fs.access(helper);helperExists=true;}catch{}
   preparation=new BiblePreparation({helper:helperExists?helper:null});
   preparationController=new PreparationController({service,connector,speech:{cancel:cancelAudio},cancelRecognition:()=>{resetSpeechStabilization();speech.cancel();},preparation,getTranslation:()=>settings.translation});
@@ -99,6 +122,8 @@ async function bootstrap(){
     const bundledModel=path.join(speechDir,'ggml-base.en.bin');
     if(await exists(bundledWorker)&&await exists(bundledModel)){settings.executable=bundledWorker;settings.model=bundledModel;if(savedMissing)service.log('SPEECH_ENGINE_REPLACED_MISSING','warning');}
   }
+  // Out of the box (NR-017): with no input chosen, use the computer's default microphone (channel 1).
+  if(!settings.audioDevice)settings.audioDevice='default';
   connector.configure(settings.host,settings.port);service.configure({translation:settings.translation,dryRun:true,duplicateCooldownSeconds:settings.duplicateCooldownSeconds,maxPassageVerses:settings.maxPassageVerses});applySessionPreferences();speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);if(!service.settingsRecoveryRequired)service.applyStartMode();
   if(loaded.recovered)service.log('CORRUPT_SETTINGS_RECOVERED','warning');
   session.defaultSession.setPermissionRequestHandler(async(webContents,permission,callback,details)=>{
@@ -139,7 +164,7 @@ async function bootstrap(){
   handler('private-api-stop',()=>privateApi.stop());
   handler('private-api-copy-token',()=>{if(!privateApi.accepting||!privateApi.token)throw new Error('Enable the private API first');clipboard.writeText(privateApi.token);return true;});
   handler('save-settings',value=>{const valid=store.validateSettings(value);return changeConfiguration(async()=>{if(speech.busy)throw new Error('Recognition is stopping; retry in a moment');settings=await store.save(settingsFile,valid);connector.configure(settings.host,settings.port);speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);service.configure({translation:settings.translation,dryRun:true,duplicateCooldownSeconds:settings.duplicateCooldownSeconds,maxPassageVerses:settings.maxPassageVerses});applySessionPreferences();return settings;});});
-  handler('choose-worker',()=>choose('worker'));handler('choose-model',()=>choose('model'));
+  handler('choose-worker',()=>choose('worker'));handler('cuda-setup',()=>setupCudaEngine());handler('cuda-builtin',()=>useBuiltInEngine());handler('cuda-open-downloads',async()=>{for(const source of Object.values(CUDA_OFFICIAL))await shell.openExternal(source.page);return true;});handler('choose-model',()=>choose('model'));
   handler('command',async(event,command,payload)=>{
     if(configurationTransition.busy&&!['stop','reset'].includes(command))throw Error('Settings are changing; wait for setup to finish');
     switch(command){
@@ -208,8 +233,9 @@ async function bootstrap(){
     }
     service.speechStabilization={state:stabilized.assembled?'assembled':'idle',...(stabilized.assembled?{fragmentCount:stabilized.fragmentCount,reason:'Reference assembled from adjacent speech windows. Review before showing.'}:{})};
     if(!evidence.contextUsable){service.context=null;service.queue=[];automatic.cancel();if(passageCoordinator?.review||passageCoordinator?.busy)cancelPreparation();}
-    service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});const candidates=await service.ingestChecked(stabilized.text,{authorized:true,...(evidence.windowId?{id:evidence.windowId}:{}),sourceAgeMs:stabilized.sourceAgeMs,additionalGuard:stillAuthorized});
+    service.log('STT_WINDOW_COMPLETE','info',{sttWorkerMs:result.elapsedMs});const heard=Number.isFinite(result.heardConfidence)&&!stabilized.assembled?result.heardConfidence:null;const candidates=await service.ingestChecked(stabilized.text,{authorized:true,...(evidence.windowId?{id:evidence.windowId}:{}),sourceAgeMs:stabilized.sourceAgeMs,additionalGuard:stillAuthorized});
     if(!sameLease())throw new Error('Stale recognition discarded');
+    if(heard!==null)for(const candidate of candidates)if(candidate.recognition!=='quote')candidate.heardConfidence=heard;
     if(stabilized.assembled)for(const candidate of candidates){candidate.phrase=stabilized.sourcePhrase;candidate.reference.autoEligible=false;candidate.issues.push('Assembled from adjacent speech windows; confirm the complete reference.');candidate.stabilization={fragmentCount:stabilized.fragmentCount};}
     if(candidates.length&&(passageCoordinator?.active||passageCoordinator?.review||passageCoordinator?.busy))cancelPreparation();
     if(!evidence.timingKnown||!evidence.lossFree)for(const candidate of candidates)candidate.issues.push(!evidence.timingKnown?'Original audio timing is unavailable; review this full reference.':'Audio was dropped, clipped or its quality is unknown; review the full reference before continuing.');
@@ -235,6 +261,12 @@ async function bootstrap(){
   });  handler('export-settings',async()=>{const r=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-settings.json'});if(!r.canceled){const safe={...settings,executable:'',model:'',audioDevice:''};await fs.writeFile(r.filePath,JSON.stringify(safe,null,2));return true;}return false;});
   handler('import-settings',async()=>{const r=await dialog.showOpenDialog(mainWindow,{properties:['openFile'],filters:[{name:'JSON',extensions:['json']}]});if(r.canceled)return null;const bytes=await fs.readFile(r.filePaths[0],'utf8');if(bytes.length>16384)throw new Error('Settings file too large');const incoming=store.validateSettings(JSON.parse(bytes));incoming.executable='';incoming.startMode=settings.startMode;incoming.model='';incoming.audioDevice='';return changeConfiguration(async()=>{if(speech.busy)throw new Error('Stop recognition before import');settings=await store.save(settingsFile,incoming);connector.configure(settings.host,settings.port);speech.configure('','',settings.speechMode,settings.speechAcceleration);service.configure({translation:settings.translation,dryRun:true,duplicateCooldownSeconds:settings.duplicateCooldownSeconds,maxPassageVerses:settings.maxPassageVerses});applySessionPreferences();return settings;});});
   handler('export-diagnostics',async()=>{const preview={schemaVersion:1,appVersion:app.getVersion(),referenceMetadata:referenceMetadataVersions(),platform:process.platform,p0:'PENDING',events:service.events,capabilities:service.snapshot().capabilities};const r=await dialog.showMessageBox(mainWindow,{type:'info',buttons:['Cancel','Save redacted diagnostics'],defaultId:0,message:`Export ${preview.events.length} event codes and times, app/platform and reference dictionary/versification versions, and capability flags. No references, transcripts, audio, paths or addresses are included.`});if(r.response!==1)return false;const dest=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-diagnostics.json'});if(!dest.canceled)await fs.writeFile(dest.filePath,JSON.stringify(preview,null,2));return !dest.canceled;});
+  // Mac: one read-only inspection of ProPresenter's accessibility tree, saved where the operator chooses, to verify the helper's element names.
+  handler('mac-inspect',async()=>{if(process.platform!=='darwin'||!macHelper)throw Error('The Mac inspection runs only in the Mac version of VerseCue');try{await fs.access(macHelper);}catch{throw Error('The Mac Bible helper is not part of this copy of VerseCue');}
+    const output=await new Promise((resolve,reject)=>{const child=spawn(macHelper,[],{stdio:['pipe','pipe','ignore'],shell:false});let out='',size=0;const timer=setTimeout(()=>child.kill(),20000);child.stdout.on('data',b=>{size+=b.length;if(size<8e6)out+=b;});child.once('error',()=>{clearTimeout(timer);reject(Error('The Mac Bible helper could not start'));});child.once('close',()=>{clearTimeout(timer);resolve(out);});child.stdin.end(JSON.stringify({operation:'inspect'})+String.fromCharCode(10));});
+    let data;try{data=JSON.parse(output);}catch{throw Error('The Mac inspection did not return a readable result');}
+    if(!data.ok)throw Error(data.code==='ACCESSIBILITY_PERMISSION_REQUIRED'?'macOS needs to allow VerseCue to read other apps: System Settings > Privacy & Security > Accessibility > turn on VerseCue. Then try again.':data.code==='ONE_PROPRESENTER_INSTANCE_REQUIRED'?'Open ProPresenter (one copy) and its Bible view, then try again.':'The inspection stopped: '+data.code);
+    const r=await dialog.showSaveDialog(mainWindow,{defaultPath:'VerseCue-ProPresenter-inspection.json'});if(r.canceled)return {saved:false,fields:data.referenceFields};await fs.writeFile(r.filePath,JSON.stringify(data,null,1));return {saved:true,fields:data.referenceFields,nodes:data.nodes.length};});
   handler('compact',()=>{if(compactWindow)compactWindow.focus();else compactWindow=createWindow(true);});
   healthTimer=setInterval(async()=>{
     if(!connector.version||healthBusy)return;healthBusy=true;
@@ -256,6 +288,17 @@ async function bootstrap(){
       else{connector.status={state:'offline'};cancelAudio();connector.arm(false);service.setMode('paused');service.log('LINK_LOST','warning');}
     }finally{healthBusy=false;service.notify();}
   },2000);
+  // Every engine change warms the graphics card up in the background; recognition uses the processor until it is ready.
+  // Automated test runs (VERSECUE_AUTOMATION=1) turn off the open-and-connect conveniences: no auto-connect,
+  // no auto-listen and no graphics-card warm-up, so scenarios control capture, targets and timing themselves.
+  const automation=process.env.VERSECUE_AUTOMATION==='1';service.automation=automation;
+  const configureSpeech=speech.configure.bind(speech);speech.configure=(...args)=>{configureSpeech(...args);service.speechGpu=speech.gpuState;if(!automation)setImmediate(()=>speech.warmUp().then(r=>{service.speechGpu=speech.gpuState;if(r.state==='ready')service.log('SPEECH_GPU_READY','info');else if(r.state==='unavailable')service.log('SPEECH_GPU_UNAVAILABLE','info');service.notify();}).catch(()=>{}));};
+  speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);
+  // Connect to the saved ProPresenter automatically: a read-only /version check every 3 s until it answers.
+  // Once connected the health check above takes over (slow/lost handling unchanged). Never arms output.
+  let autoConnectBusy=false;
+  const autoConnect=async()=>{if(automation||autoConnectBusy||connector.version||settings.autoConnect===false||!settings.host||service.stopped)return;autoConnectBusy=true;const generation=connector.generation;try{await connector.test();if(generation===connector.generation){service.log('AUTO_CONNECTED','info');service.notify();}}catch{}finally{autoConnectBusy=false;}};
+  setInterval(autoConnect,3000);setTimeout(autoConnect,300);
   mainWindow=createWindow();
 }
 if(!app.requestSingleInstanceLock())app.quit();else{

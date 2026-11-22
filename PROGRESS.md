@@ -928,3 +928,7 @@ PR103 merged: graphics-card speech (Metal Mac build, CUDA-selectable on NVIDIA; 
 ## v0.6.2 published - 2026-11-21
 
 Public pre-release v0.6.2 from main 9343a1b with Windows x64 and Apple Silicon ZIPs and checksums. Packaged Windows sweep 47/47, packaged speech CLI and resident pass, Mac CI build with Metal passed.
+
+## Halo, speed, any ProPresenter/graphics card, 0.6.3 prepared - 2026-11-21/22
+
+Merged PR105-PR112: guided NVIDIA setup (docs/135), Halo design with compact Standard and booth-safe Large (docs/136, NR-016), experimental Mac Bible helper pending the user's inspection (docs/138), faster start (auto-connect, auto-listen, default microphone, -ac 768, 0.7 s silence, background GPU warm-up, heard clarity) and any ProPresenter version (docs/137, NR-015/NR-017), Vulkan engine for any GPU plus Intel Mac builds (docs/139), version 0.6.3, automation mode for test runs, model kept loaded by default. 0.6.3 publication waits for packaged real-speech checks under normal load (test laptop ~75-88% CPU from ProPresenter).
