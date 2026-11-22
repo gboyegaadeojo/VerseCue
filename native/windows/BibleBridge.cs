@@ -267,6 +267,39 @@ class BibleBridge {
         }
         return false;
     }
+    // Installed versions (NR-018): open the edition menu, read its names, close it with Escape and confirm the
+    // selection did not change. Read-only apart from the menu; never selects an edition or touches output.
+    static List<string> ListEditions(AutomationElement root,Process process,AutomationElement selector,out string before) {
+            before=SelectedTranslation(selector);Stage("open-installed-editions");ClickVerifiedControl(selector,process.Id);
+            // Anchor on the selected edition: its name also appears in the open menu. The menu entry's list
+            // (the nearest ancestor holding several entries) gives every installed edition.
+            var names=new List<string>();var timer=Stopwatch.StartNew();var walker=TreeWalker.RawViewWalker;string debug="";
+            while(timer.ElapsedMilliseconds<6000&&names.Count==0) {
+                var windows=EditionScopes(root,process,true);
+                foreach(AutomationElement window in windows) {
+                    foreach(AutomationElement hit in window.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.NameProperty,before))) {
+                        bool insideSelector=false;for(var up=walker.GetParent(hit);up!=null;up=walker.GetParent(up)){if(Automation.Compare(up,selector)){insideSelector=true;break;}}
+                        if(insideSelector||hit.Current.IsOffscreen)continue;
+                        debug+=hit.Current.ControlType.ProgrammaticName+"|";
+                        // Step up until a level holds two or more names (the menu list), at most six levels.
+                        var level=walker.GetParent(hit);
+                        for(int depth=0;level!=null&&depth<6;depth++,level=walker.GetParent(level)) {
+                            var found=new List<string>();
+                            foreach(AutomationElement text in level.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text))) {var name=(text.Current.Name??"").Trim();if(name.Length>0&&name.Length<=80&&!found.Contains(name))found.Add(name);}
+                            debug+=depth+":"+found.Count+",";
+                            if(found.Count>=2||depth==5){if(found.Count<=60)names.AddRange(found);else names.Add(before);break;}
+                        }
+                        if(names.Count>0)break;
+                    }
+                    if(names.Count>0)break;
+                }
+                if(names.Count==0)Thread.Sleep(80);
+            }
+            uint fg;GetWindowThreadProcessId(GetForegroundWindow(),out fg);if(fg==process.Id)InputKeys(new [] {Key(0x1B,0,0),Key(0x1B,0,2)});
+            var settle=Stopwatch.StartNew();while(settle.ElapsedMilliseconds<800&&SelectedTranslation(selector)!=before)Thread.Sleep(50);
+            Require(SelectedTranslation(selector)==before,"EDITION_CHANGED_WHILE_LISTING");Require(names.Count>0,"INSTALLED_EDITIONS_NOT_READ");
+            return names;
+    }
     static object Run(Dictionary<string,object> request) {
         Stage("validate-target");
         string operation=Convert.ToString(request.ContainsKey("operation")?request["operation"]:"inspect");
@@ -275,7 +308,7 @@ class BibleBridge {
         string reference=null,translation=null;bool chapter=operation=="prepare-chapter";int focusVerse=0,chapterVerses=0;
         if(chapter) {
             // Whole chapter for a volunteer: "Proverbs 3", positioned at the spoken verse. Scrolling only; no slide is clicked or selected.
-            Require(request.Count==5&&request.ContainsKey("reference")&&request.ContainsKey("translation")&&request.ContainsKey("focusVerse")&&request.ContainsKey("chapterVerses"),"INVALID_PREPARE_REQUEST");
+            Require((request.Count==5||request.Count==6&&request.ContainsKey("listVersions"))&&request.ContainsKey("reference")&&request.ContainsKey("translation")&&request.ContainsKey("focusVerse")&&request.ContainsKey("chapterVerses"),"INVALID_PREPARE_REQUEST");
             reference=Convert.ToString(request["reference"]);translation=Convert.ToString(request["translation"]);
             Require(request["focusVerse"] is int&&request["chapterVerses"] is int,"INVALID_PREPARE_REQUEST");focusVerse=(int)request["focusVerse"];chapterVerses=(int)request["chapterVerses"];
             Require(reference.Length<=100&&Regex.IsMatch(reference,@"^[1-3]?[A-Za-z ]+ [1-9][0-9]{0,2}$"),"INVALID_REFERENCE_SHAPE");
@@ -322,36 +355,12 @@ class BibleBridge {
         // Installed versions (NR-018): open the edition menu, read its names, close it with Escape and confirm the
         // selection did not change. Read-only apart from the menu; never selects an edition or touches output.
         if(listing) {
-            string before=SelectedTranslation(selector);Stage("open-installed-editions");ClickVerifiedControl(selector,process.Id);
-            // Anchor on the selected edition: its name also appears in the open menu. The menu entry's list
-            // (the nearest ancestor holding several entries) gives every installed edition.
-            var names=new List<string>();var timer=Stopwatch.StartNew();var walker=TreeWalker.RawViewWalker;string debug="";
-            while(timer.ElapsedMilliseconds<6000&&names.Count==0) {
-                var windows=EditionScopes(root,process,true);
-                foreach(AutomationElement window in windows) {
-                    foreach(AutomationElement hit in window.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.NameProperty,before))) {
-                        bool insideSelector=false;for(var up=walker.GetParent(hit);up!=null;up=walker.GetParent(up)){if(Automation.Compare(up,selector)){insideSelector=true;break;}}
-                        if(insideSelector||hit.Current.IsOffscreen)continue;
-                        debug+=hit.Current.ControlType.ProgrammaticName+"|";
-                        // Step up until a level holds two or more names (the menu list), at most six levels.
-                        var level=walker.GetParent(hit);
-                        for(int depth=0;level!=null&&depth<6;depth++,level=walker.GetParent(level)) {
-                            var found=new List<string>();
-                            foreach(AutomationElement text in level.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text))) {var name=(text.Current.Name??"").Trim();if(name.Length>0&&name.Length<=80&&!found.Contains(name))found.Add(name);}
-                            debug+=depth+":"+found.Count+",";
-                            if(found.Count>=2||depth==5){if(found.Count<=60)names.AddRange(found);else names.Add(before);break;}
-                        }
-                        if(names.Count>0)break;
-                    }
-                    if(names.Count>0)break;
-                }
-                if(names.Count==0)Thread.Sleep(80);
-            }
-            uint fg;GetWindowThreadProcessId(GetForegroundWindow(),out fg);if(fg==process.Id)InputKeys(new [] {Key(0x1B,0,0),Key(0x1B,0,2)});
-            var settle=Stopwatch.StartNew();while(settle.ElapsedMilliseconds<800&&SelectedTranslation(selector)!=before)Thread.Sleep(50);
-            Require(SelectedTranslation(selector)==before,"EDITION_CHANGED_WHILE_LISTING");Require(names.Count>0,"INSTALLED_EDITIONS_NOT_READ");
-            return new {ok=true,state="translations-listed",installed=names.Take(60).ToArray(),selected=before,levels=debug,outputRequests=0};
+            string before;var names=ListEditions(root,process,selector,out before);
+            return new {ok=true,state="translations-listed",installed=names.Take(60).ToArray(),selected=before,outputRequests=0};
         }
+        // Speed (NR-020): a first whole-chapter preparation can read the installed versions in the same run,
+        // so a later version request never has to stop and open the menu.
+        string[] installedNow=null;if(chapter&&request.ContainsKey("listVersions")&&request["listVersions"] is bool&&(bool)request["listVersions"]){string ignored;installedNow=ListEditions(root,process,selector,out ignored).Take(60).ToArray();}
         if(operation=="inspect")return new {ok=true,state="inspection-only",translationDisplayName=selected,reference=Value(field),outputRequests=0};
         SelectTranslation(root,process,selector,Translations[translation]);selected=SelectedTranslation(selector);
         Require(Translations[translation]==selected,"REQUESTED_EDITION_NOT_VERIFIED");
@@ -390,20 +399,24 @@ class BibleBridge {
             Console.Error.WriteLine(Json.Serialize(new {stage="verify-check",elapsedMs=Total.ElapsedMilliseconds,fieldMatches=fieldMatches,rangeFound=rangeFound,elementCount=elements.Count,labelCount=count}));Console.Error.Flush();
             stable=fieldMatches&&rangeFound&&count>0?stable+1:0;
             if(stable>=2) {
+                // The clipped-text scan costs about two seconds; a whole chapter for a volunteer skips it (the volunteer
+                // sees every slide before taking it live). Exact passages for Confirm and Auto keep it.
+                if(!chapter){
                 Stage("read-clipping-snapshot");
                 var warningCache=new CacheRequest();warningCache.TreeScope=TreeScope.Element;warningCache.Add(AutomationElement.NameProperty);warningCache.Add(AutomationElement.HelpTextProperty);
                 AutomationElementCollection warnings;using(warningCache.Activate()){warnings=bible.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Image));}
                 clipped=warnings.Cast<AutomationElement>().Any(e=>(e.Cached.HelpText??"").IndexOf("clipped",StringComparison.OrdinalIgnoreCase)>=0||(e.Cached.Name??"").IndexOf("clipped",StringComparison.OrdinalIgnoreCase)>=0);
+                }
                 Stage("prepared-review");
                 if(chapter) {
                     Stage("scroll-to-verse");bool visible=ScrollToVerse(bible,reference,focusVerse,chapterVerses);
-                    return new {ok=true,state="chapter-prepared-no-output",reference=reference,translation=translation,focusVerse=focusVerse,focusVisible=visible,referenceLabels=count,clippingWarning=clipped,saveCopyRequested=false,formattingVerified=false,outputRequests=0,outputObserved=false,elapsedMs=Total.ElapsedMilliseconds,timingsMs=Timings};
+                    return new {ok=true,state="chapter-prepared-no-output",reference=reference,translation=translation,focusVerse=focusVerse,focusVisible=visible,installed=installedNow,referenceLabels=count,clippingWarning=clipped,saveCopyRequested=false,formattingVerified=false,outputRequests=0,outputObserved=false,elapsedMs=Total.ElapsedMilliseconds,timingsMs=Timings};
                 }
                 bool saveCopy=operation=="prepare-save";
                 if(saveCopy)SaveBibleCopy(bible,process,field,selector,reference,selected);
                 return new {ok=true,state="prepared-needs-operator-review",reference=reference,translation=translation,referenceLabels=count,clippingWarning=clipped,saveCopyRequested=saveCopy,formattingVerified=false,outputRequests=0,outputObserved=false,elapsedMs=Total.ElapsedMilliseconds,timingsMs=Timings};
             }
-            Thread.Sleep(150);
+            Thread.Sleep(60);
         }
         throw new InvalidOperationException("PREPARATION_COMPLETION_NOT_VERIFIED");
     }

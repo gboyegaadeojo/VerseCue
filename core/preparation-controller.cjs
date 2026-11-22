@@ -28,7 +28,10 @@ class PreparationController {
     const listeningPreserved=confirmPreparation&&service.capture?.active===true;
     if(confirmPreparation)this.cancelRecognition();else speech.cancel();connector.arm(false);service.configure({dryRun:true,translation:this.getTranslation()});if(!confirmPreparation)service.setMode('paused');
     const generation=service.generation;
-    const result=await preparation.prepare(reference,translation,{guard:()=>guard()&&!service.stopped&&generation===service.generation,saveCopy,maxVerses,...(chapter?{focusVerse}:{})});
+    // Speed (NR-020): the first whole chapter also reads the installed versions, so a later version request does not wait.
+    const key=connector.generation+'|'+connector.base,listVersions=chapter&&!(this.versionCache?.key===key&&Date.now()-this.versionCache.at<600000);
+    const result=await preparation.prepare(reference,translation,{guard:()=>guard()&&!service.stopped&&generation===service.generation,saveCopy,maxVerses,...(chapter?{focusVerse,...(listVersions?{listVersions:true}:{})}:{})});
+    if(listVersions&&Array.isArray(result.installed)){const {codesFromNames}=require('./bible-versions.cjs');this.versionCache={key,at:Date.now(),value:{names:result.installed,codes:codesFromNames(result.installed)}};service.log('INSTALLED_VERSIONS_READ','info',{count:this.versionCache.value.codes.length,withChapter:true});}
     service.log('NATIVE_BIBLE_PREPARED_REVIEW','info',{nativeWorkerMs:result.workerElapsedMs});service.notify();return {...result,preparedGeneration:generation,listeningPreserved};
   }
   // Which Bible versions this ProPresenter has, remembered for 10 minutes per connection. null when it cannot be checked here.

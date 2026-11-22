@@ -95,3 +95,6 @@ Implemented in this change: Bible preparation is no longer pinned to ProPresente
 
 2026-11-22: the user asked for an in-app tutorial explaining the buttons and tick boxes on each page, reviewed two mock-ups and chose option B (Help mode: numbered markers on every control with explanations and an "On this page" list) with option A (a guided tour) on first launch. See [docs/142](docs/142-in-app-help-and-tour.md).
 
+## NR-020 - Faster preparation and version switching
+
+2026-11-22: the user asked whether detection and triggers could be faster still. Started with the low-risk items: a whole chapter for a volunteer skips the clipped-text scan (about two seconds; exact passages for Confirm and Auto keep it), the helper checks ProPresenter's progress about every 60 ms instead of 150 ms, and the first whole chapter also reads the installed versions, so a later version request doesn't stop to open the menu. Early preparation from unfinished speech waits for the user's OK. See [docs/143](docs/143-faster-preparation.md).

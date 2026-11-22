@@ -57,6 +57,7 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 ### Switches Bible version on request
 - **Version requests:** "can you give me NIV", "read that in New King James" or "1st Timothy 1 verse 2 in NIV" reopens the passage in that version.
 - **Checked first:** VerseCue first checks the version is installed in ProPresenter. If it isn't, VerseCue says so and keeps the current version.
+- **No waiting to check:** VerseCue reads which versions are installed while it opens the first chapter, so a later version request goes straight through.
 - **Spoken names it understands:**
   - KJV / King James
   - NKJV / New King James
@@ -70,7 +71,7 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 ### Gets the passage into ProPresenter your way
 - **Auto:** complete, explicit references go to ProPresenter after a short hold window you can set. Press **H** to hold one.
 - **Confirm:** you review each passage, then send it.
-- **Prepare for volunteer:** VerseCue never sends anything. It opens the passage in ProPresenter's own Bible view, by default the whole chapter at the spoken verse, and your volunteer takes it live and uses ProPresenter's next/previous.
+- **Prepare for volunteer:** VerseCue never sends anything. It opens the passage in ProPresenter's own Bible view, by default the whole chapter at the spoken verse, and your volunteer takes it live and uses ProPresenter's next/previous. A whole chapter opens faster because VerseCue skips the clipped-text check that exact passages get; your volunteer sees each slide before taking it live.
 - **Suggest only and Paused,** plus **Emergency stop (Esc)** to stop everything at once.
 - **Your own slides:** uses passages you have saved in ProPresenter's library. Long passages split into parts you continue deliberately. Previews of the slides come from ProPresenter itself.
 - **Long readings:** up to 176 verses, a whole chapter, in Confirm. Auto stays at 10 verses.
