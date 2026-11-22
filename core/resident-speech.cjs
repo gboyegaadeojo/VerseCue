@@ -26,7 +26,7 @@ class ResidentSpeech {
     }
     throw new Error(epoch!==this.epoch?'Recognition canceled':'Resident speech worker could not become ready');
   }
-  async recognize(bytes,executable,model){
+  async recognize(bytes,executable,model,{hint=null}={}){
     // A running worker started on the other processor (CPU vs graphics card) is restarted once.
     if(this.child&&this.startedAcceleration!==this.acceleration)this.stop();
     const epoch=this.epoch;clearTimeout(this.idle);let deadline=Date.now()+20000;
@@ -35,7 +35,7 @@ class ResidentSpeech {
       if(!this.child||!this.base){await this.start(executable,model,Date.now()+60000,epoch);deadline=Date.now()+20000;}
       if(epoch!==this.epoch||!this.base||!this.child)throw new Error('Recognition canceled');
       const child=this.child,body=new FormData();body.set('file',new Blob([bytes],{type:'audio/wav'}),'window.wav');body.set('response_format','verbose_json');// Word timestamps made verbose_json about 50% slower; the probabilities remain without them.
-      body.set('no_timestamps','true');body.set('language','en');body.set('temperature','0.0');body.set('temperature_inc','0.2');
+      body.set('no_timestamps','true');body.set('language','en');body.set('temperature','0.0');body.set('temperature_inc','0.2');if(hint)body.set('prompt',hint);
       this.controller=new AbortController();const timer=setTimeout(()=>this.controller?.abort(),Math.max(1,deadline-Date.now()));let response;
       try{response=await fetch(this.base+'/inference',{method:'POST',body,redirect:'error',signal:this.controller.signal});if(!response.ok)throw new Error('Inference rejected');const text=await response.text();if(text.length>65536)throw new Error('Oversized result');const data=JSON.parse(text);if(epoch!==this.epoch||this.child!==child)throw new Error('Recognition canceled');if(typeof data.text!=='string')throw new Error('Invalid response');this.warmedUp=true;return {text:data.text.trim().slice(0,8192),confidence:serverConfidence(data)};}finally{clearTimeout(timer);this.controller=null;}
     }catch(error){const aborted=epoch!==this.epoch;if(!aborted||!this.base)this.stop();throw new Error(aborted||error.message==='Recognition canceled'?'Recognition canceled':'Resident recognition failed or exceeded 20 seconds; worker stopped');}

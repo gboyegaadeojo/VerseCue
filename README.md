@@ -33,8 +33,12 @@ You need:
 
 Checksums and older versions are on the [releases page](https://github.com/gboyegaadeojo/VerseCue/releases). Don't use GitHub's automatic "Source code" ZIP to run the app.
 
-- **Windows:** extract the whole ZIP, then open **VerseCue.exe** in the extracted folder. The app isn't signed by a registered publisher yet, so Windows may show a warning.
-- **Mac:** extract the ZIP and move **VerseCue.app** to Applications. It isn't notarized by Apple yet, so macOS may ask you to confirm before opening it.
+- **Windows installer (from the next release):** run **VerseCue-Setup**. It installs VerseCue for your Windows user without administrator rights, and adds Start-menu and desktop shortcuts. Remove it later from **Settings > Apps**, which asks whether to keep your settings. Installing a newer version replaces the old one.
+- **Windows ZIP:** extract the whole ZIP, then open **VerseCue.exe** in the extracted folder.
+- **Mac disk image (from the next release):** open the **.dmg** and drag **VerseCue** onto **Applications**.
+- **Mac ZIP:** extract the ZIP and move **VerseCue.app** to Applications.
+
+The app isn't signed by a registered publisher yet. Windows may show a SmartScreen warning: choose **More info > Run anyway**. On a Mac, right-click VerseCue and choose **Open** the first time.
 
 To remove VerseCue or go back to an earlier version, see [rollback and removal](docs/125-rollback-and-uninstall.md).
 
@@ -44,6 +48,7 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 - **Natural speech:** "Turn with me to Proverbs chapter three, verse five", "John 3:16", "Psalm 119 verse 105".
 - **Ranges:** "John chapter three verses sixteen through eighteen", "First Corinthians thirteen four to seven".
 - **Numbered books, said any common way:** "1st Peter", "First John", "Second Timothy". Common alternative names work too, such as "Psalms" for Psalm and "Song of Solomon".
+- **Forgiving with hard names:** when the speech engine spells a book slightly wrong ("Habakuk", "Zeccariah"), VerseCue still recognises it before chapter or verse wording. It always asks a person to check these; Auto never sends them.
 - **Whole chapters:** "Romans chapter eight".
 - **Corrections:** "sorry, I meant John 3:17" replaces the previous reference.
 - **Following along:** "next verse", "previous verse", "next chapter", "go back two verses", "verse 18" (in the same chapter), "read that again".
@@ -85,6 +90,7 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 - **Clarity badge:** each reference gets "Heard clearly", "Likely" or "Check this", with a percentage.
 - **Progress line:** Heard, Matched, Sending, On screen.
 - **"Heard this service" list:** what was said and whether it was spoken or quoted.
+- **Accuracy check:** in **Settings > Speech**, read about 55 short phrases and VerseCue scores what it heard on your voice, microphone and computer. It also tests optional **book-name hints** (off by default, slower) and tells you whether to turn them on. Nothing is sent to ProPresenter, and recordings are saved only if you choose.
 
 ### Ready out of the box
 - **Connects by itself:** connects to ProPresenter automatically and keeps trying. Usually the only setting is ProPresenter's address.
