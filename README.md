@@ -60,6 +60,10 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 
 A fuller walkthrough is in the [personal test guide](docs/124-personal-auto-first-test-guide.md).
 
+## Before each service (Windows)
+
+**Restart ProPresenter before the service starts.** On Windows, VerseCue opens passages by reading ProPresenter's screen, the way accessibility tools do, so it can confirm what ProPresenter opened. After that, ProPresenter does extra background work for the rest of its session, which makes later steps slower. A fresh start each service keeps it fast.
+
 ## Safety by design
 
 - Starts in dry run every time. Sending to ProPresenter needs deliberate setup.

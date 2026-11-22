@@ -33,7 +33,7 @@ Nothing is sent live by a version request.
 | --- | --- |
 | `tests/version-switch.test.cjs`: spoken forms, ignored talk, passage just used, not-eligible for Auto, notices, name mapping, not-installed refusal, installed and cannot-check paths | Pass |
 | Live `list-translations` on the personal ProPresenter 21.4.2, freshly restarted, Audience and Stage off | Read "American Standard Version" and "King James Version"; menu closed; selection unchanged; live slide unchanged |
-| Live end-to-end switch (Psalm 23 in KJV, NIV not installed, ASV installed) | Not yet passing. After a few preparations ProPresenter became very slow to answer accessibility queries (about 15 s just to find its Bible controls; 19–26% of all cores continuously, recovering only on restart). Being investigated before this is merged. |
+| Live end-to-end switch on a freshly restarted ProPresenter, Audience and Stage off, live slide unchanged | Pass: Psalm 23 opened in KJV (4.4 s); "Can you give me NIV" refused with "NIV isn't installed in ProPresenter, so VerseCue is keeping KJV. Installed: ASV, KJV." (2.9 s); "Read that in the American Standard Version" reopened Psalm 23 in ASV (7.1 s) |
 
 ## Finding: ProPresenter on Windows slows down once the helper connects
 
@@ -53,3 +53,7 @@ Interim changes:
 - whole-chapter preparation still succeeds on a slowed ProPresenter (41 s).
 
 Reading or changing the version menu on a slowed ProPresenter still times out. A lighter Windows approach is needed before version switching (and Windows preparation in general) is dependable for a long service. That approach should keep the helper connected only briefly, or avoid UI Automation for the version menu. This is tracked as the next Windows task.
+
+## Decision (2026-11-22)
+
+The user chose to keep screen reading, which keeps the confirmation of what ProPresenter opened. On Windows, restart ProPresenter before each service so it starts fast. The README says so.
