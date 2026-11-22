@@ -112,3 +112,12 @@ Implemented in this change: Bible preparation is no longer pinned to ProPresente
 - **Tolerant reader:** accepts commas before "verse" and close misspellings of book names before chapter or verse wording. Those references are review-only, so Auto never sends them.
 
 See [docs/145](docs/145-accuracy-check-and-book-names.md).
+
+## NR-023 - Installers
+
+2026-11-22: the user asked for an installer instead of a ZIP.
+
+- **Windows:** `VerseCue-Setup-<version>.exe` installs for the current user without administrator rights, in `%LOCALAPPDATA%\Programs\VerseCue`. It adds Start-menu and desktop shortcuts and a Settings > Apps entry, and an uninstaller that asks before removing settings. It is built with the .NET compiler included in Windows, so there's no new dependency.
+- **Mac:** a drag-to-Applications disk image (`.dmg`), built in Mac CI.
+
+The ZIPs remain. See [docs/146](docs/146-installers.md).
