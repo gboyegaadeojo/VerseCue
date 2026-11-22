@@ -33,8 +33,12 @@ You need:
 
 Checksums and older versions are on the [releases page](https://github.com/gboyegaadeojo/VerseCue/releases). Don't use GitHub's automatic "Source code" ZIP to run the app.
 
-- **Windows:** extract the whole ZIP, then open **VerseCue.exe** in the extracted folder. The app isn't signed by a registered publisher yet, so Windows may show a warning.
-- **Mac:** extract the ZIP and move **VerseCue.app** to Applications. It isn't notarized by Apple yet, so macOS may ask you to confirm before opening it.
+- **Windows installer (from the next release):** run **VerseCue-Setup**. It installs VerseCue for your Windows user without administrator rights, and adds Start-menu and desktop shortcuts. Remove it later from **Settings > Apps**, which asks whether to keep your settings. Installing a newer version replaces the old one.
+- **Windows ZIP:** extract the whole ZIP, then open **VerseCue.exe** in the extracted folder.
+- **Mac disk image (from the next release):** open the **.dmg** and drag **VerseCue** onto **Applications**.
+- **Mac ZIP:** extract the ZIP and move **VerseCue.app** to Applications.
+
+The app isn't signed by a registered publisher yet. Windows may show a SmartScreen warning: choose **More info > Run anyway**. On a Mac, right-click VerseCue and choose **Open** the first time.
 
 To remove VerseCue or go back to an earlier version, see [rollback and removal](docs/125-rollback-and-uninstall.md).
 

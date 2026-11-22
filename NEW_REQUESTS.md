@@ -102,3 +102,12 @@ Implemented in this change: Bible preparation is no longer pinned to ProPresente
 ## NR-021 - Cue V logo
 
 2026-11-22: from three bolder logo ideas on the design canvas, the user chose Logo 2, "Cue V": a heavy white V with a red-orange go triangle in its notch, on a near-black tile. It is the app icon on Windows (VerseCue.exe) and Mac (VerseCue.app), the window icon, the sidebar mark and the README header. Sources are in `assets/brand`; `node scripts/build-icons.cjs` regenerates `assets/icons`.
+
+## NR-023 - Installers
+
+2026-11-22: the user asked for an installer instead of a ZIP.
+
+- **Windows:** `VerseCue-Setup-<version>.exe` installs for the current user without administrator rights, in `%LOCALAPPDATA%\Programs\VerseCue`. It adds Start-menu and desktop shortcuts and a Settings > Apps entry, and an uninstaller that asks before removing settings. It is built with the .NET compiler included in Windows, so there's no new dependency.
+- **Mac:** a drag-to-Applications disk image (`.dmg`), built in Mac CI.
+
+The ZIPs remain. See [docs/146](docs/146-installers.md).

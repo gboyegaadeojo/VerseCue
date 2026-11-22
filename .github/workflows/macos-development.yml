@@ -96,6 +96,7 @@ jobs:
           name: VerseCue-mac-${{ matrix.label }}
           path: |
             dist/*.zip
+            dist/*.dmg
             dist/*.sha256
             test-results/figma-workspace.json
           retention-days: 1
