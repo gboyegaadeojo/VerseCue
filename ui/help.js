@@ -29,6 +29,8 @@
    ['#audio-channel','Pastor channel','Which channel carries the pastor.','On interfaces like a MOTU M4, pick the input number the pastor’s microphone is plugged into.'],
    ['#test-input','Test saved input','A 10-second level check.','Shows the input level for 10 seconds. Nothing is recognised or sent.']]},
   speech:{name:'Settings › Speech',items:[
+   ['#accuracy-check','Check accuracy','Measure recognition on your voice.','You read about 55 short phrases; VerseCue scores what it heard with and without book-name hints and times both. Nothing is sent to ProPresenter.'],
+   ['#speech-hints','Book-name hints','Expect Bible book names.','Can catch more hard book names but makes each phrase slower. Off by default; the accuracy check shows whether it helps on this computer.'],
    ['#speech-mode','Speech engine mode','How the engine runs.','“Keep model loaded” is fastest and the default. “Start the engine for each phrase” uses less memory and allows the live preview.'],
    ['#speech-gpu','Use the graphics card','Faster recognition.','Uses the graphics card when it is ready (Metal on Mac; any AMD, NVIDIA or Intel card on Windows). Until then the processor is used.'],
    ['#cuda-setup-panel','NVIDIA setup','Optional, Windows with NVIDIA.','Guided setup for NVIDIA’s CUDA engine. Not needed for most computers.']]},
