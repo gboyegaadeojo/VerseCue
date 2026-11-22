@@ -77,7 +77,8 @@ LocalSpeech.prototype.warmUp=function({timeoutMs=300000,spawnImpl=spawn}={}){
   this.warmup=(async()=>{
     let dir;
     try{
-      const scratch=await this.scratch.create(wav(new Array(16000).fill(0)));dir=scratch.directory;
+      // Its own temporary file: the warm-up never touches the recognition scratch folder.
+      dir=await fs.mkdtemp(path.join(require('node:os').tmpdir(),'versecue-warmup-'));const scratch={file:path.join(dir,'silence.wav')};await fs.writeFile(scratch.file,wav(new Array(16000).fill(0)));
       const result=await new Promise(resolve=>{
         const child=spawnImpl(executable,['-m',model,'-f',scratch.file,'-l','en','-t','4','-bs','1','-bo','1','-ac',AUDIO_CONTEXT,'-nt'],{windowsHide:true,shell:false,stdio:['ignore','ignore','pipe']});
         let err='';const timer=setTimeout(()=>child.kill(),timeoutMs);
@@ -89,7 +90,7 @@ LocalSpeech.prototype.warmUp=function({timeoutMs=300000,spawnImpl=spawn}={}){
       this.gpuReady=result.ok;this.gpuState=result.ok?'ready':'unavailable';this.gpuDevice=result.device;
       return {state:this.gpuState,device:result.device};
     }catch{if(epoch===this.warmEpoch){this.gpuState='unavailable';}return {state:'unavailable'};}
-    finally{if(dir)await this.scratch.remove(dir).catch(()=>{});}
+    finally{if(dir)await fs.rm(dir,{recursive:true,force:true}).catch(()=>{});}
   })();
   return this.warmup;
 };

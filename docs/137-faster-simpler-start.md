@@ -48,3 +48,7 @@ That is about 41% less recognition time per phrase, with the same words. Add the
 | Unit tests: heard clarity, `-ac 768` and `-ojf` on final windows only, 0.7 s silence ending, settings | Pass (607) |
 | Resident `verbose_json` against the real b5454 server | Word probabilities returned |
 | Scenario sweep, speed measurement | See PR |
+
+## Automated test runs
+
+`VERSECUE_AUTOMATION=1` turns off auto-connect, auto-listen and the graphics-card warm-up. The CI workflows and the scenario sweep set it, so scenarios control capture, ProPresenter targets and timing themselves. Without it, a packaged build started listening on its own about a second after launch, while scenarios started capture themselves. It also tried to reach a real ProPresenter on port 1025. The packaged 0.6.3 sweep found this. Users never set this variable, and the conveniences stay on by default. The warm-up now uses its own temporary file instead of the recognition scratch folder.
