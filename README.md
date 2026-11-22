@@ -23,19 +23,19 @@ You need:
 
 ## Download
 
-**Latest version: 0.6.5** (development preview)
+**Latest version: 0.6.6** (development preview)
 
 | Computer | Download |
 |---|---|
-| Windows (Intel/AMD 64-bit) | [VerseCue for Windows (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.5/VerseCue-0.6.5-win32-x64.zip) |
-| Mac with Apple silicon (M1 or newer) | [VerseCue for Apple silicon Mac (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.5/VerseCue-0.6.5-darwin-arm64.zip) |
-| Mac with Intel processor | [VerseCue for Intel Mac (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.5/VerseCue-0.6.5-darwin-x64.zip) |
+| Windows (Intel/AMD 64-bit) | [VerseCue installer (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.6/VerseCue-Setup-0.6.6.exe) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.6/VerseCue-0.6.6-win32-x64.zip) |
+| Mac with Apple silicon (M1 or newer) | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.6/VerseCue-0.6.6-darwin-arm64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.6/VerseCue-0.6.6-darwin-arm64.zip) |
+| Mac with Intel processor | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.6/VerseCue-0.6.6-darwin-x64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.6/VerseCue-0.6.6-darwin-x64.zip) |
 
 Checksums and older versions are on the [releases page](https://github.com/gboyegaadeojo/VerseCue/releases). Don't use GitHub's automatic "Source code" ZIP to run the app.
 
-- **Windows installer (from the next release):** run **VerseCue-Setup**. It installs VerseCue for your Windows user without administrator rights, and adds Start-menu and desktop shortcuts. Remove it later from **Settings > Apps**, which asks whether to keep your settings. Installing a newer version replaces the old one.
+- **Windows installer:** run **VerseCue-Setup**. It installs VerseCue for your Windows user without administrator rights, and adds Start-menu and desktop shortcuts. Remove it later from **Settings > Apps**, which asks whether to keep your settings. Installing a newer version replaces the old one.
 - **Windows ZIP:** extract the whole ZIP, then open **VerseCue.exe** in the extracted folder.
-- **Mac disk image (from the next release):** open the **.dmg** and drag **VerseCue** onto **Applications**.
+- **Mac disk image:** open the **.dmg** and drag **VerseCue** onto **Applications**.
 - **Mac ZIP:** extract the ZIP and move **VerseCue.app** to Applications.
 
 The app isn't signed by a registered publisher yet. Windows may show a SmartScreen warning: choose **More info > Run anyway**. On a Mac, right-click VerseCue and choose **Open** the first time.
