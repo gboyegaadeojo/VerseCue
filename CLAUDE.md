@@ -20,12 +20,11 @@ Use [HANDOFF.md](HANDOFF.md) as the takeover document. **Public v0.6.2 pre-relea
 
 ## Next queue
 
-Merged: PR105-PR111 (Halo, Mac helper, NVIDIA setup, faster start, Vulkan/Intel Mac, 0.6.3 bump at 581de48, automation mode). Main is version 0.6.3, NOT yet published.
-1. PR112 feat/resident-default: model stays loaded by default (per-phrase engine start dominated latency), 60 s startup budget, 10 min idle, verbose_json no_timestamps (50% faster). Packaged sweep 46/47 + provisional fixed; Mac CI rerun 44971725438. Merge when green.
-2. PUBLISH 0.6.3 BLOCKED on packaged real-speech checks (test-packaged-speech CLI and --resident exceed 20 s) because this laptop is at ~75% CPU: ProPresenter alone uses ~26% of all cores continuously (since the Psalm 119 chapter tests). Ask the user to restart ProPresenter; rerun with VERSECUE_AUTOMATION=1 when load < ~40%. Then: package main (packaged-main-check: engines zip + model + bridge), packaged sweep, speech checks, Mac artifacts (both arches) from main, checksums, gh release v0.6.3 with 6 assets (win x64, darwin arm64, darwin x64 + .sha256), verify links, release notes.
-3. Retest live chapter preparation on the personal ProPresenter after restart.
-4. User: Mac inspection file, live voice test, licence (MIT vs GPL-3.0) for public release, code signing.
-Standing rules: README updated with every change (public audience); Halo look matches canvas https://claude.ai/artifact/9sYtuXBtafLyrrDxZZUV5J; test runs set VERSECUE_AUTOMATION=1. Scheduler: one cron b47d9e7e (:17/:47).
+PUBLISHED v0.6.3 (target 97b331d; Windows Vulkan, Apple silicon, Intel Mac; links verified). Main includes PR105-PR113.
+1. Draft PR feat/version-switch (NR-018, docs/140): version requests ("can you give me NIV") reopen the passage just used after checking ProPresenter's installed versions (bridge list-translations, verified live: ASV + KJV installed). Live end-to-end pending.
+2. INVESTIGATE: ProPresenter becomes very slow to answer UI Automation (15 s to find Bible controls; 19-26% CPU of all cores continuously) after a few native preparations, recovering only on restart. Hypothesis: WPF keeps automation peers alive after a UIA client connects. Measure on a freshly restarted ProPresenter: CPU before / after one preparation / after helper exit. Then narrow helper queries (list-translations walks whole windows by Name; ByIdOrKeyword fallback walks tree) and retest version switching live; then merge and release 0.6.4.
+3. User: Mac inspection file, live voice test, licence choice (MIT/GPL-3.0), code signing.
+Standing rules: README updated with every change; Halo look matches canvas; test runs set VERSECUE_AUTOMATION=1; scenario sweep script sets it. Scheduler: one cron b47d9e7e (:17/:47).
 
 ## Integration and authorization
 
