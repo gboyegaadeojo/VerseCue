@@ -23,13 +23,13 @@ You need:
 
 ## Download
 
-**Latest version: 0.6.3** (development preview)
+**Latest version: 0.6.4** (development preview)
 
 | Computer | Download |
 |---|---|
-| Windows (Intel/AMD 64-bit) | [VerseCue for Windows (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.3/VerseCue-0.6.3-win32-x64.zip) |
-| Mac with Apple silicon (M1 or newer) | [VerseCue for Apple silicon Mac (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.3/VerseCue-0.6.3-darwin-arm64.zip) |
-| Mac with Intel processor | [VerseCue for Intel Mac (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.3/VerseCue-0.6.3-darwin-x64.zip) |
+| Windows (Intel/AMD 64-bit) | [VerseCue for Windows (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.4/VerseCue-0.6.4-win32-x64.zip) |
+| Mac with Apple silicon (M1 or newer) | [VerseCue for Apple silicon Mac (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.4/VerseCue-0.6.4-darwin-arm64.zip) |
+| Mac with Intel processor | [VerseCue for Intel Mac (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.4/VerseCue-0.6.4-darwin-x64.zip) |
 
 Checksums and older versions are on the [releases page](https://github.com/gboyegaadeojo/VerseCue/releases). Don't use GitHub's automatic "Source code" ZIP to run the app.
 
