@@ -52,3 +52,13 @@ That is about 41% less recognition time per phrase, with the same words. Add the
 ## Automated test runs
 
 `VERSECUE_AUTOMATION=1` turns off auto-connect, auto-listen and the graphics-card warm-up. The CI workflows and the scenario sweep set it, so scenarios control capture, ProPresenter targets and timing themselves. Without it, a packaged build started listening on its own about a second after launch, while scenarios started capture themselves. It also tried to reach a real ProPresenter on port 1025. The packaged 0.6.3 sweep found this. Users never set this variable, and the conveniences stay on by default. The warm-up now uses its own temporary file instead of the recognition scratch folder.
+
+## Keep the model loaded by default (0.6.3)
+
+On the loaded test laptop, even one second of silence took 12 to 17 s with the per-phrase engine. Almost all of that was starting the engine, loading the model and, with the Vulkan build, initialising both graphics chips (about 4 s more). So keeping the model loaded (the resident worker) is now the default:
+
+- the model and graphics driver load once, with their own 60 s startup budget, and each phrase keeps the 20 s limit;
+- the worker stays ready through 10 minutes of silence (was 90 s);
+- it restarts once when the graphics card becomes ready.
+
+Saved settings from before this change, which held the old default, move to the faster mode once (`speechModeVersion` 2). A choice made after that is kept. The per-phrase engine remains available in Settings > Speech.
