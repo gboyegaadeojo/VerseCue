@@ -20,11 +20,11 @@ Use [HANDOFF.md](HANDOFF.md) as the takeover document. **Public v0.6.2 pre-relea
 
 ## Next queue
 
-PUBLISHED v0.6.3 (target 97b331d; Windows Vulkan, Apple silicon, Intel Mac; links verified). Main includes PR105-PR113.
-1. Draft PR feat/version-switch (NR-018, docs/140): version requests ("can you give me NIV") reopen the passage just used after checking ProPresenter's installed versions (bridge list-translations, verified live: ASV + KJV installed). Live end-to-end pending.
-2. INVESTIGATE: ProPresenter becomes very slow to answer UI Automation (15 s to find Bible controls; 19-26% CPU of all cores continuously) after a few native preparations, recovering only on restart. Hypothesis: WPF keeps automation peers alive after a UIA client connects. Measure on a freshly restarted ProPresenter: CPU before / after one preparation / after helper exit. Then narrow helper queries (list-translations walks whole windows by Name; ByIdOrKeyword fallback walks tree) and retest version switching live; then merge and release 0.6.4.
-3. User: Mac inspection file, live voice test, licence choice (MIT/GPL-3.0), code signing.
-Standing rules: README updated with every change; Halo look matches canvas; test runs set VERSECUE_AUTOMATION=1; scenario sweep script sets it. Scheduler: one cron b47d9e7e (:17/:47).
+PUBLISHED v0.6.3 (97b331d). User asleep (2026-11-22 night) and asked: "test every single thing in the application to ensure they work as usual for both Mac and Windows".
+1. OVERNIGHT TEST PASS on main 97b331d (in progress): unit 609 + check PASS; Windows source sweep then packaged sweep running in background (scratchpad overnight-source.txt, overnight-packaged.txt; worktree packaged-main-check); Mac CI 44982204657 (both arches) + diagnostics 44982209533. Then: packaged speech CLI + --resident; source test-local-speech/test-resident-speech; rerun any failure alone to separate flakes; live API-only checks on the personal ProPresenter with Audience/Stage off (Auto dry run + saved-cue send via scratchpad live-pp-test.cjs); NO native-helper live tests tonight (ProPresenter is in the slowed UIA state). Write a morning report (docs + chat).
+2. Draft PR114 version switching: logic + list-translations verified; live switch blocked by the ProPresenter UI Automation slowdown (docs/140 finding: one helper connection raises ProPresenter ~3% -> 16-21% CPU until restart; hand-generated chapters do not). Needs a lighter Windows approach (short-lived connection or no UIA for the version menu) + a fresh ProPresenter restart (user) to retest.
+3. User: Mac inspection file, live voice test, licence (MIT/GPL-3.0), code signing.
+Standing rules: README updated with every change; Halo look matches canvas; test runs set VERSECUE_AUTOMATION=1. Scheduler: one cron b47d9e7e (:17/:47).
 
 ## Integration and authorization
 
