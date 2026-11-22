@@ -90,3 +90,8 @@ Implemented in this change: Bible preparation is no longer pinned to ProPresente
 ## NR-018 - Switch Bible version for the passage just used
 
 2026-11-22: the user asked that when the preacher requests a different version, with or without repeating the reference ("can you give me NIV", "read that in New King James", "1st Timothy 1 verse 2 in NIV"), VerseCue first checks which versions are installed in ProPresenter. If installed, it reopens the same passage in that version (whole chapter at that verse in Prepare for volunteer). If not, it keeps the current version and shows a clear message such as "NIV isn't installed in ProPresenter". Recognise common spoken names; never send live automatically; work on Windows and Mac; test on the user's ProPresenter with screens off; update the README; include it in the next release. See [docs/140](docs/140-version-switching.md).
+
+## NR-019 - In-app help and a first-launch tour
+
+2026-11-22: the user asked for an in-app tutorial explaining the buttons and tick boxes on each page, reviewed two mock-ups and chose option B (Help mode: numbered markers on every control with explanations and an "On this page" list) with option A (a guided tour) on first launch. See [docs/142](docs/142-in-app-help-and-tour.md).
+

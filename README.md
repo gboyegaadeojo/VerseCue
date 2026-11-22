@@ -99,6 +99,10 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 - **Any ProPresenter version:** works with ProPresenter's network API. Opening passages in ProPresenter's Bible view is verified on Windows; Mac support is being verified.
 - **No cloud:** no account, subscription or internet connection needed to run.
 
+## Help inside the app
+
+Press **?** in the toolbar, or in Settings, to see a numbered explanation for every button and tick box on that page. A short guided tour runs the first time VerseCue opens, and you can replay it from the help panel.
+
 ## Getting started
 
 1. **Use a test setup first.** Open ProPresenter with your **Audience and Stage screens turned off**.
