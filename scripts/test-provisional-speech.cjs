@@ -14,6 +14,8 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
       globalThis.provisionalCalls=0;globalThis.provisionalHold=null;
       LocalSpeech.prototype.transcribeProvisional=async function(){globalThis.provisionalCalls++;if(globalThis.provisionalHold)await new Promise(resolve=>{globalThis.provisionalHold=resolve;});return {text:'turn to Romans 8:28',final:false,elapsedMs:5};};
     });
+    // The live preview belongs to the per-phrase engine; keeping the model loaded is the default since 0.6.3.
+    assert.equal(await primary.evaluate(async()=>{const s=(await window.versecue.settings()).value;const r=await window.versecue.saveSettings({...s,speechMode:'cli',speechModeVersion:2});fillSettings((await window.versecue.settings()).value);return r.ok;}),true);
     assert.equal(await primary.locator('#provisional-consent').isChecked(),false,'Provisional preview must start off');
     assert.equal(await primary.evaluate(()=>provisionalAllowed()),false);
     const unowned=await primary.evaluate(()=>window.versecue.audioProvisional(new Array(32000).fill(0)));
