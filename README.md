@@ -133,7 +133,7 @@ A fuller walkthrough is in the [personal test guide](docs/124-personal-auto-firs
 
 ## Privacy
 
-Audio is processed on your computer and isn't saved. Temporary recognition files are deleted after each phrase. VerseCue needs no account or internet connection, except for downloading it and, if you choose, the optional NVIDIA engine files. Bible text comes from ProPresenter. The bundled public-domain Bibles are used only to recognise quoted wording.
+Audio is processed on your computer and isn't saved. Temporary recognition files are kept in VerseCue's own folder, deleted after each phrase and, after a crash, deleted at the next start. The diagnostics export holds only event codes and timings, never what was said. While VerseCue runs, the operating system may write memory to disk (page file, hibernation), so use full-disk encryption (BitLocker or FileVault) on the service computer. VerseCue needs no account or internet connection, except for downloading it and, if you choose, the optional NVIDIA engine files. Bible text comes from ProPresenter. The bundled public-domain Bibles are used only to recognise quoted wording.
 
 ## Current limits
 
