@@ -205,7 +205,9 @@ navigator.mediaDevices?.addEventListener('devicechange',async()=>{if(!listening)
 // Start listening when VerseCue opens, once a microphone and engine are set up and the audio box is ticked (setting, on by default).
 let autoListenTried=false;
 function autoListen(s){if(autoListenTried||state?.automation||s.autoListen===false||!s.audioDevice||!s.executable||!s.model||!$('audio-consent').checked)return;autoListenTried=true;setTimeout(()=>{if(listening||state?.stopped||state?.mode==='paused')return;$('listen').click();},800);}
-api.onState(render);
+// Version notices (NR-018): "NIV isn't installed in ProPresenter…" reach the status line once each.
+let lastVersionNotice=null;const showVersionNotice=state=>{const n=state?.versionNotice;if(n&&n.id!==lastVersionNotice){lastVersionNotice=n.id;message(n.text,true);}};
+api.onState(value=>{render(value);showVersionNotice(value);});
 Promise.all([call('settings'),call('state'),call('privateApiStatus'),call('identity')]).then(([s,value,apiStatus,identity])=>{selfWindowId=identity.id;fillSettings(s);applyConsentDefaults();render(value);autoListen(s);renderPrivateApi(apiStatus);if(!s.executable||!s.audioDevice)message('Open Setup to select your ProPresenter target, audio input and local speech engine.');else message(s.autoConnect!==false?'Ready. Connecting to ProPresenter at '+s.host+':'+s.port+'…':'Ready. Test the saved ProPresenter connection in Settings.');}).catch(e=>message(e.message));
 setInterval(()=>{if(!state)return;const now=Date.now(),fresh=state.queue.filter(c=>c.expiresAt>now);if(fresh.length!==state.queue.length){state.queue=fresh;render(state);return;}const candidate=state.queue.find(c=>c.id===selectedId);if(candidate)setText('expiry',`${Math.max(0,Math.ceil((candidate.expiresAt-now)/1000))}s remaining`);},250);
 

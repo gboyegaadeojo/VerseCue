@@ -86,3 +86,7 @@ Trust gate: the original 10-hour representative rehearsal with zero unapproved w
 
 Implemented in this change: Bible preparation is no longer pinned to ProPresenter 21.4.2 (any ProPresenter on Windows; the helper still verifies every control and stops safely if a version differs, and never sends output). The Mac helper has no version pin. The computer's default microphone is preselected; the bundled engine, graphics card, quotes, authorizations, auto-connect and auto-listen are on by default. Graphics support for AMD/NVIDIA/Intel through a Vulkan speech engine and an Intel Mac download follow in their own change.
 
+
+## NR-018 - Switch Bible version for the passage just used
+
+2026-11-22: the user asked that when the preacher requests a different version, with or without repeating the reference ("can you give me NIV", "read that in New King James", "1st Timothy 1 verse 2 in NIV"), VerseCue first checks which versions are installed in ProPresenter. If installed, it reopens the same passage in that version (whole chapter at that verse in Prepare for volunteer). If not, it keeps the current version and shows a clear message such as "NIV isn't installed in ProPresenter". Recognise common spoken names; never send live automatically; work on Windows and Mac; test on the user's ProPresenter with screens off; update the README; include it in the next release. See [docs/140](docs/140-version-switching.md).

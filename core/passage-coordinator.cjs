@@ -44,6 +44,7 @@ class PassageCoordinator {
    if(result.state==='needs-preparation'){
     const readiness=this.savedBible.readiness();if(readiness.available!==true)return this.publish({phase:'manual-preparation-required',reference:c.label,translation:c.translation,reason:readiness.reason,outputRequests:0});
     if(acknowledgeFocusChange!==true||acknowledgeCreateCopy!==true)return this.publish({phase:'consent-required',reference:c.label,translation:c.translation,reason:'Preparation may move ProPresenter focus and create an internal Bible copy. Explicit session consent is required.',outputRequests:0});
+    this.release();const versionOk=await this.versionInstalled(c);this.acquire();if(!versionOk)return this.state;
     this.candidate(id);check();this.publish({phase:'preparing',reference:c.label,translation:c.translation,outputRequests:0});
     const saved=await this.savedBible.prepare(c.label,c.translation,null,guard,{keepListening:true});check();
     if(saved.coverageComplete!==true||!Number.isInteger(saved.preparedGeneration)||this.service.generation!==saved.preparedGeneration||typeof saved.fingerprint!=='string'||!/^[a-f0-9]{64}$/.test(saved.fingerprint))throw Error('Complete passage preparation could not be verified');
@@ -60,6 +61,18 @@ class PassageCoordinator {
  }
  // Prepare for volunteer: open the whole chapter in ProPresenter's Bible view, scrolled to the spoken verse,
  // so the volunteer can go back or forward without searching again. No saved copy and no output.
+ // Before opening a passage in a version other than the default, check ProPresenter has that version (NR-018).
+ // Not installed: keep the current version, say so plainly and prepare nothing.
+ async versionInstalled(c){
+  if(c.translation===this.service.translation&&c.recognition!=='version-switch')return true;
+  const {versionName}=require('./bible-versions.cjs');let installed=null;
+  try{installed=await this.savedBible.controller.installedVersions?.(()=>!this.service.stopped);}catch{installed=null;}
+  if(!installed)return true;
+  if(installed.codes.includes(c.translation))return true;
+  const from=c.versionSwitch?.from??this.service.translation,text=c.translation+" isn't installed in ProPresenter, so VerseCue is keeping "+from+'. Installed: '+(installed.codes.length?installed.codes.join(', '):installed.names.join(', '))+'.';
+  this.service.queue=this.service.queue.filter(row=>row.id!==c.id);this.service.versionNotice={id:Date.now(),text};this.service.log('VERSION_NOT_INSTALLED','info');
+  this.publish({phase:'version-not-installed',reference:c.label,translation:c.translation,reason:text,outputRequests:0});return false;
+ }
  async prepareChapter(id,{acknowledgeFocusChange=false,additionalGuard=()=>true}={}){
   if(typeof additionalGuard!=='function'||!additionalGuard())throw Error('Passage review request was revoked');
   if(this.busy)throw Error('A passage preparation is already in progress');
@@ -68,6 +81,7 @@ class PassageCoordinator {
   const chapter=`${c.reference.book} ${c.reference.chapter}`,focusVerse=c.reference.verse??1,sourceReferenceEpoch=this.service.referenceEpoch,epoch=++this.epoch,target=this.connector.generation,base=this.connector.base;this.review=null;this.active=null;
   const readiness=this.savedBible.readiness();if(readiness.available!==true)return this.publish({phase:'manual-preparation-required',reference:c.label,translation:c.translation,reason:readiness.reason,outputRequests:0});
   if(acknowledgeFocusChange!==true)return this.publish({phase:'consent-required',reference:c.label,translation:c.translation,reason:'Preparation may move ProPresenter focus. Explicit session consent is required.',outputRequests:0});
+  if(!await this.versionInstalled(c))return this.state;
   this.acquire();
   const guard=()=>additionalGuard()&&epoch===this.epoch&&target===this.connector.generation&&base===this.connector.base&&sourceReferenceEpoch===this.service.referenceEpoch&&!this.service.stopped&&!this.service.recovery?.required;
   try{

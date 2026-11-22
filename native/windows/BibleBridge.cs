@@ -39,7 +39,8 @@ class BibleBridge {
     static readonly Dictionary<string,string> Translations = new Dictionary<string,string> {
         {"KJV","King James Version"}, {"ASV","American Standard Version"},
         {"NIV","New International Version"}, {"NKJV","New King James Version"},
-        {"AMP","Amplified Bible"}, {"AMPC","Amplified Bible, Classic Edition"}, {"MSG","The Message"}
+        {"AMP","Amplified Bible"}, {"AMPC","Amplified Bible, Classic Edition"}, {"MSG","The Message"},
+        {"ESV","English Standard Version"}, {"NLT","New Living Translation"}
     };
     static void Require(bool condition, string code) { if (!condition) throw new InvalidOperationException(code); }
     static AutomationElement ById(AutomationElement root, string id) {
@@ -248,7 +249,8 @@ class BibleBridge {
     static object Run(Dictionary<string,object> request) {
         Stage("validate-target");
         string operation=Convert.ToString(request.ContainsKey("operation")?request["operation"]:"inspect");
-        Require(operation=="inspect"||operation=="prepare"||operation=="prepare-save"||operation=="prepare-chapter","UNKNOWN_OPERATION");
+        Require(operation=="inspect"||operation=="prepare"||operation=="prepare-save"||operation=="prepare-chapter"||operation=="list-translations","UNKNOWN_OPERATION");
+        bool listing=operation=="list-translations";if(listing)Require(request.Count==1,"INVALID_PREPARE_REQUEST");
         string reference=null,translation=null;bool chapter=operation=="prepare-chapter";int focusVerse=0,chapterVerses=0;
         if(chapter) {
             // Whole chapter for a volunteer: "Proverbs 3", positioned at the spoken verse. Scrolling only; no slide is clicked or selected.
@@ -259,7 +261,7 @@ class BibleBridge {
             Require(chapterVerses>=1&&chapterVerses<=176&&focusVerse>=1&&focusVerse<=chapterVerses,"INVALID_FOCUS_VERSE");
             Require(Translations.ContainsKey(translation),"UNSUPPORTED_REQUESTED_TRANSLATION");
         }
-        if(operation!="inspect"&&!chapter) {
+        if(operation!="inspect"&&!chapter&&!listing) {
             Require(request.Count==3&&request.ContainsKey("reference")&&request.ContainsKey("translation"),"INVALID_PREPARE_REQUEST");
             reference=Convert.ToString(request["reference"]);translation=Convert.ToString(request["translation"]);
             Require(reference.Length<=100&&Regex.IsMatch(reference,@"^[1-3]?[A-Za-z ]+ [1-9][0-9]{0,2}:[1-9][0-9]{0,2}(-([1-9][0-9]{0,2}:)?[1-9][0-9]{0,2})?$"),"INVALID_REFERENCE_SHAPE");
@@ -296,6 +298,39 @@ class BibleBridge {
         Stage("reference-control-verified");
         var selector=TranslationSelector(bibleControls);string selected=SelectedTranslation(selector);
         Stage("edition-control-verified");
+        // Installed versions (NR-018): open the edition menu, read its names, close it with Escape and confirm the
+        // selection did not change. Read-only apart from the menu; never selects an edition or touches output.
+        if(listing) {
+            string before=SelectedTranslation(selector);Stage("open-installed-editions");ClickVerifiedControl(selector,process.Id);
+            // Anchor on the selected edition: its name also appears in the open menu. The menu entry's list
+            // (the nearest ancestor holding several entries) gives every installed edition.
+            var names=new List<string>();var timer=Stopwatch.StartNew();var walker=TreeWalker.RawViewWalker;string debug="";
+            while(timer.ElapsedMilliseconds<2500&&names.Count==0) {
+                var windows=AutomationElement.RootElement.FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ProcessIdProperty,process.Id));
+                foreach(AutomationElement window in windows) {
+                    foreach(AutomationElement hit in window.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.NameProperty,before))) {
+                        bool insideSelector=false;for(var up=walker.GetParent(hit);up!=null;up=walker.GetParent(up)){if(Automation.Compare(up,selector)){insideSelector=true;break;}}
+                        if(insideSelector||hit.Current.IsOffscreen)continue;
+                        debug+=hit.Current.ControlType.ProgrammaticName+"|";
+                        // Step up until a level holds two or more names (the menu list), at most six levels.
+                        var level=walker.GetParent(hit);
+                        for(int depth=0;level!=null&&depth<6;depth++,level=walker.GetParent(level)) {
+                            var found=new List<string>();
+                            foreach(AutomationElement text in level.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text))) {var name=(text.Current.Name??"").Trim();if(name.Length>0&&name.Length<=80&&!found.Contains(name))found.Add(name);}
+                            debug+=depth+":"+found.Count+",";
+                            if(found.Count>=2||depth==5){if(found.Count<=60)names.AddRange(found);else names.Add(before);break;}
+                        }
+                        if(names.Count>0)break;
+                    }
+                    if(names.Count>0)break;
+                }
+                if(names.Count==0)Thread.Sleep(80);
+            }
+            uint fg;GetWindowThreadProcessId(GetForegroundWindow(),out fg);if(fg==process.Id)InputKeys(new [] {Key(0x1B,0,0),Key(0x1B,0,2)});
+            var settle=Stopwatch.StartNew();while(settle.ElapsedMilliseconds<800&&SelectedTranslation(selector)!=before)Thread.Sleep(50);
+            Require(SelectedTranslation(selector)==before,"EDITION_CHANGED_WHILE_LISTING");Require(names.Count>0,"INSTALLED_EDITIONS_NOT_READ");
+            return new {ok=true,state="translations-listed",installed=names.Take(60).ToArray(),selected=before,levels=debug,outputRequests=0};
+        }
         if(operation=="inspect")return new {ok=true,state="inspection-only",translationDisplayName=selected,reference=Value(field),outputRequests=0};
         SelectTranslation(root,process,selector,Translations[translation]);selected=SelectedTranslation(selector);
         Require(Translations[translation]==selected,"REQUESTED_EDITION_NOT_VERIFIED");
