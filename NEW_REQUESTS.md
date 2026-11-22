@@ -102,3 +102,13 @@ Implemented in this change: Bible preparation is no longer pinned to ProPresente
 ## NR-021 - Cue V logo
 
 2026-11-22: from three bolder logo ideas on the design canvas, the user chose Logo 2, "Cue V": a heavy white V with a red-orange go triangle in its notch, on a near-black tile. It is the app icon on Windows (VerseCue.exe) and Mac (VerseCue.app), the window icon, the sidebar mark and the README header. Sources are in `assets/brand`; `node scripts/build-icons.cjs` regenerates `assets/icons`.
+
+## NR-022 - Accuracy check and better book-name hearing
+
+2026-11-22: the user asked for an in-app accuracy check and better hearing of book names.
+
+- **Accuracy check:** Settings > Speech, about 55 phrases, scored with and without hints. It has its own capture purpose and never sends output.
+- **Book-name hints:** measured on synthetic speech and found slower (about three times on a processor) without gains on their own, so they're optional and off by default. The check advises per computer.
+- **Tolerant reader:** accepts commas before "verse" and close misspellings of book names before chapter or verse wording. Those references are review-only, so Auto never sends them.
+
+See [docs/145](docs/145-accuracy-check-and-book-names.md).

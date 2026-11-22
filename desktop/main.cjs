@@ -27,6 +27,8 @@ const {CaptureLease}=require('../core/capture-lease.cjs');
 const {PowerRecovery}=require('../core/power-recovery.cjs');
 const {GuardedAuto}=require('../core/guarded-auto.cjs');const {AudioLossPolicy}=require('../core/audio-loss-policy.cjs');const {verifyRelease,loadTrustedKeys}=require('../core/update-verify.cjs');
 const connector=new Connector();const catalog=new PreparedCatalog(connector);const service=new Session(connector);const speech=new LocalSpeech();
+// Book-name hints (NR-022): optional, off by default; read for each phrase from the current settings.
+speech.hintFor=()=>settings?.speechHints===true?require('../core/speech-hints.cjs').SPEECH_HINT:null;
 const citationStabilizer=new CitationStabilizer({onExpire:()=>{service.speechStabilization={state:'expired',reason:'Incomplete reference expired. Repeat the full book, chapter and verse.'};service.notify();}});
 function resetSpeechStabilization(){citationStabilizer.reset();service.speechStabilization={state:'idle'};}
 const automatic=new GuardedAuto(service);const audioLoss=new AudioLossPolicy();
@@ -65,7 +67,7 @@ function createWindow(compact=false){
   win.on('closed',()=>{releaseUnavailableOwner('AUDIO_OWNER_CLOSED');windows.delete(win);if(compact)compactWindow=null;});win.once('ready-to-show',()=>win.show());win.loadURL(ui+(compact?'?compact=1':''));return win;
 }
 let enforcingSafeCapture=false;
-function update(){if(referencePreparation)service.referencePreparation=referencePreparation.status();if(!enforcingSafeCapture&&capture.snapshot().active&&(service.stopped||service.mode==='paused'||service.recovery?.required||(capture.purpose==='input-test'&&(!service.dryRun||service.mode!=='suggest')))){enforcingSafeCapture=true;try{cancelAudio();}finally{enforcingSafeCapture=false;}}for(const win of windows)if(!win.isDestroyed())win.webContents.send('state-update',service.snapshot());}
+function update(){if(referencePreparation)service.referencePreparation=referencePreparation.status();if(!enforcingSafeCapture&&capture.snapshot().active&&(service.stopped||service.mode==='paused'||service.recovery?.required||(['input-test','accuracy-check'].includes(capture.purpose)&&(!service.dryRun||service.mode!=='suggest')))){enforcingSafeCapture=true;try{cancelAudio();}finally{enforcingSafeCapture=false;}}for(const win of windows)if(!win.isDestroyed())win.webContents.send('state-update',service.snapshot());}
 service.on('change',update);
 async function choose(kind){
   if(speech.busy)throw new Error('Stop recognition before changing speech files');
@@ -148,10 +150,39 @@ async function bootstrap(){
   handler('window-identity',event=>({id:event.sender.id}),{withEvent:true});
   handler('audio-start',(event,options)=>{
     const purpose=options?.purpose??'recognition';
-    if(purpose==='input-test'){if(options?.authorized!==true)throw Error('Explicit authorization for the selected feed is required');if(capture.snapshot().active||!capture.canStart())throw Error('Stop existing capture and finish preparation before testing input');if(!service.dryRun||service.mode==='auto')throw Error('Return to dry run before testing the input');service.setMode('suggest');}
+    if(purpose==='input-test'||purpose==='accuracy-check'){if(options?.authorized!==true)throw Error('Explicit authorization for the selected feed is required');if(capture.snapshot().active||!capture.canStart())throw Error('Stop existing capture and finish preparation before testing input');if(!service.dryRun||service.mode==='auto')throw Error('Return to dry run before testing the input');service.setMode('suggest');}
     return capture.acquire(event.sender.id,options?.authorized,purpose);
   },{withEvent:true});
   handler('audio-stop',event=>capture.release(event.sender.id),{withEvent:true});
+  // Accuracy check (NR-022): each phrase the operator reads is recognised twice, without and with book-name hints, and
+  // scored against the expected reference. It never reaches the session, candidates, Auto, preparation or output.
+  handler('accuracy-prompts',()=>{const data=require('../core/data/accuracy-prompts.json');return {prompts:data.prompts,withoutReferences:data.withoutReferences};});
+  handler('accuracy-transcribe',async(event,samples,expected)=>{
+    if(!capture.owns(event.sender.id)||capture.purpose!=='accuracy-check')throw Error('Start the accuracy check first');
+    if(expected!==null&&(typeof expected!=='string'||expected.length>60))throw Error('Invalid expected reference');
+    const {parse}=require('../core/parser.cjs'),{SPEECH_HINT}=require('../core/speech-hints.cjs'),leaseEpoch=capture.epoch;
+    const score=result=>{const refs=parse(result.text,{defaultTranslation:'KJV',maxVerses:176}).references.filter(r=>r.valid!==false);const labels=refs.map(r=>r.label);
+      const outcome=expected?(labels.length===1&&labels[0]===expected?'correct':labels.length?'wrong':'missed'):(labels.length?'invented':'none');
+      return {text:String(result.text).trim().slice(0,300),references:labels,approximate:refs.some(r=>r.issues.some(i=>/approximately/.test(i))),outcome,elapsedMs:result.elapsedMs};};
+    const plain=score(await speech.transcribe(samples,{hint:null}));if(capture.epoch!==leaseEpoch)throw Error('Accuracy check stopped');
+    const hinted=score(await speech.transcribe(samples,{hint:SPEECH_HINT}));if(capture.epoch!==leaseEpoch)throw Error('Accuracy check stopped');
+    return {plain,hinted};
+  },{withEvent:true});
+  // Saves the check's results, and the recordings only when the operator ticks that box, to a folder they choose.
+  // Recordings use the evaluator's format (WAV files and labels.json) for scripts/evaluate-speech-hints.cjs.
+  handler('accuracy-save',async payload=>{
+    const rows=payload?.rows;if(!Array.isArray(rows)||rows.length<1||rows.length>80)throw Error('Nothing to save');
+    const pick=await dialog.showOpenDialog(mainWindow,{title:'Choose a folder for the accuracy check',properties:['openDirectory','createDirectory']});if(pick.canceled||!pick.filePaths[0])return {saved:false};
+    const folder=path.join(pick.filePaths[0],'VerseCue-accuracy-'+new Date().toISOString().slice(0,19).replace(/[:T]/g,'-'));await fs.mkdir(folder);
+    const {wav}=require('../core/stt.cjs');const labels=[];
+    for(const [i,row] of rows.entries()){
+      if(typeof row?.say!=='string'||row.say.length>120||!(row.expected===null||typeof row.expected==='string'))throw Error('Invalid accuracy result');
+      const entry={say:row.say,expected:row.expected,plain:row.plain??null,hinted:row.hinted??null};
+      if(payload.includeRecordings===true&&Array.isArray(row.samples)){const file=`clip-${String(i+1).padStart(3,'0')}.wav`;await fs.writeFile(path.join(folder,file),wav(row.samples));entry.file=file;}
+      labels.push(entry);
+    }
+    await fs.writeFile(path.join(folder,payload.includeRecordings===true?'labels.json':'results.json'),JSON.stringify(labels,null,1));return {saved:true,folder};
+  });
   handler('profiles-list',()=>profiles.list());
   handler('profiles-save',name=>profiles.save(name,settings));
   handler('profiles-remove',id=>profiles.remove(id));
