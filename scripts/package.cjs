@@ -24,13 +24,15 @@ const fs=require('node:fs/promises');const path=require('node:path');const {spaw
     const framework=path.join(process.env.SystemRoot||'C:\Windows','Microsoft.NET','Framework64','v4.0.30319'),tool=path.join(path.dirname(out),'SetIcon.exe');
     const built=spawnSync(path.join(framework,'csc.exe'),['/nologo','/target:exe','/platform:x64','/out:'+tool,path.join(root,'native/windows/SetIcon.cs')],{encoding:'utf8',windowsHide:true,timeout:60000});
     if(built.error||built.status!==0)throw Error('Icon tool compilation failed: '+(built.error?.message||built.stdout||built.stderr));
-    const icon=spawnSync(tool,[path.join(out,'VerseCue.exe'),path.join(root,'assets/icons/versecue.ico')],{encoding:'utf8',windowsHide:true,timeout:60000});
+    const icon=spawnSync(tool,[path.join(out,'VerseCue.exe'),path.join(root,'assets/icons/versecue.ico'),pkg.version],{encoding:'utf8',windowsHide:true,timeout:60000});
     await fs.rm(tool,{force:true});if(icon.error||icon.status!==0)throw Error('Setting the app icon failed: '+(icon.error?.message||icon.stderr||icon.stdout));
     resources=path.join(out,'resources');
   }else{
     const old=path.join(out,'Electron.app'),bundle=path.join(out,'VerseCue.app');await fs.rename(old,bundle);
     resources=path.join(bundle,'Contents','Resources');await fs.copyFile(path.join(root,'assets/icons/versecue.icns'),path.join(resources,'VerseCue.icns'));const plist=path.join(bundle,'Contents','Info.plist');let xml=await fs.readFile(plist,'utf8');
     xml=/<key>CFBundleIconFile<\/key>/.test(xml)?xml.replace(/(<key>CFBundleIconFile<\/key>\s*<string>)[^<]*(<\/string>)/,'$1VerseCue.icns$2'):xml.replace(/<\/dict>\s*<\/plist>\s*$/,'<key>CFBundleIconFile</key><string>VerseCue.icns</string></dict></plist>');
+    // VerseCue's own version, not Electron's, in Finder and About.
+    xml=xml.replace(/(<key>CFBundleShortVersionString<\/key>\s*<string>)[^<]*(<\/string>)/,'$1'+pkg.version+'$2').replace(/(<key>CFBundleVersion<\/key>\s*<string>)[^<]*(<\/string>)/,'$1'+pkg.version+'$2');
     xml=xml.replace(/(<key>CFBundleDisplayName<\/key>\s*<string>)[^<]*(<\/string>)/,'$1VerseCue$2').replace(/(<key>CFBundleName<\/key>\s*<string>)[^<]*(<\/string>)/,'$1VerseCue$2').replace(/(<key>CFBundleIdentifier<\/key>\s*<string>)[^<]*(<\/string>)/,'$1church.immanuel.versecue$2').replace(/<\/dict>\s*<\/plist>\s*$/, '<key>NSMicrophoneUsageDescription</key><string>VerseCue processes the selected pastor audio input locally to suggest Scripture references.</string></dict></plist>');await fs.writeFile(plist,xml);
   }
   await fs.rm(path.join(resources,'default_app.asar'),{force:true});
