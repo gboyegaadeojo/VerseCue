@@ -25,7 +25,7 @@ PUBLISHED v0.6.6 (target main 54d6fe7): VerseCue-Setup-0.6.6.exe (sha 04d58de8..
 2. DONE PR121 (merged after 0.6.4): VerseCue.exe version info (VerseCue 0.6.4.0, via SetIcon.cs) and Mac CFBundleShortVersionString/CFBundleVersion = package version. Ships in the next release.
 3. Released in 0.6.6: PR123 installers, PR124 accuracy check.
 4. Waiting on user / hardware: Mac inspection file, live voice test (accuracy check on the user's own voice is now available), code signing, PR22 acceptance items (docs/107).
-Standing rules: README updated with every change; Halo look matches canvas; test runs set VERSECUE_AUTOMATION=1. Scheduler: one cron (:17/:47).
+Standing rules: README updated with every change; Halo look matches canvas; test runs set VERSECUE_AUTOMATION=1. Scheduler: PAUSED by the user on 2026-11-22 ("pause the scheduler until I'm back"); do not recreate the resume cron until the user returns and asks.
 
 ## Integration and authorization
 
