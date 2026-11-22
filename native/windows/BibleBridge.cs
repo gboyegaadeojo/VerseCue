@@ -113,7 +113,7 @@ class BibleBridge {
         var timer=Stopwatch.StartNew();bool selected=false;
         while(timer.ElapsedMilliseconds<2000) {
             uint foreground;GetWindowThreadProcessId(GetForegroundWindow(),out foreground);Require(foreground==process.Id,"FOCUS_CHANGED_DURING_EDITION_SELECTION");
-            var windows=EditionScopes(root,process,timer.ElapsedMilliseconds>1200);
+            var windows=EditionScopes(root,process,true);
             var matches=new List<AutomationElement>();
             foreach(AutomationElement window in windows) {
                 // The installed-edition popup exposes visible text rather than
@@ -327,7 +327,7 @@ class BibleBridge {
             // (the nearest ancestor holding several entries) gives every installed edition.
             var names=new List<string>();var timer=Stopwatch.StartNew();var walker=TreeWalker.RawViewWalker;string debug="";
             while(timer.ElapsedMilliseconds<2500&&names.Count==0) {
-                var windows=EditionScopes(root,process,timer.ElapsedMilliseconds>1200);
+                var windows=EditionScopes(root,process,true);
                 foreach(AutomationElement window in windows) {
                     foreach(AutomationElement hit in window.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.NameProperty,before))) {
                         bool insideSelector=false;for(var up=walker.GetParent(hit);up!=null;up=walker.GetParent(up)){if(Automation.Compare(up,selector)){insideSelector=true;break;}}

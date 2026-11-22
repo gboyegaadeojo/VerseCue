@@ -66,7 +66,7 @@ class PassageCoordinator {
  async versionInstalled(c){
   if(c.translation===this.service.translation&&c.recognition!=='version-switch')return true;
   const {versionName}=require('./bible-versions.cjs');let installed=null;
-  try{installed=await this.savedBible.controller.installedVersions?.(()=>!this.service.stopped);}catch{installed=null;}
+  try{installed=await this.savedBible.controller.installedVersions?.(()=>!this.service.stopped);}catch(error){installed=null;this.service.log('INSTALLED_VERSIONS_UNREADABLE','warning',{reason:String(error?.message??error).slice(0,160)});}
   if(!installed)return true;
   if(installed.codes.includes(c.translation))return true;
   const from=c.versionSwitch?.from??this.service.translation,text=c.translation+" isn't installed in ProPresenter, so VerseCue is keeping "+from+'. Installed: '+(installed.codes.length?installed.codes.join(', '):installed.names.join(', '))+'.';
