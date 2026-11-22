@@ -36,18 +36,68 @@ Checksums and older versions are on the [releases page](https://github.com/gboye
 
 To remove VerseCue or go back to an earlier version, see [rollback and removal](docs/125-rollback-and-uninstall.md).
 
-## What it does
+## What VerseCue can do
 
-- **Hears references:** "Turn with me to Proverbs chapter three, verse five", "First Peter two verse one", "Psalm 119 verse 105".
-- **Recognises quoted verses:** if the preacher quotes "Trust in the Lord with all thine heart" without saying the reference, VerseCue can find Proverbs 3:5. It uses the free, public-domain King James and World English Bibles, prepares the verse in your own installed translation, and labels it "matched from quoted wording".
-- **Switches Bible version on request:** if the preacher says "can you give me NIV" or "read that in New King James", VerseCue reopens the passage just used in that version, after checking the version is installed in ProPresenter. If it isn't, VerseCue keeps the current version and says so.
-- **Shows how clearly it heard:** each reference gets a badge, "Heard clearly", "Likely" or "Check this", based on how confident the speech engine was.
-- **Three ways to work:**
-  - **Auto:** complete, explicit references go to ProPresenter automatically after a short hold window. Press **H** to hold one, or **Esc** for Emergency stop.
-  - **Confirm:** you review every passage, then send it.
-  - **Prepare for volunteer:** VerseCue never sends anything. It opens the passage in ProPresenter's own Bible view, and by default the **whole chapter** at the spoken verse, so your volunteer clicks it live and uses ProPresenter's next/previous for the verses around it.
-- **Fast on modern computers:** recognition starts as soon as the preacher pauses (0.7 s) and uses the graphics card automatically: Metal on Macs, and any AMD, NVIDIA or Intel card on Windows. An optional [NVIDIA CUDA setup](docs/135-guided-nvidia-speech-setup.md) is also available.
-- **Calm, readable workspace:** a dark, compact design with a Large "booth distance" text size for reading from across the room.
+### Hears the Bible references a preacher speaks
+- **Natural speech:** "Turn with me to Proverbs chapter three, verse five", "John 3:16", "Psalm 119 verse 105".
+- **Ranges:** "John chapter three verses sixteen through eighteen", "First Corinthians thirteen four to seven".
+- **Numbered books, said any common way:** "1st Peter", "First John", "Second Timothy". Common alternative names work too, such as "Psalms" for Psalm and "Song of Solomon".
+- **Whole chapters:** "Romans chapter eight".
+- **Corrections:** "sorry, I meant John 3:17" replaces the previous reference.
+- **Following along:** "next verse", "previous verse", "next chapter", "go back two verses", "verse 18" (in the same chapter), "read that again".
+- **Several references in one sentence**, each shown separately for review.
+- **References split by a pause:** "Romans eight… verse twenty-eight" is joined back together.
+- **Spoken "hold" instructions:** "hold that", "wait", "don't change it".
+- **Repeats suppressed:** a reference mentioned again a few seconds later is not shown twice.
+
+### Recognises quoted Scripture
+- **Quotes without a reference:** when the preacher quotes a verse without saying where it is ("Trust in the Lord with all thine heart…"), VerseCue can find it (Proverbs 3:5).
+- **Free Bibles for matching:** it uses the free, public-domain King James and World English Bibles to recognise the wording, prepares the verse in your own installed translation, and labels it "matched from quoted wording".
+
+### Switches Bible version on request
+- **Version requests:** "can you give me NIV", "read that in New King James" or "1st Timothy 1 verse 2 in NIV" reopens the passage in that version.
+- **Checked first:** VerseCue first checks the version is installed in ProPresenter. If it isn't, VerseCue says so and keeps the current version.
+- **Spoken names it understands:**
+  - KJV / King James
+  - NKJV / New King James
+  - NIV / New International Version
+  - ESV / English Standard
+  - AMP / Amplified, and AMPC / Amplified Classic
+  - The Message
+  - ASV / American Standard
+  - NLT / New Living
+
+### Gets the passage into ProPresenter your way
+- **Auto:** complete, explicit references go to ProPresenter after a short hold window you can set. Press **H** to hold one.
+- **Confirm:** you review each passage, then send it.
+- **Prepare for volunteer:** VerseCue never sends anything. It opens the passage in ProPresenter's own Bible view, by default the whole chapter at the spoken verse, and your volunteer takes it live and uses ProPresenter's next/previous.
+- **Suggest only and Paused,** plus **Emergency stop (Esc)** to stop everything at once.
+- **Your own slides:** uses passages you have saved in ProPresenter's library. Long passages split into parts you continue deliberately. Previews of the slides come from ProPresenter itself.
+- **Long readings:** up to 176 verses, a whole chapter, in Confirm. Auto stays at 10 verses.
+
+### Shows what it heard and how sure it is
+- **Live transcript strip:** shows the current speech.
+- **Clarity badge:** each reference gets "Heard clearly", "Likely" or "Check this", with a percentage.
+- **Progress line:** Heard, Matched, Sending, On screen.
+- **"Heard this service" list:** what was said and whether it was spoken or quoted.
+
+### Ready out of the box
+- **Connects by itself:** connects to ProPresenter automatically and keeps trying. Usually the only setting is ProPresenter's address.
+- **Listens straight away:** uses the computer's default microphone and starts listening when it opens.
+- **Pastor's own input:** choose a specific input and channel, such as the pastor's channel on a MOTU M4 or another interface, with a 10-second level test. VerseCue warns if an input looks like computer audio instead of a microphone.
+- **Free, local speech recognition:** the model stays loaded and recognition starts 0.7 s after the preacher pauses.
+- **Uses the graphics card automatically:** any AMD, NVIDIA or Intel card on Windows (Vulkan) and Metal on Macs, warming up in the background. An optional NVIDIA CUDA setup is also available.
+
+### Built for the production booth
+- **Calm design:** a dark workspace with a **Large "booth distance"** text size, a **compact always-on-top window**, and keyboard shortcuts.
+- **Saved setups:** **service profiles** for different setups, **automatic settings backups** with restore, and settings import/export.
+- **Stays safe when things go wrong:** connection health shows "slow to respond" and pauses safely if ProPresenter is lost. VerseCue recovers safely after the computer sleeps.
+- **Support:** **redacted diagnostics** you can send for help, a **downloaded-update checker** that verifies a release before you install it, and an optional **private local API** for your own tools (off by default, protected by a token).
+
+### Runs where you are
+- **Windows and Mac:** Windows 10/11 and Macs (Apple silicon and Intel).
+- **Any ProPresenter version:** works with ProPresenter's network API. Opening passages in ProPresenter's Bible view is verified on Windows; Mac support is being verified.
+- **No cloud:** no account, subscription or internet connection needed to run.
 
 ## Getting started
 
@@ -104,3 +154,7 @@ npm start         # run from source
 ```
 
 Third-party licences are in [legal/](legal/).
+
+## License
+
+VerseCue is open source under the [MIT License](LICENSE). Bundled third-party components keep their own licences, listed in [legal/](legal/).
