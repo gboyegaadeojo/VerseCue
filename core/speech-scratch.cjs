@@ -26,8 +26,9 @@ class SpeechScratch {
   await this.verifyRoot();if(path.dirname(directory)!==this.root||!ownedName.test(path.basename(directory)))throw Error('Refusing out-of-scope speech scratch cleanup');
   let stat;try{stat=await fs.lstat(directory);}catch(error){if(error.code==='ENOENT')return;throw error;}
   if(!stat.isDirectory()||stat.isSymbolicLink()||path.relative(directory,await fs.realpath(directory))!=='')throw Error('Refusing linked speech scratch cleanup');
-  const names=await fs.readdir(directory);if(names.some(name=>name!=='input.wav'))throw Error('Unexpected file in speech scratch; recognition remains unavailable');
-  if(names.length){const file=path.join(directory,'input.wav'),fileStat=await fs.lstat(file);if(!fileStat.isFile()||fileStat.isSymbolicLink())throw Error('Refusing linked speech audio cleanup');await fs.unlink(file);}
+  const names=await fs.readdir(directory);// input.wav is the audio window; out.json is whisper-cli's word-probability output (-ojf, heard clarity). Anything else stops recognition.
+  if(names.some(name=>name!=='input.wav'&&name!=='out.json'))throw Error('Unexpected file in speech scratch; recognition remains unavailable');
+  for(const name of names){const file=path.join(directory,name),fileStat=await fs.lstat(file);if(!fileStat.isFile()||fileStat.isSymbolicLink())throw Error('Refusing linked speech audio cleanup');await fs.unlink(file);}
   await fs.rmdir(directory);
  }
 }

@@ -1,0 +1,34 @@
+/* In-app help and first-launch tour (NR-019). Explanations only; never presses or changes anything. */
+.help-layer{position:fixed;inset:0;z-index:60;pointer-events:none}
+.help-layer>*{pointer-events:auto}
+.help-marker{position:fixed;width:22px;height:22px;min-width:22px;min-height:22px!important;padding:0!important;border-radius:50%!important;border:0!important;background:#0A6CDF!important;color:#fff!important;font:700 11px/22px Inter,system-ui,sans-serif!important;cursor:pointer;box-shadow:0 0 0 3px rgba(10,108,223,.3)!important;animation:helpPop .3s cubic-bezier(.34,1.56,.64,1)}
+.help-marker:hover{box-shadow:0 0 0 5px rgba(10,108,223,.45)!important}
+.help-marker.on{background:#fff!important;color:#0A6CDF!important;box-shadow:0 0 0 4px rgba(10,108,223,.6)!important}
+.help-ring{position:fixed;border-radius:12px;box-shadow:0 0 0 2px #0A6CDF,0 0 24px rgba(10,108,223,.35);pointer-events:none!important}
+.help-pop{position:fixed;width:300px;background:#2A2A2D;color:#F5F5F7;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 14px;box-shadow:0 24px 50px -18px rgba(0,0,0,.8);font-size:12.5px;line-height:1.55;animation:helpPop .25s ease}
+.help-pop p{margin:6px 0 0;color:#C7C7CC}
+.help-pop-head{display:flex;gap:8px;align-items:center}
+.help-num{flex:none;width:20px;height:20px;border-radius:50%;background:#0A6CDF;color:#fff;font-size:10.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.help-panel{position:fixed;right:0;top:0;bottom:0;width:320px;background:#1E1E21;color:#F5F5F7;border-left:1px solid rgba(255,255,255,.08);padding:16px 12px;overflow:auto;display:flex;flex-direction:column;gap:4px;font-size:12.5px;animation:helpPop .25s ease}
+.help-panel-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:0 6px 10px}
+.help-panel-head b{font-size:14px;flex:1 1 100%}
+.help-muted{color:#98989D;display:block;font-size:11.5px;line-height:1.45}
+.help-item{display:flex;gap:10px;width:100%;text-align:left;justify-content:flex-start!important;align-items:flex-start!important;border-radius:10px!important;background:transparent!important;padding:9px 10px!important;cursor:pointer}
+.help-item:hover{background:rgba(255,255,255,.05)!important}
+.help-item.on{background:rgba(10,108,223,.16)!important}
+.help-toggle[aria-pressed=true]{background:#0A6CDF!important;color:#fff!important}
+.tour-layer{position:fixed;inset:0;z-index:70}
+.tour-spot{position:fixed;border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.62),0 0 0 2px #0A6CDF;transition:all .4s cubic-bezier(.2,.9,.3,1);pointer-events:none}
+.tour-card{position:fixed;width:340px;background:#2A2A2D;color:#F5F5F7;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:16px 18px;box-shadow:0 30px 60px -20px rgba(0,0,0,.8);font-size:12.5px;line-height:1.55;animation:helpPop .3s ease}
+.tour-card p{margin:6px 0 12px;color:#C7C7CC}
+.tour-title{display:block;font-size:15px;margin-top:8px}
+.tour-meta,.tour-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tour-buttons{display:flex;gap:6px}
+.tour-next{background:#0A6CDF!important;color:#fff!important}
+.tour-dots{display:flex;gap:4px}
+.tour-dot{width:6px;height:6px;border-radius:3px;background:#48484A}
+.tour-dot.on{width:16px;background:#0A6CDF}
+@keyframes helpPop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.help-marker,.help-pop,.help-panel,.tour-card,.tour-spot{animation:none!important;transition:none!important}}
+.help-toggle{width:30px;min-width:30px;padding:0!important;font-weight:700!important;justify-content:center}
+html:not(.text-standard) .help-toggle{width:44px;min-width:44px}

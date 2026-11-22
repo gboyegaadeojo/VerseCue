@@ -11,7 +11,7 @@ class PreparationController {
     if(!/^ProPresenter(\s|$)/.test(host)||this.connector.version?.platform!=='win')return {available:false,reason:'Automatic preparation uses the ProPresenter Bible view on Windows; on this platform, use exact saved passages.'};
     return {available:true,scope:'windows-loopback',verifiedVersion:'ProPresenter 21.4.2',version:host,versionVerified:host==='ProPresenter 21.4.2'};
   }
-  async prepare(reference,translation,guard=()=>true,{saveCopy=false,keepListening=false,focusVerse=null}={}){
+  async prepare(reference,translation,guard=()=>true,{saveCopy=false,keepListening=false,focusVerse=null,early=false}={}){
     const {service,connector,speech,preparation}=this;
     if(!preparation?.available())throw new Error('Experimental Windows preparation helper is unavailable');
     const maxVerses=service.maxPassageVerses??10,parsed=parse(reference,{defaultTranslation:translation,maxVerses}),requested=parsed.references[0];
@@ -26,10 +26,24 @@ class PreparationController {
     if(blocked()||targetGeneration!==service.generation||targetBase!==connector.base)throw new Error('Preparation canceled during target validation');
     const confirmPreparation=keepListening===true&&service.mode==='confirm'&&typeof this.cancelRecognition==='function';
     const listeningPreserved=confirmPreparation&&service.capture?.active===true;
-    if(confirmPreparation)this.cancelRecognition();else speech.cancel();connector.arm(false);service.configure({dryRun:true,translation:this.getTranslation()});if(!confirmPreparation)service.setMode('paused');
+    // Early chapter (NR-020): already dry run with outputs off, so session state and the sentence still being heard are kept.
+    if(early===true){if(!chapter||!confirmPreparation||service.dryRun!==true||connector.armed)throw new Error('Early preparation needs Prepare for volunteer in dry run');}
+    else{if(confirmPreparation)this.cancelRecognition();else speech.cancel();connector.arm(false);service.configure({dryRun:true,translation:this.getTranslation()});if(!confirmPreparation)service.setMode('paused');}
     const generation=service.generation;
-    const result=await preparation.prepare(reference,translation,{guard:()=>guard()&&!service.stopped&&generation===service.generation,saveCopy,maxVerses,...(chapter?{focusVerse}:{})});
+    // Speed (NR-020): the first whole chapter also reads the installed versions, so a later version request does not wait.
+    const key=connector.generation+'|'+connector.base,listVersions=chapter&&!(this.versionCache?.key===key&&Date.now()-this.versionCache.at<600000);
+    const result=await preparation.prepare(reference,translation,{guard:()=>guard()&&!service.stopped&&(early===true||generation===service.generation),saveCopy,maxVerses,...(chapter?{focusVerse,...(listVersions?{listVersions:true}:{})}:{})});
+    if(listVersions&&Array.isArray(result.installed)){const {codesFromNames}=require('./bible-versions.cjs');this.versionCache={key,at:Date.now(),value:{names:result.installed,codes:codesFromNames(result.installed)}};service.log('INSTALLED_VERSIONS_READ','info',{count:this.versionCache.value.codes.length,withChapter:true});}
     service.log('NATIVE_BIBLE_PREPARED_REVIEW','info',{nativeWorkerMs:result.workerElapsedMs});service.notify();return {...result,preparedGeneration:generation,listeningPreserved};
+  }
+  // Which Bible versions this ProPresenter has, remembered for 10 minutes per connection. null when it cannot be checked here.
+  async installedVersions(guard=()=>true){
+    const {codesFromNames}=require('./bible-versions.cjs');
+    if(!this.preparation?.available()||this.readiness().available!==true)return null;
+    const key=this.connector.generation+'|'+this.connector.base;
+    if(this.versionCache?.key===key&&Date.now()-this.versionCache.at<600000)return this.versionCache.value;
+    const read=await this.preparation.listTranslations({guard});const value={names:read.installed,codes:codesFromNames(read.installed)};
+    this.versionCache={key,at:Date.now(),value};this.service.log('INSTALLED_VERSIONS_READ','info',{count:value.codes.length});return value;
   }
   prepareCandidate(id){
     const {service}=this;service.expire();const candidate=service.queue.find(c=>c.id===id);

@@ -54,10 +54,10 @@ let macHelper=null,settings,settingsFile,profiles,mainWindow,compactWindow,healt
 const ui=pathToFileURL(path.join(__dirname,'../ui/index.html')).href;
 function trusted(e){if(!windows.has(BrowserWindow.fromWebContents(e.sender))||e.senderFrame!==e.sender.mainFrame||e.senderFrame.url.split('?')[0]!==ui)throw new Error('Untrusted caller');}
 // NR-010: saved Auto start preference and hold window. Start mode applies only at launch/reset (Session.applyStartMode).
-function applySessionPreferences(){automatic.configureDelay(settings.autoHoldMs);service.startMode=settings.startMode;service.chapterContext=settings.chapterContext!==false;}
+function applySessionPreferences(){automatic.configureDelay(settings.autoHoldMs);service.startMode=settings.startMode;service.chapterContext=settings.chapterContext!==false;service.earlyPreparation=settings.earlyPreparation!==false;}
 function handler(name,callback,{withEvent=false}={}){ipcMain.handle(name,async(e,...args)=>{try{trusted(e);if(configurationTransition.busy&&!['state','settings','quote-status','private-api-status','profiles-list','window-identity','audio-stop','private-api-stop','command'].includes(name))throw Error('Settings are changing; wait for setup to finish');return {ok:true,value:await callback(...(withEvent?[e,...args]:args))};}catch(error){return {ok:false,error:error.message};}});}
 function createWindow(compact=false){
-  const win=new BrowserWindow({width:compact?450:1280,height:compact?630:900,minWidth:compact?360:800,minHeight:550,title:'VerseCue',backgroundColor:'#10151d',show:false,alwaysOnTop:compact,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,backgroundThrottling:false}});
+  const win=new BrowserWindow({width:compact?450:1280,height:compact?630:900,minWidth:compact?360:800,minHeight:550,title:'VerseCue',icon:path.join(__dirname,'..','assets','icons','versecue-256.png'),backgroundColor:'#10151d',show:false,alwaysOnTop:compact,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,backgroundThrottling:false}});
   windows.add(win);win.setMenuBarVisibility(false);win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('will-navigate',e=>e.preventDefault());const captureOwnerId=win.webContents.id;
   const releaseUnavailableOwner=code=>{const approved=[...connector.mappings].filter(([,map])=>map.autoApproval===true&&map.ownerId===captureOwnerId);if(!capture.owns(captureOwnerId)&&preparationOwner?.id!==captureOwnerId&&reviewOwnerId!==captureOwnerId&&!referencePreparation?.owns(captureOwnerId)&&!approved.length)return;for(const [key]of approved)connector.mappings.delete(key);cancelAudio();cancelPreparation();privateApi.stop().catch(()=>{});connector.arm(false);service.setMode('paused');service.log(code,'warning');service.notify();};
   win.webContents.on('render-process-gone',()=>releaseUnavailableOwner('AUDIO_OWNER_RENDERER_GONE'));
@@ -100,13 +100,13 @@ async function bootstrap(){
   const helperName=process.platform==='darwin'?'VerseCue.BibleBridge':'VerseCue.BibleBridge.exe';
   const helper=app.isPackaged?path.join(process.resourcesPath,'native',helperName):path.join(__dirname,'../native/bin',helperName);macHelper=process.platform==='darwin'?helper:null;
   let helperExists=false;try{await fs.access(helper);helperExists=true;}catch{}
-  preparation=new BiblePreparation({helper:helperExists?helper:null});
-  preparationController=new PreparationController({service,connector,speech:{cancel:cancelAudio},cancelRecognition:()=>{resetSpeechStabilization();speech.cancel();},preparation,getTranslation:()=>settings.translation});
+  preparation=new BiblePreparation({helper:helperExists?helper:null,persistent:true});
+  preparationController=new PreparationController({service,connector,speech:{cancel:cancelAudio},cancelRecognition:()=>{resetSpeechStabilization();speech.interrupt();},preparation,getTranslation:()=>settings.translation});
   nativeCopyLedger=new NativeCopyLedger(path.join(app.getPath('userData'),'native-copy-ledger.json'));await nativeCopyLedger.load();
   if(nativeCopyLedger.failure)service.log('NATIVE_COPY_LEDGER_UNVERIFIED','warning');
   savedBible=new SavedBibleWorkflow({service,connector,catalog,controller:preparationController,ledger:nativeCopyLedger,onPreparedCopy:receipt=>referencePassages.rememberNativeCopy(receipt),onUncertain:()=>referencePreparation?.revokeNative()});
   passageCoordinator=new PassageCoordinator({service,connector,resolver:referencePassages,savedBible,onChange:value=>{service.passagePreparation=value;service.notify();}});
-  referencePreparation=new ReferencePreparation({service,coordinator:passageCoordinator,nativeReadiness:()=>savedBible.readiness(),canPrepare:()=>!preparationOwner&&!passageCoordinator.busy&&!savedBible.busy&&!preparation.busy&&!service.busy&&!service.operationOwner,prepare:(id,event,{chapter=false,...options}={})=>ownedPreparation(event,()=>chapter?passageCoordinator.prepareChapter(id,options):passageCoordinator.prepare(id,options)),onChange:value=>{service.referencePreparation=value;service.notify();}});
+  referencePreparation=new ReferencePreparation({service,coordinator:passageCoordinator,nativeReadiness:()=>savedBible.readiness(),canPrepare:()=>!preparationOwner&&(!passageCoordinator.busy||Boolean(passageCoordinator.early))&&!savedBible.busy&&!preparation.busy&&!service.busy&&!service.operationOwner,prepare:(id,event,{chapter=false,...options}={})=>ownedPreparation(event,()=>chapter?passageCoordinator.prepareChapter(id,options):passageCoordinator.prepare(id,options)),onChange:value=>{service.referencePreparation=value;service.notify();}});
   if(nativeCopyLedger.status().uncertainReservations>0)referencePreparation.revokeNative();
   const recovery=new PowerRecovery({service,connector,cancelAudio,cancelPreparation:()=>cancelPreparation(),revokeApi:()=>privateApi.stop(),getTarget:()=>settings});
   powerMonitor.on('suspend',()=>recovery.handle('suspend'));powerMonitor.on('resume',()=>recovery.handle('resume'));
@@ -237,18 +237,33 @@ async function bootstrap(){
     if(!sameLease())throw new Error('Stale recognition discarded');
     if(heard!==null)for(const candidate of candidates)if(candidate.recognition!=='quote')candidate.heardConfidence=heard;
     if(stabilized.assembled)for(const candidate of candidates){candidate.phrase=stabilized.sourcePhrase;candidate.reference.autoEligible=false;candidate.issues.push('Assembled from adjacent speech windows; confirm the complete reference.');candidate.stabilization={fragmentCount:stabilized.fragmentCount};}
-    if(candidates.length&&(passageCoordinator?.active||passageCoordinator?.review||passageCoordinator?.busy))cancelPreparation();
+    // The finished words naming the chapter already opened early keep it; anything else cancels it (NR-020).
+    if(candidates.length&&(passageCoordinator?.active||passageCoordinator?.review||passageCoordinator?.busy)&&!(candidates.length===1&&passageCoordinator.matchesEarly(candidates[0])))cancelPreparation();
     if(!evidence.timingKnown||!evidence.lossFree)for(const candidate of candidates)candidate.issues.push(!evidence.timingKnown?'Original audio timing is unavailable; review this full reference.':'Audio was dropped, clipped or its quality is unknown; review the full reference before continuing.');
     referencePreparation.consider(candidates,event);automatic.consider(candidates,{source:'local-speech',final:result.final===true,elapsedMs:result.elapsedMs,endEvidence:evidence.endEvidence,droppedSamples:metadata?.droppedSamples,endAgeMs:evidence.endAgeMs,observedAt:evidence.receivedAt});service.notify();return evidence.stale?{...result,text:'',discarded:true,reason:'Audio evidence expired during recognition. Repeat the full reference.'}:result;
   },{withEvent:true});
-  // Display-only preview of a still-growing window. It never reaches the stabilizer, candidates, Auto, preparation or output.
+  // Early chapter (NR-020): in Prepare for volunteer only, unfinished speech that already names one complete reference
+  // (book, chapter and verse, in the current version) opens that chapter in ProPresenter's Bible view. Preparation only:
+  // it never becomes a candidate and never reaches Auto, Confirm or output. The finished words reuse or replace it.
+  function startEarlyPreparation(text,ownerId){
+    try{
+      if(!text||!passageCoordinator?.earlyAllowed()||!referencePreparation?.enabled||!referencePreparation.owns(ownerId)||preparationOwner||passageCoordinator.busy||savedBible.busy||preparation.busy||service.busy||service.operationOwner)return;
+      const {parse}=require('../core/parser.cjs');const parsed=parse(text,{defaultTranslation:service.translation,maxVerses:service.maxPassageVerses});
+      if(parsed.command||parsed.references.length!==1)return;const reference=parsed.references[0];
+      if(reference.valid!==true||reference.relative||reference.verse==null||reference.issues?.some(issue=>/Invalid|no-show|not supported/.test(issue)))return;
+      passageCoordinator.prepareEarly(reference,reference.translation??service.translation).catch(()=>{});
+    }catch{}
+  }
+  // Display-only preview of a still-growing window. It never reaches the stabilizer, candidates, Auto, preparation or output;
+  // the one exception is the early chapter above, which is preparation only.
   handler('audio-provisional',async(event,samples)=>{
     if(!capture.owns(event.sender.id))throw new Error('This window does not own an authorized audio session');
     if(capture.purpose!=='recognition')throw Error('Input test is meter-only; recognition is disabled');
     if(service.stopped||service.mode==='paused')throw new Error('Listening is paused');const epoch=service.generation,leaseEpoch=capture.epoch;
     const result=await speech.transcribeProvisional(samples);
     if(capture.epoch!==leaseEpoch||!capture.owns(event.sender.id)||epoch!==service.generation||service.stopped||service.mode==='paused')throw new Error('Stale provisional speech discarded');
-    return {text:String(result.text).trim().slice(0,500),final:false,elapsedMs:result.elapsedMs};
+    const text=String(result.text).trim().slice(0,500);startEarlyPreparation(text,event.sender.id);
+    return {text,final:false,elapsedMs:result.elapsedMs};
   },{withEvent:true});
   // FR-060 manual signed updates: verify only, never install, and only outside a service.
   handler('check-update',async()=>{
@@ -304,6 +319,6 @@ async function bootstrap(){
 if(!app.requestSingleInstanceLock())app.quit();else{
   app.on('second-instance',()=>{if(mainWindow){if(mainWindow.isMinimized())mainWindow.restore();mainWindow.focus();}});
   app.whenReady().then(bootstrap).catch(()=>{dialog.showErrorBox('VerseCue startup','Unable to initialize safe local settings. Check file access and restart.');app.quit();});
-  app.on('window-all-closed',()=>app.quit());app.on('before-quit',()=>{clearInterval(healthTimer);cancelAudio();cancelPreparation();privateApi.stop().catch(()=>{});});
+  app.on('window-all-closed',()=>app.quit());app.on('before-quit',()=>{clearInterval(healthTimer);cancelAudio();cancelPreparation();preparation?.dispose();privateApi.stop().catch(()=>{});});
   app.on('web-contents-created',(_event,contents)=>contents.on('will-attach-webview',event=>event.preventDefault()));
 }

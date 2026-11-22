@@ -9,7 +9,39 @@ class PassageCoordinator {
  publish(state){this.state=state;this.onChange({...state});return state;}
  acquire(){if(this.busy||this.service.busy||this.service.operationOwner)throw Error('Another passage operation is in progress');this.busy=true;this.service.operationOwner=this;}
  release(){if(this.service.operationOwner===this)this.service.operationOwner=null;this.busy=false;}
- cancel(){this.epoch++;this.review=null;this.active=null;this.savedBible.cancel();this.publish({phase:'canceled',outputRequests:0});}
+ cancel(){this.epoch++;this.review=null;this.active=null;this.early=null;this.savedBible.cancel();this.publish({phase:'canceled',outputRequests:0});}
+ // Early chapter (NR-020). In Prepare for volunteer, unfinished speech that already names a complete reference opens
+ // its chapter straight away. It is preparation only (dry run, outputs off, nothing sent). When the sentence finishes,
+ // the same chapter, verse and version is reused; anything else is prepared again from the finished words.
+ earlyKey(book,chapter,translation){return `${book} ${chapter}|${translation}`;}
+ matchesEarly(candidate){const e=this.early,r=candidate?.reference;return Boolean(e&&r&&!r.relative&&this.earlyKey(r.book,r.chapter,candidate.translation)===e.key&&e.target===this.connector.generation&&e.base===this.connector.base);}
+ earlyAllowed(){const s=this.service;return s.prepareForVolunteer===true&&s.chapterContext!==false&&s.earlyPreparation!==false&&s.mode==='confirm'&&s.dryRun===true&&!this.connector.armed&&!s.stopped&&!s.recovery?.required&&s.connector?.status?.state==='connected';}
+ async prepareEarly(reference,translation){
+  if(!this.earlyAllowed()||this.busy||this.service.busy||this.service.operationOwner)return null;
+  if(!reference||reference.valid!==true||reference.relative||!reference.book||!Number.isInteger(reference.chapter)||!Number.isInteger(reference.verse)||translation!==this.service.translation)return null;
+  const key=this.earlyKey(reference.book,reference.chapter,translation),chapter=`${reference.book} ${reference.chapter}`,focusVerse=reference.verse;
+  if(this.early?.key===key&&this.early.focusVerse===focusVerse)return null;
+  if(this.state?.phase==='chapter-prepared'&&this.state.chapter===chapter&&this.state.translation===translation&&this.state.focusVerse===focusVerse)return null;
+  if(this.savedBible.readiness().available!==true)return null;
+  const epoch=++this.epoch,target=this.connector.generation,base=this.connector.base;this.review=null;this.active=null;
+  const guard=()=>epoch===this.epoch&&target===this.connector.generation&&base===this.connector.base&&this.earlyAllowed();
+  const early={key,chapter,focusVerse,translation,target,base,ok:false,result:null};this.early=early;this.acquire();
+  this.service.log?.('EARLY_PREPARATION_STARTED','info');
+  early.promise=(async()=>{
+   try{
+    this.publish({phase:'preparing',early:true,reference:`${chapter}:${focusVerse}`,chapter,focusVerse,translation,outputRequests:0});
+    const result=await this.savedBible.controller.prepare(chapter,translation,guard,{keepListening:true,focusVerse,early:true});
+    if(!guard())throw Error('Early preparation canceled');
+    early.ok=true;early.result=result;
+    return this.publish({phase:'chapter-prepared',early:true,reference:`${chapter}:${focusVerse}`,chapter,focusVerse,focusVisible:result.focusVisible===true,chapterVerses:result.chapterVerses,translation,recognition:'provisional',nativeWorkerMs:result.workerElapsedMs,outputRequests:0,outputObserved:false});
+   }catch(error){
+    if(this.early===early)this.early=null;this.service.log?.('EARLY_PREPARATION_STOPPED','info',{reason:String(error?.message??error).slice(0,160)});
+    if(epoch===this.epoch){const diagnostics=nativeFailureDiagnostics(error);this.publish({phase:guard()?'blocked':'canceled',early:true,reference:`${chapter}:${focusVerse}`,translation,reason:error.message,...(diagnostics?{nativeFailure:diagnostics}:{}),outputRequests:0});}
+    return null;
+   }finally{this.release();}
+  })();
+  return early.promise;
+ }
  async checkOwnership(){
   const s=this.service,c=this.connector,context=s.context,epoch=this.epoch,generation=s.generation,target=c.generation,base=c.base;
   const valid=()=>s.context===context&&this.epoch===epoch&&s.generation===generation&&c.generation===target&&c.base===base&&!this.busy&&!s.busy&&!s.operationOwner&&!s.stopped&&!s.recovery?.required&&!s.dryRun&&s.mode!=='paused'&&c.status?.state==='connected';
@@ -44,6 +76,7 @@ class PassageCoordinator {
    if(result.state==='needs-preparation'){
     const readiness=this.savedBible.readiness();if(readiness.available!==true)return this.publish({phase:'manual-preparation-required',reference:c.label,translation:c.translation,reason:readiness.reason,outputRequests:0});
     if(acknowledgeFocusChange!==true||acknowledgeCreateCopy!==true)return this.publish({phase:'consent-required',reference:c.label,translation:c.translation,reason:'Preparation may move ProPresenter focus and create an internal Bible copy. Explicit session consent is required.',outputRequests:0});
+    this.release();const versionOk=await this.versionInstalled(c);this.acquire();if(!versionOk)return this.state;
     this.candidate(id);check();this.publish({phase:'preparing',reference:c.label,translation:c.translation,outputRequests:0});
     const saved=await this.savedBible.prepare(c.label,c.translation,null,guard,{keepListening:true});check();
     if(saved.coverageComplete!==true||!Number.isInteger(saved.preparedGeneration)||this.service.generation!==saved.preparedGeneration||typeof saved.fingerprint!=='string'||!/^[a-f0-9]{64}$/.test(saved.fingerprint))throw Error('Complete passage preparation could not be verified');
@@ -60,14 +93,34 @@ class PassageCoordinator {
  }
  // Prepare for volunteer: open the whole chapter in ProPresenter's Bible view, scrolled to the spoken verse,
  // so the volunteer can go back or forward without searching again. No saved copy and no output.
+ // Before opening a passage in a version other than the default, check ProPresenter has that version (NR-018).
+ // Not installed: keep the current version, say so plainly and prepare nothing.
+ async versionInstalled(c){
+  if(c.recognition!=='version-switch'&&(!this.service.translation||c.translation===this.service.translation))return true;
+  const {versionName}=require('./bible-versions.cjs');let installed=null;
+  try{installed=await this.savedBible.controller.installedVersions?.(()=>!this.service.stopped);}catch(error){installed=null;this.service.log?.('INSTALLED_VERSIONS_UNREADABLE','warning',{reason:String(error?.message??error).slice(0,160)});}
+  if(!installed)return true;
+  if(installed.codes.includes(c.translation))return true;
+  const from=c.versionSwitch?.from??this.service.translation,text=c.translation+" isn't installed in ProPresenter, so VerseCue is keeping "+from+'. Installed: '+(installed.codes.length?installed.codes.join(', '):installed.names.join(', '))+'.';
+  this.service.queue=this.service.queue.filter(row=>row.id!==c.id);this.service.versionNotice={id:Date.now(),text};this.service.log?.('VERSION_NOT_INSTALLED','info');
+  this.publish({phase:'version-not-installed',reference:c.label,translation:c.translation,reason:text,outputRequests:0});return false;
+ }
  async prepareChapter(id,{acknowledgeFocusChange=false,additionalGuard=()=>true}={}){
   if(typeof additionalGuard!=='function'||!additionalGuard())throw Error('Passage review request was revoked');
-  if(this.busy)throw Error('A passage preparation is already in progress');
+  if(this.busy&&!this.early)throw Error('A passage preparation is already in progress');
   this.service.expire();const c=this.service.queue.find(row=>row.id===id);
   if(!c||this.service.stopped||this.service.recovery?.required||!c.authorized||c.generation!==this.service.generation||c.reference.valid!==true||c.reference.relative||!c.reference.book||!Number.isInteger(c.reference.chapter)||c.issues.some(issue=>/Invalid|no-show|not supported/.test(issue)))throw Error('Review a valid current reference first');
+  // The finished words name the chapter already opened from unfinished speech: wait for it and reuse it when the verse
+  // matches too. A different verse is prepared again below (the chapter stays open, so that is quick).
+  if(this.matchesEarly(c)&&acknowledgeFocusChange===true){const early=this.early;await early.promise;
+   if(this.early===early&&early.ok&&early.focusVerse===(c.reference.verse??1)&&additionalGuard()&&!this.service.stopped&&!this.service.recovery?.required){this.early=null;this.service.log?.('EARLY_PREPARATION_REUSED','info');
+    return this.publish({phase:'chapter-prepared',early:true,reference:c.label,chapter:early.chapter,focusVerse:early.focusVerse,focusVisible:early.result.focusVisible===true,chapterVerses:early.result.chapterVerses,translation:c.translation,recognition:c.recognition,nativeWorkerMs:early.result.workerElapsedMs,outputRequests:0,outputObserved:false});}
+   this.early=null;}
+  if(this.busy)throw Error('A passage preparation is already in progress');
   const chapter=`${c.reference.book} ${c.reference.chapter}`,focusVerse=c.reference.verse??1,sourceReferenceEpoch=this.service.referenceEpoch,epoch=++this.epoch,target=this.connector.generation,base=this.connector.base;this.review=null;this.active=null;
   const readiness=this.savedBible.readiness();if(readiness.available!==true)return this.publish({phase:'manual-preparation-required',reference:c.label,translation:c.translation,reason:readiness.reason,outputRequests:0});
   if(acknowledgeFocusChange!==true)return this.publish({phase:'consent-required',reference:c.label,translation:c.translation,reason:'Preparation may move ProPresenter focus. Explicit session consent is required.',outputRequests:0});
+  if(!await this.versionInstalled(c))return this.state;
   this.acquire();
   const guard=()=>additionalGuard()&&epoch===this.epoch&&target===this.connector.generation&&base===this.connector.base&&sourceReferenceEpoch===this.service.referenceEpoch&&!this.service.stopped&&!this.service.recovery?.required;
   try{

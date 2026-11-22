@@ -41,3 +41,10 @@ test('configured parent aliases resolve canonically while a linked scratch root 
  const scratch=new SpeechScratch(path.join(alias,'scratch'));await scratch.initialize();const item=await scratch.create(Buffer.from('SYNTHETIC'));assert.equal(path.dirname(item.directory),path.join(await fs.realpath(actual),'scratch'));await scratch.remove(item.directory);
  const target=path.join(actual,'target'),linked=path.join(actual,'linked-root');await fs.mkdir(target);await fs.symlink(target,linked,process.platform==='win32'?'junction':'dir');await assert.rejects(new SpeechScratch(linked).initialize(),/not a regular/);await fs.unlink(linked);await fs.unlink(alias);
 }));
+test('cleanup removes the engine word-probability output (out.json) but still refuses any other file',async()=>{
+  const {SpeechScratch}=require('../core/speech-scratch.cjs');const os=require('node:os');const parent=await fs.mkdtemp(path.join(os.tmpdir(),'vc-scratch-json-'));
+  try{const scratch=new SpeechScratch(path.join(parent,'root'));await scratch.initialize();
+    const a=await scratch.create(Buffer.from('RIFF'));await fs.writeFile(path.join(a.directory,'out.json'),'{}');await scratch.remove(a.directory);await assert.rejects(fs.access(a.directory));
+    const b=await scratch.create(Buffer.from('RIFF'));await fs.writeFile(path.join(b.directory,'other.txt'),'x');await assert.rejects(scratch.remove(b.directory),/Unexpected file/);
+  }finally{await fs.rm(parent,{recursive:true,force:true});}
+});
