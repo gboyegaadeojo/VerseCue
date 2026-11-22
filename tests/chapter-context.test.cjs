@@ -11,6 +11,14 @@ test('chapter preparation sends the chapter, the spoken verse and the verse coun
   assert.equal(result.state,'chapter-prepared-no-output');assert.equal(result.focusVisible,true);assert.equal(result.chapterVerses,35);assert.equal(result.outputRequests,0);assert.equal(result.saveCopyRequested,false);
   await prep.prepare('Psalm 119','KJV',{focusVerse:176});assert.equal(helper.sent[1].chapterVerses,176);
 });
+test('the first chapter can read installed versions in the same run; bad lists are ignored (NR-020)',async()=>{
+  const helper=fakeHelper(r=>({...ok(r),installed:r.listVersions?['King James Version','American Standard Version']:null})),prep=new BiblePreparation({helper:'bridge.exe',platform:'win32',spawnImpl:helper.spawnImpl});
+  const first=await prep.prepare('Proverbs 3','KJV',{focusVerse:5,listVersions:true});
+  assert.equal(helper.sent[0].listVersions,true);assert.deepEqual(first.installed,['King James Version','American Standard Version']);
+  const second=await prep.prepare('Proverbs 3','KJV',{focusVerse:5});assert.equal('listVersions' in helper.sent[1],false);assert.equal(second.installed,undefined);
+  const bad=new BiblePreparation({helper:'bridge.exe',platform:'win32',spawnImpl:fakeHelper(r=>({...ok(r),installed:[42]})).spawnImpl});
+  assert.equal((await bad.prepare('Proverbs 3','KJV',{focusVerse:5,listVersions:true})).installed,undefined);
+});
 test('chapter preparation rejects a verse outside the chapter, a verse reference, a saved copy or a mismatched reply',async()=>{
   const helper=fakeHelper(ok),prep=new BiblePreparation({helper:'bridge.exe',platform:'win32',spawnImpl:helper.spawnImpl});
   await assert.rejects(prep.prepare('Proverbs 3','KJV',{focusVerse:36}),/whole chapter/);
