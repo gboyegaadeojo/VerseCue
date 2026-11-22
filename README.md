@@ -23,13 +23,13 @@ You need:
 
 ## Download
 
-**Latest version: 0.6.3** (development preview)
+**Latest version: 0.6.4** (development preview)
 
 | Computer | Download |
 |---|---|
-| Windows (Intel/AMD 64-bit) | [VerseCue for Windows (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.3/VerseCue-0.6.3-win32-x64.zip) |
-| Mac with Apple silicon (M1 or newer) | [VerseCue for Apple silicon Mac (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.3/VerseCue-0.6.3-darwin-arm64.zip) |
-| Mac with Intel processor | [VerseCue for Intel Mac (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.3/VerseCue-0.6.3-darwin-x64.zip) |
+| Windows (Intel/AMD 64-bit) | [VerseCue for Windows (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.4/VerseCue-0.6.4-win32-x64.zip) |
+| Mac with Apple silicon (M1 or newer) | [VerseCue for Apple silicon Mac (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.4/VerseCue-0.6.4-darwin-arm64.zip) |
+| Mac with Intel processor | [VerseCue for Intel Mac (ZIP)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.4/VerseCue-0.6.4-darwin-x64.zip) |
 
 Checksums and older versions are on the [releases page](https://github.com/gboyegaadeojo/VerseCue/releases). Don't use GitHub's automatic "Source code" ZIP to run the app.
 
@@ -133,7 +133,7 @@ A fuller walkthrough is in the [personal test guide](docs/124-personal-auto-firs
 
 ## Privacy
 
-Audio is processed on your computer and isn't saved. Temporary recognition files are deleted after each phrase. VerseCue needs no account or internet connection, except for downloading it and, if you choose, the optional NVIDIA engine files. Bible text comes from ProPresenter. The bundled public-domain Bibles are used only to recognise quoted wording.
+Audio is processed on your computer and isn't saved. Temporary recognition files are kept in VerseCue's own folder, deleted after each phrase and, after a crash, deleted at the next start. The diagnostics export holds only event codes and timings, never what was said. While VerseCue runs, the operating system may write memory to disk (page file, hibernation), so use full-disk encryption (BitLocker or FileVault) on the service computer. VerseCue needs no account or internet connection, except for downloading it and, if you choose, the optional NVIDIA engine files. Bible text comes from ProPresenter. The bundled public-domain Bibles are used only to recognise quoted wording.
 
 ## Current limits
 

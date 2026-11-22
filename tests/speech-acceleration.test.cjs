@@ -50,3 +50,15 @@ test('final windows use a 15 s audio context and write token probabilities; prev
   await speech.transcribeProvisional(new Array(32000).fill(0)).catch(()=>{});
   if(calls[1]){assert.ok(calls[1].args.includes('-ac'));assert.ok(!calls[1].args.includes('-ojf'));}
 });
+test('warm-up silence lives in the app speech scratch and is removed afterwards (privacy, docs/144)',async()=>{
+  const fs=require('node:fs/promises'),os=require('node:os'),path=require('node:path');const {SpeechScratch}=require('../core/speech-scratch.cjs');
+  const root=await fs.mkdtemp(path.join(os.tmpdir(),'vc-warm-test-'));
+  try{
+    const real=new SpeechScratch(path.join(root,'speech-scratch'));await real.initialize();
+    const s=new LocalSpeech();s.scratch=real;s.configure('whisper-cli','model.bin','cli');let input=null;
+    const spawnImpl=(file,args)=>{input=args[args.indexOf('-f')+1];return engine('loaded Vulkan backend\n')();};
+    assert.equal((await s.warmUp({spawnImpl})).state,'ready');
+    assert.equal(path.dirname(path.dirname(input)),real.root,'silence written inside the scratch root');
+    assert.deepEqual(await fs.readdir(real.root),[],'nothing left behind');
+  }finally{await fs.rm(root,{recursive:true,force:true});}
+});
