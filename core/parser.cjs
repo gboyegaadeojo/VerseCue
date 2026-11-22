@@ -26,6 +26,21 @@ function normalize(text) {
 const aliases={gen:'Genesis',exod:'Exodus',exo:'Exodus',lev:'Leviticus',num:'Numbers',deut:'Deuteronomy',josh:'Joshua',judg:'Judges',ps:'Psalm',psa:'Psalm',prov:'Proverbs',eccl:'Ecclesiastes',isa:'Isaiah',jer:'Jeremiah',lam:'Lamentations',ezek:'Ezekiel',dan:'Daniel',hos:'Hosea',obad:'Obadiah',mic:'Micah',hab:'Habakkuk',zeph:'Zephaniah',zech:'Zechariah',mal:'Malachi',matt:'Matthew',mt:'Matthew',mk:'Mark',lk:'Luke',jn:'John',rom:'Romans',cor:'Corinthians',gal:'Galatians',eph:'Ephesians',phil:'Philippians',col:'Colossians',thess:'Thessalonians',tim:'Timothy',phlm:'Philemon',heb:'Hebrews',jas:'James',pet:'Peter',rev:'Revelation',revelaations:'Revelation'};
 function citationForms(text){let s=text.replace(/\b([123])(?=[a-z])/g,'$1 ');for(const [short,full]of Object.entries(aliases))s=s.replace(new RegExp('\\b'+short+'\\.?(?=\\s*\\d)','g'),full.toLowerCase()+' ');return s.replace(/\b(chapter|verse)\s+number\s+/g,'$1 ').replace(/\b(?:ch|chap)\.?\s*(?=\d)/g,'chapter ').replace(/\b(?:vs|vv|v)\.?\s*(?=\d)/g,'verse ').replace(/\b(?:and\s+)?(?:(?:starting|beginning|start|begin)\s+(?:from|at)|from|at)\s+(?=verses?\b)/g,'').replace(/(\d)\s+and\s+(?=verses?\b)/g,'$1 ').replace(/([a-z])(?=\d)/g,'$1 ');}
 const bookPattern = names.slice().sort((a,b)=>b.length-a.length).map(n=>n.toLowerCase()).join('|');
+// Approximate book names (NR-022). The speech engine often hears the right book but spells it slightly differently
+// ("Habakuk", "Ecclesiastees", "Zeccariah", "Hagiai"). A word close to one book name (one letter off for names of five or
+// six letters, two for longer names) is read as that book, but only when chapter or verse wording follows. Such references
+// carry a review issue, so Auto never sends them; Confirm and Prepare for volunteer show or prepare them for a person.
+const fuzzyTargets=[...new Set(names.flatMap(n=>{const w=n.toLowerCase().split(' ');return w.length===1||/^\d$/.test(w[0])&&w.length===2?[w.at(-1)]:[];}))];
+const fuzzyStop=new Set(['number','judge','judged','games','names','things','rings','meter','later','water','chapter','chapters','verse','verses','through','about','there','where']);
+function editDistance(a,b){const d=Array.from({length:a.length+1},(_,i)=>[i]);for(let j=1;j<=b.length;j++)d[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1),i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1]?d[i-2][j-2]+1:Infinity);return d[a.length][b.length];}
+function approximateBooks(s,approximated){
+  return s.replace(/\b([a-z]{4,})(?=\s*,?\s*(?:chapter\b|verses?\b|\d+\s*,?\s*(?:verses?\b|:)))/g,word=>{
+    if(fuzzyTargets.includes(word)||fuzzyStop.has(word))return word;
+    let best=null,bestDistance=Infinity,tie=false;
+    for(const name of fuzzyTargets){const limit=name.length>=7?2:name.length>=5?1:0;if(!limit||Math.abs(name.length-word.length)>limit)continue;const d=editDistance(word,name);if(d>limit)continue;if(d<bestDistance){best=name;bestDistance=d;tie=false;}else if(d===bestDistance)tie=true;}
+    if(!best||tie)return word;approximated.add(best);return best;
+  });
+}
 function label(r) { return `${r.book} ${r.chapter}${r.verse==null?'':`:${r.verse}${r.endChapter&&r.endChapter!==r.chapter?`-${r.endChapter}:${r.endVerse}`:r.endVerse&&r.endVerse!==r.verse?`-${r.endVerse}`:''}`}`; }
 function validate(r, bounds) {
   const i=names.indexOf(r.book); const reasons=[];
@@ -46,7 +61,8 @@ function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslat
   if(typeof text!=='string'||text.length>8192) return {references:[],issues:['Invalid transcript size']};
   let s=normalize(citationForms(normalize(text)));
   // Commas Whisper inserts between book, chapter and verse ("Psalm 21, verse 1", "First Peter, chapter 2, verse 1").
-  s=s.replace(new RegExp(`((?:${bookPattern}))\\s*,\\s*(?=chapter\\b|\\d)`,'g'),'$1 ').replace(/\b(chapter|verses?)\s*,\s*(?=\d)/g,'$1 ').replace(new RegExp(`((?:${bookPattern})(?:\\s+chapter)?\\s+\\d+)\\s*,\\s*(?=(?:verses?\\s+)?\\d+(?![\\d,]|\\s*(?:,|and\\b|&)))`,'g'),'$1 ');
+  const approximated=new Set();s=approximateBooks(s,approximated);if(approximated.size)s=normalize(s);
+  s=s.replace(new RegExp(`((?:${bookPattern}))\\s*,\\s*(?=chapter\\b|verses?\\b|\\d)`,'g'),'$1 ').replace(/\b(chapter|verses?)\s*,\s*(?=\d)/g,'$1 ').replace(new RegExp(`((?:${bookPattern})(?:\\s+chapter)?\\s+\\d+)\\s*,\\s*(?=(?:verses?\\s+)?\\d+(?![\\d,]|\\s*(?:,|and\\b|&)))`,'g'),'$1 ');
   const corrected=/\b(sorry|i meant|rather|correction|not)\b/.test(s);
   if(/\bnot\b/.test(s)&&/\bi meant\b/.test(s)) s=s.split(/\bnot\b/)[0];
   else if(/\b(sorry|rather|correction)\b/.test(s)) s=s.split(/\b(?:sorry|rather|correction)\b/).at(-1);
@@ -98,6 +114,7 @@ function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslat
     r.overLimit=r.rangeLength!==null&&r.rangeLength>maxVerses;if(r.overLimit)r.issues.push('Range exceeds the '+maxVerses+'-verse limit; shorten it or use ProPresenter manually');
     if(!r.overLimit&&r.rangeLength>10)r.issues.push('Extended range requires explicit Confirm review; never Auto');
     if(r.implicitChapter)r.issues.push('Implicit single chapter · review');
+    if(approximated.has(r.book.toLowerCase().split(' ').at(-1)))r.issues.push('Book name heard approximately · review');
     if(/\b(do not show|not now|don.t show)\b/.test(s))r.issues.push('Explicit no-show instruction');
     if(/\b(in french|in spanish)\b/.test(s))r.issues.push('Requested language is not supported');
     r.label=label(r); r.autoEligible=false;
