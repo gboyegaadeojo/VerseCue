@@ -76,14 +76,35 @@ class BibleBridge {
         var names=texts.Cast<AutomationElement>().Select(e=>e.Cached.Name).Where(n=>!String.IsNullOrWhiteSpace(n)).ToArray();
         Require(names.Length==1,"TRANSLATION_SELECTION_UNCERTAIN");return names[0];
     }
+    // Narrow lookup (NR-018 investigation): asking ProPresenter (WPF) for every element under its window makes it build
+    // accessibility objects for everything, including constantly changing live previews, and keep updating them; it then
+    // stayed at ~20% CPU and answered slowly until restarted. Walk straight down the known path instead:
+    // window > MainLayout > BiblesViewer, and search only inside the Bible viewer.
+    static AutomationElement BibleViewer(AutomationElement root) {
+        var layout=root.FindFirst(TreeScope.Children,new PropertyCondition(AutomationElement.ClassNameProperty,"MainLayout"));if(layout==null)return null;
+        return layout.FindFirst(TreeScope.Children,new PropertyCondition(AutomationElement.ClassNameProperty,"BiblesViewer"));
+    }
+    // Where the open edition menu can be: the Bible viewer, then ProPresenter's pop-up windows; the whole main
+    // window only if neither has it after a moment (keeps the number of elements ProPresenter must expose small).
+    static List<AutomationElement> EditionScopes(AutomationElement root,Process process,bool includeMain) {
+        var scopes=new List<AutomationElement>();var viewer=BibleViewer(root);if(viewer!=null&&!includeMain)scopes.Add(viewer);
+        foreach(AutomationElement window in AutomationElement.RootElement.FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ProcessIdProperty,process.Id))){
+            bool isMain=new IntPtr(window.Current.NativeWindowHandle)==process.MainWindowHandle;if(!isMain||includeMain||viewer==null)scopes.Add(window);}
+        return scopes;
+    }
+    static AutomationElement BibleHeader(AutomationElement root) {
+        var viewer=BibleViewer(root);
+        if(viewer!=null){var header=ById(viewer,"bibleViewerHeader");if(header!=null)return header;}
+        return null;
+    }
     static AutomationElement OpenBibleView(AutomationElement root,Process process) {
-        var header=ById(root,"bibleViewerHeader");if(header!=null)return header;
+        var header=BibleHeader(root)??ById(root,"bibleViewerHeader");if(header!=null)return header;
         var button=ById(root,"MAIN_MENU_VIEW_BIBLES_title");
         // Only when neither verified ID exists (a different ProPresenter version) fall back to keyword matching.
         if(button==null){header=ByIdOrKeyword(root,"bibleViewerHeader","bibleViewerHeader");if(header!=null)return header;button=ByIdOrKeyword(root,"MAIN_MENU_VIEW_BIBLES_title","VIEW_BIBLES");}
         Require(button!=null&&button.Current.IsEnabled&&!button.Current.IsOffscreen,"BIBLE_VIEW_CONTROL_UNAVAILABLE");
         Stage("open-bible-view");ClickVerifiedControl(button,process.Id);
-        var timer=Stopwatch.StartNew();while(timer.ElapsedMilliseconds<2000){header=ById(root,"bibleViewerHeader");if(header!=null)return header;Thread.Sleep(50);}
+        var timer=Stopwatch.StartNew();while(timer.ElapsedMilliseconds<2000){header=BibleHeader(root)??ById(root,"bibleViewerHeader");if(header!=null)return header;Thread.Sleep(50);}
         throw new InvalidOperationException("BIBLE_VIEW_NOT_VERIFIED");
     }
     static void SelectTranslation(AutomationElement root,Process process,AutomationElement selector,string expected) {
@@ -92,7 +113,7 @@ class BibleBridge {
         var timer=Stopwatch.StartNew();bool selected=false;
         while(timer.ElapsedMilliseconds<2000) {
             uint foreground;GetWindowThreadProcessId(GetForegroundWindow(),out foreground);Require(foreground==process.Id,"FOCUS_CHANGED_DURING_EDITION_SELECTION");
-            var windows=AutomationElement.RootElement.FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ProcessIdProperty,process.Id));
+            var windows=EditionScopes(root,process,timer.ElapsedMilliseconds>1200);
             var matches=new List<AutomationElement>();
             foreach(AutomationElement window in windows) {
                 // The installed-edition popup exposes visible text rather than
@@ -286,7 +307,7 @@ class BibleBridge {
         // consent for focus changes, opening Bibles and exact edition selection.
         if(operation!="inspect"){Require(SetForegroundWindow(process.MainWindowHandle),"COULD_NOT_FOCUS_PROPRESENTER");WaitReleasedModifiers();}
         Stage("find-bible-controls");
-        var header=operation=="inspect"?ByIdOrKeyword(root,"bibleViewerHeader","bibleViewerHeader"):OpenBibleView(root,process);Require(header!=null,"OPEN_BIBLES_VIEW_IN_PROPRESENTER");
+        var header=operation=="inspect"?(BibleHeader(root)??ByIdOrKeyword(root,"bibleViewerHeader","bibleViewerHeader")):OpenBibleView(root,process);Require(header!=null,"OPEN_BIBLES_VIEW_IN_PROPRESENTER");
         Stage("bible-view-verified");
         // Restrict control discovery to the observed Bible viewer, rather than
         // traversing unrelated library, media, stage and production controls.
@@ -306,7 +327,7 @@ class BibleBridge {
             // (the nearest ancestor holding several entries) gives every installed edition.
             var names=new List<string>();var timer=Stopwatch.StartNew();var walker=TreeWalker.RawViewWalker;string debug="";
             while(timer.ElapsedMilliseconds<2500&&names.Count==0) {
-                var windows=AutomationElement.RootElement.FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ProcessIdProperty,process.Id));
+                var windows=EditionScopes(root,process,timer.ElapsedMilliseconds>1200);
                 foreach(AutomationElement window in windows) {
                     foreach(AutomationElement hit in window.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.NameProperty,before))) {
                         bool insideSelector=false;for(var up=walker.GetParent(hit);up!=null;up=walker.GetParent(up)){if(Automation.Compare(up,selector)){insideSelector=true;break;}}
