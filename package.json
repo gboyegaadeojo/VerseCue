@@ -3,6 +3,7 @@
   "productName": "VerseCue",
   "version": "0.6.3",
   "private": true,
+  "license": "MIT",
   "description": "Local Scripture reference companion for Immanuel Fellowship Church",
   "author": "Immanuel Fellowship Church",
   "main": "desktop/main.cjs",

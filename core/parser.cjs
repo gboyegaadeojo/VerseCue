@@ -50,7 +50,7 @@ function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslat
   const corrected=/\b(sorry|i meant|rather|correction|not)\b/.test(s);
   if(/\bnot\b/.test(s)&&/\bi meant\b/.test(s)) s=s.split(/\bnot\b/)[0];
   else if(/\b(sorry|rather|correction)\b/.test(s)) s=s.split(/\b(?:sorry|rather|correction)\b/).at(-1);
-  const translationAlias={'NEW INTERNATIONAL VERSION':'NIV','NEW INTERNATIONAL':'NIV','NEW KING JAMES VERSION':'NKJV','NEW KING JAMES':'NKJV','KING JAMES VERSION':'KJV','KING JAMES':'KJV','AMPLIFIED BIBLE CLASSIC EDITION':'AMPC','AMPLIFIED CLASSIC VERSION':'AMPC','AMPLIFIED CLASSIC':'AMPC','AMPLIFIED BIBLE':'AMP','AMPLIFIED VERSION':'AMP','AMPLIFIED':'AMP','THE MESSAGE':'MSG','MESSAGE':'MSG','KJV':'KJV','NKJV':'NKJV','NIV':'NIV','ASV':'ASV','ESV':'ESV','AMPC':'AMPC','AMP':'AMP','MSG':'MSG'};
+  const translationAlias={'NEW INTERNATIONAL VERSION':'NIV','NEW INTERNATIONAL':'NIV','NEW KING JAMES VERSION':'NKJV','NEW KING JAMES':'NKJV','KING JAMES VERSION':'KJV','KING JAMES':'KJV','AMPLIFIED BIBLE CLASSIC EDITION':'AMPC','AMPLIFIED CLASSIC VERSION':'AMPC','AMPLIFIED CLASSIC':'AMPC','AMPLIFIED BIBLE':'AMP','AMPLIFIED VERSION':'AMP','AMPLIFIED':'AMP','THE MESSAGE':'MSG','MESSAGE':'MSG','KJV':'KJV','NKJV':'NKJV','NIV':'NIV','ASV':'ASV','ESV':'ESV','AMPC':'AMPC','AMP':'AMP','MSG':'MSG','ENGLISH STANDARD VERSION':'ESV','ENGLISH STANDARD':'ESV','AMERICAN STANDARD VERSION':'ASV','NEW LIVING TRANSLATION':'NLT','NEW LIVING':'NLT','NLT':'NLT'};
   const translationText=s.replace(/,/g,'').replace(/\s+/g,' '),translationNames=Object.keys(translationAlias).sort((a,b)=>b.length-a.length).join('|');
   const translationPhrase=translationText.match(new RegExp('\\b('+translationNames+')\\b','i'))?.[1]?.toUpperCase()??null;
   const translation=translationAlias[translationPhrase]??null;
@@ -79,6 +79,12 @@ function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslat
     if(translationPhrase){const edition=new RegExp('\\b(?:in|from|using)\\s+(?:the\\s+)?'+translationPhrase+'\\b','i');if(edition.test(relativeText)){relativeText=relativeText.replace(edition,'').trim();relativeTranslation=translation;}}
     const navigation=relativeNavigation(relativeText,{context,now,bounds:bounds??numbering(relativeTranslation),translation:relativeTranslation,corrected});
     command=navigation.command??null;issues.push(...navigation.issues);if(navigation.reference)references.push(navigation.reference);
+  }
+  // Version request for the passage just used (NR-018): "can you give me NIV", "read that in New King James".
+  // Only the version is named; the session applies it to the last passage. Never an automatic send.
+  if(!references.length&&translation&&!command?.kind?.match(/^(?:hold|navigation)$/)){
+   const rest=translationText.toLowerCase().replace(/[.,!?;:"“”]/g,' ').replace(new RegExp('\\b(?:the\\s+)?'+translationPhrase.toLowerCase().replace(/\s+/g,'\\s+')+'(?:\\s+(?:version|translation|bible))?\\b'),' ').replace(/\s+/g,' ').trim();
+   if(/^(?:(?:pastor|okay|ok|please|now|and|so|can|could|would|will|you|we|i|us|me|give|have|read|show|put|it|that|this|those|these|them|one|verse|verses|passage|in|into|to|from|using|switch|change|let's|let|see|instead|again|please|for)\s*)*$/.test(rest))command={kind:'version',translation};
   }
   for(const r of references) {
     const selectedBounds=bounds??numbering(r.translation??(r.relative?context?.translation:null)??defaultTranslation);
