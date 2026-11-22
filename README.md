@@ -119,7 +119,7 @@ A fuller walkthrough is in the [personal test guide](docs/124-personal-auto-firs
 
 ## Before each service (Windows)
 
-**Restart ProPresenter before the service starts.** On Windows, VerseCue opens passages by reading ProPresenter's screen, the way accessibility tools do, so it can confirm what ProPresenter opened. After that, ProPresenter does extra background work for the rest of its session, which makes later steps slower. A fresh start each service keeps it fast.
+**Restart ProPresenter before the service starts.** On Windows, VerseCue opens passages by reading ProPresenter's screen, the way accessibility tools do, so it can confirm what ProPresenter opened. After that, ProPresenter does extra background work for the rest of its session, which makes later steps slower. A fresh start each service keeps it fast. If ProPresenter becomes too slow to respond, VerseCue stops before clicking or typing anything and asks you to restart ProPresenter.
 
 ## Safety by design
 

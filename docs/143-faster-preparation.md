@@ -27,6 +27,28 @@ Fixed along the way: a comment in `resident-speech.cjs` had swallowed the langua
 - The version read only opens the edition menu, reads it and closes it with Escape, then confirms the selection didn't change. A malformed list is ignored.
 - Not changed: Auto rules, the exact-passage clipped-text scan, output paths.
 
+## Finding: a slide was triggered inside ProPresenter while it was slowed (2026-11-22)
+
+**What happened:**
+- A live timing run on this branch was made while ProPresenter was in its slowed state after earlier helper connections: 17% CPU, 15 s to find the Bible view.
+- Every request timed out.
+- Afterwards, ProPresenter's current slide was Psalms 23:6. Before the run, it was a different slide.
+
+**Impact:**
+- Audience and Stage were checked off before, during and after the run, so nothing reached a screen.
+- VerseCue sent no output requests.
+
+**Cause:**
+- The helper's own input must have reached the slide list. The most likely path is the edition-menu click: `ClickVerifiedControl` hit-tests a control and then clicks its centre.
+- When ProPresenter answers this slowly, the screen can change between the check and the click. A click meant for a menu item can then land on a slide, or a key press can reach the slide list.
+- This click code is already on main (version switching, PR114). It isn't introduced by the speed changes.
+
+**Fix (in this PR):**
+- **Responsiveness check before any input:** a read-only lookup of the Bible view must answer within 2.5 s. Otherwise the helper stops with `PROPRESENTER_RESPONDING_SLOWLY` ("Restart ProPresenter, then try again") without focusing, typing or clicking.
+  - On the same slowed ProPresenter, the read-only `inspect` operation took 15.3 s for that lookup, so the check would have stopped the run before any input.
+- **Click freshness:** a click is refused if the check before it took over 400 ms, or if the control moved since it was found (`CONTROL_MOVED_BEFORE_CLICK`).
+- No further live tests until ProPresenter has been restarted. The README already advises a restart before each service.
+
 ## Verification
 
 - Unit tests:

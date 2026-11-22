@@ -133,12 +133,19 @@ class BibleBridge {
         throw new InvalidOperationException("EDITION_SELECTION_NOT_VERIFIED");
     }
     static void ClickVerifiedControl(AutomationElement element,int processId) {
+        // Click freshness (2026-11-22 finding, docs/143): when ProPresenter answers slowly, the screen can change between
+        // the hit test and the click, so a click meant for a menu could land on a slide. Refuse unless the whole check is
+        // quick and the control has not moved.
+        var fresh=Stopwatch.StartNew();
         var bounds=element.Current.BoundingRectangle;Require(!bounds.IsEmpty&&bounds.Width>1&&bounds.Height>1&&!element.Current.IsOffscreen,"SAVE_CONTROL_BOUNDS_UNAVAILABLE");
         var point=new ScreenPoint {x=(int)(bounds.X+bounds.Width/2),y=(int)(bounds.Y+bounds.Height/2)};
         uint owner;GetWindowThreadProcessId(WindowFromPoint(point),out owner);Require(owner==processId,"SAVE_CONTROL_OCCLUDED");
         var hit=AutomationElement.FromPoint(new System.Windows.Point(point.x,point.y));var expected=element.GetRuntimeId();bool matches=false;
         for(int depth=0;hit!=null&&depth<15;depth++,hit=TreeWalker.RawViewWalker.GetParent(hit))if(hit.GetRuntimeId().SequenceEqual(expected)){matches=true;break;}
-        Require(matches,"SAVE_CONTROL_HIT_TEST_MISMATCH");Require(SetCursorPos(point.x,point.y),"SAVE_CONTROL_POINTER_BLOCKED");
+        Require(matches,"SAVE_CONTROL_HIT_TEST_MISMATCH");
+        var again=element.Current.BoundingRectangle;Require(Math.Abs(again.X-bounds.X)<=1&&Math.Abs(again.Y-bounds.Y)<=1&&Math.Abs(again.Width-bounds.Width)<=1&&Math.Abs(again.Height-bounds.Height)<=1,"CONTROL_MOVED_BEFORE_CLICK");
+        Require(fresh.ElapsedMilliseconds<=400,"PROPRESENTER_RESPONDING_SLOWLY");
+        Require(SetCursorPos(point.x,point.y),"SAVE_CONTROL_POINTER_BLOCKED");
         GetWindowThreadProcessId(GetForegroundWindow(),out owner);Require(owner==processId,"FOCUS_CHANGED_BEFORE_SAVE_CLICK");
         var down=new Input {type=0,data=new InputUnion {mouse=new MouseInput {flags=2}}};var up=new Input {type=0,data=new InputUnion {mouse=new MouseInput {flags=4}}};InputKeys(new [] {down,up});
     }
@@ -338,6 +345,9 @@ class BibleBridge {
         Stage("target-window-bound");
         // Inspection remains read-only. Preparation has explicit application
         // consent for focus changes, opening Bibles and exact edition selection.
+        // Responsiveness check before any input (docs/143): a read-only lookup of the Bible view. When ProPresenter is this
+        // slow, the screen can change under a click or key press, so nothing is typed or clicked and a restart is advised.
+        if(operation!="inspect"){var probe=Stopwatch.StartNew();var seen=BibleHeader(root)??ById(root,"MAIN_MENU_VIEW_BIBLES_title");Require(probe.ElapsedMilliseconds<=2500,"PROPRESENTER_RESPONDING_SLOWLY");}
         if(operation!="inspect"){Require(SetForegroundWindow(process.MainWindowHandle),"COULD_NOT_FOCUS_PROPRESENTER");WaitReleasedModifiers();}
         Stage("find-bible-controls");
         var header=operation=="inspect"?(BibleHeader(root)??ByIdOrKeyword(root,"bibleViewerHeader","bibleViewerHeader")):OpenBibleView(root,process);Require(header!=null,"OPEN_BIBLES_VIEW_IN_PROPRESENTER");
