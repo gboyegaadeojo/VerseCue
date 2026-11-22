@@ -31,6 +31,15 @@ class PreparationController {
     const result=await preparation.prepare(reference,translation,{guard:()=>guard()&&!service.stopped&&generation===service.generation,saveCopy,maxVerses,...(chapter?{focusVerse}:{})});
     service.log('NATIVE_BIBLE_PREPARED_REVIEW','info',{nativeWorkerMs:result.workerElapsedMs});service.notify();return {...result,preparedGeneration:generation,listeningPreserved};
   }
+  // Which Bible versions this ProPresenter has, remembered for 10 minutes per connection. null when it cannot be checked here.
+  async installedVersions(guard=()=>true){
+    const {codesFromNames}=require('./bible-versions.cjs');
+    if(!this.preparation?.available()||this.readiness().available!==true)return null;
+    const key=this.connector.generation+'|'+this.connector.base;
+    if(this.versionCache?.key===key&&Date.now()-this.versionCache.at<600000)return this.versionCache.value;
+    const read=await this.preparation.listTranslations({guard});const value={names:read.installed,codes:codesFromNames(read.installed)};
+    this.versionCache={key,at:Date.now(),value};this.service.log('INSTALLED_VERSIONS_READ','info',{count:value.codes.length});return value;
+  }
   prepareCandidate(id){
     const {service}=this;service.expire();const candidate=service.queue.find(c=>c.id===id);
     if(!candidate||candidate.generation!==service.generation||!candidate.authorized||candidate.reference.valid===false||candidate.reference.overLimit||candidate.reference.verse==null||candidate.issues.some(i=>/Invalid|no-show|not supported/.test(i)))throw new Error('This candidate is expired, incomplete, prohibited or invalid');

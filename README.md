@@ -40,6 +40,7 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 
 - **Hears references:** "Turn with me to Proverbs chapter three, verse five", "First Peter two verse one", "Psalm 119 verse 105".
 - **Recognises quoted verses:** if the preacher quotes "Trust in the Lord with all thine heart" without saying the reference, VerseCue can find Proverbs 3:5. It uses the free, public-domain King James and World English Bibles, prepares the verse in your own installed translation, and labels it "matched from quoted wording".
+- **Switches Bible version on request:** if the preacher says "can you give me NIV" or "read that in New King James", VerseCue reopens the passage just used in that version, after checking the version is installed in ProPresenter. If it isn't, VerseCue keeps the current version and says so.
 - **Shows how clearly it heard:** each reference gets a badge, "Heard clearly", "Likely" or "Check this", based on how confident the speech engine was.
 - **Three ways to work:**
   - **Auto:** complete, explicit references go to ProPresenter automatically after a short hold window. Press **H** to hold one, or **Esc** for Emergency stop.
@@ -58,6 +59,10 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 6. When you're comfortable, choose your mode (Auto, Confirm or Prepare for volunteer), arm output and test with a real passage, still with the screens off.
 
 A fuller walkthrough is in the [personal test guide](docs/124-personal-auto-first-test-guide.md).
+
+## Before each service (Windows)
+
+**Restart ProPresenter before the service starts.** On Windows, VerseCue opens passages by reading ProPresenter's screen, the way accessibility tools do, so it can confirm what ProPresenter opened. After that, ProPresenter does extra background work for the rest of its session, which makes later steps slower. A fresh start each service keeps it fast.
 
 ## Safety by design
 
