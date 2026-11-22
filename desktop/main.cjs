@@ -289,12 +289,15 @@ async function bootstrap(){
     }finally{healthBusy=false;service.notify();}
   },2000);
   // Every engine change warms the graphics card up in the background; recognition uses the processor until it is ready.
-  const configureSpeech=speech.configure.bind(speech);speech.configure=(...args)=>{configureSpeech(...args);service.speechGpu=speech.gpuState;setImmediate(()=>speech.warmUp().then(r=>{service.speechGpu=speech.gpuState;if(r.state==='ready')service.log('SPEECH_GPU_READY','info');else if(r.state==='unavailable')service.log('SPEECH_GPU_UNAVAILABLE','info');service.notify();}).catch(()=>{}));};
+  // Automated test runs (VERSECUE_AUTOMATION=1) turn off the open-and-connect conveniences: no auto-connect,
+  // no auto-listen and no graphics-card warm-up, so scenarios control capture, targets and timing themselves.
+  const automation=process.env.VERSECUE_AUTOMATION==='1';service.automation=automation;
+  const configureSpeech=speech.configure.bind(speech);speech.configure=(...args)=>{configureSpeech(...args);service.speechGpu=speech.gpuState;if(!automation)setImmediate(()=>speech.warmUp().then(r=>{service.speechGpu=speech.gpuState;if(r.state==='ready')service.log('SPEECH_GPU_READY','info');else if(r.state==='unavailable')service.log('SPEECH_GPU_UNAVAILABLE','info');service.notify();}).catch(()=>{}));};
   speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);
   // Connect to the saved ProPresenter automatically: a read-only /version check every 3 s until it answers.
   // Once connected the health check above takes over (slow/lost handling unchanged). Never arms output.
   let autoConnectBusy=false;
-  const autoConnect=async()=>{if(autoConnectBusy||connector.version||settings.autoConnect===false||!settings.host||service.stopped)return;autoConnectBusy=true;const generation=connector.generation;try{await connector.test();if(generation===connector.generation){service.log('AUTO_CONNECTED','info');service.notify();}}catch{}finally{autoConnectBusy=false;}};
+  const autoConnect=async()=>{if(automation||autoConnectBusy||connector.version||settings.autoConnect===false||!settings.host||service.stopped)return;autoConnectBusy=true;const generation=connector.generation;try{await connector.test();if(generation===connector.generation){service.log('AUTO_CONNECTED','info');service.notify();}}catch{}finally{autoConnectBusy=false;}};
   setInterval(autoConnect,3000);setTimeout(autoConnect,300);
   mainWindow=createWindow();
 }

@@ -21,6 +21,8 @@ on:
       - 'package*.json'
 permissions:
   contents: read
+env:
+  VERSECUE_AUTOMATION: "1"
 jobs:
   checks:
     if: ${{ github.event.repository.private == false }}

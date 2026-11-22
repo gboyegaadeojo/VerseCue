@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+env:
+  VERSECUE_AUTOMATION: "1"
 jobs:
   mac:
     strategy:
