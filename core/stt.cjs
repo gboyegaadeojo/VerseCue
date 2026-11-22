@@ -20,16 +20,22 @@ class LocalSpeech {
   async initializeScratch(root){if(this.busy)throw Error('Stop recognition before scratch recovery');const scratch=new SpeechScratch(root);await scratch.initialize();this.scratch=scratch;this.resident.scratch=scratch;}
   // acceleration 'gpu' lets a GPU-enabled engine (Metal, CUDA) use the graphics card; CPU-only engines ignore it.
   configure(executable,model,mode='cli',acceleration='gpu'){if(this.busy)throw new Error('Stop recognition before changing worker');if(!['cli','resident'].includes(mode))throw new Error('Invalid local speech mode');if(!['gpu','cpu'].includes(acceleration))throw new Error('Invalid speech acceleration');this.resident.stop();this.executable=executable;this.model=model;this.mode=mode;this.acceleration=acceleration;this.resident.acceleration='cpu';this.resident.warmedUp=false;this.gpuReady=false;this.gpuState=acceleration==='gpu'?'pending':'cpu';this.warmEpoch++;this.warmup=null;this.warmedUp=false;}
-  capabilities(){return {provisional:this.mode==='cli',final:true};}
+  // The kept-loaded engine runs unfinished speech only when it has proved fast here (a finished phrase under 1 s),
+  // so a provisional run never noticeably delays the phrase that follows it.
+  provisionalReady(){return this.mode==='cli'||Number.isFinite(this.lastFinalMs)&&this.lastFinalMs<1000;}
+  capabilities(){return {provisional:this.provisionalReady(),final:true};}
   cancel(){this.epoch++;this.child?.kill();this.resident.stop();}
+  // Drop the recognition in flight but keep a loaded model (used when a passage is prepared).
+  interrupt(){this.epoch++;this.child?.kill();if(this.mode==='resident')this.resident.abort();else this.resident.stop();}
   async transcribe(samples){
     const job=this.job;
-    if(this.busy&&job?.provisional){job.preempted=true;job.child?.kill();await job.done;}
+    // A CLI provisional run is ended at once; a kept-loaded engine's short provisional request is allowed to finish.
+    if(this.busy&&job?.provisional){if(this.mode!=='resident'){job.preempted=true;job.child?.kill();}await job.done;}
     if(this.busy)throw new Error('Recognition busy; audio window dropped');
     return this.run(samples,false);
   }
   async transcribeProvisional(samples){
-    if(this.mode!=='cli')throw new Error('Provisional speech requires the bounded CLI worker');
+    if(!this.provisionalReady())throw new Error('Provisional speech skipped until the kept-loaded engine proves fast on this computer');
     if(this.busy)throw new Error('Recognition busy; provisional preview skipped');
     return {...await this.run(samples,true),final:false};
   }
@@ -43,7 +49,7 @@ class LocalSpeech {
         const server=path.join(path.dirname(this.executable),process.platform==='win32'?'whisper-server.exe':'whisper-server');
         this.resident.acceleration=this.acceleration==='gpu'&&this.gpuReady?'gpu':'cpu';
         const start=performance.now(),{text,confidence}=await this.resident.recognize(bytes,server,this.model);
-        canceled();
+        canceled();if(!provisional)this.lastFinalMs=performance.now()-start;
         return {text,heardConfidence:confidence,elapsedMs:Math.round(performance.now()-start),provider:'local whisper.cpp resident',final:true};
       }
       if(!this.scratch)throw Error('Speech scratch recovery must finish before recognition');const scratch=await this.scratch.create(bytes);dir=scratch.directory;const file=scratch.file;canceled();

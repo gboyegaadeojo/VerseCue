@@ -420,14 +420,25 @@ class BibleBridge {
         }
         throw new InvalidOperationException("PREPARATION_COMPLETION_NOT_VERIFIED");
     }
-    [MTAThread] static int Main() {
+    // One request: every check in Run starts again from ProPresenter's current window; nothing found earlier is reused.
+    static int Handle(string input) {
         try {
-            SetProcessDPIAware();
-            string input=Console.ReadLine();Require(input!=null&&input.Length<=8192,"INVALID_REQUEST_SIZE");
+            Require(input!=null&&input.Length<=8192,"INVALID_REQUEST_SIZE");
             var request=Json.Deserialize<Dictionary<string,object>>(input);Require(request!=null,"INVALID_REQUEST");
             Console.WriteLine(Json.Serialize(Run(request)));return 0;
         }catch(ElementNotAvailableException){Console.WriteLine(Json.Serialize(new {ok=false,code="NATIVE_UI_ELEMENT_REPLACED",outputRequests=0}));return 3;}
         catch(InvalidOperationException e){Console.WriteLine(Json.Serialize(new {ok=false,code=e.Message,outputRequests=0}));return 2;}
         catch{Console.WriteLine(Json.Serialize(new {ok=false,code="NATIVE_UI_ACCESS_UNCERTAIN",outputRequests=0}));return 3;}
+        finally{Console.Out.Flush();}
+    }
+    // --serve (NR-020): stay running for the service so each passage skips starting the helper and the accessibility
+    // client. One JSON request per line, one JSON reply per line, strictly in turn. Exits when VerseCue closes the pipe.
+    [MTAThread] static int Main(string[] args) {
+        SetProcessDPIAware();
+        if(args.Length==1&&args[0]=="--serve"){
+            string line;while((line=Console.ReadLine())!=null){Total.Restart();Timings.Clear();Handle(line);}
+            return 0;
+        }
+        return Handle(Console.ReadLine());
     }
 }

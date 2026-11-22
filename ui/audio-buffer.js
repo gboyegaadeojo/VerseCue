@@ -4,7 +4,7 @@
 // queue dropped speech constantly during continuous preaching. Age checks in the main process still apply.
 class AudioWindowBuffer {
   // Optional provisional snapshots copy a still-growing window for display only. They never clear or delay it.
-  constructor({onWindow,onDrop=()=>{},onError=()=>{},clock=()=>performance.now(),capacity=160000,pendingCapacity=80000,maxPendingAgeMs=5000,onProvisional=null,provisionalEnabled=()=>false,provisionalMinSamples=32000,provisionalStepSamples=32000,silenceSamples=11200}){Object.assign(this,{silenceSamples,onWindow,onDrop,onError,clock,capacity,pendingCapacity,maxPendingAgeMs,onProvisional,provisionalEnabled,provisionalMinSamples,provisionalStepSamples});this.busy=false;this.provisionalBusy=false;this.epoch=0;this.active=false;this.clear();}
+  constructor({onWindow,onDrop=()=>{},onError=()=>{},clock=()=>performance.now(),capacity=160000,pendingCapacity=80000,maxPendingAgeMs=5000,onProvisional=null,provisionalEnabled=()=>false,provisionalMinSamples=16000,provisionalStepSamples=16000,silenceSamples=11200}){Object.assign(this,{silenceSamples,onWindow,onDrop,onError,clock,capacity,pendingCapacity,maxPendingAgeMs,onProvisional,provisionalEnabled,provisionalMinSamples,provisionalStepSamples});this.busy=false;this.provisionalBusy=false;this.epoch=0;this.active=false;this.clear();}
   clear(){this.samples=[];this.silent=0;this.readyAt=null;this.firstSampleAt=null;this.lastVoicedAt=null;this.pendingAt=null;this.provisionalMark=0;}
   start(){this.epoch++;this.clear();this.captureSessionId=globalThis.crypto.randomUUID();this.windowSequence=0;this.active=true;}
   stop(){this.epoch++;this.active=false;this.clear();}

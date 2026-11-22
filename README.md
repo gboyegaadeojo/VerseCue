@@ -72,6 +72,8 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 - **Auto:** complete, explicit references go to ProPresenter after a short hold window you can set. Press **H** to hold one.
 - **Confirm:** you review each passage, then send it.
 - **Prepare for volunteer:** VerseCue never sends anything. It opens the passage in ProPresenter's own Bible view, by default the whole chapter at the spoken verse, and your volunteer takes it live and uses ProPresenter's next/previous. A whole chapter opens faster because VerseCue skips the clipped-text check that exact passages get; your volunteer sees each slide before taking it live.
+- **Starts before the sentence ends:** in Prepare for volunteer, when the preacher names a passage and keeps talking, VerseCue starts opening the chapter straight away instead of waiting for a pause. If the finished sentence names something else, it opens that instead. You can turn this off in **Settings > Output**.
+- **Stays ready:** VerseCue keeps its ProPresenter helper and the speech model loaded during the service, so each passage doesn't wait for them to start again.
 - **Suggest only and Paused,** plus **Emergency stop (Esc)** to stop everything at once.
 - **Your own slides:** uses passages you have saved in ProPresenter's library. Long passages split into parts you continue deliberately. Previews of the slides come from ProPresenter itself.
 - **Long readings:** up to 176 verses, a whole chapter, in Confirm. Auto stays at 10 verses.

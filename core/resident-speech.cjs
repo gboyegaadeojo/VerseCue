@@ -6,6 +6,8 @@ async function unusedPort(){return new Promise((resolve,reject)=>{const server=n
 function serverConfidence(data){const words=(data.segments??[]).flatMap(s=>s.words??[]).filter(w=>typeof w?.word==='string'&&/[A-Za-z0-9]/.test(w.word)).map(w=>w.probability).filter(Number.isFinite);if(words.length)return Math.round(words.reduce((a,b)=>a+Math.max(0,Math.min(1,b)),0)/words.length*1000)/1000;const logs=(data.segments??[]).map(s=>s.avg_logprob).filter(Number.isFinite);return logs.length?Math.round(Math.exp(logs.reduce((a,b)=>a+b,0)/logs.length)*1000)/1000:null;}
 class ResidentSpeech {
   constructor(){this.acceleration='gpu';this.warmedUp=false;this.scratch=null;this.child=null;this.base=null;this.directory=null;this.epoch=0;this.controller=null;this.idle=null;this.starting=null;}
+  // Abandon the request in flight but keep the loaded model (NR-020): the next phrase does not wait for a reload.
+  abort(){this.epoch++;this.controller?.abort();}
   stop(){this.epoch++;clearTimeout(this.idle);this.controller?.abort();this.controller=null;const child=this.child;this.child=null;this.base=null;child?.kill();const directory=this.directory;this.directory=null;this.discard(directory);}
   // App-owned scratch folders are recovered at startup; the temp-folder fallback is only for callers without scratch.
   discard(directory){if(!directory)return;if(this.scratch&&path.dirname(directory)===this.scratch.root)this.scratch.remove(directory).catch(()=>{});else if(path.dirname(directory)===os.tmpdir()&&path.basename(directory).startsWith('versecue-worker-'))fs.rm(directory,{recursive:true,force:true}).catch(()=>{});}
@@ -32,10 +34,11 @@ class ResidentSpeech {
       // Loading the model (and the graphics driver) has its own 60 s budget; each phrase then keeps the 20 s limit.
       if(!this.child||!this.base){await this.start(executable,model,Date.now()+60000,epoch);deadline=Date.now()+20000;}
       if(epoch!==this.epoch||!this.base||!this.child)throw new Error('Recognition canceled');
-      const child=this.child,body=new FormData();body.set('file',new Blob([bytes],{type:'audio/wav'}),'window.wav');body.set('response_format','verbose_json');body.set('no_timestamps','true');// word timestamps made verbose_json ~50% slower; probabilities remainbody.set('language','en');body.set('temperature','0.0');body.set('temperature_inc','0.2');
+      const child=this.child,body=new FormData();body.set('file',new Blob([bytes],{type:'audio/wav'}),'window.wav');body.set('response_format','verbose_json');// Word timestamps made verbose_json about 50% slower; the probabilities remain without them.
+      body.set('no_timestamps','true');body.set('language','en');body.set('temperature','0.0');body.set('temperature_inc','0.2');
       this.controller=new AbortController();const timer=setTimeout(()=>this.controller?.abort(),Math.max(1,deadline-Date.now()));let response;
       try{response=await fetch(this.base+'/inference',{method:'POST',body,redirect:'error',signal:this.controller.signal});if(!response.ok)throw new Error('Inference rejected');const text=await response.text();if(text.length>65536)throw new Error('Oversized result');const data=JSON.parse(text);if(epoch!==this.epoch||this.child!==child)throw new Error('Recognition canceled');if(typeof data.text!=='string')throw new Error('Invalid response');this.warmedUp=true;return {text:data.text.trim().slice(0,8192),confidence:serverConfidence(data)};}finally{clearTimeout(timer);this.controller=null;}
-    }catch(error){this.stop();throw new Error(error.message==='Recognition canceled'?'Recognition canceled':'Resident recognition failed or exceeded 20 seconds; worker stopped');}
+    }catch(error){const aborted=epoch!==this.epoch;if(!aborted||!this.base)this.stop();throw new Error(aborted||error.message==='Recognition canceled'?'Recognition canceled':'Resident recognition failed or exceeded 20 seconds; worker stopped');}
     finally{if(this.child){this.idle=setTimeout(()=>this.stop(),600000);this.idle.unref?.();}}
   }
 }

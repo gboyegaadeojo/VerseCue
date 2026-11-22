@@ -18,8 +18,8 @@ test('a completed window preempts an in-flight provisional run instead of waitin
 test('provisional runs never interrupt or overlap a completed window',async()=>{
   const {speech,root}=await cli();try{const final=speech.transcribe(audio);await until(()=>spawned.length===1);await assert.rejects(speech.transcribeProvisional(audio),/busy/);assert.equal(spawned[0].killed,false);spawned[0].finish('Romans 8:28');assert.equal((await final).text,'Romans 8:28');assert.equal(spawned.length,1);}finally{spawned.length=0;await fs.rm(root,{recursive:true,force:true});}
 });
-test('stop cancels provisional work and the resident worker cannot run provisional previews',async()=>{
-  const {speech,root}=await cli();try{const provisional=speech.transcribeProvisional(audio);await until(()=>spawned.length===1);speech.cancel();await assert.rejects(provisional,/^Error: (Recognition canceled|Local speech worker failed)$/);assert.equal(speech.busy,false);assert.deepEqual(speech.capabilities(),{provisional:true,final:true});speech.configure('trusted-cli','model','resident');assert.deepEqual(speech.capabilities(),{provisional:false,final:true});await assert.rejects(speech.transcribeProvisional(audio),/bounded CLI/);}finally{spawned.length=0;await fs.rm(root,{recursive:true,force:true});}
+test('stop cancels provisional work; the kept-loaded engine runs previews only once it has proved fast (NR-020)',async()=>{
+  const {speech,root}=await cli();try{const provisional=speech.transcribeProvisional(audio);await until(()=>spawned.length===1);speech.cancel();await assert.rejects(provisional,/^Error: (Recognition canceled|Local speech worker failed)$/);assert.equal(speech.busy,false);assert.deepEqual(speech.capabilities(),{provisional:true,final:true});speech.configure('trusted-cli','model','resident');assert.deepEqual(speech.capabilities(),{provisional:false,final:true});await assert.rejects(speech.transcribeProvisional(audio),/proves fast/);speech.lastFinalMs=1400;assert.equal(speech.capabilities().provisional,false);speech.lastFinalMs=400;assert.equal(speech.capabilities().provisional,true);}finally{spawned.length=0;await fs.rm(root,{recursive:true,force:true});}
 });
 
 const voiced=(buffer,packets)=>{for(let i=0;i<packets;i++)buffer.push(new Array(1600).fill(.1),.1);};
@@ -32,12 +32,12 @@ test('a completed window dispatches immediately while a provisional snapshot is 
   const windows=[];let releaseProvisional;const buffer=new AudioWindowBuffer({onWindow:samples=>{windows.push(samples.length);},onProvisional:()=>new Promise(resolve=>releaseProvisional=resolve),provisionalEnabled:()=>true});
   buffer.start();voiced(buffer,25);await tick();assert.equal(typeof releaseProvisional,'function');for(let i=0;i<10;i++)buffer.push(new Array(1600).fill(0),0);await tick();assert.deepEqual(windows,[51200]);releaseProvisional();await tick();buffer.stop();
 });
-test('no provisional snapshot while a completed window owns the worker, during silence or below two seconds',async()=>{
+test('no provisional snapshot while a completed window owns the worker, during silence or below one second',async()=>{
   let release;const snapshots=[];const buffer=new AudioWindowBuffer({capacity:48000,onWindow:()=>new Promise(resolve=>release=resolve),onProvisional:samples=>{snapshots.push(samples.length);},provisionalEnabled:()=>true});
-  buffer.start();voiced(buffer,19);await tick();assert.equal(snapshots.length,0,'below two seconds');buffer.push(new Array(1600).fill(0),0);await tick();assert.equal(snapshots.length,0,'silence');buffer.stop();buffer.start();
-  voiced(buffer,30);await tick();snapshots.length=0;voiced(buffer,15);await tick();assert.equal(buffer.busy,true);assert.equal(snapshots.length,0,'worker busy');buffer.stop();release();await tick();
+  buffer.start();voiced(buffer,9);await tick();assert.equal(snapshots.length,0,'below one second');buffer.push(new Array(1600).fill(0),0);await tick();assert.equal(snapshots.length,0,'silence');buffer.stop();buffer.start();
+  voiced(buffer,30);await tick();snapshots.length=0;voiced(buffer,8);await tick();assert.equal(buffer.busy,true);assert.equal(snapshots.length,0,'worker busy');buffer.stop();release();await tick();
 });
-test('each new provisional snapshot needs two more seconds of speech and a restart starts fresh',async()=>{
+test('each new provisional snapshot needs one more second of speech and a restart starts fresh',async()=>{
   const snapshots=[];const buffer=new AudioWindowBuffer({onWindow:()=>{},onProvisional:samples=>{snapshots.push(samples.length);},provisionalEnabled:()=>true});
-  buffer.start();voiced(buffer,20);await tick();voiced(buffer,19);await tick();assert.deepEqual(snapshots,[32000]);voiced(buffer,1);await tick();assert.deepEqual(snapshots,[32000,64000]);buffer.stop();buffer.start();voiced(buffer,20);await tick();assert.deepEqual(snapshots,[32000,64000,32000]);buffer.stop();
+  buffer.start();voiced(buffer,10);await tick();voiced(buffer,9);await tick();assert.deepEqual(snapshots,[16000]);voiced(buffer,1);await tick();assert.deepEqual(snapshots,[16000,32000]);buffer.stop();buffer.start();voiced(buffer,10);await tick();assert.deepEqual(snapshots,[16000,32000,16000]);buffer.stop();
 });

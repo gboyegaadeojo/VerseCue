@@ -35,6 +35,7 @@
   output:{name:'Settings › Output',items:[
    ['#start-mode','Start each service in','The mode VerseCue opens in.','Auto, Confirm or Prepare for volunteer. Most churches pick Prepare for volunteer or Auto.'],
    ['#chapter-context','Open the whole chapter','Whole chapter at the spoken verse.','In Prepare for volunteer, ProPresenter opens the whole chapter so the volunteer can go back or forward without searching.'],
+   ['#early-preparation','Start before the sentence ends','Opens the chapter sooner.','In Prepare for volunteer, VerseCue starts opening the chapter as soon as the passage is named, even if the preacher keeps talking. If the finished words differ, it corrects it. Nothing is sent.'],
    ['#auto-hold-window','Auto hold window','Time to press Hold.','How long you have to press Hold before Auto sends (0.75 to 3 seconds).'],
    ['#passage-verse-limit','Maximum verses per passage','Longest passage at once.','Up to 176 verses (a whole chapter). Auto always stays at 10.'],
    ['#duplicate-cooldown','Repeat suppression','Ignore quick repeats.','A reference said again within this many seconds is not shown twice.'],
