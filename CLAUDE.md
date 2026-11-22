@@ -23,7 +23,8 @@ Use [HANDOFF.md](HANDOFF.md) as the takeover document. **Public v0.6.2 pre-relea
 PUBLISHED v0.6.5 (target main 4595616; Windows ZIP sha b01ba347..., Apple silicon 6bc76c07..., Intel Mac 22bc42dd...; README links verified). 0.6.5 = 0.6.4 + PR121 (VerseCue name/version on exe and Mac app). v0.6.4 (7f1e631) included PR114-120: version switching, help/tour, MIT, Cue V logo, speed NR-020 + slow-ProPresenter guards (docs/143), privacy check (docs/144). Packaged sweep 48/48 and packaged speech CLI+resident pass for both.
 1. Live timing of PR117 skipped at the user's request (their computer is slow generally). If the user reports "ProPresenter is responding too slowly" in normal use, loosen the 2.5 s probe / 400 ms click limits (BibleBridge.cs) with a recorded reason.
 2. DONE PR121 (merged after 0.6.4): VerseCue.exe version info (VerseCue 0.6.4.0, via SetIcon.cs) and Mac CFBundleShortVersionString/CFBundleVersion = package version. Ships in the next release.
-3. Waiting on user / hardware: Mac inspection file, live voice test, code signing, PR22 acceptance items (docs/107).
+3. MERGED after 0.6.5 (not yet released): PR124 accuracy check (Settings > Speech; NR-022, docs/145: optional book-name hints off by default, tolerant book names review-only) and PR123 installers (NR-023, docs/146: VerseCue-Setup via `package.cjs --zip --installer`, uninstaller, Mac .dmg in CI with hdiutil retry). Next release should attach VerseCue-Setup-<v>.exe and both .dmg files and update README download table.
+4. Waiting on user / hardware: Mac inspection file, live voice test (accuracy check on the user's own voice is now available), code signing, PR22 acceptance items (docs/107).
 Standing rules: README updated with every change; Halo look matches canvas; test runs set VERSECUE_AUTOMATION=1. Scheduler: one cron (:17/:47).
 
 ## Integration and authorization
