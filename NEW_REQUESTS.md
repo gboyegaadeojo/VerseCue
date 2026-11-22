@@ -95,3 +95,6 @@ Implemented in this change: Bible preparation is no longer pinned to ProPresente
 
 2026-11-22: the user asked for an in-app tutorial explaining the buttons and tick boxes on each page, reviewed two mock-ups and chose option B (Help mode: numbered markers on every control with explanations and an "On this page" list) with option A (a guided tour) on first launch. See [docs/142](docs/142-in-app-help-and-tour.md).
 
+## NR-021 - Cue V logo
+
+2026-11-22: from three bolder logo ideas on the design canvas, the user chose Logo 2, "Cue V": a heavy white V with a red-orange go triangle in its notch, on a near-black tile. It is the app icon on Windows (VerseCue.exe) and Mac (VerseCue.app), the window icon, the sidebar mark and the README header. Sources are in `assets/brand`; `node scripts/build-icons.cjs` regenerates `assets/icons`.

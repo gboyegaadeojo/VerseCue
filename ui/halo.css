@@ -247,3 +247,6 @@ body.halo .passage-workflow img{max-width:100%;height:auto}
 body.halo .workspace>*{grid-row:auto!important;grid-column:auto!important;grid-area:auto!important}
 body.halo .workspace{grid-template-rows:none!important;grid-auto-rows:auto!important}
 body.halo .workspace>*{height:auto!important;max-height:none!important;overflow:visible!important;align-self:start}
+/* VerseCue mark (Cue V): the logo carries its own dark tile, so the accent square is removed. */
+.halo .mark.logo,.mark.logo{background:transparent!important;border:0!important;padding:0;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.08)}
+.mark.logo svg{display:block;width:100%;height:100%}

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="VerseCue">
+  <title>VerseCue</title>
+  <rect width="100" height="100" rx="24" fill="#121214"/>
+  <path d="M8 16 L30 16 L50 70 L70 16 L92 16 L62 90 L38 90 Z" fill="#FFFFFF"/>
+  <path d="M43 22 L60 33 L43 44 Z" fill="#FF4D2E"/>
+</svg>
