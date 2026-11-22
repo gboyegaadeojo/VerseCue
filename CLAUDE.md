@@ -20,10 +20,11 @@ Use [HANDOFF.md](HANDOFF.md) as the takeover document. **Public v0.6.2 pre-relea
 
 ## Next queue
 
-PUBLISHED v0.6.3 (97b331d). Overnight full test pass DONE and green (docs/141): Windows source 47/47, packaged 47/47, 609 unit, check, Mac arm64+Intel CI, diagnostics x3, packaged/local/resident speech, live network-only Auto send (Nahum 1:7, outputs off).
-1. Draft PR114 version switching: blocked live by the ProPresenter UI Automation slowdown (docs/140 on branch: one helper connection raises ProPresenter ~3% -> 16-21% CPU until restart; hand-made chapters do not). Needs a product decision from the user: (a) keep UIA but accept slowdown/restart guidance, (b) keyboard-only preparation without readback verification (no UIA, no slowdown, less safe), or (c) research a non-UIA verification (ProPresenter API): checked 2026-11-22, ProPresenter 21.4.2's network API has no Bible endpoints (/v1/bible*, /v1/bibles* return 404; none documented), so (c) is not available on this version. Do not merge until it passes live on a fresh ProPresenter.
-2. User: fresh ProPresenter restart for retest; Mac inspection file; live voice test; licence (MIT/GPL-3.0); code signing.
-Standing rules: README updated with every change; Halo look matches canvas; test runs set VERSECUE_AUTOMATION=1. Scheduler: one cron b47d9e7e (:17/:47).
+Checked 2026-11-22. main has PR114-116 merged (version switching NR-018 with screen reading kept, help mode + first-launch tour NR-019, MIT licence, public README feature list).
+1. PR117 feat/speed-v2 (NR-020, docs/143): chapter skips clipping scan, 60 ms polling, first chapter reads installed versions. Units/check/audit green; CI dispatched. LIVE TIMING PENDING: blocked 2026-11-22 for both branch and main because Windows withheld focus while the user was on Chrome (target-window-bound, nothing sent). Retest when the desktop is idle with live-version-test.cjs (baseline fresh PP: KJV 4.4 s, NIV refused 2.9 s, ASV 7.1 s), then merge.
+2. Waiting on user: logo choice (canvas LogoWave/LogoCue/LogoHalo), OK for early preparation from provisional speech, Mac inspection file, live voice test, code signing.
+3. Then integrate main into PR22, release 0.6.4 (version switching, help/tour, licence, speed).
+Standing rules: README updated with every change; Halo look matches canvas; test runs set VERSECUE_AUTOMATION=1. Scheduler: one cron (:17/:47).
 
 ## Integration and authorization
 
