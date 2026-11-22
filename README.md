@@ -48,6 +48,10 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 - **Fast on modern computers:** recognition starts as soon as the preacher pauses (0.7 s) and uses the graphics card automatically: Metal on Macs, and any AMD, NVIDIA or Intel card on Windows. An optional [NVIDIA CUDA setup](docs/135-guided-nvidia-speech-setup.md) is also available.
 - **Calm, readable workspace:** a dark, compact design with a Large "booth distance" text size for reading from across the room.
 
+## Help inside the app
+
+Press **?** in the toolbar, or in Settings, to see a numbered explanation for every button and tick box on that page. A short guided tour runs the first time VerseCue opens, and you can replay it from the help panel.
+
 ## Getting started
 
 1. **Use a test setup first.** Open ProPresenter with your **Audience and Stage screens turned off**.

@@ -86,3 +86,7 @@ Trust gate: the original 10-hour representative rehearsal with zero unapproved w
 
 Implemented in this change: Bible preparation is no longer pinned to ProPresenter 21.4.2 (any ProPresenter on Windows; the helper still verifies every control and stops safely if a version differs, and never sends output). The Mac helper has no version pin. The computer's default microphone is preselected; the bundled engine, graphics card, quotes, authorizations, auto-connect and auto-listen are on by default. Graphics support for AMD/NVIDIA/Intel through a Vulkan speech engine and an Intel Mac download follow in their own change.
 
+
+## NR-019 - In-app help and a first-launch tour
+
+2026-11-22: the user asked for an in-app tutorial explaining the buttons and tick boxes on each page, reviewed two mock-ups and chose option B (Help mode: numbered markers on every control with explanations and an "On this page" list) with option A (a guided tour) on first launch. See [docs/142](docs/142-in-app-help-and-tour.md).
