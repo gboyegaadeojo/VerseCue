@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/icons/versecue-256.png" width="112" height="112" alt="VerseCue logo: a bold white V with a red-orange go triangle"></p>
+
 # VerseCue
 
 **Free, local Bible-reference cueing for ProPresenter.**

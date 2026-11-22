@@ -20,10 +20,17 @@ const fs=require('node:fs/promises');const path=require('node:path');const {spaw
   if(process.platform==='win32'){
     await fs.rename(path.join(out,'electron.exe'),path.join(out,'VerseCue.exe'));
     await fs.rename(path.join(out,'electron_wer.dll'),path.join(out,'VerseCue_wer.dll')).catch(()=>{});
+    // The VerseCue icon on VerseCue.exe: a small packaging tool compiled with the built-in .NET compiler (no extra dependency).
+    const framework=path.join(process.env.SystemRoot||'C:\Windows','Microsoft.NET','Framework64','v4.0.30319'),tool=path.join(path.dirname(out),'SetIcon.exe');
+    const built=spawnSync(path.join(framework,'csc.exe'),['/nologo','/target:exe','/platform:x64','/out:'+tool,path.join(root,'native/windows/SetIcon.cs')],{encoding:'utf8',windowsHide:true,timeout:60000});
+    if(built.error||built.status!==0)throw Error('Icon tool compilation failed: '+(built.error?.message||built.stdout||built.stderr));
+    const icon=spawnSync(tool,[path.join(out,'VerseCue.exe'),path.join(root,'assets/icons/versecue.ico')],{encoding:'utf8',windowsHide:true,timeout:60000});
+    await fs.rm(tool,{force:true});if(icon.error||icon.status!==0)throw Error('Setting the app icon failed: '+(icon.error?.message||icon.stderr||icon.stdout));
     resources=path.join(out,'resources');
   }else{
     const old=path.join(out,'Electron.app'),bundle=path.join(out,'VerseCue.app');await fs.rename(old,bundle);
-    resources=path.join(bundle,'Contents','Resources');const plist=path.join(bundle,'Contents','Info.plist');let xml=await fs.readFile(plist,'utf8');
+    resources=path.join(bundle,'Contents','Resources');await fs.copyFile(path.join(root,'assets/icons/versecue.icns'),path.join(resources,'VerseCue.icns'));const plist=path.join(bundle,'Contents','Info.plist');let xml=await fs.readFile(plist,'utf8');
+    xml=/<key>CFBundleIconFile<\/key>/.test(xml)?xml.replace(/(<key>CFBundleIconFile<\/key>\s*<string>)[^<]*(<\/string>)/,'$1VerseCue.icns$2'):xml.replace(/<\/dict>\s*<\/plist>\s*$/,'<key>CFBundleIconFile</key><string>VerseCue.icns</string></dict></plist>');
     xml=xml.replace(/(<key>CFBundleDisplayName<\/key>\s*<string>)[^<]*(<\/string>)/,'$1VerseCue$2').replace(/(<key>CFBundleName<\/key>\s*<string>)[^<]*(<\/string>)/,'$1VerseCue$2').replace(/(<key>CFBundleIdentifier<\/key>\s*<string>)[^<]*(<\/string>)/,'$1church.immanuel.versecue$2').replace(/<\/dict>\s*<\/plist>\s*$/, '<key>NSMicrophoneUsageDescription</key><string>VerseCue processes the selected pastor audio input locally to suggest Scripture references.</string></dict></plist>');await fs.writeFile(plist,xml);
   }
   await fs.rm(path.join(resources,'default_app.asar'),{force:true});
@@ -34,6 +41,7 @@ const fs=require('node:fs/promises');const path=require('node:path');const {spaw
     await fs.mkdir(path.join(resources,'native'));await fs.copyFile(nativeHelper,path.join(resources,'native','VerseCue.BibleBridge.exe'));await fs.copyFile(nativeHelper+'.build.json',path.join(resources,'native','VerseCue.BibleBridge.exe.build.json'));
   }
   const app=path.join(resources,'app');await fs.mkdir(app,{recursive:true});
+  await fs.mkdir(path.join(app,'assets'),{recursive:true});await fs.cp(path.join(root,'assets','icons'),path.join(app,'assets','icons'),{recursive:true});
   for(const dir of ['desktop','core','ui','legal'])await fs.cp(path.join(root,dir),path.join(app,dir),{recursive:true});
   await fs.writeFile(path.join(app,'package.json'),JSON.stringify({name:pkg.name,productName:pkg.productName,version:pkg.version,main:pkg.main,description:pkg.description,author:pkg.author},null,2));
   await fs.writeFile(path.join(out,'START-HERE.txt'),`VerseCue ${pkg.version} DEVELOPMENT BUILD\n\nWindows: extract the entire folder, then run VerseCue.exe. Keep all runtime files together.\nMac: build on macOS; signing/notarization and native verification remain pending.\n\nDefaults: Confirm, DRY RUN, no microphone capture until explicitly started.\nIn Setup, select the authorized pastor audio input and channel. Optional verified bundled speech assets are detected automatically; otherwise choose a trusted native whisper-cli and GGML model.\nAuto and arbitrary Bible lookup are not verified. Only explicitly mapped, verified ProPresenter cues can be sent to a supervised test target.\nDo not use this build in a live service. P0 and release acceptance are pending.\n`);
