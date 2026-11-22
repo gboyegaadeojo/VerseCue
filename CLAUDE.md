@@ -20,10 +20,12 @@ Use [HANDOFF.md](HANDOFF.md) as the takeover document. **Public v0.6.2 pre-relea
 
 ## Next queue
 
-Checked 2026-11-22. main has PR114-116 merged (version switching NR-018 with screen reading kept, help mode + first-launch tour NR-019, MIT licence, public README feature list).
-1. PR117 feat/speed-v2 (NR-020, docs/143): chapter skips clipping scan, 60 ms polling, first chapter reads installed versions. Units/check/audit green; CI dispatched. LIVE TIMING PENDING: blocked 2026-11-22 for both branch and main because Windows withheld focus while the user was on Chrome (target-window-bound, nothing sent). Retest when the desktop is idle with live-version-test.cjs (baseline fresh PP: KJV 4.4 s, NIV refused 2.9 s, ASV 7.1 s), then merge.
-2. Waiting on user: logo choice (canvas LogoWave/LogoCue/LogoHalo), OK for early preparation from provisional speech, Mac inspection file, live voice test, code signing.
-3. Then integrate main into PR22, release 0.6.4 (version switching, help/tour, licence, speed).
+Checked 2026-11-22 (midday). main has PR114-116 (version switching, help/tour, MIT, README features).
+1. PR117 feat/speed-v2 (NR-020, docs/143): all 5 speed items (kept-running helper --serve with fresh-helper focus fallback, chapter skips clipping scan, 60 ms polling, versions read with first chapter, EARLY CHAPTER from provisional speech in Prepare for volunteer) + speech keeps loaded model + resident settings comment bug fix + SAFETY GUARDS. Units 626, sweep 48/48, check/audit green; CI dispatched.
+   INCIDENT 2026-11-22: live run on SLOWED ProPresenter (17% CPU, 15 s Bible lookup) left Psalms 23:6 as current slide; Audience/Stage off throughout, nothing sent. Likely stale click (ClickVerifiedControl TOCTOU, code from PR114 on main). Fixed in PR117: read-only responsiveness probe (>2.5 s -> PROPRESENTER_RESPONDING_SLOWLY, no input) + click freshness (<=400 ms, control unmoved). NO MORE LIVE TESTS until the user restarts ProPresenter. Then: live-version-test.cjs (baseline fresh: KJV 4.4 s, NIV refused 2.9 s, ASV 7.1 s) and merge PR117.
+2. PR118 feat/logo-cue-v (NR-021): Cue V logo (assets/brand, assets/icons via scripts/build-icons.cjs, SetIcon.cs for VerseCue.exe, VerseCue.icns on Mac, sidebar mark, README). CI dispatched; merge when green. Follow-up: exe FileDescription still says "Electron".
+3. Waiting on user: ProPresenter restart (then live timing), Mac inspection file, live voice test, code signing.
+4. Then integrate main into PR22, release 0.6.4.
 Standing rules: README updated with every change; Halo look matches canvas; test runs set VERSECUE_AUTOMATION=1. Scheduler: one cron (:17/:47).
 
 ## Integration and authorization
