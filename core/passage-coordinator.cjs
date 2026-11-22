@@ -64,13 +64,13 @@ class PassageCoordinator {
  // Before opening a passage in a version other than the default, check ProPresenter has that version (NR-018).
  // Not installed: keep the current version, say so plainly and prepare nothing.
  async versionInstalled(c){
-  if(c.translation===this.service.translation&&c.recognition!=='version-switch')return true;
+  if(c.recognition!=='version-switch'&&(!this.service.translation||c.translation===this.service.translation))return true;
   const {versionName}=require('./bible-versions.cjs');let installed=null;
-  try{installed=await this.savedBible.controller.installedVersions?.(()=>!this.service.stopped);}catch(error){installed=null;this.service.log('INSTALLED_VERSIONS_UNREADABLE','warning',{reason:String(error?.message??error).slice(0,160)});}
+  try{installed=await this.savedBible.controller.installedVersions?.(()=>!this.service.stopped);}catch(error){installed=null;this.service.log?.('INSTALLED_VERSIONS_UNREADABLE','warning',{reason:String(error?.message??error).slice(0,160)});}
   if(!installed)return true;
   if(installed.codes.includes(c.translation))return true;
   const from=c.versionSwitch?.from??this.service.translation,text=c.translation+" isn't installed in ProPresenter, so VerseCue is keeping "+from+'. Installed: '+(installed.codes.length?installed.codes.join(', '):installed.names.join(', '))+'.';
-  this.service.queue=this.service.queue.filter(row=>row.id!==c.id);this.service.versionNotice={id:Date.now(),text};this.service.log('VERSION_NOT_INSTALLED','info');
+  this.service.queue=this.service.queue.filter(row=>row.id!==c.id);this.service.versionNotice={id:Date.now(),text};this.service.log?.('VERSION_NOT_INSTALLED','info');
   this.publish({phase:'version-not-installed',reference:c.label,translation:c.translation,reason:text,outputRequests:0});return false;
  }
  async prepareChapter(id,{acknowledgeFocusChange=false,additionalGuard=()=>true}={}){

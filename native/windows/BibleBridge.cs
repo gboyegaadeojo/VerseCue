@@ -104,14 +104,14 @@ class BibleBridge {
         if(button==null){header=ByIdOrKeyword(root,"bibleViewerHeader","bibleViewerHeader");if(header!=null)return header;button=ByIdOrKeyword(root,"MAIN_MENU_VIEW_BIBLES_title","VIEW_BIBLES");}
         Require(button!=null&&button.Current.IsEnabled&&!button.Current.IsOffscreen,"BIBLE_VIEW_CONTROL_UNAVAILABLE");
         Stage("open-bible-view");ClickVerifiedControl(button,process.Id);
-        var timer=Stopwatch.StartNew();while(timer.ElapsedMilliseconds<2000){header=BibleHeader(root)??ById(root,"bibleViewerHeader");if(header!=null)return header;Thread.Sleep(50);}
+        var timer=Stopwatch.StartNew();while(timer.ElapsedMilliseconds<6000){header=BibleHeader(root)??ById(root,"bibleViewerHeader");if(header!=null)return header;Thread.Sleep(50);}
         throw new InvalidOperationException("BIBLE_VIEW_NOT_VERIFIED");
     }
     static void SelectTranslation(AutomationElement root,Process process,AutomationElement selector,string expected) {
         if(SelectedTranslation(selector)==expected)return;
         Stage("open-installed-editions");ClickVerifiedControl(selector,process.Id);
         var timer=Stopwatch.StartNew();bool selected=false;
-        while(timer.ElapsedMilliseconds<2000) {
+        while(timer.ElapsedMilliseconds<6000) {
             uint foreground;GetWindowThreadProcessId(GetForegroundWindow(),out foreground);Require(foreground==process.Id,"FOCUS_CHANGED_DURING_EDITION_SELECTION");
             var windows=EditionScopes(root,process,true);
             var matches=new List<AutomationElement>();
@@ -326,7 +326,7 @@ class BibleBridge {
             // Anchor on the selected edition: its name also appears in the open menu. The menu entry's list
             // (the nearest ancestor holding several entries) gives every installed edition.
             var names=new List<string>();var timer=Stopwatch.StartNew();var walker=TreeWalker.RawViewWalker;string debug="";
-            while(timer.ElapsedMilliseconds<2500&&names.Count==0) {
+            while(timer.ElapsedMilliseconds<6000&&names.Count==0) {
                 var windows=EditionScopes(root,process,true);
                 foreach(AutomationElement window in windows) {
                     foreach(AutomationElement hit in window.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.NameProperty,before))) {
@@ -371,7 +371,7 @@ class BibleBridge {
         var bible=TreeWalker.RawViewWalker.GetParent(header);Require(bible!=null,"BIBLE_VIEW_CONTAINER_MISSING");
         Stage("verify-generated-labels");
         var watch=Stopwatch.StartNew();int stable=0,count=0;bool clipped=false;
-        while(watch.ElapsedMilliseconds<(chapter?15000:5000)) {
+        while(watch.ElapsedMilliseconds<(chapter?30000:15000)) {
             Stage("verify-translation");
             Require(SelectedTranslation(selector)==selected,"TRANSLATION_CHANGED_DURING_PREPARATION");
             // Query only citation text during readiness polling. Enumerating

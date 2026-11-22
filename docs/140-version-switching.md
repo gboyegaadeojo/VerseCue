@@ -33,4 +33,23 @@ Nothing is sent live by a version request.
 | --- | --- |
 | `tests/version-switch.test.cjs`: spoken forms, ignored talk, passage just used, not-eligible for Auto, notices, name mapping, not-installed refusal, installed and cannot-check paths | Pass |
 | Live `list-translations` on the personal ProPresenter 21.4.2, freshly restarted, Audience and Stage off | Read "American Standard Version" and "King James Version"; menu closed; selection unchanged; live slide unchanged |
-| Live end-to-end switch (Psalm 23 in KJV, NIV not installed, ASV installed) | Pending. After a few preparations ProPresenter became very slow to answer accessibility queries (about 15 s just to find its Bible controls; 19–26% of all cores continuously, recovering only on restart). Being investigated before this is merged. |
+| Live end-to-end switch (Psalm 23 in KJV, NIV not installed, ASV installed) | Not yet passing. After a few preparations ProPresenter became very slow to answer accessibility queries (about 15 s just to find its Bible controls; 19–26% of all cores continuously, recovering only on restart). Being investigated before this is merged. |
+
+## Finding: ProPresenter on Windows slows down once the helper connects
+
+These measurements were taken on the personal ProPresenter 21.4.2 on 2026-11-22, with Audience and Stage off throughout.
+
+| Situation | ProPresenter CPU (share of all cores) |
+| --- | --- |
+| Freshly restarted, at rest | 2.6–3.1% |
+| Volunteer generates Psalm 23 by hand in the Bible view, VerseCue not running | 2.7–5% |
+| After one read-only helper inspection (header, reference box and version picker only) | about 16% within a minute, persisting |
+| After one helper chapter preparation | about 18–21%, persisting until ProPresenter is restarted |
+
+Once any UI Automation client has read ProPresenter's window, ProPresenter keeps doing extra accessibility work for the rest of its session, and accessibility queries become very slow (about 10–15 s to find the Bible controls). Narrowing the helper's searches to the Bible viewer did not change this, so it is process-wide rather than tied to particular searches. It is VerseCue's helper, not ProPresenter's Bible view: generating a chapter by hand does not cause it.
+
+Interim changes:
+- the helper's limits are longer (30 s per preparation, 45 s for a whole chapter);
+- whole-chapter preparation still succeeds on a slowed ProPresenter (41 s).
+
+Reading or changing the version menu on a slowed ProPresenter still times out. A lighter Windows approach is needed before version switching (and Windows preparation in general) is dependable for a long service. That approach should keep the helper connected only briefly, or avoid UI Automation for the version menu. This is tracked as the next Windows task.
