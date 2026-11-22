@@ -62,3 +62,5 @@ On the loaded test laptop, even one second of silence took 12 to 17 s with the p
 - it restarts once when the graphics card becomes ready.
 
 Saved settings from before this change, which held the old default, move to the faster mode once (`speechModeVersion` 2). A choice made after that is kept. The per-phrase engine remains available in Settings > Speech.
+
+The loaded worker asks for `verbose_json` with `no_timestamps`: word timestamps made each request about 50% slower (28.2 s against 19.0 s on the loaded laptop), while the word probabilities for the heard-clarity badge remain.
