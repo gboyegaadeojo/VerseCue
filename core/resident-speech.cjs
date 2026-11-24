@@ -16,7 +16,7 @@ class ResidentSpeech {
     if(epoch!==this.epoch){this.discard(directory);throw new Error('Recognition canceled');}
     this.directory=directory;const port=await unusedPort();
     if(epoch!==this.epoch)throw new Error('Recognition canceled');
-    const prefix='/'+randomBytes(32).toString('hex');this.startedAcceleration=this.acceleration;
+    const prefix='/'+randomBytes(32).toString('hex');this.startedAcceleration=this.acceleration;this.startedModel=model;
     const child=spawn(executable,['--host','127.0.0.1','--port',String(port),'--public',directory,'--request-path',prefix,'-m',model,'-t','4','-p','1','-ac','768',...(this.acceleration==='cpu'?['-ng']:[]),'-l','en','-bs','1','-bo','1'],{windowsHide:true,shell:false,stdio:['ignore','pipe','pipe']});
     this.child=child;let exited=false;child.stdout.on('data',()=>{});child.stderr.on('data',()=>{});child.once('error',()=>{exited=true;});child.once('close',()=>{exited=true;if(this.child===child){this.child=null;this.base=null;}if(this.directory===directory)this.directory=null;this.discard(directory);});
     const base=`http://127.0.0.1:${port}${prefix}`;
@@ -28,7 +28,8 @@ class ResidentSpeech {
   }
   async recognize(bytes,executable,model,{hint=null}={}){
     // A running worker started on the other processor (CPU vs graphics card) is restarted once.
-    if(this.child&&this.startedAcceleration!==this.acceleration)this.stop();
+    // ...and also when the model changes (base.en to Large-v3-turbo once the graphics chip is ready, NR-025).
+    if(this.child&&(this.startedAcceleration!==this.acceleration||this.startedModel!==model))this.stop();
     const epoch=this.epoch;clearTimeout(this.idle);let deadline=Date.now()+20000;
     try{
       // Loading the model (and the graphics driver) has its own 60 s budget; each phrase then keeps the 20 s limit.

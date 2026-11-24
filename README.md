@@ -17,7 +17,8 @@ ProPresenter stays in charge of your Bible text, themes, Looks and screens. Vers
 Churches and ministries that use **ProPresenter** (tested with ProPresenter 21.4 on Windows) and want Scripture on screen as soon as it's read, without a volunteer searching for every reference.
 
 You need:
-- **Windows 10/11 (64-bit)** or a **Mac** (Apple silicon or Intel).
+- **Windows 10/11 (64-bit)** or a **Mac** (Apple silicon or Intel). For the most accurate recognition, use an Apple silicon Mac (M1 or newer) or a PC with a graphics card such as an NVIDIA RTX; other computers still work with a smaller model.
+- About **1 GB** of free disk space.
 - **ProPresenter** with its network API turned on (ProPresenter > Settings > Network).
 - The **preacher's microphone feed** going into the computer, for example through an audio interface such as a MOTU M4, or a USB microphone for testing.
 
@@ -86,6 +87,7 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 - **Long readings:** up to 176 verses, a whole chapter, in Confirm. Auto stays at 10 verses.
 
 ### Shows what it heard and how sure it is
+- **Most accurate speech model on a graphics chip:** VerseCue includes Whisper Large-v3-turbo, which copes much better with accents, and uses it automatically on Apple silicon Macs and PCs with a graphics card. Computers without a working graphics chip use the smaller base.en model so they stay fast.
 - **Always the current speech engine:** each new version of VerseCue switches to the speech engine and model it ships with on its first start, so an update never keeps using files from an older copy.
 - **Live transcript strip:** the last few phrases heard, newest first in full colour; silence and music markers are hidden.
 - **Clarity badge:** each reference gets "Heard clearly", "Likely" or "Check this", with a percentage.

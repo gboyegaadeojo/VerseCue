@@ -68,3 +68,16 @@ test('non-speech markers such as [BLANK_AUDIO] and (music) are removed; ordinary
   assert.equal(cleanTranscript('Turn to John 3:16 [BLANK_AUDIO]'),'Turn to John 3:16');assert.equal(cleanTranscript('[Applause] Amen'),'Amen');
   assert.equal(cleanTranscript('Psalm 23 (KJV) verse 1'),'Psalm 23 (KJV) verse 1');
 });
+test('Large-v3-turbo is used only once the graphics chip is proven; otherwise base.en (NR-025)',()=>{
+  const s=new LocalSpeech();s.scratch=scratch;s.configure('whisper-cli','base.bin','cli');s.gpuModel='turbo.bin';
+  assert.equal(s.activeModel(),'base.bin','graphics chip not proven yet');
+  s.gpuReady=true;assert.equal(s.activeModel(),'turbo.bin','graphics chip ready');
+  s.configure('whisper-cli','base.bin','cli','cpu');s.gpuModel='turbo.bin';s.gpuReady=true;assert.equal(s.activeModel(),'base.bin','processor chosen');
+  const plain=new LocalSpeech();plain.configure('whisper-cli','base.bin','cli');plain.gpuReady=true;assert.equal(plain.activeModel(),'base.bin','no larger model available');
+});
+test('the kept-loaded engine restarts when the model changes (NR-025)',async()=>{
+  const {ResidentSpeech}=require('../core/resident-speech.cjs');const r=new ResidentSpeech();let stops=0;
+  r.child={kill(){}};r.base='http://127.0.0.1:1';r.startedAcceleration='gpu';r.acceleration='gpu';r.startedModel='base.bin';
+  const realStop=r.stop.bind(r);r.stop=()=>{stops++;realStop();};r.start=async()=>{throw new Error('stop here');};
+  await assert.rejects(r.recognize(Buffer.alloc(10),'server','turbo.bin'));assert.ok(stops>=1,'restarted for the new model');
+});

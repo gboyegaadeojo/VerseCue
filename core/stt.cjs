@@ -21,13 +21,16 @@ function cleanTranscript(text){return String(text??'').replace(NON_SPEECH,' ').r
 const PROVISIONAL_TIMEOUT_MS=8000,SUPERSEDED='Provisional recognition superseded by a completed window';
 class LocalSpeech {
   // hint: book-name hints given to the engine as preceding context (NR-022); null for none. Set from settings.
-  constructor(){this.hint=null;this.executable=null;this.model=null;this.child=null;this.busy=false;this.epoch=0;this.mode='cli';this.scratch=null;this.resident=new ResidentSpeech();this.job=null;this.gpuReady=false;this.gpuState='cpu';this.warmEpoch=0;this.warmup=null;}
+  // gpuModel (NR-025): the larger, more accurate model (Large-v3-turbo) used once the graphics chip is proven to work;
+  // without a working graphics chip the regular model (base.en) keeps recognition fast. Set by the desktop app.
+  constructor(){this.gpuModel=null;this.hint=null;this.executable=null;this.model=null;this.child=null;this.busy=false;this.epoch=0;this.mode='cli';this.scratch=null;this.resident=new ResidentSpeech();this.job=null;this.gpuReady=false;this.gpuState='cpu';this.warmEpoch=0;this.warmup=null;}
   async initializeScratch(root){if(this.busy)throw Error('Stop recognition before scratch recovery');const scratch=new SpeechScratch(root);await scratch.initialize();this.scratch=scratch;this.resident.scratch=scratch;}
   // acceleration 'gpu' lets a GPU-enabled engine (Metal, CUDA) use the graphics card; CPU-only engines ignore it.
   configure(executable,model,mode='cli',acceleration='gpu'){if(this.busy)throw new Error('Stop recognition before changing worker');if(!['cli','resident'].includes(mode))throw new Error('Invalid local speech mode');if(!['gpu','cpu'].includes(acceleration))throw new Error('Invalid speech acceleration');this.resident.stop();this.executable=executable;this.model=model;this.mode=mode;this.acceleration=acceleration;this.resident.acceleration='cpu';this.resident.warmedUp=false;this.gpuReady=false;this.gpuState=acceleration==='gpu'?'pending':'cpu';this.warmEpoch++;this.warmup=null;this.warmedUp=false;}
   // The kept-loaded engine runs unfinished speech only when it has proved fast here (a finished phrase under 1 s),
   // so a provisional run never noticeably delays the phrase that follows it.
   provisionalReady(){return this.mode==='cli'||Number.isFinite(this.lastFinalMs)&&this.lastFinalMs<1000;}
+  activeModel(){return this.acceleration==='gpu'&&this.gpuReady&&this.gpuModel?this.gpuModel:this.model;}
   capabilities(){return {provisional:this.provisionalReady(),final:true};}
   cancel(){this.epoch++;this.child?.kill();this.resident.stop();}
   // Drop the recognition in flight but keep a loaded model (used when a passage is prepared).
@@ -55,7 +58,7 @@ class LocalSpeech {
       if(this.mode==='resident'){
         const server=path.join(path.dirname(this.executable),process.platform==='win32'?'whisper-server.exe':'whisper-server');
         this.resident.acceleration=this.acceleration==='gpu'&&this.gpuReady?'gpu':'cpu';
-        const start=performance.now(),{text,confidence}=await this.resident.recognize(bytes,server,this.model,{hint});
+        const start=performance.now(),{text,confidence}=await this.resident.recognize(bytes,server,this.activeModel(),{hint});
         canceled();if(!provisional)this.lastFinalMs=performance.now()-start;
         return {text:cleanTranscript(text),heardConfidence:confidence,elapsedMs:Math.round(performance.now()-start),provider:'local whisper.cpp resident',final:true};
       }
@@ -64,7 +67,7 @@ class LocalSpeech {
       // The graphics card is used only after warmUp() proved it (first-run shader compilation can take minutes), so every request keeps the normal limit.
       const limit=provisional?PROVISIONAL_TIMEOUT_MS:20000;
       const start=performance.now();const output=await new Promise((resolve,reject)=>{
-        const child=spawn(this.executable,['-m',this.model,'-f',file,'-l','en','-t','4',...(this.acceleration==='cpu'||!this.gpuReady?['-ng']:[]),'-bs','1','-bo','1','-ac',AUDIO_CONTEXT,'-nt','-np',...(hint?['--prompt',hint]:[]),...(provisional?[]:['-ojf','-of',path.join(dir,'out')])],{windowsHide:true,shell:false,stdio:['ignore','pipe','pipe']});
+        const child=spawn(this.executable,['-m',this.activeModel(),'-f',file,'-l','en','-t','4',...(this.acceleration==='cpu'||!this.gpuReady?['-ng']:[]),'-bs','1','-bo','1','-ac',AUDIO_CONTEXT,'-nt','-np',...(hint?['--prompt',hint]:[]),...(provisional?[]:['-ojf','-of',path.join(dir,'out')])],{windowsHide:true,shell:false,stdio:['ignore','pipe','pipe']});
         this.child=child;job.child=child;let stdout='';let size=0;let timedOut=false;
         const timer=setTimeout(()=>{timedOut=true;child.kill();},limit);
         child.stdout.on('data',b=>{size+=b.length;if(size>65536)child.kill();else stdout+=b.toString();});

@@ -145,3 +145,15 @@ Fixed:
 - **Timings:** Settings > Speech shows recognition and preparation times.
 
 See [docs/147](docs/147-settings-layout-ordinals-and-old-engines.md).
+
+## NR-025 - Large-v3-turbo speech model
+
+2026-11-24: the user chose Whisper Large-v3-turbo for clearer recognition of Nigerian-accented preaching.
+
+- **Computers:** a Mac mini M4 at minimum, an M6, and an i9 with an RTX 4070.
+- **Delivery:** the model is included in the download (official file, pinned fingerprint).
+- **When it's used:** on a working graphics chip; without one, VerseCue falls back to base.en.
+- **Measured:** 50/50 correct on the synthetic test set versus 47/50 for base.en, at 0.54 s per phrase on an RTX 2060.
+- **Dropped:** the recording-test feature, at the user's request.
+
+See [docs/148](docs/148-large-v3-turbo.md).
