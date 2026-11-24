@@ -93,7 +93,10 @@ async function setupCudaEngine(){
   service.log('CUDA_ENGINE_SELECTED','info');return {ok:true,device:check.device,elapsedMs:check.elapsedMs,settings:saved};
 }
 // Which engine and model are in use, in plain terms, for Settings > Speech (2026-11-24 user report: confusing settings).
-function speechEngineSummary(){const dir=path.resolve(path.join(process.resourcesPath,'speech')).toLowerCase(),inside=file=>typeof file==='string'&&path.resolve(path.dirname(file)).toLowerCase()===dir;const cuda=typeof settings?.executable==='string'&&/speech-engines/i.test(settings.executable);return {builtIn:inside(settings?.executable)&&inside(settings?.model),cuda,modelName:typeof settings?.model==='string'?path.basename(settings.model):null};}
+// Large-v3-turbo (NR-025): bundled beside base.en and used on a working graphics chip, only with VerseCue's own model.
+const GPU_MODEL_FILE='ggml-large-v3-turbo-q5_0.bin';
+function bundledGpuModel(){const dir=path.join(process.resourcesPath,'speech'),file=path.join(dir,GPU_MODEL_FILE);if(typeof settings?.model!=='string'||path.resolve(path.dirname(settings.model)).toLowerCase()!==path.resolve(dir).toLowerCase())return null;try{require('node:fs').accessSync(file);return file;}catch{return null;}}
+function speechEngineSummary(){const dir=path.resolve(path.join(process.resourcesPath,'speech')).toLowerCase(),inside=file=>typeof file==='string'&&path.resolve(path.dirname(file)).toLowerCase()===dir;const cuda=typeof settings?.executable==='string'&&/speech-engines/i.test(settings.executable);const active=speech.activeModel?.()??settings?.model;return {builtIn:inside(settings?.executable)&&inside(settings?.model),cuda,modelName:typeof settings?.model==='string'?path.basename(settings.model):null,activeModel:typeof active==='string'?path.basename(active):null,gpuModelAvailable:Boolean(speech.gpuModel)};}
 async function useBuiltInEngine(){
   if(speech.busy)throw Error('Stop listening before changing the speech engine');
   const dir=path.join(process.resourcesPath,'speech'),worker=path.join(dir,process.platform==='win32'?'whisper-cli.exe':'whisper-cli');
@@ -358,7 +361,7 @@ async function bootstrap(){
   // Automated test runs (VERSECUE_AUTOMATION=1) turn off the open-and-connect conveniences: no auto-connect,
   // no auto-listen and no graphics-card warm-up, so scenarios control capture, targets and timing themselves.
   const automation=process.env.VERSECUE_AUTOMATION==='1';service.automation=automation;
-  const configureSpeech=speech.configure.bind(speech);speech.configure=(...args)=>{configureSpeech(...args);service.speechGpu=speech.gpuState;service.speechEngine=speechEngineSummary();if(!automation)setImmediate(()=>speech.warmUp().then(r=>{service.speechGpu=speech.gpuState;service.speechGpuDevice=speech.gpuDevice??null;if(r.state==='ready')service.log('SPEECH_GPU_READY','info');else if(r.state==='unavailable')service.log('SPEECH_GPU_UNAVAILABLE','info');service.notify();}).catch(()=>{}));};
+  const configureSpeech=speech.configure.bind(speech);speech.configure=(...args)=>{configureSpeech(...args);speech.gpuModel=bundledGpuModel();service.speechGpu=speech.gpuState;service.speechEngine=speechEngineSummary();if(!automation||process.env.VERSECUE_TEST_WARMUP==='1')setImmediate(()=>speech.warmUp().then(r=>{service.speechGpu=speech.gpuState;service.speechGpuDevice=speech.gpuDevice??null;service.speechEngine=speechEngineSummary();if(r.state==='ready')service.log('SPEECH_GPU_READY','info');else if(r.state==='unavailable')service.log('SPEECH_GPU_UNAVAILABLE','info');service.notify();}).catch(()=>{}));};
   speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);
   // Connect to the saved ProPresenter automatically: a read-only /version check every 3 s until it answers.
   // Once connected the health check above takes over (slow/lost handling unchanged). Never arms output.

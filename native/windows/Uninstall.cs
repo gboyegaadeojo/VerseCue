@@ -11,6 +11,15 @@ using Microsoft.Win32;
 
 static class Uninstall {
     const string UninstallKey=@"Software\Microsoft\Windows\CurrentVersion\Uninstall\VerseCue";
+    static bool PointsInto(string link,string folder) {
+        try {
+            var shellType=Type.GetTypeFromProgID("WScript.Shell");object shell=Activator.CreateInstance(shellType);
+            object lnk=shellType.InvokeMember("CreateShortcut",System.Reflection.BindingFlags.InvokeMethod,null,shell,new object[]{link});
+            string target=Convert.ToString(lnk.GetType().InvokeMember("TargetPath",System.Reflection.BindingFlags.GetProperty,null,lnk,null));
+            string root=Path.GetFullPath(folder).TrimEnd('\\')+"\\";
+            return !String.IsNullOrEmpty(target)&&Path.GetFullPath(target).StartsWith(root,StringComparison.OrdinalIgnoreCase);
+        } catch { return false; }
+    }
     [STAThread] static int Main(string[] args) {
         bool silent=args.Contains("--silent");int at=Array.IndexOf(args,"--target");
         string self=Process.GetCurrentProcess().MainModule.FileName;
@@ -34,8 +43,9 @@ static class Uninstall {
             }
             // Step 2: remove the program, shortcuts pointing to it and the Apps entry (only if it points to this folder).
             Directory.Delete(target,true);
+            // Only shortcuts that open the copy being removed; another install's shortcuts are left alone (2026-11-24 fix).
             foreach(var link in new[]{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs),"VerseCue.lnk"),Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),"VerseCue.lnk")})
-                if(File.Exists(link))File.Delete(link);
+                if(File.Exists(link)&&PointsInto(link,target))File.Delete(link);
             using(var key=Registry.CurrentUser.OpenSubKey(UninstallKey)){if(key!=null&&String.Equals(Convert.ToString(key.GetValue("InstallLocation")),target,StringComparison.OrdinalIgnoreCase)){key.Close();Registry.CurrentUser.DeleteSubKeyTree(UninstallKey,false);}}
             string settings=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),"VerseCue");
             bool removeSettings=args.Contains("--remove-settings")||!silent&&Directory.Exists(settings)&&MessageBox.Show("VerseCue is uninstalled.\n\nAlso remove your VerseCue settings and saved profiles?\n(Keep them if you might install VerseCue again.)","Uninstall VerseCue",MessageBoxButtons.YesNo,MessageBoxIcon.Question,MessageBoxDefaultButton.Button2)==DialogResult.Yes;

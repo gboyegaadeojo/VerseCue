@@ -11,7 +11,8 @@
     if(!engine)return 'No speech engine is set up yet.';
     const doing={ready:'is running on the graphics card'+(device?` (${device})`:''),warming:'is running on the processor while the graphics card gets ready (the first start can take a few minutes)',pending:'is starting',unavailable:'is running on the processor (no usable graphics card was found)',cpu:'is running on the processor (the graphics card is turned off in Advanced speech options)'}[gpu]??'is ready';
     const which=engine.cuda?'The NVIDIA engine you set up':engine.builtIn?'VerseCue’s built-in speech engine':'A speech engine you chose';
-    return `${which} ${doing}.`;
+    const model=/large-v3-turbo/i.test(engine.activeModel??'')?' Model: Large-v3-turbo (most accurate).':/base\.en/i.test(engine.activeModel??'')?(engine.gpuModelAvailable?' Model: base.en for now; the more accurate Large-v3-turbo starts once the graphics chip is ready.':' Model: base.en.'):engine.activeModel?` Model: ${engine.activeModel}.`:'';
+    return `${which} ${doing}.${model}`;
   }
   function render(state){
     if(!state||!el('speech-summary-text'))return;

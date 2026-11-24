@@ -5,15 +5,18 @@ const fs=require('node:fs/promises');const path=require('node:path');const crypt
 async function bundle(resources){
   if(process.platform!=='win32')throw new Error('The available verified local speech archive is Windows x64 only. Supply and verify a native Mac build separately.');
   const root=path.resolve(__dirname,'..');const archive=path.join(root,'poc/private/tools/engines/whisper-b5454-vulkan-win-x64.zip');const model=path.join(root,'poc/private/models/ggml-base.en.bin');
+  // Large-v3-turbo (NR-025), official ggml q5_0 from huggingface.co/ggerganov/whisper.cpp, used on a working graphics chip.
+  const gpuModel=path.join(root,'poc/private/models/ggml-large-v3-turbo-q5_0.bin');
   const sha=async file=>crypto.createHash('sha256').update(await fs.readFile(file)).digest('hex');
   if(await sha(archive)!=='9c16b302a33997482d88154cac702ed030baf65d62d3580096bc6ddc09b03e6e')throw new Error('Speech engine archive hash mismatch');
   if(await sha(model)!=='a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002')throw new Error('Speech model hash mismatch');
+  if(await sha(gpuModel)!=='394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2')throw new Error('Large-v3-turbo model hash mismatch');
   const destination=path.join(resources,'speech');await fs.mkdir(destination);const staging=await fs.mkdtemp(path.join(resources,'speech-stage-'));
   try{
     const r=spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',"$ErrorActionPreference='Stop'; Expand-Archive -LiteralPath $env:VERSECUE_SPEECH_ARCHIVE -DestinationPath $env:VERSECUE_SPEECH_STAGE"],{env:{...process.env,VERSECUE_SPEECH_ARCHIVE:archive,VERSECUE_SPEECH_STAGE:staging},windowsHide:true,encoding:'utf8'});
     if(r.error||r.status!==0)throw new Error(r.error?.message||r.stderr||'Speech extraction failed');
     const release=(await fs.readdir(staging)).includes('Release')?path.join(staging,'Release'):staging;for(const name of await fs.readdir(release))if(name==='whisper-cli.exe'||name==='whisper-server.exe'||name.endsWith('.dll'))await fs.copyFile(path.join(release,name),path.join(destination,name));
-    await fs.copyFile(model,path.join(destination,'ggml-base.en.bin'));
+    await fs.copyFile(model,path.join(destination,'ggml-base.en.bin'));await fs.copyFile(gpuModel,path.join(destination,'ggml-large-v3-turbo-q5_0.bin'));
     await fs.copyFile(path.join(root,'legal','WHISPER-LICENSE.txt'),path.join(destination,'WHISPER-LICENSE.txt'));
     await fs.copyFile(path.join(root,'legal','WHISPER-MODEL-LICENSE.txt'),path.join(destination,'WHISPER-MODEL-LICENSE.txt'));
   }finally{
