@@ -88,6 +88,7 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 
 ### Shows what it heard and how sure it is
 - **Most accurate speech model on a graphics chip:** VerseCue includes Whisper Large-v3-turbo, which copes much better with accents, and uses it automatically on Apple silicon Macs and PCs with a graphics card. Computers without a working graphics chip use the smaller base.en model so they stay fast.
+- **Quick after each pause:** VerseCue starts recognising a phrase while it waits to confirm the speaker has paused, so a reference is ready about 0.8 s after the last word on a graphics card.
 - **Works minimized:** VerseCue keeps listening, detecting and preparing while minimized or behind a full-screen ProPresenter.
 - **Always the current speech engine:** each new version of VerseCue switches to the speech engine and model it ships with on its first start, so an update never keeps using files from an older copy.
 - **Live transcript strip:** the last few phrases heard, newest first in full colour; silence and music markers are hidden.

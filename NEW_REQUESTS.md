@@ -171,3 +171,12 @@ Added:
 - a scenario that measures timers while minimized or hidden.
 
 See [docs/149](docs/149-minimized-operation.md).
+
+## NR-027 - Quicker end-of-phrase handling
+
+2026-11-24: the user chose to make references appear sooner after the speaker pauses.
+
+- **How:** VerseCue now starts recognising during the pause (after 0.3 s) and uses that result if the pause reaches 0.7 s. Phrase boundaries are unchanged.
+- **Measured:** about 0.38 s faster per reference with Large-v3-turbo (1.19 s to 0.81 s).
+
+See [docs/150](docs/150-early-recognition.md).
