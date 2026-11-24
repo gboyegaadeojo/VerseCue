@@ -17,7 +17,7 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
     assert.equal((await primary.evaluate(()=>window.versecue.command('reset'))).ok,true);
     for(const page of [primary,compact]){
       await page.waitForFunction(()=>document.getElementById('queue-count').textContent==='0');
-      assert.equal(await page.locator('#transcript').textContent(),'No audio has been processed.','Reset must clear transcript in every window');
+      assert.equal(await page.locator('#transcript').textContent(),'Nothing heard yet.','Reset must clear transcript in every window');
       assert.equal(await page.locator('#reference-input').inputValue(),'','Reset must clear unsubmitted reference text');
       assert.equal(await page.locator('#native-preparation-reference').inputValue(),'');
       assert.equal(await page.locator('#saved-cue-preview').textContent(),'');
@@ -58,13 +58,13 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
     await primary.evaluate(()=>{window.resetOldReply=audio.onWindow([],{});});
     const waitReplies=async count=>{const deadline=Date.now()+5000;while(await app.evaluate(()=>globalThis.resetReplies.length)<count){if(Date.now()>deadline)throw Error('Synthetic audio reply did not arrive');await new Promise(resolve=>setTimeout(resolve,20));}};
     await waitReplies(1);assert.equal((await compact.evaluate(()=>window.versecue.command('reset'))).ok,true);
-    await primary.waitForFunction(()=>document.getElementById('transcript').textContent==='No audio has been processed.');
+    await primary.waitForFunction(()=>document.getElementById('transcript').textContent==='Nothing heard yet.');
     await primary.evaluate(()=>{window.resetNewReply=audio.onWindow([],{});});await waitReplies(2);
     await app.evaluate(()=>globalThis.resetReplies[1]({ok:true,value:{text:'SYNTHETIC NEW SESSION',elapsedMs:10}}));await primary.evaluate(()=>window.resetNewReply);
     await app.evaluate(()=>globalThis.resetReplies[0]({ok:true,value:{text:'SYNTHETIC OLD SESSION',elapsedMs:10}}));await primary.evaluate(()=>window.resetOldReply);
     assert.equal(await primary.locator('#transcript').textContent(),'SYNTHETIC NEW SESSION','Late old success must not replace new-session transcript');
     assert.equal((await primary.evaluate(()=>window.versecue.command('reset'))).ok,true);
-    await primary.waitForFunction(()=>document.getElementById('transcript').textContent==='No audio has been processed.');
+    await primary.waitForFunction(()=>document.getElementById('transcript').textContent==='Nothing heard yet.');
     for(let index=0;index<6;index++){
       await primary.evaluate(()=>{window.previewReply=audio.onWindow([],{});});
       await waitReplies(3+index);
@@ -72,15 +72,16 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
       await app.evaluate((_,index)=>globalThis.resetReplies[2+index]({ok:true,value:{text:'SYNTHETIC WINDOW '+index,elapsedMs:10}}),index);
       await primary.evaluate(()=>window.previewReply);
     }
-    assert.deepEqual(await primary.locator('#transcript span').allTextContents(),[1,2,3,4,5].map(index=>'SYNTHETIC WINDOW '+index));
+    // The live strip keeps the last three phrases (2026-11-24 redesign).
+    assert.deepEqual(await primary.locator('#transcript span').allTextContents(),[3,4,5].map(index=>'SYNTHETIC WINDOW '+index));
     assert.equal(await primary.locator('#transcript').getAttribute('aria-busy'),'false');
     await primary.evaluate(()=>{window.previewReply=audio.onWindow([],{});});
     await waitReplies(9);
     await app.evaluate(()=>globalThis.resetReplies[8]({ok:true,value:{text:'',elapsedMs:10}}));
     await primary.evaluate(()=>window.previewReply);
-    assert.equal(await primary.locator('#transcript span').count(),5,'Silence must preserve completed windows');
+    assert.equal(await primary.locator('#transcript span').count(),3,'Silence must preserve the completed phrases shown');
     assert.equal((await compact.evaluate(()=>window.versecue.command('reset'))).ok,true);
-    await primary.waitForFunction(()=>document.getElementById('transcript').textContent==='No audio has been processed.');
+    await primary.waitForFunction(()=>document.getElementById('transcript').textContent==='Nothing heard yet.');
     await primary.evaluate(()=>{window.stoppedReply=audio.onWindow([],{});});
     await waitReplies(10);
     await primary.evaluate(()=>stopAudio());
@@ -88,13 +89,13 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
     assert.equal(await primary.locator('#recognition-progress').textContent(),'');
     await app.evaluate(()=>globalThis.resetReplies[9]({ok:true,value:{text:'SYNTHETIC STOPPED REPLY',elapsedMs:10}}));
     await primary.evaluate(()=>window.stoppedReply);
-    assert.equal(await primary.locator('#transcript').textContent(),'No audio has been processed.');
+    assert.equal(await primary.locator('#transcript').textContent(),'Nothing heard yet.');
     await primary.evaluate(()=>{window.provisionalReply=audio.onWindow([],{});});
     await waitReplies(11);
     await app.evaluate(()=>globalThis.resetReplies[10]({ok:true,value:{text:'SYNTHETIC PARTIAL',final:false,elapsedMs:10}}));
     await primary.evaluate(()=>window.provisionalReply);
     assert.equal(await primary.locator('#provisional-speech').textContent(),'Provisional speech: SYNTHETIC PARTIAL');
-    assert.equal(await primary.locator('#transcript').textContent(),'No audio has been processed.');
+    assert.equal(await primary.locator('#transcript').textContent(),'Nothing heard yet.');
     assert.equal((await compact.evaluate(()=>window.versecue.command('reset'))).ok,true);
     await primary.waitForFunction(()=>document.getElementById('provisional-speech').hidden);
     assert.equal(await primary.locator('#provisional-speech').textContent(),'');

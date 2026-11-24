@@ -18,6 +18,9 @@ const {LocalSpeech}=require('../core/stt.cjs');
 const {speechEvidence}=require('../core/speech-evidence.cjs');
 const {CitationStabilizer}=require('../core/citation-stabilizer.cjs');
 const store=require('../core/settings.cjs');
+// The whisper.cpp release bundled with this version (scripts/bundle-local-speech.cjs). The guided NVIDIA engine is kept
+// across an update only while it is the same release.
+const BUNDLED_WHISPER_RELEASE='whisper-b5454';
 const {ConfigurationTransition}=require('../core/configuration-transition.cjs');
 const {LocalControlAPI}=require('../core/control-api.cjs');
 const {BiblePreparation}=require('../core/bible-preparation.cjs');
@@ -89,11 +92,13 @@ async function setupCudaEngine(){
   const saved=await changeConfiguration(async()=>{if(speech.busy)throw Error('Recognition is stopping; retry in a moment');settings=await store.save(settingsFile,{...settings,executable,speechAcceleration:'gpu'});speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);speech.warmedUp=true;return settings;});
   service.log('CUDA_ENGINE_SELECTED','info');return {ok:true,device:check.device,elapsedMs:check.elapsedMs,settings:saved};
 }
+// Which engine and model are in use, in plain terms, for Settings > Speech (2026-11-24 user report: confusing settings).
+function speechEngineSummary(){const dir=path.resolve(path.join(process.resourcesPath,'speech')).toLowerCase(),inside=file=>typeof file==='string'&&path.resolve(path.dirname(file)).toLowerCase()===dir;const cuda=typeof settings?.executable==='string'&&/speech-engines/i.test(settings.executable);return {builtIn:inside(settings?.executable)&&inside(settings?.model),cuda,modelName:typeof settings?.model==='string'?path.basename(settings.model):null};}
 async function useBuiltInEngine(){
   if(speech.busy)throw Error('Stop listening before changing the speech engine');
   const dir=path.join(process.resourcesPath,'speech'),worker=path.join(dir,process.platform==='win32'?'whisper-cli.exe':'whisper-cli');
   if(!await fileExists(worker))throw Error('The built-in speech engine is not part of this copy of VerseCue. Choose an engine in Settings > Speech.');
-  return changeConfiguration(async()=>{if(speech.busy)throw Error('Recognition is stopping; retry in a moment');settings=await store.save(settingsFile,{...settings,executable:worker});speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);return settings;});
+  return changeConfiguration(async()=>{if(speech.busy)throw Error('Recognition is stopping; retry in a moment');const model=path.join(dir,'ggml-base.en.bin');settings=await store.save(settingsFile,{...settings,executable:worker,...(await fileExists(model)?{model}:{})});speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);return settings;});
 }
 async function bootstrap(){
   await fs.mkdir(app.getPath('userData'),{recursive:true});await speech.initializeScratch(path.join(app.getPath('userData'),'speech-scratch'));
@@ -120,10 +125,25 @@ async function bootstrap(){
   // An engine the operator chose that still exists is never replaced.
   const exists=async file=>{if(!file)return false;try{await fs.access(file);return true;}catch{return false;}};
   const savedMissing=Boolean(settings.executable||settings.model)&&!((await exists(settings.executable))&&(await exists(settings.model)));
-  if(!settings.executable&&!settings.model||savedMissing){
+  // The built-in engine or model of a different VerseCue copy (an older ZIP still in Downloads, say) is replaced by this
+  // version's own, so an update never keeps using files from the old copy (2026-11-24 user report).
+  const otherCopy=file=>typeof file==='string'&&/[\\/]resources[\\/]speech[\\/](?:whisper-cli(?:\.exe)?|ggml-base\.en\.bin)$/i.test(file)&&path.resolve(path.dirname(file)).toLowerCase()!==path.resolve(speechDir).toLowerCase();
+  const savedOtherCopy=otherCopy(settings.executable)||otherCopy(settings.model);
+  // Every new VerseCue version uses the speech engine and model it ships with (2026-11-24 user decision): on the first
+  // start after an update, saved engine and model paths are reset to this version's own. The one exception is the NVIDIA
+  // engine from VerseCue's guided setup while it is the same whisper.cpp release as the built-in engine.
+  const newVersion=settings.speechEngineVersion!==app.getVersion();
+  const guidedCuda=typeof settings.executable==='string'&&settings.executable.includes(require('../core/cuda-engine.cjs').ENGINE_FOLDER)&&require('../core/cuda-engine.cjs').ENGINE_FOLDER.startsWith(BUNDLED_WHISPER_RELEASE+'-');
+  let speechChanged=false;
+  if(!settings.executable&&!settings.model||savedMissing||savedOtherCopy||newVersion){
     const bundledModel=path.join(speechDir,'ggml-base.en.bin');
-    if(await exists(bundledWorker)&&await exists(bundledModel)){settings.executable=bundledWorker;settings.model=bundledModel;if(savedMissing)service.log('SPEECH_ENGINE_REPLACED_MISSING','warning');}
+    if(await exists(bundledWorker)&&await exists(bundledModel)){
+      const keepCuda=guidedCuda&&!savedMissing&&await exists(settings.executable);
+      if(!keepCuda)settings.executable=bundledWorker;settings.model=bundledModel;settings.speechEngineVersion=app.getVersion();speechChanged=true;
+      if(savedMissing)service.log('SPEECH_ENGINE_REPLACED_MISSING','warning');else if(savedOtherCopy)service.log('SPEECH_ENGINE_REPLACED_OLD_COPY','info');else if(newVersion)service.log('SPEECH_ENGINE_UPDATED_WITH_APP','info');
+    }
   }
+  if(speechChanged&&!service.settingsRecoveryRequired){try{settings=await store.save(settingsFile,settings);}catch{service.log('SPEECH_ENGINE_UPDATE_NOT_SAVED','warning');}}
   // Out of the box (NR-017): with no input chosen, use the computer's default microphone (channel 1).
   if(!settings.audioDevice)settings.audioDevice='default';
   connector.configure(settings.host,settings.port);service.configure({translation:settings.translation,dryRun:true,duplicateCooldownSeconds:settings.duplicateCooldownSeconds,maxPassageVerses:settings.maxPassageVerses});applySessionPreferences();speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);if(!service.settingsRecoveryRequired)service.applyStartMode();
@@ -338,7 +358,7 @@ async function bootstrap(){
   // Automated test runs (VERSECUE_AUTOMATION=1) turn off the open-and-connect conveniences: no auto-connect,
   // no auto-listen and no graphics-card warm-up, so scenarios control capture, targets and timing themselves.
   const automation=process.env.VERSECUE_AUTOMATION==='1';service.automation=automation;
-  const configureSpeech=speech.configure.bind(speech);speech.configure=(...args)=>{configureSpeech(...args);service.speechGpu=speech.gpuState;if(!automation)setImmediate(()=>speech.warmUp().then(r=>{service.speechGpu=speech.gpuState;if(r.state==='ready')service.log('SPEECH_GPU_READY','info');else if(r.state==='unavailable')service.log('SPEECH_GPU_UNAVAILABLE','info');service.notify();}).catch(()=>{}));};
+  const configureSpeech=speech.configure.bind(speech);speech.configure=(...args)=>{configureSpeech(...args);service.speechGpu=speech.gpuState;service.speechEngine=speechEngineSummary();if(!automation)setImmediate(()=>speech.warmUp().then(r=>{service.speechGpu=speech.gpuState;service.speechGpuDevice=speech.gpuDevice??null;if(r.state==='ready')service.log('SPEECH_GPU_READY','info');else if(r.state==='unavailable')service.log('SPEECH_GPU_UNAVAILABLE','info');service.notify();}).catch(()=>{}));};
   speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);
   // Connect to the saved ProPresenter automatically: a read-only /version check every 3 s until it answers.
   // Once connected the health check above takes over (slow/lost handling unchanged). Never arms output.

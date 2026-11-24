@@ -62,3 +62,9 @@ test('warm-up silence lives in the app speech scratch and is removed afterwards 
     assert.deepEqual(await fs.readdir(real.root),[],'nothing left behind');
   }finally{await fs.rm(root,{recursive:true,force:true});}
 });
+test('non-speech markers such as [BLANK_AUDIO] and (music) are removed; ordinary brackets stay (2026-11-24)',()=>{
+  const {cleanTranscript}=require('../core/stt.cjs');
+  for(const t of ['[BLANK_AUDIO]',' [MUSIC PLAYING] ','(upbeat music)','(applause) (laughter)','♪ ♪'])assert.equal(cleanTranscript(t),'',t);
+  assert.equal(cleanTranscript('Turn to John 3:16 [BLANK_AUDIO]'),'Turn to John 3:16');assert.equal(cleanTranscript('[Applause] Amen'),'Amen');
+  assert.equal(cleanTranscript('Psalm 23 (KJV) verse 1'),'Psalm 23 (KJV) verse 1');
+});

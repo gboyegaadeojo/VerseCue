@@ -41,6 +41,16 @@ function approximateBooks(s,approximated){
     if(!best||tie)return word;approximated.add(best);return best;
   });
 }
+// Ordinals heard apart from their book (2026-11-24 user report: "1st/Second" not understood). A pause makes the speech
+// engine write "First, John 1:9", "1st. John" or "2 nd Timothy"; read naively that is the Gospel of John. The number is
+// joined to a numbered book, and such references carry a review issue because the pause makes the wording ambiguous.
+const numberedBase='samuel|kings|chronicles|corinthians|thessalonians|timothy|peter|john';
+function joinSeparatedOrdinals(text){
+  let separated=false;
+  let s=text.replace(/\b([123])\s+(st|nd|rd)\b/gi,'$1$2');
+  s=s.replace(new RegExp(`\\b(first|second|third|1st|2nd|3rd|[123])\\s*[.,;:!?]+\\s*(${numberedBase})\\b`,'gi'),(m,ordinal,book)=>{separated=true;return ordinal+' '+book;});
+  return {text:s,separated};
+}
 function label(r) { return `${r.book} ${r.chapter}${r.verse==null?'':`:${r.verse}${r.endChapter&&r.endChapter!==r.chapter?`-${r.endChapter}:${r.endVerse}`:r.endVerse&&r.endVerse!==r.verse?`-${r.endVerse}`:''}`}`; }
 function validate(r, bounds) {
   const i=names.indexOf(r.book); const reasons=[];
@@ -59,7 +69,8 @@ function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslat
   // 176 covers the longest chapter (Psalm 119) so a whole chapter can be read; Auto keeps its own 10-verse limit.
   if(!Number.isSafeInteger(maxVerses)||maxVerses<1||maxVerses>176)throw Error('Invalid passage verse limit');
   if(typeof text!=='string'||text.length>8192) return {references:[],issues:['Invalid transcript size']};
-  let s=normalize(citationForms(normalize(text)));
+  const joined=joinSeparatedOrdinals(text);
+  let s=normalize(citationForms(normalize(joined.text)));
   // Commas Whisper inserts between book, chapter and verse ("Psalm 21, verse 1", "First Peter, chapter 2, verse 1").
   const approximated=new Set();s=approximateBooks(s,approximated);if(approximated.size)s=normalize(s);
   s=s.replace(new RegExp(`((?:${bookPattern}))\\s*,\\s*(?=chapter\\b|verses?\\b|\\d)`,'g'),'$1 ').replace(/\b(chapter|verses?)\s*,\s*(?=\d)/g,'$1 ').replace(new RegExp(`((?:${bookPattern})(?:\\s+chapter)?\\s+\\d+)\\s*,\\s*(?=(?:verses?\\s+)?\\d+(?![\\d,]|\\s*(?:,|and\\b|&)))`,'g'),'$1 ');
@@ -115,6 +126,7 @@ function parse(text, {context=null, now=Date.now(), bounds=null, defaultTranslat
     if(!r.overLimit&&r.rangeLength>10)r.issues.push('Extended range requires explicit Confirm review; never Auto');
     if(r.implicitChapter)r.issues.push('Implicit single chapter · review');
     if(approximated.has(r.book.toLowerCase().split(' ').at(-1)))r.issues.push('Book name heard approximately · review');
+    if(joined.separated&&/^\d/.test(r.book))r.issues.push('Number and book were heard apart · review');
     if(/\b(do not show|not now|don.t show)\b/.test(s))r.issues.push('Explicit no-show instruction');
     if(/\b(in french|in spanish)\b/.test(s))r.issues.push('Requested language is not supported');
     r.label=label(r); r.autoEligible=false;

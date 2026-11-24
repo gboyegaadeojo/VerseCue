@@ -14,6 +14,10 @@ function wav(samples){
 const AUDIO_CONTEXT='768',MAX_WINDOW_SECONDS=10;
 // How clearly the words were heard: the mean probability of the engine's word tokens (0-1). Display only; never used to decide output.
 function heardConfidence(tokens){if(!Array.isArray(tokens))return null;const p=tokens.filter(t=>typeof t?.text==='string'&&!/^\s*\[/.test(t.text)&&/[A-Za-z0-9]/.test(t.text)&&Number.isFinite(t.p)).map(t=>Math.max(0,Math.min(1,t.p)));return p.length?Math.round(p.reduce((a,b)=>a+b,0)/p.length*1000)/1000:null;}
+// Non-speech markers the engine writes for silence, music or noise ("[BLANK_AUDIO]", "[MUSIC]", "(applause)") are not
+// words that were said: remove them so they never appear in the live strip or reach the reference reader (2026-11-24).
+const NON_SPEECH=/\[[^\]\n]{1,40}\]|\((?:[a-z]+ )?(?:music|applause|silence|laughter|laughing|inaudible|blank[_ ]audio|noise|coughing|cough|static|crowd|cheering|clapping|singing|wind|breathing|sighs?)(?: [a-z]+)?\)|\*(?:music|applause|silence|laughter|inaudible)\*|♪+/gi;
+function cleanTranscript(text){return String(text??'').replace(NON_SPEECH,' ').replace(/\s+/g,' ').trim();}
 const PROVISIONAL_TIMEOUT_MS=8000,SUPERSEDED='Provisional recognition superseded by a completed window';
 class LocalSpeech {
   // hint: book-name hints given to the engine as preceding context (NR-022); null for none. Set from settings.
@@ -53,7 +57,7 @@ class LocalSpeech {
         this.resident.acceleration=this.acceleration==='gpu'&&this.gpuReady?'gpu':'cpu';
         const start=performance.now(),{text,confidence}=await this.resident.recognize(bytes,server,this.model,{hint});
         canceled();if(!provisional)this.lastFinalMs=performance.now()-start;
-        return {text,heardConfidence:confidence,elapsedMs:Math.round(performance.now()-start),provider:'local whisper.cpp resident',final:true};
+        return {text:cleanTranscript(text),heardConfidence:confidence,elapsedMs:Math.round(performance.now()-start),provider:'local whisper.cpp resident',final:true};
       }
       if(!this.scratch)throw Error('Speech scratch recovery must finish before recognition');const scratch=await this.scratch.create(bytes);dir=scratch.directory;const file=scratch.file;canceled();
       // A graphics-card engine may compile its kernels on first use (about a minute once); allow that only for the first request.
@@ -70,7 +74,7 @@ class LocalSpeech {
       });
       canceled();
       let confidence=null;if(!provisional){try{const json=JSON.parse(await fs.readFile(path.join(dir,'out.json'),'utf8'));confidence=heardConfidence((json.transcription??[]).flatMap(s=>s.tokens??[]));}catch{}}
-      this.warmedUp=true;return {text:output.slice(0,8192),heardConfidence:confidence,elapsedMs:Math.round(performance.now()-start),provider:'local whisper.cpp',final:true};
+      this.warmedUp=true;return {text:cleanTranscript(output.slice(0,8192)),heardConfidence:confidence,elapsedMs:Math.round(performance.now()-start),provider:'local whisper.cpp',final:true};
     }finally{
       try{this.child=null;this.busy=false;if(this.job===job)this.job=null;if(dir)try{await this.scratch.remove(dir);}catch{this.scratch.ready=false;throw Error('Temporary speech cleanup failed; stop recognition and restart VerseCue');}}
       finally{finish();}
@@ -104,4 +108,4 @@ LocalSpeech.prototype.warmUp=function({timeoutMs=300000,spawnImpl=spawn}={}){
   })();
   return this.warmup;
 };
-module.exports={LocalSpeech,wav,PROVISIONAL_TIMEOUT_MS,heardConfidence,AUDIO_CONTEXT,MAX_WINDOW_SECONDS};
+module.exports={cleanTranscript,LocalSpeech,wav,PROVISIONAL_TIMEOUT_MS,heardConfidence,AUDIO_CONTEXT,MAX_WINDOW_SECONDS};
