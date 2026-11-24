@@ -1,6 +1,10 @@
 'use strict';
 const {spawn}=require('node:child_process');
 const {app,BrowserWindow,ipcMain,dialog,session,systemPreferences,clipboard,powerSaveBlocker,powerMonitor,shell}=require('electron');
+// Keep working while minimized or covered (2026-11-24): never slow down a window that another window covers, such as a
+// full-screen ProPresenter, and never lower VerseCue's processing priority in the background. Windows also keep
+// backgroundThrottling:false, and listening holds a power-save blocker against app suspension (macOS App Nap).
+app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');app.commandLine.appendSwitch('disable-renderer-backgrounding');
 const {installCudaEngine,checkCudaEngine,OFFICIAL:CUDA_OFFICIAL}=require('../core/cuda-engine.cjs');
 const path=require('node:path');
 const fs=require('node:fs/promises');

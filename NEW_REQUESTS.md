@@ -153,3 +153,21 @@ See [docs/147](docs/147-settings-layout-ordinals-and-old-engines.md).
 - **Dropped:** the recording-test feature, at the user's request.
 
 See [docs/148](docs/148-large-v3-turbo.md).
+
+## NR-026 - Keep working while minimized
+
+2026-11-24: the user asked that VerseCue keep working while minimized, since ProPresenter usually fills the screen.
+
+It already did:
+
+- the window isn't throttled in the background;
+- listening blocks app suspension;
+- the minimized speech, Auto and preparation scenarios pass.
+
+Added:
+
+- covered windows are never slowed;
+- processing priority is never lowered in the background;
+- a scenario that measures timers while minimized or hidden.
+
+See [docs/149](docs/149-minimized-operation.md).
