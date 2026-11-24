@@ -202,6 +202,16 @@ class BibleBridge {
         }
         throw new InvalidOperationException("SAVE_COPY_MENU_NOT_VERIFIED");
     }
+    // The spoken verse is often already on screen (verse 1 especially): check the snapshot just read before reading again.
+    static bool VerseVisibleIn(AutomationElementCollection snapshot,AutomationElement bible,string target) {
+        System.Windows.Rect area;try{area=bible.Current.BoundingRectangle;}catch(ElementNotAvailableException){return false;}if(area.IsEmpty)return false;
+        foreach(AutomationElement e in snapshot){
+            string name;bool offscreen;System.Windows.Rect r;
+            try{name=e.Cached.Name;offscreen=e.Cached.IsOffscreen;r=e.Cached.BoundingRectangle;}catch(InvalidOperationException){return false;}
+            if(Canonical(name)==target)return !offscreen&&!r.IsEmpty&&r.Top>=area.Top&&r.Bottom<=area.Bottom;
+        }
+        return false;
+    }
     // Bring one verse slide into view by scrolling the Bible preview. Never clicks, selects or invokes a slide.
     static AutomationElement VerseLabel(AutomationElement scope,string target) {
         foreach(AutomationElement e in scope.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text))){var name=Canonical(e.Current.Name);if(name==target)return e;}
@@ -398,7 +408,7 @@ class BibleBridge {
             // to consume the bounded worker deadline on newly generated slides.
             AutomationElementCollection elements;
             var cache=new CacheRequest();cache.TreeScope=TreeScope.Element;cache.TreeFilter=Automation.RawViewCondition;
-            cache.Add(AutomationElement.NameProperty);
+            cache.Add(AutomationElement.NameProperty);if(chapter){cache.Add(AutomationElement.IsOffscreenProperty);cache.Add(AutomationElement.BoundingRectangleProperty);}
             Stage("read-generated-snapshot");
             using(cache.Activate()) { elements=bible.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text)); }
             var labels=elements.Cast<AutomationElement>().Select(e=>e.Cached.Name).ToArray();
@@ -408,7 +418,10 @@ class BibleBridge {
             string fieldValue=Canonical(Value(field));bool fieldMatches=fieldValue==expectedReference||chapter&&fieldValue==expectedReference+":1-"+chapterVerses;
             Console.Error.WriteLine(Json.Serialize(new {stage="verify-check",elapsedMs=Total.ElapsedMilliseconds,fieldMatches=fieldMatches,rangeFound=rangeFound,elementCount=elements.Count,labelCount=count}));Console.Error.Flush();
             stable=fieldMatches&&rangeFound&&count>0?stable+1:0;
-            if(stable>=2) {
+            // Speed (2026-11-24): every snapshot reads all slide labels (hundreds for a long chapter), which is slow and adds
+            // to ProPresenter's slowdown. A whole chapter for a volunteer needs one matching snapshot; exact passages that
+            // Confirm or Auto may send keep two in a row.
+            if(stable>=(chapter?1:2)) {
                 // The clipped-text scan costs about two seconds; a whole chapter for a volunteer skips it (the volunteer
                 // sees every slide before taking it live). Exact passages for Confirm and Auto keep it.
                 if(!chapter){
@@ -419,7 +432,7 @@ class BibleBridge {
                 }
                 Stage("prepared-review");
                 if(chapter) {
-                    Stage("scroll-to-verse");bool visible=ScrollToVerse(bible,reference,focusVerse,chapterVerses);
+                    Stage("scroll-to-verse");bool visible=VerseVisibleIn(elements,bible,Canonical(reference+":"+focusVerse))||ScrollToVerse(bible,reference,focusVerse,chapterVerses);
                     return new {ok=true,state="chapter-prepared-no-output",reference=reference,translation=translation,focusVerse=focusVerse,focusVisible=visible,installed=installedNow,referenceLabels=count,clippingWarning=clipped,saveCopyRequested=false,formattingVerified=false,outputRequests=0,outputObserved=false,elapsedMs=Total.ElapsedMilliseconds,timingsMs=Timings};
                 }
                 bool saveCopy=operation=="prepare-save";

@@ -35,7 +35,7 @@
 
  // Centre: the live transcript strip sits above the reference.
  const transcript=q('.audio-panel .transcript');
- if(main&&transcript){transcript.classList.add('halo-live');const overview=q('.studio-overview');main.prepend(transcript);const tag=transcript.querySelector(':scope>span');if(tag)tag.textContent='Live';}
+ if(main&&transcript){transcript.classList.add('halo-live');const overview=q('.studio-overview');main.prepend(transcript);const tag=transcript.querySelector(':scope>span');if(tag)tag.textContent=typeof listening!=='undefined'&&listening?'Live':'Not listening';}
 
  // Stage: listening orb inside a confidence ring, beside the large reference.
  const candidate=q('#candidate'),reference=q('#reference');

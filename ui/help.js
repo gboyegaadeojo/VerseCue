@@ -29,6 +29,8 @@
    ['#audio-channel','Pastor channel','Which channel carries the pastor.','On interfaces like a MOTU M4, pick the input number the pastor’s microphone is plugged into.'],
    ['#test-input','Test saved input','A 10-second level check.','Shows the input level for 10 seconds. Nothing is recognised or sent.']]},
   speech:{name:'Settings › Speech',items:[
+   ['#speech-summary-text','Speech engine status','Which engine is running and how fast.','Shows whether VerseCue is using its built-in engine on the graphics card or the processor, and how long the last phrase and the last ProPresenter opening took.'],
+   ['#speech-advanced>summary','Advanced speech options','For special setups.','Engine mode, graphics card, your own engine or model files, and NVIDIA setup. Most churches never need to change these.'],
    ['#accuracy-check','Check accuracy','Measure recognition on your voice.','You read about 55 short phrases; VerseCue scores what it heard with and without book-name hints and times both. Nothing is sent to ProPresenter.'],
    ['#speech-hints','Book-name hints','Expect Bible book names.','Can catch more hard book names but makes each phrase slower. Off by default; the accuracy check shows whether it helps on this computer.'],
    ['#speech-mode','Speech engine mode','How the engine runs.','“Keep model loaded” is fastest and the default. “Start the engine for each phrase” uses less memory and allows the live preview.'],

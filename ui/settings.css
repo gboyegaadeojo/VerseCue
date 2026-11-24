@@ -1,0 +1,78 @@
+/* Settings dialog layout (2026-11-24 user report: spacing, the stretched "?" button, and content scrolling into the
+   header). Loaded last so it settles the older stylesheets. The header and footer stay put and are opaque; only the
+   section content scrolls; labels sit above their fields with an even rhythm. Halo look: graphite, Inter, blue accent. */
+body.halo #settings-dialog:not([open]){display:none!important}
+body.halo #settings-dialog[open]{display:flex!important;flex-direction:column;padding:0!important;overflow:hidden!important;width:min(1080px,calc(100% - 32px))!important;max-width:1080px!important;height:min(820px,calc(100% - 40px));max-height:calc(100% - 40px)!important;margin:auto!important}
+/* The content always keeps at least 260 px; only when the window is too small for that (large zoom) does the whole dialog scroll. */
+body.halo #settings-dialog>form{display:grid!important;grid-template-rows:auto minmax(260px,1fr) auto auto;height:100%;min-height:0;overflow-x:hidden!important;overflow-y:auto!important;margin:0;padding:0!important}
+
+/* Header: opaque, never overlapped; "?" and × as matching round buttons, centred on the title. */
+body.halo #settings-dialog .dialog-heading{position:static!important;display:flex!important;align-items:center!important;gap:12px;background:var(--h-panel)!important;padding:18px 22px!important;margin:0!important;z-index:1}
+body.halo #settings-dialog .dialog-heading>div:first-child{flex:1 1 auto;min-width:0}
+body.halo #settings-dialog .dialog-heading h2{margin:0 0 4px!important;font-size:17px!important;font-weight:600!important}
+body.halo #settings-dialog .dialog-heading p{margin:0!important}
+body.halo #settings-dialog .dialog-heading .help-toggle,body.halo #settings-dialog #close-settings{flex:0 0 auto;align-self:center!important;width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important;padding:0!important;border-radius:50%!important;display:inline-flex!important;align-items:center;justify-content:center;font-size:15px!important;line-height:1!important}
+html:not(.text-standard) body.halo #settings-dialog .dialog-heading .help-toggle,html:not(.text-standard) body.halo #settings-dialog #close-settings{width:44px!important;min-width:44px!important;height:44px!important;min-height:44px!important;font-size:18px!important}
+
+/* Body: the section list stays put; only the content scrolls. */
+body.halo #settings-dialog .settings-layout{display:grid!important;grid-template-columns:200px minmax(0,1fr)!important;min-height:0;overflow:hidden!important;gap:0!important;margin:0!important}
+body.halo #settings-dialog .settings-nav{overflow-y:auto;padding:14px 10px!important;display:flex;flex-direction:column;gap:4px}
+body.halo #settings-dialog .settings-content{overflow-y:auto!important;padding:22px 30px 28px!important;min-height:0;scrollbar-width:thin}
+
+/* Footer: opaque and always visible. */
+body.halo #settings-dialog .settings-footer{position:static!important;display:flex!important;flex-wrap:wrap;gap:10px!important;align-items:center;background:var(--h-panel)!important;padding:14px 22px!important;margin:0!important}
+body.halo #settings-dialog .settings-footer .show{margin-left:auto}
+body.halo #settings-dialog #setup-message{margin:0;padding:0 22px 10px}
+body.halo #settings-dialog #setup-message:empty{display:none}
+
+/* Forms: one column, labels above fields, consistent spacing. */
+body.halo #settings-dialog .settings-content fieldset{border:0!important;margin:0!important;padding:0!important;min-width:0;background:transparent!important}
+body.halo #settings-dialog .settings-content legend{font-size:18px!important;font-weight:600!important;padding:0!important;margin:0 0 18px!important}
+body.halo #settings-dialog .settings-content label:not(.consent){display:flex!important;flex-direction:column;align-items:stretch;gap:6px;margin:0 0 6px!important;font-weight:500;max-width:520px}
+body.halo #settings-dialog .settings-content label:not(.consent)>input:not([type=checkbox]),body.halo #settings-dialog .settings-content label:not(.consent)>select{width:100%!important;margin:0!important}
+body.halo #settings-dialog .settings-content :is(input:not([type=checkbox]),select){max-width:520px}
+body.halo #settings-dialog .settings-content>*>fieldset>select,body.halo #settings-dialog .settings-content>*>fieldset>input:not([type=checkbox]){display:block;width:100%;margin:0 0 6px}
+body.halo #settings-dialog .settings-content p{margin:0 0 18px!important;max-width:72ch}
+body.halo #settings-dialog .settings-content p.muted{font-size:12.5px!important;line-height:1.55;color:var(--h-muted)!important}
+body.halo #settings-dialog .settings-content label.consent{display:flex!important;align-items:flex-start!important;gap:10px;margin:4px 0 6px!important;padding:10px 0!important;max-width:72ch}
+body.halo #settings-dialog .settings-content label.consent+p{margin-top:0!important}
+body.halo #settings-dialog .settings-content label.consent input{margin-top:3px;flex:0 0 auto}
+body.halo #settings-dialog .settings-content button{margin:0 8px 10px 0}
+body.halo #settings-dialog .settings-content .input-row{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+body.halo #settings-dialog .settings-content .input-row button{margin:0}
+body.halo #settings-dialog .settings-content section{border-top:1px solid var(--h-line);padding-top:18px;margin-top:8px}
+body.halo #settings-dialog .settings-content fieldset>section:first-of-type{border-top:0;padding-top:0;margin-top:0}
+body.halo #settings-dialog .settings-content h3{font-size:15px!important;font-weight:600!important;margin:0 0 8px!important}
+body.halo #settings-dialog .settings-content .path{font-size:12px!important;color:var(--h-muted)!important;overflow-wrap:anywhere;margin:-4px 0 14px!important}
+
+/* Speech summary and collapsed advanced options. */
+body.halo #settings-dialog .speech-summary #speech-summary-text{font-size:14px!important;color:var(--h-text)!important;margin-bottom:6px!important}
+body.halo #settings-dialog details.settings-advanced{border-top:1px solid var(--h-line);margin-top:14px;padding-top:12px}
+body.halo #settings-dialog details.settings-advanced>summary{cursor:pointer;font-weight:600;font-size:14px;padding:10px 0;min-height:44px;display:flex;align-items:center;list-style-position:inside}
+body.halo #settings-dialog details.settings-advanced[open]>summary{margin-bottom:12px}
+
+@media(max-width:760px){
+  body.halo #settings-dialog .settings-layout{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto minmax(0,1fr)}
+  body.halo #settings-dialog .settings-nav{flex-direction:row;flex-wrap:wrap;border-right:0!important;border-bottom:1px solid var(--h-line)!important;padding:10px!important}
+  body.halo #settings-dialog .settings-nav button{width:auto!important}
+  body.halo #settings-dialog .settings-content{padding:18px!important}
+  body.halo #settings-dialog .settings-footer .show{margin-left:0}
+}
+body.halo #settings-dialog details.settings-advanced>summary{list-style:none;gap:8px}
+body.halo #settings-dialog details.settings-advanced>summary::-webkit-details-marker{display:none}
+body.halo #settings-dialog details.settings-advanced>summary::before{content:'';width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s;margin-right:4px}
+body.halo #settings-dialog details.settings-advanced[open]>summary::before{transform:rotate(45deg)}
+body.halo #settings-dialog .settings-content label.consent{margin-bottom:0!important}
+body.halo #settings-dialog .settings-content label.consent+p{margin-top:2px!important}
+body.halo #settings-dialog .settings-content meter{display:block;width:100%;max-width:520px;height:10px}
+@media(max-width:760px){
+  body.halo #settings-dialog .settings-nav{flex-wrap:nowrap!important;overflow-x:auto;overflow-y:hidden}
+  body.halo #settings-dialog .settings-nav button{flex:0 0 auto;white-space:nowrap!important;overflow-wrap:normal!important;width:auto!important;padding:8px 12px!important}
+}
+body.halo #settings-dialog .settings-content meter::-webkit-meter-bar{background:rgba(255,255,255,.1);border:0;border-radius:5px;height:10px}
+body.halo #settings-dialog .settings-content meter::-webkit-meter-optimum-value{background:var(--h-accent);border-radius:5px}
+/* Buttons never stick out of a narrow panel: long labels wrap (Intel Mac fonts are slightly wider). */
+body.halo #settings-dialog .settings-content button{max-width:100%;white-space:normal!important;overflow-wrap:break-word}
+body.halo #settings-dialog .settings-content .input-row>button{flex:0 1 auto;min-width:0}
+/* No grow-on-hover inside Settings: a hovered button near the edge grew 3.5% past the panel (seen on Intel Mac CI). */
+body.halo #settings-dialog .settings-content button:hover:not(:disabled),body.halo #settings-dialog .settings-footer button:hover:not(:disabled){transform:none!important}

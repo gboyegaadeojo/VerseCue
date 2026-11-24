@@ -16,3 +16,9 @@ test('exact names are unchanged and carry no approximation issue',()=>{
 test('ordinary words and mishearings that are not close are never turned into books',()=>{
   for(const t of ['page number 3 verse 2','the judge 5 verse 3','Feel Him in Chapter 1 verse 6','June verse 24','I have 3 things, verse 2','Hagiye Chapter 2 verse 9','we will sing hymn number 3','in chapter 2 the author says','Habakuk is a prophet'])assert.equal(read(t).length,0,t);
 });
+test('an ordinal separated from its book by punctuation is the numbered book, marked for review (2026-11-24)',()=>{
+  for(const [heard,label] of [['First, John 1:9','1 John 1:9'],['1st. John 1:9','1 John 1:9'],['1. John 1:9','1 John 1:9'],['2nd. Timothy 1:7','2 Timothy 1:7'],['Second. Timothy 1 verse 7','2 Timothy 1:7']]){
+    const r=read(heard);assert.equal(r.length,1,heard);assert.equal(r[0].label,label);assert.ok(r[0].issues.includes('Number and book were heard apart · review'),heard);}
+  assert.equal(read('2 nd Timothy 1:7')[0].label,'2 Timothy 1:7');assert.equal(read('1 st John 1:9')[0].label,'1 John 1:9');
+  assert.equal(read('John 1:9')[0].label,'John 1:9');assert.ok(!read('First John 1:9')[0].issues.some(i=>/apart/.test(i)));
+});

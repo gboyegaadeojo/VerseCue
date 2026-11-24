@@ -1,0 +1,11 @@
+/* Live transcript strip (2026-11-24 user report: rows of "[BLANK_AUDIO]"). The last three phrases: newest in full colour,
+   older ones fading. The badge pulses red only while VerseCue is listening. Halo look. */
+.halo .halo-live{align-items:flex-start!important;gap:14px!important;padding:12px 16px!important;min-height:52px}
+.halo .halo-live>span{padding-top:2px;min-width:92px}
+body.halo .halo-live:not(.is-listening)>span::before{animation:none!important;background:var(--h-muted)!important;opacity:.6}
+.halo .halo-live #transcript{display:flex!important;flex-direction:column;gap:3px;white-space:normal!important;overflow:hidden;min-width:0;flex:1;color:var(--h-muted)!important;font-size:13px}
+.halo .halo-live #transcript>span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px;line-height:1.45;color:var(--h-muted);opacity:.6;transition:opacity .2s}
+.halo .halo-live #transcript>span:nth-last-child(3){opacity:.38}
+.halo .halo-live #transcript>span.latest{opacity:1;color:var(--h-text);font-size:14px;font-weight:500}
+html:not(.text-standard) .halo .halo-live #transcript>span{font-size:18px}
+html:not(.text-standard) .halo .halo-live #transcript>span.latest{font-size:20px}

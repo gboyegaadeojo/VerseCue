@@ -121,3 +121,23 @@ See [docs/145](docs/145-accuracy-check-and-book-names.md).
 - **Mac:** a drag-to-Applications disk image (`.dmg`), built in Mac CI.
 
 The ZIPs remain. See [docs/146](docs/146-installers.md).
+
+## NR-024 - Settings layout, "1st/Second" and old speech files
+
+2026-11-24: after installing 0.6.6, the user reported:
+
+- Settings spacing, the stretched "?" button and content scrolling into the header;
+- confusing speech settings;
+- references with "1st" or "Second" not being understood;
+- slowness;
+- the model path still pointing at an old 0.6.0 download.
+
+Fixed:
+
+- **Settings layout:** opaque header and footer, scrolling content, and a simpler Speech page.
+- **Ordinals:** "First, John 1:9" was read as the Gospel of John. Now it's 1 John, review-only.
+- **Phrases ending in "First":** they wait for the book.
+- **Old speech files:** another copy's built-in engine or model is replaced at start.
+- **Timings:** Settings > Speech shows recognition and preparation times.
+
+See [docs/147](docs/147-settings-layout-ordinals-and-old-engines.md).
