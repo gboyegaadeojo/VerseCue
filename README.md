@@ -24,13 +24,13 @@ You need:
 
 ## Download
 
-**Latest version: 0.6.7** (development preview)
+**Latest version: 0.6.8** (development preview)
 
 | Computer | Download |
 |---|---|
-| Windows (Intel/AMD 64-bit) | [VerseCue installer (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.7/VerseCue-Setup-0.6.7.exe) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.7/VerseCue-0.6.7-win32-x64.zip) |
-| Mac with Apple silicon (M1 or newer) | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.7/VerseCue-0.6.7-darwin-arm64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.7/VerseCue-0.6.7-darwin-arm64.zip) |
-| Mac with Intel processor | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.7/VerseCue-0.6.7-darwin-x64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.7/VerseCue-0.6.7-darwin-x64.zip) |
+| Windows (Intel/AMD 64-bit) | [VerseCue installer (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.8/VerseCue-Setup-0.6.8.exe) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.8/VerseCue-0.6.8-win32-x64.zip) |
+| Mac with Apple silicon (M1 or newer) | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.8/VerseCue-0.6.8-darwin-arm64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.8/VerseCue-0.6.8-darwin-arm64.zip) |
+| Mac with Intel processor | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.8/VerseCue-0.6.8-darwin-x64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.8/VerseCue-0.6.8-darwin-x64.zip) |
 
 Checksums and older versions are on the [releases page](https://github.com/gboyegaadeojo/VerseCue/releases). Don't use GitHub's automatic "Source code" ZIP to run the app.
 
@@ -88,6 +88,7 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 
 ### Shows what it heard and how sure it is
 - **Most accurate speech model on a graphics chip:** VerseCue includes Whisper Large-v3-turbo, which copes much better with accents, and uses it automatically on Apple silicon Macs and PCs with a graphics card. Computers without a working graphics chip use the smaller base.en model so they stay fast.
+- **Works minimized:** VerseCue keeps listening, detecting and preparing while minimized or behind a full-screen ProPresenter.
 - **Always the current speech engine:** each new version of VerseCue switches to the speech engine and model it ships with on its first start, so an update never keeps using files from an older copy.
 - **Live transcript strip:** the last few phrases heard, newest first in full colour; silence and music markers are hidden.
 - **Clarity badge:** each reference gets "Heard clearly", "Likely" or "Check this", with a percentage.
