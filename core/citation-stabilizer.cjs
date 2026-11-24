@@ -43,6 +43,7 @@ class CitationStabilizer{
    if(prior.expect==='chapter'&&prior.bareChapter&&new RegExp(`^\\d+(?:(?:[:.]| verses? )${numberRange})?${edition}$`,'i').test(normalized))tail='chapter '+normalized;
    if(prior.expect==='verse'&&(new RegExp(`^verses? ${numberRange}${edition}$`,'i').test(normalized)||prior.bare&&new RegExp(`^${numberRange}${edition}$`,'i').test(normalized)))tail=/^verses? /.test(normalized)?normalized:'verse '+normalized;
    if(prior.expect==='range'&&new RegExp(`^(?:verses? )?\\d+${edition}$`,'i').test(normalized))tail=normalized.replace(/^verses? /,'');
+   if(prior.expect==='book'&&new RegExp('^(?:samuel|kings|chronicles|corinthians|thessalonians|timothy|peter|john)\\b','i').test(normalized))tail=normalized;
    if(prior.expect==='edition'&&new RegExp(`^(?:the )?(?:${editions})$`,'i').test(normalized))tail='in '+normalized;
    if(tail){
     const combined=prior.prefix+(prior.expect==='range'?'-':' ')+tail,rows=parse(combined,{defaultTranslation:translation,maxVerses}).references;
@@ -51,6 +52,10 @@ class CitationStabilizer{
     const next=this.head(combined,translation,maxVerses);if(next){this.remember({...prior,...next,sequence,end,parts},now);return {...ordinary,suppress:true,state:'waiting',reason:'Waiting for the rest of the Bible reference.'};}
    }
   }
+  // A phrase that ends on "First", "Second" or "Third" (a pause before the book) waits for the next phrase,
+  // so "First" + "John 1:9" becomes 1 John 1:9, never the Gospel of John. Only when the phrase has no reference itself.
+  const ordinalTail=text.trim().replace(/[.,!?;:]+$/,'').match(/(?:^|\s)(first|second|third|1st|2nd|3rd)$/i);
+  if(ordinalTail&&!parse(normalized,{defaultTranslation:translation,maxVerses}).references.length){const n={first:'1',second:'2',third:'3','1st':'1','2nd':'2','3rd':'3'}[ordinalTail[1].toLowerCase()];this.remember({prefix:n,expect:'book',key,sequence,scope,translation,maxVerses,origin:start,end,parts:[text]},now);return {...ordinary,suppress:true,state:'waiting',reason:'Waiting for the rest of the Bible reference.'};}
   const head=this.head(normalized,translation,maxVerses);
   if(head){this.remember({...head,key,sequence,scope,translation,maxVerses,origin:start,end,parts:[text]},now);return {...ordinary,suppress:true,state:'waiting',reason:'Waiting for the rest of the Bible reference.'};}
   return ordinary;

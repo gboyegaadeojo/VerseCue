@@ -47,7 +47,7 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 ### Hears the Bible references a preacher speaks
 - **Natural speech:** "Turn with me to Proverbs chapter three, verse five", "John 3:16", "Psalm 119 verse 105".
 - **Ranges:** "John chapter three verses sixteen through eighteen", "First Corinthians thirteen four to seven".
-- **Numbered books, said any common way:** "1st Peter", "First John", "Second Timothy". Common alternative names work too, such as "Psalms" for Psalm and "Song of Solomon".
+- **Numbered books, said any common way:** "1st Peter", "First John", "Second Timothy", even with a pause after the number. Common alternative names work too, such as "Psalms" for Psalm and "Song of Solomon".
 - **Forgiving with hard names:** when the speech engine spells a book slightly wrong ("Habakuk", "Zeccariah"), VerseCue still recognises it before chapter or verse wording. It always asks a person to check these; Auto never sends them.
 - **Whole chapters:** "Romans chapter eight".
 - **Corrections:** "sorry, I meant John 3:17" replaces the previous reference.
@@ -86,6 +86,7 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 - **Long readings:** up to 176 verses, a whole chapter, in Confirm. Auto stays at 10 verses.
 
 ### Shows what it heard and how sure it is
+- **Always the current speech engine:** each new version of VerseCue switches to the speech engine and model it ships with on its first start, so an update never keeps using files from an older copy.
 - **Live transcript strip:** shows the current speech.
 - **Clarity badge:** each reference gets "Heard clearly", "Likely" or "Check this", with a percentage.
 - **Progress line:** Heard, Matched, Sending, On screen.
