@@ -74,3 +74,5 @@ body.halo #settings-dialog .settings-content meter::-webkit-meter-optimum-value{
 /* Buttons never stick out of a narrow panel: long labels wrap (Intel Mac fonts are slightly wider). */
 body.halo #settings-dialog .settings-content button{max-width:100%;white-space:normal!important;overflow-wrap:break-word}
 body.halo #settings-dialog .settings-content .input-row>button{flex:0 1 auto;min-width:0}
+/* No grow-on-hover inside Settings: a hovered button near the edge grew 3.5% past the panel (seen on Intel Mac CI). */
+body.halo #settings-dialog .settings-content button:hover:not(:disabled),body.halo #settings-dialog .settings-footer button:hover:not(:disabled){transform:none!important}
