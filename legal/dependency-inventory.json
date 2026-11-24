@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
-  "applicationVersion": "0.6.6",
+  "applicationVersion": "0.6.7",
   "lockfileHashNormalization": "UTF-8 with CRLF normalized to LF",
-  "lockfileSha256": "d6cbe7d2a52c4fb527156d6a571424a6574316aae2f799eff256b59d5bdd717c",
+  "lockfileSha256": "4b37cdc05f95265654601bca14da5679686fdbb50be85d5613cd7c19db014a31",
   "components": [
     {
       "packagePath": "node_modules/@electron-internal/extract-zip",
