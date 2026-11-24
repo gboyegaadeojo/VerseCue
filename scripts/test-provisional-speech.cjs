@@ -41,7 +41,7 @@ const {_electron}=require('playwright'),assert=require('node:assert/strict'),fs=
     assert.equal(await primary.evaluate(()=>provisionalAllowed()),true);
     await primary.evaluate(()=>audio.buffer.onProvisional(new Array(32000).fill(0),{}));
     assert.equal(await primary.locator('#provisional-speech').textContent(),'Provisional speech: turn to Romans 8:28');
-    assert.equal(await primary.locator('#transcript').textContent(),'No audio has been processed.','Provisional text is not a completed window');
+    assert.equal(await primary.locator('#transcript').textContent(),'Nothing heard yet.','Provisional text is not a completed window');
     // A completed window starting first makes a late provisional reply obsolete.
     await app.evaluate(()=>{globalThis.provisionalHold=true;});
     await primary.evaluate(()=>{window.lateProvisional=audio.buffer.onProvisional(new Array(32000).fill(0),{});});

@@ -87,7 +87,7 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 
 ### Shows what it heard and how sure it is
 - **Always the current speech engine:** each new version of VerseCue switches to the speech engine and model it ships with on its first start, so an update never keeps using files from an older copy.
-- **Live transcript strip:** shows the current speech.
+- **Live transcript strip:** the last few phrases heard, newest first in full colour; silence and music markers are hidden.
 - **Clarity badge:** each reference gets "Heard clearly", "Likely" or "Check this", with a percentage.
 - **Progress line:** Heard, Matched, Sending, On screen.
 - **"Heard this service" list:** what was said and whether it was spoken or quoted.

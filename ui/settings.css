@@ -71,3 +71,6 @@ body.halo #settings-dialog .settings-content meter{display:block;width:100%;max-
 }
 body.halo #settings-dialog .settings-content meter::-webkit-meter-bar{background:rgba(255,255,255,.1);border:0;border-radius:5px;height:10px}
 body.halo #settings-dialog .settings-content meter::-webkit-meter-optimum-value{background:var(--h-accent);border-radius:5px}
+/* Buttons never stick out of a narrow panel: long labels wrap (Intel Mac fonts are slightly wider). */
+body.halo #settings-dialog .settings-content button{max-width:100%;white-space:normal!important;overflow-wrap:break-word}
+body.halo #settings-dialog .settings-content .input-row>button{flex:0 1 auto;min-width:0}

@@ -47,6 +47,15 @@ On the user's laptop the bundled engine uses the NVIDIA RTX 2060 (Vulkan device 
 
 The likely cause is ProPresenter preparation in Prepare for volunteer: several seconds, growing as ProPresenter slows during a session (docs/140). Settings > Speech now shows how long the last phrase took to recognise and the last passage took to open in ProPresenter, so the cause is visible.
 
+### Faster chapter preparation in ProPresenter (2026-11-24)
+
+The helper's slowest steps are full scans of every slide label in ProPresenter's Bible view: hundreds for a long chapter. Each scan is slow, and each one adds to ProPresenter's slowdown during a session.
+
+- **Fewer confirmation scans:** a whole chapter for a volunteer now needs one matching scan instead of two in a row. Exact passages that Confirm or Auto may send keep two.
+- **Scroll check reuses the last scan:** the confirmation scan now also records where each label is. If the spoken verse is already on screen (usual for verse 1 and nearby verses), the scroll step reuses that scan instead of reading every label again.
+- **Not changed:** scrolling, focus, typing and the click guards.
+- **Still to do:** live timing on ProPresenter.
+
 ## 4. Settings layout (`ui/settings.css`, loaded last)
 
 - **Header and footer:** opaque and always visible; only the section content scrolls. Before, the Halo styles made the header transparent, so scrolled text showed through it.
@@ -62,3 +71,9 @@ The likely cause is ProPresenter preparation in Prepare for volunteer: several s
   - a plain status line first: which engine, where it runs and the recent timings, with a button to return to the built-in engine when needed;
   - then the accuracy check and book-name hints;
   - everything else under a collapsed **Advanced speech options**: engine mode, graphics card, custom files and NVIDIA setup.
+
+## 5. Live strip
+
+- **"[BLANK_AUDIO]" lines:** the strip filled with "[BLANK_AUDIO]", the speech engine's marker for silence. Markers like it ("[MUSIC]", "(applause)", "♪") are now removed from every transcript before it is shown or read for references. Ordinary brackets in speech stay. Test: `tests/speech-acceleration.test.cjs`.
+- **Layout:** the strip shows the last three phrases, newest in full colour, older ones fading. Silence adds nothing.
+- **Badge:** pulses red with "Live" only while VerseCue is listening; otherwise a grey "Not listening".

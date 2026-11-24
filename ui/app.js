@@ -8,7 +8,7 @@ function clearSessionView(){
   renderInputInfo(null);
   selectedId=null;lastLatestId=null;
   for(const id of ['reference','candidate-translation','phrase','review-note','expiry','recognition-progress'])setText(id,'');
-  $('reference-input').value='';$('native-preparation-reference').value='';clearSavedBrowser();message('Session reset. Transient references and history cleared; dry run restored.');$('transcript').textContent='No audio has been processed.';$('transcript').setAttribute('aria-busy','false');
+  $('reference-input').value='';$('native-preparation-reference').value='';clearSavedBrowser();message('Session reset. Transient references and history cleared; dry run restored.');$('transcript').textContent='Nothing heard yet.';$('transcript').setAttribute('aria-busy','false');
   provisionalToken++;routeAckDevice=null;for(const id of ['audio-consent','native-save-consent','input-test-consent','provisional-consent','audio-route-ack'])$(id).checked=false;applyConsentDefaults();
 }
 
@@ -56,18 +56,17 @@ async function enableVolunteerPreparation(){
   preview.textContent=text?'Provisional speech: '+text:'';
 }
 
+// Live strip (2026-11-24): the last three phrases, newest in full colour. Silence adds nothing (markers such as
+// [BLANK_AUDIO] are removed by the speech engine wrapper), so the strip never fills with empty lines.
 function showRecognizedWindow(text){
-  const transcript=$('transcript');
-  if(!text){
-    if(!transcript.childElementCount)transcript.textContent='No speech recognized.';
-    return;
-  }
+  const transcript=$('transcript'),words=String(text??'').trim();
+  if(!words)return;
   if(!transcript.childElementCount)transcript.replaceChildren();
-  const line=document.createElement('span');
-  line.textContent=text;
+  for(const old of transcript.querySelectorAll('.latest'))old.classList.remove('latest');
+  const line=document.createElement('span');line.className='latest';
+  line.textContent=words;
   transcript.append(line);
-  if(transcript.childElementCount>5)transcript.firstElementChild.remove();
-  transcript.scrollTop=transcript.scrollHeight;
+  while(transcript.childElementCount>3)transcript.firstElementChild.remove();
 }
 
 function setText(id,text){const element=$(id);if(element.textContent!==String(text))element.textContent=String(text);}
@@ -76,6 +75,7 @@ async function call(method,...args){const result=await api[method](...args);if(!
 async function action(command,payload){return call('command',command,payload);}
 function bind(id,fn){$(id).addEventListener('click',()=>Promise.resolve().then(fn).catch(e=>message(e.message,$('settings-dialog').open)));}
 function render(next){
+  {const strip=document.querySelector('.halo-live');if(strip&&strip.classList.contains('is-listening')!==(listening===true))strip.classList.toggle('is-listening',listening===true);const tag=document.querySelector('.halo-live>span');const want=listening?'Live':'Not listening';if(tag&&tag.textContent!==want)tag.textContent=want;}
   if(Number.isSafeInteger(next.resetEpoch)&&next.resetEpoch<lastResetEpoch)return;
   if(Number.isSafeInteger(next.resetEpoch)&&next.resetEpoch>lastResetEpoch){lastResetEpoch=next.resetEpoch;clearSessionView();}
 
@@ -157,7 +157,7 @@ $('provisional-consent').addEventListener('change',()=>{if(!$('provisional-conse
 bind('hold-auto',async()=>{const r=await action('hold-auto');message(r?.held?'Held. The reference stays for your review; nothing was sent.':'Nothing was waiting to send.');});
 bind('check-update',async()=>{const r=await call('checkUpdate');if(r===null)return;setText('update-status',r.valid?`Verified: VerseCue ${r.version}, signed by trusted key ${r.keyId}. ${r.newer?'It is newer than':'It is not newer than'} this version (${r.currentVersion}). Install it yourself after the service; nothing was installed.`:'Not verified: '+r.reason);});
 $('text-size').addEventListener('change',()=>applyTextSize($('text-size').value));
-bind('reset',async()=>{await action('reset');await stopAudio();$('provisional-consent').checked=false;$('transcript').textContent='No audio has been processed.';$('audio-consent').checked=false;$('native-save-consent').checked=false;applyConsentDefaults();message('Session reset. Transient references and history cleared; dry run restored.');});
+bind('reset',async()=>{await action('reset');await stopAudio();$('provisional-consent').checked=false;$('transcript').textContent='Nothing heard yet.';$('audio-consent').checked=false;$('native-save-consent').checked=false;applyConsentDefaults();message('Session reset. Transient references and history cleared; dry run restored.');});
 bind('compact',()=>call('compact'));
 bind('previous-verse',async()=>{await action('navigate',{id:selectedId,direction:-1});message('Previous verse proposed for review; no output change.');});
 bind('next-verse',async()=>{await action('navigate',{id:selectedId,direction:1});message('Next verse proposed for review; no output change.');});
