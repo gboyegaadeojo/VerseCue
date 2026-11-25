@@ -39,7 +39,8 @@ class LocalSpeech {
   async transcribe(samples,options={}){
     const job=this.job;
     // A CLI provisional run is ended at once; a kept-loaded engine's short provisional request is allowed to finish.
-    if(this.busy&&job?.provisional){if(this.mode!=='resident'){job.preempted=true;job.child?.kill();}await job.done;}
+    // Early recognition (NR-027) is interruptible like a provisional run.
+    if(this.busy&&(job?.provisional||job?.speculative)){if(this.mode!=='resident'){job.preempted=true;job.child?.kill();}await job.done;}
     if(this.busy)throw new Error('Recognition busy; audio window dropped');
     return this.run(samples,false,options);
   }
@@ -48,11 +49,11 @@ class LocalSpeech {
     if(this.busy)throw new Error('Recognition busy; provisional preview skipped');
     return {...await this.run(samples,true),final:false};
   }
-  async run(samples,provisional,{hint=this.hintFor?this.hintFor():this.hint}={}){
+  async run(samples,provisional,{hint=this.hintFor?this.hintFor():this.hint,speculative=false}={}){
     if(hint!==null&&(typeof hint!=='string'||hint.length>1200))throw new Error('Invalid speech hint');
     if(!this.executable||!this.model)throw new Error('Select a trusted local whisper-cli executable and model in Setup');
     const bytes=wav(samples);this.busy=true;const epoch=this.epoch;let dir,finish;
-    const job={provisional,preempted:false,child:null,done:new Promise(resolve=>finish=resolve)};this.job=job;
+    const job={provisional,speculative:speculative===true,preempted:false,child:null,done:new Promise(resolve=>finish=resolve)};this.job=job;
     const canceled=()=>{if(job.preempted)throw new Error(SUPERSEDED);if(epoch!==this.epoch)throw new Error('Recognition canceled');};
     try{
       if(this.mode==='resident'){
