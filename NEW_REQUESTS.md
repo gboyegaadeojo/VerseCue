@@ -193,3 +193,12 @@ See [docs/150](docs/150-early-recognition.md).
 - **Privacy:** the only internet request VerseCue makes; it sends nothing about the user and can be turned off in Settings > Advanced.
 
 See [docs/151](docs/151-new-version-notice.md).
+
+## NR-029 - Open from the spoken verse (setting)
+
+2026-11-25: after the live timing (docs/152, docs/153) the user chose to "make it a setting, keep whole chapter as default".
+
+- **Setting:** Settings > Output > When the chapter opens, start from: **The whole chapter, at the spoken verse** (default) or **The spoken verse to the end of the chapter**.
+- **Why:** no scrolling and fewer slides for ProPresenter to build, so it stays quicker in a long service; the volunteer cannot go back before the spoken verse without typing.
+
+See [docs/154](docs/154-open-from-spoken-verse.md).

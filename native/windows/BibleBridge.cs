@@ -345,12 +345,14 @@ class BibleBridge {
         string operation=Convert.ToString(request.ContainsKey("operation")?request["operation"]:"inspect");
         Require(operation=="inspect"||operation=="prepare"||operation=="prepare-save"||operation=="prepare-chapter"||operation=="list-translations","UNKNOWN_OPERATION");
         bool listing=operation=="list-translations";if(listing)Require(request.Count==1,"INVALID_PREPARE_REQUEST");
-        string reference=null,translation=null;bool chapter=operation=="prepare-chapter";int focusVerse=0,chapterVerses=0;
+        string reference=null,translation=null;bool chapter=operation=="prepare-chapter",fromVerse=false;int focusVerse=0,chapterVerses=0;
         if(chapter) {
             // Whole chapter for a volunteer: "Proverbs 3", positioned at the spoken verse. Scrolling only; no slide is clicked or selected.
-            Require((request.Count==5||request.Count==6&&request.ContainsKey("listVersions"))&&request.ContainsKey("reference")&&request.ContainsKey("translation")&&request.ContainsKey("focusVerse")&&request.ContainsKey("chapterVerses"),"INVALID_PREPARE_REQUEST");
+            int optional=(request.ContainsKey("listVersions")?1:0)+(request.ContainsKey("fromVerse")?1:0);Require(request.Count==5+optional&&request.ContainsKey("reference")&&request.ContainsKey("translation")&&request.ContainsKey("focusVerse")&&request.ContainsKey("chapterVerses"),"INVALID_PREPARE_REQUEST");
             reference=Convert.ToString(request["reference"]);translation=Convert.ToString(request["translation"]);
             Require(request["focusVerse"] is int&&request["chapterVerses"] is int,"INVALID_PREPARE_REQUEST");focusVerse=(int)request["focusVerse"];chapterVerses=(int)request["chapterVerses"];
+            // "From the spoken verse" (docs/154): open "Proverbs 3:5-35" instead of the whole chapter, so nothing needs scrolling.
+            if(request.ContainsKey("fromVerse")){Require(request["fromVerse"] is bool&&(bool)request["fromVerse"],"INVALID_PREPARE_REQUEST");fromVerse=true;}
             Require(reference.Length<=100&&Regex.IsMatch(reference,@"^[1-3]?[A-Za-z ]+ [1-9][0-9]{0,2}$"),"INVALID_REFERENCE_SHAPE");
             Require(chapterVerses>=1&&chapterVerses<=176&&focusVerse>=1&&focusVerse<=chapterVerses,"INVALID_FOCUS_VERSE");
             Require(Translations.ContainsKey(translation),"UNSUPPORTED_REQUESTED_TRANSLATION");
@@ -414,7 +416,8 @@ class BibleBridge {
         // Update the one validated Bible-reference control atomically. Per-key
         // Unicode input can interact with WPF's reference completion/caret logic.
         object editable;Require(field.TryGetCurrentPattern(ValuePattern.Pattern,out editable),"REFERENCE_NOT_EDITABLE");
-        ((ValuePattern)editable).SetValue(reference);WaitValue(field,reference);
+        string typed=fromVerse?reference+":"+focusVerse+(focusVerse<chapterVerses?"-"+chapterVerses:""):reference;
+        ((ValuePattern)editable).SetValue(typed);WaitValue(field,typed);
         Require(GetForegroundWindow()==process.MainWindowHandle&&field.Current.HasKeyboardFocus,"FOCUS_CHANGED_BEFORE_ENTER");
         Stage("commit-reference");EnterReference();
         // The control view can skip WPF layout containers and return the whole
@@ -435,7 +438,7 @@ class BibleBridge {
             string expectedReference=Canonical(reference);
             bool rangeFound=chapter?labels.Any(n=>Canonical(n).StartsWith(expectedReference+":",StringComparison.OrdinalIgnoreCase)):labels.Any(n=>Canonical(n)==expectedReference||Canonical(n).StartsWith(expectedReference+" ",StringComparison.OrdinalIgnoreCase));count=labels.Count(n=>Regex.IsMatch(n??"",@"^[1-3]?[A-Za-z ]+ [1-9][0-9]*:[1-9][0-9]*"));
             // ProPresenter expands a chapter to its full range, e.g. "Proverbs 3" becomes "Proverbs 3:1-35".
-            string fieldValue=Canonical(Value(field));bool fieldMatches=fieldValue==expectedReference||chapter&&fieldValue==expectedReference+":1-"+chapterVerses;
+            string fieldValue=Canonical(Value(field));bool fieldMatches=fromVerse?fieldValue==Canonical(typed):fieldValue==expectedReference||chapter&&fieldValue==expectedReference+":1-"+chapterVerses;
             Console.Error.WriteLine(Json.Serialize(new {stage="verify-check",elapsedMs=Total.ElapsedMilliseconds,fieldMatches=fieldMatches,rangeFound=rangeFound,elementCount=elements.Count,labelCount=count}));Console.Error.Flush();
             stable=fieldMatches&&rangeFound&&count>0?stable+1:0;
             // Speed (2026-11-24): every snapshot reads all slide labels (hundreds for a long chapter), which is slow and adds
@@ -453,7 +456,7 @@ class BibleBridge {
                 Stage("prepared-review");
                 if(chapter) {
                     Stage("scroll-to-verse");bool visible=VerseVisibleIn(elements,bible,Canonical(reference+":"+focusVerse))||ScrollToVerse(bible,reference,focusVerse,chapterVerses);
-                    return new {ok=true,state="chapter-prepared-no-output",reference=reference,translation=translation,focusVerse=focusVerse,focusVisible=visible,installed=installedNow,referenceLabels=count,clippingWarning=clipped,saveCopyRequested=false,formattingVerified=false,outputRequests=0,outputObserved=false,elapsedMs=Total.ElapsedMilliseconds,timingsMs=Timings};
+                    return new {ok=true,state="chapter-prepared-no-output",reference=reference,translation=translation,focusVerse=focusVerse,focusVisible=visible,fromVerse=fromVerse,installed=installedNow,referenceLabels=count,clippingWarning=clipped,saveCopyRequested=false,formattingVerified=false,outputRequests=0,outputObserved=false,elapsedMs=Total.ElapsedMilliseconds,timingsMs=Timings};
                 }
                 bool saveCopy=operation=="prepare-save";
                 if(saveCopy)SaveBibleCopy(bible,process,field,selector,reference,selected);
