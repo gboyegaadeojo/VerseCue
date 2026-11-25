@@ -47,3 +47,11 @@ test('preparing a passage drops the phrase in flight but keeps the loaded speech
   const {LocalSpeech}=require('../core/stt.cjs');const speech=new LocalSpeech();const calls=[];speech.resident={abort:()=>calls.push('abort'),stop:()=>calls.push('stop')};
   speech.mode='resident';speech.interrupt();speech.mode='cli';speech.interrupt();speech.cancel();assert.deepEqual(calls,['abort','stop','stop']);
 });
+
+test('the "from the spoken verse" setting reaches early and final preparation; the whole chapter stays the default',async()=>{
+  const t=setup({service:{volunteerRange:'from-verse'}});const early=t.c.prepareEarly(ref('Psalm 23:1'),'KJV');
+  assert.equal(t.calls[0].options.fromVerse,true);
+  const row=t.candidate('Psalm 23:4');const final=t.c.prepareChapter(row.id,{acknowledgeFocusChange:true});t.finish();await early;await final;
+  assert.equal(t.calls[1].options.fromVerse,true);
+  const plain=setup();const row2=plain.candidate('Psalm 23:4');await plain.c.prepareChapter(row2.id,{acknowledgeFocusChange:true});assert.equal(plain.calls[0].options.fromVerse,false);
+});

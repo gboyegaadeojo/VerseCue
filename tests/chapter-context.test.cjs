@@ -56,3 +56,19 @@ test('a relative reference ("next verse") keeps the exact-passage path in Prepar
   r.consider([{id:'next',authorized:true,reference,issues:reference.issues}],1);await new Promise(setImmediate);
   assert.equal(calls.length,1);assert.equal(calls[0].options.chapter,undefined);
 });
+
+test('"From the spoken verse" asks ProPresenter for the verse to the end of the chapter and checks the reply says so (docs/154)',async()=>{
+  const helper=fakeHelper(r=>({...ok(r),fromVerse:r.fromVerse===true})),prep=new BiblePreparation({helper:'bridge.exe',platform:'win32',spawnImpl:helper.spawnImpl});
+  const result=await prep.prepare('Proverbs 3','KJV',{focusVerse:5,fromVerse:true});
+  assert.deepEqual(helper.sent[0],{operation:'prepare-chapter',reference:'Proverbs 3',translation:'KJV',focusVerse:5,chapterVerses:35,fromVerse:true});
+  assert.equal(result.fromVerse,true);assert.equal(result.outputRequests,0);
+  assert.equal((await prep.prepare('Proverbs 3','KJV',{focusVerse:5})).fromVerse,false);assert.equal('fromVerse' in helper.sent[1],false);
+  const ignored=new BiblePreparation({helper:'bridge.exe',platform:'win32',spawnImpl:fakeHelper(ok).spawnImpl});
+  await assert.rejects(ignored.prepare('Proverbs 3','KJV',{focusVerse:5,fromVerse:true}),/not verified/);
+  await assert.rejects(prep.prepare('Proverbs 3','KJV',{focusVerse:5,fromVerse:'yes'}),/whole chapter/);
+});
+test('settings: whole chapter is the default range; only the two ranges are accepted',()=>{
+  assert.equal(settings.defaults().volunteerRange,'chapter');
+  assert.equal(settings.validateSettings({...settings.defaults(),volunteerRange:'from-verse'}).volunteerRange,'from-verse');
+  assert.throws(()=>settings.validateSettings({...settings.defaults(),volunteerRange:'verse'}));
+});
