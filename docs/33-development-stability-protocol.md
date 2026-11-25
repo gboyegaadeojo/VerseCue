@@ -25,3 +25,7 @@ Repeated fixtures are not representative held-out speech or a recall/precision/f
 Under the user's renewed unattended testing authorization, the0.5.5 Windows package completed10807475ms (three hours plus7.475seconds),361cycles, no failure/interruption, zero output requests, bounded candidate/history/event maxima1/20/100. Repeated resident CPU private-fixture requests measured p504585ms/p955179ms. The90minute checkpoint was reached. This is scoped software/fixture stability, not microphone/MOTU, actual ProPresenter/media/Companion, physical output, accuracy or live-latency acceptance. Electron metrics exclude external speech-worker memory; total hardware resource acceptance remains pending.
 
 [Version-specific content-free evidence](evidence/development-soak-0.5.5.json). The summary tool now validates artifact version and derives the evidence filename/limitations from that version, so later runs cannot overwrite the historical0.2.8 result or mislabel a newer artifact. The0.5.5 run does not certify subsequent compatibility/readback or other changes. Raw machine metrics and the real audio fixture remain local/ignored.
+
+## 0.6.9 runs with Large-v3-turbo and speech-worker measurement - 2026-11-25
+
+Three hours visible and 90 minutes minimized both passed on the released 0.6.9 with Large-v3-turbo on the GPU; the speech worker's own memory and processor time are now measured. See [docs/152](152-stability-engine-and-live-timing.md).
