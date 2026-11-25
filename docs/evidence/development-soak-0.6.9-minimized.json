@@ -1,0 +1,63 @@
+{
+  "at": "2026-11-25T19:47:22.304Z",
+  "artifactVersion": "0.6.9",
+  "packageManifestSha256": "c5997fa358cc2d365360fa1fbf4b0846571792cec4a2da4a292bd98a17ba230e",
+  "started": "2026-11-25T18:17:09.503Z",
+  "result": "PASSED_SCOPED_DEVELOPMENT_SOAK",
+  "requestedMinutes": 90,
+  "elapsedMs": 5402018,
+  "cycles": 181,
+  "ninetyMinuteCheckpointReached": true,
+  "threeHourDurationReached": false,
+  "minimizedRequested": true,
+  "minimizedThroughout": true,
+  "interrupted": false,
+  "failure": false,
+  "maxCandidateCount": 1,
+  "maxHistoryCount": 20,
+  "maxEventCount": 100,
+  "fixtureRequestP50Ms": 550,
+  "fixtureRequestP95Ms": 575,
+  "speechGpu": "ready",
+  "activeModels": [
+    "ggml-large-v3-turbo-q5_0.bin"
+  ],
+  "resources": {
+    "electronWorkingSet": {
+      "firstMb": 585,
+      "lastMb": 601,
+      "peakMb": 604,
+      "growthMb": 16
+    },
+    "speechWorkerWorkingSet": {
+      "firstMb": 182,
+      "lastMb": 183,
+      "peakMb": 186,
+      "growthMb": 2
+    },
+    "speechWorkerPrivateBytes": {
+      "firstMb": 1398,
+      "lastMb": 1401,
+      "peakMb": 1402,
+      "growthMb": 4
+    },
+    "speechWorkerProcessor": {
+      "cpuSeconds": 65.3,
+      "averagePercentOfOneCore": 1.2
+    },
+    "speechWorkerSamples": 181
+  },
+  "microphoneCapture": false,
+  "propresenterConnected": false,
+  "outputRequests": 0,
+  "accuracyScored": false,
+  "liveLatencyScored": false,
+  "fullServiceAcceptance": "PENDING",
+  "limitations": [
+    "Repeated private fixture via direct IPC and dry-run simulation only",
+    "No physical audio capture, native preparation, media/Companion or audience output workload",
+    "Speech worker measured from the operating system (Windows only); total memory budget not accepted",
+    "Uncontrolled shared-host load",
+    "Only the identified tested artifact is covered; later changes are excluded"
+  ]
+}
