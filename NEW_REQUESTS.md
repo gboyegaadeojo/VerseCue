@@ -184,3 +184,12 @@ See [docs/149](docs/149-minimized-operation.md).
 - **Measured:** about 0.38 s faster per reference with Large-v3-turbo (1.19 s to 0.81 s).
 
 See [docs/150](docs/150-early-recognition.md).
+
+## NR-028 - New version notice
+
+2026-11-25: the user asked for a notice when a newer VerseCue is on GitHub.
+
+- **How:** about twice a day, never while listening, VerseCue reads the public release list and shows one line with **See what's new** and **Not now**. Nothing is downloaded or installed.
+- **Privacy:** the only internet request VerseCue makes; it sends nothing about the user and can be turned off in Settings > Advanced.
+
+See [docs/151](docs/151-new-version-notice.md).
