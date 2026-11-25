@@ -79,3 +79,5 @@ Every unprepared case stopped safely: VerseCue blocked and asked for ProPresente
 - Reduce how much of ProPresenter's screen VerseCue reads per preparation (the edition and translation checks dominate) and measure whether the slowdown still builds up.
 - Repeat on the Mac mini M4 (Friday), where ProPresenter is read differently.
 - These are synthetic voices and a personal setup, not the church's live service.
+
+Follow-up: [docs/153](153-narrow-propresenter-reading.md) narrows what the Windows helper reads (edition and slide labels).
