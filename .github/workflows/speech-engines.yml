@@ -1,16 +1,16 @@
 name: Speech engines (Vulkan for Windows, Intel Mac)
-# Builds the pinned whisper.cpp source (release b5454) so VerseCue can use any AMD, NVIDIA or Intel graphics card on
+# Builds the pinned whisper.cpp source (release v1.9.6; b5454 = v1.9.5 before 2026-11-25) so VerseCue can use any AMD, NVIDIA or Intel graphics card on
 # Windows through Vulkan, with every processor variant as fallback, and an Intel Mac engine. The Vulkan runtime itself
 # (vulkan-1.dll) ships with graphics drivers and is not bundled.
 on:
   workflow_dispatch:
   push:
-    branches: [feat/vulkan-speech]
+    branches: [feat/vulkan-speech, feat/whisper-1.9.6]
     paths: ['.github/workflows/speech-engines.yml']
 permissions:
   contents: read
 env:
-  WHISPER_COMMIT: d1be6fde11ac6e0407606b4e42fe72d34add8037
+  WHISPER_COMMIT: 96ec4d9823e9d0211944172da35f9f29134af990
 jobs:
   windows-vulkan:
     runs-on: windows-latest
@@ -49,12 +49,12 @@ jobs:
       - name: Package
         shell: pwsh
         run: |
-          Compress-Archive -Path engine\* -DestinationPath whisper-b5454-vulkan-win-x64.zip
-          (Get-FileHash whisper-b5454-vulkan-win-x64.zip).Hash.ToLower()
+          Compress-Archive -Path engine\* -DestinationPath whisper-v1.9.6-vulkan-win-x64.zip
+          (Get-FileHash whisper-v1.9.6-vulkan-win-x64.zip).Hash.ToLower()
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: whisper-b5454-vulkan-win-x64
-          path: whisper-b5454-vulkan-win-x64.zip
+          name: whisper-v1.9.6-vulkan-win-x64
+          path: whisper-v1.9.6-vulkan-win-x64.zip
   mac-intel:
     if: false  # built successfully in run 44948825635
     runs-on: macos-15-intel
@@ -71,9 +71,9 @@ jobs:
           echo 'a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002  base.bin' | shasum -a 256 --check
           ./engine/whisper-cli -m base.bin -f src/samples/jfk.wav -l en -t 4 -ac 768 -nt -np | tee out.txt
           grep -q country out.txt
-          tar -czf whisper-b5454-mac-x64.tar.gz -C engine .
-          shasum -a 256 whisper-b5454-mac-x64.tar.gz
+          tar -czf whisper-v1.9.6-mac-x64.tar.gz -C engine .
+          shasum -a 256 whisper-v1.9.6-mac-x64.tar.gz
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: whisper-b5454-mac-x64
-          path: whisper-b5454-mac-x64.tar.gz
+          name: whisper-v1.9.6-mac-x64
+          path: whisper-v1.9.6-mac-x64.tar.gz
