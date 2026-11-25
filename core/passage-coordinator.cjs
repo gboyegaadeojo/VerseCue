@@ -30,10 +30,10 @@ class PassageCoordinator {
   early.promise=(async()=>{
    try{
     this.publish({phase:'preparing',early:true,reference:`${chapter}:${focusVerse}`,chapter,focusVerse,translation,outputRequests:0});
-    const result=await this.savedBible.controller.prepare(chapter,translation,guard,{keepListening:true,focusVerse,early:true});
+    const result=await this.savedBible.controller.prepare(chapter,translation,guard,{keepListening:true,focusVerse,early:true,fromVerse:this.service.volunteerRange==='from-verse'});
     if(!guard())throw Error('Early preparation canceled');
     early.ok=true;early.result=result;
-    return this.publish({phase:'chapter-prepared',early:true,reference:`${chapter}:${focusVerse}`,chapter,focusVerse,focusVisible:result.focusVisible===true,chapterVerses:result.chapterVerses,translation,recognition:'provisional',nativeWorkerMs:result.workerElapsedMs,outputRequests:0,outputObserved:false});
+    return this.publish({phase:'chapter-prepared',early:true,reference:`${chapter}:${focusVerse}`,chapter,focusVerse,focusVisible:result.focusVisible===true,fromVerse:result.fromVerse===true,chapterVerses:result.chapterVerses,translation,recognition:'provisional',nativeWorkerMs:result.workerElapsedMs,outputRequests:0,outputObserved:false});
    }catch(error){
     if(this.early===early)this.early=null;this.service.log?.('EARLY_PREPARATION_STOPPED','info',{reason:String(error?.message??error).slice(0,160)});
     if(epoch===this.epoch){const diagnostics=nativeFailureDiagnostics(error);this.publish({phase:guard()?'blocked':'canceled',early:true,reference:`${chapter}:${focusVerse}`,translation,reason:error.message,...(diagnostics?{nativeFailure:diagnostics}:{}),outputRequests:0});}
@@ -114,7 +114,7 @@ class PassageCoordinator {
   // matches too. A different verse is prepared again below (the chapter stays open, so that is quick).
   if(this.matchesEarly(c)&&acknowledgeFocusChange===true){const early=this.early;await early.promise;
    if(this.early===early&&early.ok&&early.focusVerse===(c.reference.verse??1)&&additionalGuard()&&!this.service.stopped&&!this.service.recovery?.required){this.early=null;this.service.log?.('EARLY_PREPARATION_REUSED','info');
-    return this.publish({phase:'chapter-prepared',early:true,reference:c.label,chapter:early.chapter,focusVerse:early.focusVerse,focusVisible:early.result.focusVisible===true,chapterVerses:early.result.chapterVerses,translation:c.translation,recognition:c.recognition,nativeWorkerMs:early.result.workerElapsedMs,outputRequests:0,outputObserved:false});}
+    return this.publish({phase:'chapter-prepared',early:true,reference:c.label,chapter:early.chapter,focusVerse:early.focusVerse,focusVisible:early.result.focusVisible===true,fromVerse:early.result.fromVerse===true,chapterVerses:early.result.chapterVerses,translation:c.translation,recognition:c.recognition,nativeWorkerMs:early.result.workerElapsedMs,outputRequests:0,outputObserved:false});}
    this.early=null;}
   if(this.busy)throw Error('A passage preparation is already in progress');
   const chapter=`${c.reference.book} ${c.reference.chapter}`,focusVerse=c.reference.verse??1,sourceReferenceEpoch=this.service.referenceEpoch,epoch=++this.epoch,target=this.connector.generation,base=this.connector.base;this.review=null;this.active=null;
@@ -125,9 +125,9 @@ class PassageCoordinator {
   const guard=()=>additionalGuard()&&epoch===this.epoch&&target===this.connector.generation&&base===this.connector.base&&sourceReferenceEpoch===this.service.referenceEpoch&&!this.service.stopped&&!this.service.recovery?.required;
   try{
    this.publish({phase:'preparing',reference:c.label,chapter,focusVerse,translation:c.translation,outputRequests:0});
-   const result=await this.savedBible.controller.prepare(chapter,c.translation,guard,{keepListening:true,focusVerse});
+   const result=await this.savedBible.controller.prepare(chapter,c.translation,guard,{keepListening:true,focusVerse,fromVerse:this.service.volunteerRange==='from-verse'});
    if(!guard())throw Error('Passage preparation canceled or target changed');
-   return this.publish({phase:'chapter-prepared',reference:c.label,chapter,focusVerse,focusVisible:result.focusVisible===true,chapterVerses:result.chapterVerses,translation:c.translation,recognition:c.recognition,nativeWorkerMs:result.workerElapsedMs,outputRequests:0,outputObserved:false});
+   return this.publish({phase:'chapter-prepared',reference:c.label,chapter,focusVerse,focusVisible:result.focusVisible===true,fromVerse:result.fromVerse===true,chapterVerses:result.chapterVerses,translation:c.translation,recognition:c.recognition,nativeWorkerMs:result.workerElapsedMs,outputRequests:0,outputObserved:false});
   }catch(error){const diagnostics=nativeFailureDiagnostics(error);this.publish({phase:guard()?'blocked':'canceled',reference:c.label,translation:c.translation,reason:error.message,...(diagnostics?{nativeFailure:diagnostics}:{}),outputRequests:0});throw error;}finally{this.release();}
  }
  async rebuildClipped(reviewToken,{formattingCorrected=false,acknowledgeFocusChange=false,acknowledgeCreateCopy=false}={}){
