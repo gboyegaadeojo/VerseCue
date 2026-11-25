@@ -108,7 +108,7 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 - **Calm design:** a dark workspace with a **Large "booth distance"** text size, a **compact always-on-top window**, and keyboard shortcuts.
 - **Saved setups:** **service profiles** for different setups, **automatic settings backups** with restore, and settings import/export.
 - **Stays safe when things go wrong:** connection health shows "slow to respond" and pauses safely if ProPresenter is lost. VerseCue recovers safely after the computer sleeps.
-- **Support:** **redacted diagnostics** you can send for help, a **downloaded-update checker** that verifies a release before you install it, and an optional **private local API** for your own tools (off by default, protected by a token).
+- **Support:** a quiet **new version notice** (never while listening; it only tells you, you choose whether to download), **redacted diagnostics** you can send for help, a **downloaded-update checker** that verifies a release before you install it, and an optional **private local API** for your own tools (off by default, protected by a token).
 
 ### Runs where you are
 - **Windows and Mac:** Windows 10/11 and Macs (Apple silicon and Intel).
@@ -144,7 +144,7 @@ A fuller walkthrough is in the [personal test guide](docs/124-personal-auto-firs
 
 ## Privacy
 
-Audio is processed on your computer and isn't saved. Temporary recognition files are kept in VerseCue's own folder, deleted after each phrase and, after a crash, deleted at the next start. The diagnostics export holds only event codes and timings, never what was said. While VerseCue runs, the operating system may write memory to disk (page file, hibernation), so use full-disk encryption (BitLocker or FileVault) on the service computer. VerseCue needs no account or internet connection, except for downloading it and, if you choose, the optional NVIDIA engine files. Bible text comes from ProPresenter. The bundled public-domain Bibles are used only to recognise quoted wording.
+Audio is processed on your computer and isn't saved. Temporary recognition files are kept in VerseCue's own folder, deleted after each phrase and, after a crash, deleted at the next start. The diagnostics export holds only event codes and timings, never what was said. While VerseCue runs, the operating system may write memory to disk (page file, hibernation), so use full-disk encryption (BitLocker or FileVault) on the service computer. VerseCue needs no account or internet connection, except for downloading it and, if you choose, the optional NVIDIA engine files. The one request it makes itself is the **new version notice**: about twice a day, and never while listening, it reads the public list of VerseCue releases on GitHub. It sends nothing about you, your computer or your services, and downloads nothing. Turn it off in **Settings > Advanced > New version notice** and VerseCue makes no internet requests at all. Bible text comes from ProPresenter. The bundled public-domain Bibles are used only to recognise quoted wording.
 
 ## Current limits
 

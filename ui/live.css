@@ -9,3 +9,8 @@ body.halo .halo-live:not(.is-listening)>span::before{animation:none!important;ba
 .halo .halo-live #transcript>span.latest{opacity:1;color:var(--h-text);font-size:14px;font-weight:500}
 html:not(.text-standard) .halo .halo-live #transcript>span{font-size:18px}
 html:not(.text-standard) .halo .halo-live #transcript>span.latest{font-size:20px}
+/* New version notice: one quiet line under the header, only while not listening. */
+.update-notice{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.update-notice>span{flex:1 1 260px}
+.halo .update-notice{background:var(--h-bar);color:var(--h-text);border-bottom:1px solid var(--h-line);padding:10px 24px;font-size:14px;font-weight:500}
+.halo .update-notice::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--h-accent);flex:0 0 auto}
+.halo #update-notice-open{background:var(--h-accent)!important;color:#fff!important}
