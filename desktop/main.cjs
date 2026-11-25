@@ -1,6 +1,6 @@
 'use strict';
 const {spawn}=require('node:child_process');
-const {app,BrowserWindow,ipcMain,dialog,session,systemPreferences,clipboard,powerSaveBlocker,powerMonitor,shell}=require('electron');
+const {app,BrowserWindow,ipcMain,dialog,session,systemPreferences,clipboard,powerSaveBlocker,powerMonitor,shell}=require('electron');const {checkForNewRelease,RELEASES_API}=require('../core/update-notice.cjs');
 // Keep working while minimized or covered (2026-11-24): never slow down a window that another window covers, such as a
 // full-screen ProPresenter, and never lower VerseCue's processing priority in the background. Windows also keep
 // backgroundThrottling:false, and listening holds a power-save blocker against app suspension (macOS App Nap).
@@ -397,6 +397,26 @@ async function bootstrap(){
   let autoConnectBusy=false;
   const autoConnect=async()=>{if(automation||autoConnectBusy||connector.version||settings.autoConnect===false||!settings.host||service.stopped)return;autoConnectBusy=true;const generation=connector.generation;try{await connector.test();if(generation===connector.generation){service.log('AUTO_CONNECTED','info');service.notify();}}catch{}finally{autoConnectBusy=false;}};
   setInterval(autoConnect,3000);setTimeout(autoConnect,300);
+  // New version notice: at most every 12 hours, never while listening, never downloads. Tests may point it at a local
+  // server only (VERSECUE_TEST_UPDATE_URL on 127.0.0.1); otherwise automated runs make no request.
+  const updateNotice={latest:null,checkedAt:null,code:null,busy:null,dismissed:null};
+  const testUpdateUrl=automation&&/^http:\/\/127\.0\.0\.1:\d{2,5}\/[\w./?=-]*$/.test(process.env.VERSECUE_TEST_UPDATE_URL??'')?process.env.VERSECUE_TEST_UPDATE_URL:null;
+  // The app's own session blocks every network request. The notice uses a separate in-memory session (no cookies kept)
+  // that allows exactly one address: the release list.
+  const updateSession=session.fromPartition('versecue-update-notice',{cache:false}),updateUrl=testUpdateUrl??RELEASES_API;
+  updateSession.webRequest.onBeforeRequest((details,callback)=>callback({cancel:details.url!==updateUrl}));
+  const updateNoticeView=()=>{const latest=updateNotice.latest,hidden=!latest||latest.version===settings.dismissedUpdateVersion||latest.version===updateNotice.dismissed;return {enabled:settings.updateNotice!==false,available:hidden?null:{version:latest.version},checkedAt:updateNotice.checkedAt,problem:updateNotice.code};};
+  const runUpdateCheck=async(force=false)=>{
+    if(automation&&!testUpdateUrl)return updateNoticeView();
+    if(!force&&(settings.updateNotice===false||capture.snapshot().active||(updateNotice.checkedAt&&Date.now()-updateNotice.checkedAt<12*3600000)))return updateNoticeView();
+    updateNotice.busy??=checkForNewRelease({fetch:(url,options)=>updateSession.fetch(url,options),current:app.getVersion(),url:updateUrl}).then(r=>{updateNotice.checkedAt=Date.now();updateNotice.code=r.ok?null:r.code;if(r.ok)updateNotice.latest=r.newer;service.log(r.ok?(r.newer?'UPDATE_AVAILABLE':'UPDATE_CURRENT'):'UPDATE_CHECK_UNAVAILABLE','info');service.notify();}).finally(()=>{updateNotice.busy=null;});
+    await updateNotice.busy;return updateNoticeView();
+  };
+  setTimeout(()=>runUpdateCheck().catch(()=>{}),testUpdateUrl?500:20000);setInterval(()=>runUpdateCheck().catch(()=>{}),15*60000);
+  handler('update-notice',()=>updateNoticeView());
+  handler('update-notice-check',()=>{if(capture.snapshot().active)throw Error('Checking for a new version waits until you stop listening.');return runUpdateCheck(true);});
+  handler('update-notice-open',async()=>{const latest=updateNotice.latest;if(!latest)return false;await shell.openExternal(latest.url);return true;});
+  handler('update-notice-dismiss',async()=>{const latest=updateNotice.latest;if(!latest)return updateNoticeView();updateNotice.dismissed=latest.version;try{settings=await store.save(settingsFile,{...settings,dismissedUpdateVersion:latest.version});}catch{}return updateNoticeView();});
   mainWindow=createWindow();
 }
 if(!app.requestSingleInstanceLock())app.quit();else{

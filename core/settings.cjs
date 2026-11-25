@@ -4,12 +4,14 @@ const path=require('node:path');
 const {randomUUID,createHash}=require('node:crypto');
 const MAX_SETTINGS_BYTES=16384,writes=new Set();
 const {targetURL}=require('./connector.cjs');
-const defaults=()=>({schemaVersion:1,host:'127.0.0.1',port:1025,translation:'KJV',audioDevice:'default',channel:0,executable:'',model:'',speechMode:'resident',speechModeVersion:2,speechAcceleration:'gpu',duplicateCooldownSeconds:10,maxPassageVerses:10,startMode:'auto',autoConnect:true,autoListen:true,chapterContext:true,speechHints:false,speechEngineVersion:'',earlyPreparation:true,autoHoldMs:1000,textSize:'standard',preTickConsents:true});
+const defaults=()=>({schemaVersion:1,host:'127.0.0.1',port:1025,translation:'KJV',audioDevice:'default',channel:0,executable:'',model:'',speechMode:'resident',speechModeVersion:2,speechAcceleration:'gpu',duplicateCooldownSeconds:10,maxPassageVerses:10,startMode:'auto',autoConnect:true,autoListen:true,chapterContext:true,speechHints:false,speechEngineVersion:'',earlyPreparation:true,updateNotice:true,dismissedUpdateVersion:'',autoHoldMs:1000,textSize:'standard',preTickConsents:true});
 function validateSettings(value){
   if(!value||typeof value!=='object'||Array.isArray(value)||value.schemaVersion!==1)throw new Error('Unsupported settings schema');
   const s=defaults();
   for(const key of ['host','translation','audioDevice','executable','model'])if(value[key]!==undefined){if(typeof value[key]!=='string'||value[key].length>1000)throw new Error('Invalid settings field');s[key]=value[key];}
   if(value.chapterContext!==undefined){if(typeof value.chapterContext!=='boolean')throw Error('Invalid chapter choice');s.chapterContext=value.chapterContext;}
+  if(value.updateNotice!==undefined){if(typeof value.updateNotice!=='boolean')throw Error('Invalid new version notice choice');s.updateNotice=value.updateNotice;}
+  if(value.dismissedUpdateVersion!==undefined){if(typeof value.dismissedUpdateVersion!=='string'||!/^(?:\d{1,4}\.\d{1,4}\.\d{1,4})?$/.test(value.dismissedUpdateVersion))throw Error('Invalid dismissed version');s.dismissedUpdateVersion=value.dismissedUpdateVersion;}
   if(value.earlyPreparation!==undefined){if(typeof value.earlyPreparation!=='boolean')throw Error('Invalid early preparation choice');s.earlyPreparation=value.earlyPreparation;}
   for(const key of ['autoConnect','autoListen'])if(value[key]!==undefined){if(typeof value[key]!=='boolean')throw Error('Invalid '+key+' choice');s[key]=value[key];}
   if(value.maxPassageVerses!==undefined){if(!Number.isSafeInteger(value.maxPassageVerses)||value.maxPassageVerses<1||value.maxPassageVerses>176)throw Error('Invalid passage verse limit');s.maxPassageVerses=value.maxPassageVerses;}
