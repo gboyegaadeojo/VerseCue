@@ -41,6 +41,7 @@ function resetSpeechStabilization(){citationStabilizer.reset();service.speechSta
 const automatic=new GuardedAuto(service);const audioLoss=new AudioLossPolicy();
 let nativeCopyLedger=null;
 const referencePassages=new ReferencePassages({connector,catalog,getRangeLimit:()=>service.maxPassageVerses,knownClipping:(base,id,fingerprint)=>nativeCopyLedger?.knownClipping(base,id,fingerprint)===true,knownNativeCopy:(base,id,fingerprint)=>nativeCopyLedger?.hasVerifiedCopy(base,id,fingerprint)===true});
+const speculations=new Map();
 let preparation,preparationController,savedBible,passageCoordinator,referencePreparation,reviewOwnerId=null,preparationOwner=null,suspensionBlocker=null;
 function updateBackgroundCapture(active){if(active&&suspensionBlocker===null)suspensionBlocker=powerSaveBlocker.start('prevent-app-suspension');if(!active&&suspensionBlocker!==null){powerSaveBlocker.stop(suspensionBlocker);suspensionBlocker=null;}}
 const capture=new CaptureLease({canStart:()=>!service.recovery?.required&&!service.stopped&&service.mode!=='paused'&&!speech.busy&&!preparation?.busy&&!savedBible?.busy&&!passageCoordinator?.busy,onStop:()=>{resetSpeechStabilization();automatic.cancel();speech.cancel();updateBackgroundCapture(false);},onChange:value=>{updateBackgroundCapture(value.active);service.capture={...value,backgroundProtected:suspensionBlocker!==null&&powerSaveBlocker.isStarted(suspensionBlocker)};service.notify();}});
@@ -281,9 +282,33 @@ async function bootstrap(){
     if(service.stopped||service.mode==='paused')throw new Error('Listening is paused');const epoch=service.generation,receivedAt=service.clock(),leaseEpoch=capture.epoch;
     const sameLease=()=>capture.epoch===leaseEpoch&&capture.owns(event.sender.id);
     const stillAuthorized=()=>sameLease()&&epoch===service.generation&&!service.stopped&&service.mode!=='paused';
-    const result=await speech.transcribe(samples);
+    // Early recognition (NR-027): the window starts recognising a phrase after 0.3 s of silence, before the 0.7 s pause
+    // that ends it. The result is held here and finished only when the window confirms the pause (audio-commit); if the
+    // speaker carries on it is discarded (audio-discard). Phrase boundaries are unchanged; this is only a head start.
+    const speculative=metadata?.speculative===true;
+    if(speculative&&!(typeof metadata.windowId==='string'&&/^[a-f0-9-]{36}$/i.test(metadata.windowId)))throw Error('Invalid early recognition window');
+    const result=await speech.transcribe(samples,speculative?{speculative:true}:{});
     if(!stillAuthorized())throw new Error('Stale recognition discarded');
-    const evidence=speechEvidence(metadata,samples.length,receivedAt,service.clock());
+    if(speculative){const now=service.clock();for(const [id,held] of speculations)if(now-held.receivedAt>15000)speculations.delete(id);if(speculations.size>=4)speculations.delete(speculations.keys().next().value);
+      speculations.set(metadata.windowId,{result,sampleCount:samples.length,metadata,receivedAt,epoch,leaseEpoch,owner:event.sender.id});return {speculative:true,elapsedMs:result.elapsedMs};}
+    return finishRecognition({event,result,sampleCount:samples.length,metadata,receivedAt,sameLease,stillAuthorized});
+  },{withEvent:true});
+  handler('audio-commit',async(event,windowId,finalMetadata)=>{
+    if(!capture.owns(event.sender.id))throw new Error('This window does not own an authorized audio session');
+    if(service.stopped||service.mode==='paused')throw new Error('Listening is paused');
+    const held=speculations.get(windowId);speculations.delete(windowId);
+    if(!held||held.owner!==event.sender.id||held.leaseEpoch!==capture.epoch||held.epoch!==service.generation)throw Error('Early recognition expired');
+    const sameLease=()=>capture.epoch===held.leaseEpoch&&capture.owns(event.sender.id);
+    const stillAuthorized=()=>sameLease()&&held.epoch===service.generation&&!service.stopped&&service.mode!=='paused';
+    // Audio lost or clipped after the early start still counts against this phrase.
+    const extra=key=>Number.isSafeInteger(finalMetadata?.[key])&&finalMetadata[key]>=0?finalMetadata[key]:1;
+    const metadata={...held.metadata,speculative:undefined,endEvidence:'silence',droppedSamples:(held.metadata.droppedSamples??0)+extra('droppedSamples'),clippedSamples:(held.metadata.clippedSamples??0)+extra('clippedSamples')};
+    return finishRecognition({event,result:held.result,sampleCount:held.sampleCount,metadata,receivedAt:held.receivedAt,sameLease,stillAuthorized});
+  },{withEvent:true});
+  handler('audio-discard',(event,windowId)=>{const held=speculations.get(windowId);if(held&&held.owner===event.sender.id)speculations.delete(windowId);return true;},{withEvent:true});
+  // The rest of a phrase's processing, shared by normal and early (committed) recognition.
+  async function finishRecognition({event,result,sampleCount,metadata,receivedAt,sameLease,stillAuthorized}){
+    const evidence=speechEvidence(metadata,sampleCount,receivedAt,service.clock());
     const stabilized=citationStabilizer.feed({text:result.text,final:result.final,metadata,evidence,receivedAt,now:service.clock(),scope:`${event.sender.id}/${service.referenceEpoch??0}/${service.mode}/${service.maxPassageVerses}`,translation:service.translation,maxVerses:service.maxPassageVerses});
     if(stabilized.suppress){
       if(stabilized.state==='duplicate')return {...result,text:'',discarded:true,reason:'Duplicate recognition window discarded.'};
@@ -299,7 +324,7 @@ async function bootstrap(){
     if(candidates.length&&(passageCoordinator?.active||passageCoordinator?.review||passageCoordinator?.busy)&&!(candidates.length===1&&passageCoordinator.matchesEarly(candidates[0])))cancelPreparation();
     if(!evidence.timingKnown||!evidence.lossFree)for(const candidate of candidates)candidate.issues.push(!evidence.timingKnown?'Original audio timing is unavailable; review this full reference.':'Audio was dropped, clipped or its quality is unknown; review the full reference before continuing.');
     referencePreparation.consider(candidates,event);automatic.consider(candidates,{source:'local-speech',final:result.final===true,elapsedMs:result.elapsedMs,endEvidence:evidence.endEvidence,droppedSamples:metadata?.droppedSamples,endAgeMs:evidence.endAgeMs,observedAt:evidence.receivedAt});service.notify();return evidence.stale?{...result,text:'',discarded:true,reason:'Audio evidence expired during recognition. Repeat the full reference.'}:result;
-  },{withEvent:true});
+    }
   // Early chapter (NR-020): in Prepare for volunteer only, unfinished speech that already names one complete reference
   // (book, chapter and verse, in the current version) opens that chapter in ProPresenter's Bible view. Preparation only:
   // it never becomes a candidate and never reaches Auto, Confirm or output. The finished words reuse or replace it.

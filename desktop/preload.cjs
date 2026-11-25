@@ -22,6 +22,8 @@ contextBridge.exposeInMainWorld('versecue',{
   openCudaDownloads:()=>ipcRenderer.invoke('cuda-open-downloads'),
   audio:(samples,metadata)=>ipcRenderer.invoke('audio',samples,metadata),
   audioProvisional:samples=>ipcRenderer.invoke('audio-provisional',samples),
+  audioCommit:(windowId,metadata)=>ipcRenderer.invoke('audio-commit',windowId,metadata),
+  audioDiscard:windowId=>ipcRenderer.invoke('audio-discard',windowId),
   beginAudio:options=>ipcRenderer.invoke('audio-start',options),
   endAudio:()=>ipcRenderer.invoke('audio-stop'),
   accuracyPrompts:()=>ipcRenderer.invoke('accuracy-prompts'),
