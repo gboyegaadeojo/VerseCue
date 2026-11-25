@@ -65,6 +65,12 @@ class BibleBridge {
         return ((ValuePattern)value).Cached.Value;
     }
     static AutomationElement TranslationSelector(AutomationElement root) {
+        // Narrow first (docs/153): the edition control sits in the Bible viewer's translation pane (a direct ScrollViewer
+        // child), away from the slides. Several selectors (side-by-side editions) still stop safely.
+        var narrow=new List<AutomationElement>();
+        foreach(AutomationElement pane in root.FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ClassNameProperty,"ScrollViewer")))
+            narrow.AddRange(pane.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.AutomationIdProperty,"loadedBibleSelectorSelf")).Cast<AutomationElement>());
+        Require(narrow.Count<=1,"MULTIPLE_OR_MISSING_TRANSLATION_SELECTORS");if(narrow.Count==1)return narrow[0];
         var selectors=root.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.AutomationIdProperty,"loadedBibleSelectorSelf"));
         if(selectors.Count==1)return selectors[0];
         Require(selectors.Count==0,"MULTIPLE_OR_MISSING_TRANSLATION_SELECTORS");
@@ -92,6 +98,23 @@ class BibleBridge {
             bool isMain=new IntPtr(window.Current.NativeWindowHandle)==process.MainWindowHandle;if(!isMain||includeMain||viewer==null)scopes.Add(window);}
         return scopes;
     }
+    // Slide labels without the slides' contents (docs/153, measured 2026-11-25 on ProPresenter 21.4.2): each slide is a
+    // Thumbnail directly under the Bible viewer and holds live video previews. A descendant search walked into all of
+    // them; ProPresenter then kept those accessibility objects updated, used more and more processor time and answered
+    // slowly for the rest of its session. Read only each slide's own direct text (its reference label) in one request.
+    // A ProPresenter without that layout falls back to the earlier full read.
+    static List<AutomationElement> SlideTexts(AutomationElement viewer,bool layout) {
+        var cache=new CacheRequest();cache.TreeScope=TreeScope.Element|TreeScope.Children;cache.TreeFilter=Automation.RawViewCondition;
+        cache.Add(AutomationElement.NameProperty);cache.Add(AutomationElement.ControlTypeProperty);
+        if(layout){cache.Add(AutomationElement.IsOffscreenProperty);cache.Add(AutomationElement.BoundingRectangleProperty);}
+        AutomationElementCollection slides;using(cache.Activate()){slides=viewer.FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ClassNameProperty,"Thumbnail"));}
+        var texts=new List<AutomationElement>();
+        foreach(AutomationElement slide in slides)foreach(AutomationElement child in slide.CachedChildren)if(child.Cached.ControlType==ControlType.Text)texts.Add(child);
+        if(slides.Count>0)return texts;
+        var full=new CacheRequest();full.TreeScope=TreeScope.Element;full.TreeFilter=Automation.RawViewCondition;
+        full.Add(AutomationElement.NameProperty);if(layout){full.Add(AutomationElement.IsOffscreenProperty);full.Add(AutomationElement.BoundingRectangleProperty);}
+        using(full.Activate()){return viewer.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text)).Cast<AutomationElement>().ToList();}
+    }
     static AutomationElement BibleHeader(AutomationElement root) {
         var viewer=BibleViewer(root);
         if(viewer!=null){var header=ById(viewer,"bibleViewerHeader");if(header!=null)return header;}
@@ -113,7 +136,7 @@ class BibleBridge {
         var timer=Stopwatch.StartNew();bool selected=false;
         while(timer.ElapsedMilliseconds<6000) {
             uint foreground;GetWindowThreadProcessId(GetForegroundWindow(),out foreground);Require(foreground==process.Id,"FOCUS_CHANGED_DURING_EDITION_SELECTION");
-            var windows=EditionScopes(root,process,true);
+            var windows=EditionScopes(root,process,timer.ElapsedMilliseconds>1500);
             var matches=new List<AutomationElement>();
             foreach(AutomationElement window in windows) {
                 // The installed-edition popup exposes visible text rather than
@@ -203,7 +226,7 @@ class BibleBridge {
         throw new InvalidOperationException("SAVE_COPY_MENU_NOT_VERIFIED");
     }
     // The spoken verse is often already on screen (verse 1 especially): check the snapshot just read before reading again.
-    static bool VerseVisibleIn(AutomationElementCollection snapshot,AutomationElement bible,string target) {
+    static bool VerseVisibleIn(IEnumerable<AutomationElement> snapshot,AutomationElement bible,string target) {
         System.Windows.Rect area;try{area=bible.Current.BoundingRectangle;}catch(ElementNotAvailableException){return false;}if(area.IsEmpty)return false;
         foreach(AutomationElement e in snapshot){
             string name;bool offscreen;System.Windows.Rect r;
@@ -243,8 +266,7 @@ class BibleBridge {
             // Reading labels costs about a second, so turn the wheel in estimated batches (about two verses per turn).
             for(int check=0;check<10;check++) {
                 uint focusOwner;GetWindowThreadProcessId(GetForegroundWindow(),out focusOwner);if(focusOwner!=processId)return false;
-                var cache=new CacheRequest();cache.TreeScope=TreeScope.Element;cache.Add(AutomationElement.NameProperty);cache.Add(AutomationElement.IsOffscreenProperty);cache.Add(AutomationElement.BoundingRectangleProperty);
-                AutomationElementCollection texts;using(cache.Activate()){texts=grid.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text));}
+                var texts=SlideTexts(grid,true);
                 int highest=0,lowest=int.MaxValue;System.Windows.Rect found=System.Windows.Rect.Empty;
                 foreach(AutomationElement e in texts){
                     var name=Canonical(e.Cached.Name);if(!name.StartsWith(prefix))continue;int n;if(!int.TryParse(name.Substring(prefix.Length),out n))continue;
@@ -263,9 +285,10 @@ class BibleBridge {
     }
     static bool ScrollToVerse(AutomationElement bible,string reference,int verse,int chapterVerses) {
         string target=Canonical(reference+":"+verse);
-        var label=VerseLabel(bible,target);
-        // Any realised verse label shares the slide grid's scrollable parent.
-        var anchor=label??bible.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text)).Cast<AutomationElement>().FirstOrDefault(e=>Regex.IsMatch(Canonical(e.Current.Name),"^"+Regex.Escape(Canonical(reference))+@":[0-9]+$"));
+        // Slide labels only (docs/153); any realised verse label shares the slide grid's scrollable parent.
+        var texts=SlideTexts(bible,false);
+        var label=texts.FirstOrDefault(e=>Canonical(e.Cached.Name)==target);
+        var anchor=label??texts.FirstOrDefault(e=>Regex.IsMatch(Canonical(e.Cached.Name),"^"+Regex.Escape(Canonical(reference))+@":[0-9]+$"));
         if(anchor==null)return false;
         var viewer=ScrollableAncestor(anchor);
         if(label!=null&&InView(label,viewer))return true;
@@ -292,7 +315,7 @@ class BibleBridge {
             // (the nearest ancestor holding several entries) gives every installed edition.
             var names=new List<string>();var timer=Stopwatch.StartNew();var walker=TreeWalker.RawViewWalker;string debug="";
             while(timer.ElapsedMilliseconds<6000&&names.Count==0) {
-                var windows=EditionScopes(root,process,true);
+                var windows=EditionScopes(root,process,timer.ElapsedMilliseconds>1500);
                 foreach(AutomationElement window in windows) {
                     foreach(AutomationElement hit in window.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.NameProperty,before))) {
                         bool insideSelector=false;for(var up=walker.GetParent(hit);up!=null;up=walker.GetParent(up)){if(Automation.Compare(up,selector)){insideSelector=true;break;}}
@@ -406,12 +429,9 @@ class BibleBridge {
             // Query only citation text during readiness polling. Enumerating
             // every layout/image node made a provider snapshot block long enough
             // to consume the bounded worker deadline on newly generated slides.
-            AutomationElementCollection elements;
-            var cache=new CacheRequest();cache.TreeScope=TreeScope.Element;cache.TreeFilter=Automation.RawViewCondition;
-            cache.Add(AutomationElement.NameProperty);if(chapter){cache.Add(AutomationElement.IsOffscreenProperty);cache.Add(AutomationElement.BoundingRectangleProperty);}
             Stage("read-generated-snapshot");
-            using(cache.Activate()) { elements=bible.FindAll(TreeScope.Descendants,new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Text)); }
-            var labels=elements.Cast<AutomationElement>().Select(e=>e.Cached.Name).ToArray();
+            var elements=SlideTexts(bible,chapter);
+            var labels=elements.Select(e=>e.Cached.Name).ToArray();
             string expectedReference=Canonical(reference);
             bool rangeFound=chapter?labels.Any(n=>Canonical(n).StartsWith(expectedReference+":",StringComparison.OrdinalIgnoreCase)):labels.Any(n=>Canonical(n)==expectedReference||Canonical(n).StartsWith(expectedReference+" ",StringComparison.OrdinalIgnoreCase));count=labels.Count(n=>Regex.IsMatch(n??"",@"^[1-3]?[A-Za-z ]+ [1-9][0-9]*:[1-9][0-9]*"));
             // ProPresenter expands a chapter to its full range, e.g. "Proverbs 3" becomes "Proverbs 3:1-35".
