@@ -2,13 +2,13 @@
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
   "version": 1,
-  "serialNumber": "urn:uuid:4a46dd38-97ff-5886-b811-cee8380f6f05",
+  "serialNumber": "urn:uuid:f70ce76b-c56e-580d-bb32-14a171e007e4",
   "metadata": {
     "component": {
       "type": "application",
       "bom-ref": "versecue",
       "name": "VerseCue",
-      "version": "0.6.10",
+      "version": "0.6.11",
       "licenses": [
         {
           "expression": "LicenseRef-VerseCue-Private"
@@ -18,11 +18,11 @@
     "properties": [
       {
         "name": "versecue:lockfileSha256",
-        "value": "76e18282d56abd029780c7b488247bb3f66eea1c702f1938835262738c94f054"
+        "value": "272988bfdb00e9e6c68549e1eb49c5d5e50aa2211c87a0f2ff46dd926b44cfdf"
       },
       {
         "name": "versecue:inventoryApplicationVersion",
-        "value": "0.6.10"
+        "value": "0.6.11"
       },
       {
         "name": "versecue:limits",
@@ -121,6 +121,37 @@
         {
           "name": "versecue:packagePath",
           "value": "node_modules/@types/node"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/axe-core@4.14.1",
+      "name": "axe-core",
+      "version": "4.14.1",
+      "purl": "pkg:npm/axe-core@4.14.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MPL-2.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "1477dafa598d8d065f273d6af302aa203c02e83131707b7fa648cd41bd3d6b734f8c22a0dab86ee6a6f64b8afbe804b214d36db85a2826965edfb3a0b9d546b5"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/axe-core"
         }
       ]
     },

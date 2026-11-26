@@ -24,13 +24,13 @@ You need:
 
 ## Download
 
-**Latest version: 0.6.10** (development preview)
+**Latest version: 0.6.11** (development preview)
 
 | Computer | Download |
 |---|---|
-| Windows (Intel/AMD 64-bit) | [VerseCue installer (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.10/VerseCue-Setup-0.6.10.exe) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.10/VerseCue-0.6.10-win32-x64.zip) |
-| Mac with Apple silicon (M1 or newer) | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.10/VerseCue-0.6.10-darwin-arm64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.10/VerseCue-0.6.10-darwin-arm64.zip) |
-| Mac with Intel processor | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.10/VerseCue-0.6.10-darwin-x64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.10/VerseCue-0.6.10-darwin-x64.zip) |
+| Windows (Intel/AMD 64-bit) | [VerseCue installer (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-Setup-0.6.11.exe) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-0.6.11-win32-x64.zip) |
+| Mac with Apple silicon (M1 or newer) | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-0.6.11-darwin-arm64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-0.6.11-darwin-arm64.zip) |
+| Mac with Intel processor | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-0.6.11-darwin-x64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-0.6.11-darwin-x64.zip) |
 
 Checksums and older versions are on the [releases page](https://github.com/gboyegaadeojo/VerseCue/releases). Don't use GitHub's automatic "Source code" ZIP to run the app.
 
@@ -64,7 +64,7 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 
 ### Switches Bible version on request
 - **Version requests:** "can you give me NIV", "read that in New King James" or "1st Timothy 1 verse 2 in NIV" reopens the passage in that version.
-- **Checked first:** VerseCue first checks the version is installed in ProPresenter. If it isn't, VerseCue says so and keeps the current version.
+- **Checked first:** VerseCue first checks the version is installed in ProPresenter. If it isn't, VerseCue says so on the message line at the bottom of the window and keeps the current version.
 - **No waiting to check:** VerseCue reads which versions are installed while it opens the first chapter, so a later version request goes straight through.
 - **Spoken names it understands:**
   - KJV / King James
@@ -132,7 +132,7 @@ A fuller walkthrough is in the [personal test guide](docs/124-personal-auto-firs
 
 ## Before each service (Windows)
 
-**Restart ProPresenter before the service starts.** On Windows, VerseCue opens passages by reading ProPresenter's screen, the way accessibility tools do, so it can confirm what ProPresenter opened. After that, ProPresenter does extra background work for the rest of its session, which makes later steps slower. A fresh start each service keeps it fast. From version 0.6.10 VerseCue reads much less of ProPresenter's screen: in our tests ProPresenter's own work for each passage dropped to 1 to 5 seconds for the first dozen passages after a restart (before, it slowed down after about eight). After that it can still take 10 to 50 seconds. In a full test of the app with speech on a freshly restarted ProPresenter, the first five passages were open 3 to 9 seconds after the speaker finished the reference, and the next seven took 8 to 24 seconds. If you prepare many passages, restart ProPresenter again at a quiet moment (such as during worship) when it starts to lag. If ProPresenter becomes too slow to respond, VerseCue stops before clicking or typing anything and asks you to restart ProPresenter.
+**Restart ProPresenter before the service starts.** On Windows, VerseCue opens passages by reading ProPresenter's screen, the way accessibility tools do, so it can confirm what ProPresenter opened. After that, ProPresenter does extra background work for the rest of its session, which makes later steps slower. A fresh start each service keeps it fast. From version 0.6.10 VerseCue reads much less of ProPresenter's screen: in our tests ProPresenter's own work for each passage dropped to 1 to 5 seconds for the first dozen passages after a restart (before, it slowed down after about eight). After that it can still take 10 to 50 seconds. In a full test of the app with speech on a freshly restarted ProPresenter, the first five passages were open 3 to 9 seconds after the speaker finished the reference, and the next seven took 8 to 24 seconds. If you prepare many passages, restart ProPresenter again at a quiet moment (such as during worship) when it starts to lag. VerseCue tells you when that is: if two of the last three chapters took 12 seconds or more to open, the message line at the bottom of the window suggests a restart. The suggestion goes away once a chapter opens quickly again. VerseCue never restarts ProPresenter itself. If ProPresenter becomes too slow to respond, VerseCue stops before clicking or typing anything and asks you to restart ProPresenter.
 
 ## Safety by design
 
@@ -162,6 +162,8 @@ Audio is processed on your computer and isn't saved. Temporary recognition files
 | **Ctrl/Cmd+K** | Type a reference |
 | **Alt+1–4** | Switch workspace pages |
 
+Every control can be reached with **Tab** and shows a blue focus ring. An automated check runs on every screen at both text sizes: the WCAG 2.2 AA rules, keyboard reach, a visible focus ring, and 44 px targets at Large (booth distance) text. Testing with screen readers (NVDA, VoiceOver) by a person is still to come.
+
 ## For developers
 
 VerseCue is an Electron app with a local whisper.cpp speech engine and ProPresenter's HTTP API. Start with [CLAUDE.md](CLAUDE.md), the [handoff](HANDOFF.md) and the [remaining-work list](docs/107-remaining-work-and-acceptance.md).
@@ -170,6 +172,7 @@ VerseCue is an Electron app with a local whisper.cpp speech engine and ProPresen
 npm ci
 npm test          # module tests
 npm run check     # syntax, dependency inventory and SBOM
+node scripts/test-accessibility.cjs   # WCAG 2.2 AA, keyboard and target-size check of every screen
 npm start         # run from source
 ```
 
