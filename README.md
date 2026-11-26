@@ -64,7 +64,7 @@ To remove VerseCue or go back to an earlier version, see [rollback and removal](
 
 ### Switches Bible version on request
 - **Version requests:** "can you give me NIV", "read that in New King James" or "1st Timothy 1 verse 2 in NIV" reopens the passage in that version.
-- **Checked first:** VerseCue first checks the version is installed in ProPresenter. If it isn't, VerseCue says so and keeps the current version.
+- **Checked first:** VerseCue first checks the version is installed in ProPresenter. If it isn't, VerseCue says so on the message line at the bottom of the window and keeps the current version.
 - **No waiting to check:** VerseCue reads which versions are installed while it opens the first chapter, so a later version request goes straight through.
 - **Spoken names it understands:**
   - KJV / King James

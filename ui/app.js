@@ -211,7 +211,7 @@ function autoListen(s){if(autoListenTried||state?.automation||s.autoListen===fal
 // Version notices (NR-018): "NIV isn't installed in ProPresenter…" reach the status line once each.
 // NR-030: the ProPresenter slowdown hint goes to the main message line once each time it is raised.
 let lastSlowdown=null;const showSlowdown=state=>{const h=state?.proPresenterSlowdown;if(h&&h.id!==lastSlowdown){lastSlowdown=h.id;message(h.text);}};
-let lastVersionNotice=null;const showVersionNotice=state=>{const n=state?.versionNotice;if(n&&n.id!==lastVersionNotice){lastVersionNotice=n.id;message(n.text,true);}};
+let lastVersionNotice=null;const showVersionNotice=state=>{const n=state?.versionNotice;if(n&&n.id!==lastVersionNotice){lastVersionNotice=n.id;message(n.text);}};
 // New version notice: shown only while not listening; the operator decides whether to download.
 let updateView=null;
 function renderUpdateNotice(){
