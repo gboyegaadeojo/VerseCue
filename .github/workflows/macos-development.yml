@@ -33,6 +33,7 @@ jobs:
         run: |
           node scripts/test-booth-readability.cjs
           node scripts/test-version-notice-line.cjs
+          node scripts/test-accessibility.cjs
           node scripts/test-safe-input-test.cjs
           node scripts/test-speech-scratch-recovery.cjs
           node scripts/test-audio-input-information-ui.cjs
