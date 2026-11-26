@@ -2,10 +2,15 @@
 const {nativeFailureDiagnostics}=require('./bible-preparation.cjs');
 const {randomUUID}=require('node:crypto');
 const {planSavedPassage,metadataReference}=require('./bible-passage-plan.cjs');
+const {SlowdownWatch,unresponsiveError}=require('./propresenter-slowdown.cjs');
 // Reference preparation and explicit desktop confirmation. Output uses the
 // existing Session/Connector guards; no generic Next, Clear or blind retry.
 class PassageCoordinator {
- constructor({service,connector,resolver,savedBible,onChange=()=>{}}){Object.assign(this,{service,connector,resolver,savedBible,onChange});this.epoch=0;this.busy=false;this.state={phase:'idle'};}
+ constructor({service,connector,resolver,savedBible,onChange=()=>{}}){Object.assign(this,{service,connector,resolver,savedBible,onChange});this.epoch=0;this.busy=false;this.state={phase:'idle'};this.slowdown=new SlowdownWatch({clock:()=>service.clock?.()??Date.now()});}
+ // NR-030: suggest restarting ProPresenter at a quiet moment when it is clearly slowing (never restarts it).
+ watchTime(ms){this.noteSlowdown(this.slowdown.record(ms));}
+ watchError(error){if(unresponsiveError(error))this.noteSlowdown(this.slowdown.unresponsive());}
+ noteSlowdown(hint){const before=this.service.proPresenterSlowdown?.id;this.service.proPresenterSlowdown=hint;if(hint&&hint.id!==before){this.service.log?.('PROPRESENTER_SLOWING','warning',{reason:hint.reason});}}
  publish(state){this.state=state;this.onChange({...state});return state;}
  acquire(){if(this.busy||this.service.busy||this.service.operationOwner)throw Error('Another passage operation is in progress');this.busy=true;this.service.operationOwner=this;}
  release(){if(this.service.operationOwner===this)this.service.operationOwner=null;this.busy=false;}
@@ -32,11 +37,11 @@ class PassageCoordinator {
     this.publish({phase:'preparing',early:true,reference:`${chapter}:${focusVerse}`,chapter,focusVerse,translation,outputRequests:0});
     const result=await this.savedBible.controller.prepare(chapter,translation,guard,{keepListening:true,focusVerse,early:true,fromVerse:this.service.volunteerRange==='from-verse'});
     if(!guard())throw Error('Early preparation canceled');
-    early.ok=true;early.result=result;
+    early.ok=true;early.result=result;this.watchTime(result.workerElapsedMs);
     return this.publish({phase:'chapter-prepared',early:true,reference:`${chapter}:${focusVerse}`,chapter,focusVerse,focusVisible:result.focusVisible===true,fromVerse:result.fromVerse===true,chapterVerses:result.chapterVerses,translation,recognition:'provisional',nativeWorkerMs:result.workerElapsedMs,outputRequests:0,outputObserved:false});
    }catch(error){
     if(this.early===early)this.early=null;this.service.log?.('EARLY_PREPARATION_STOPPED','info',{reason:String(error?.message??error).slice(0,160)});
-    if(epoch===this.epoch){const diagnostics=nativeFailureDiagnostics(error);this.publish({phase:guard()?'blocked':'canceled',early:true,reference:`${chapter}:${focusVerse}`,translation,reason:error.message,...(diagnostics?{nativeFailure:diagnostics}:{}),outputRequests:0});}
+    this.watchError(error);if(epoch===this.epoch){const diagnostics=nativeFailureDiagnostics(error);this.publish({phase:guard()?'blocked':'canceled',early:true,reference:`${chapter}:${focusVerse}`,translation,reason:error.message,...(diagnostics?{nativeFailure:diagnostics}:{}),outputRequests:0});}
     return null;
    }finally{this.release();}
   })();
@@ -89,7 +94,7 @@ class PassageCoordinator {
    if(result.state!=='passage-needs-review'||result.reference!==c.label||result.translation!==c.translation)throw Error('No exact passage is ready for review');
    const reviewToken=randomUUID();this.review={token:reviewToken,sourceMode,plan:structuredClone(result),source:structuredClone(c),epoch,target,base,generation:this.service.generation,inputEpoch:this.service.inputEpoch,referenceEpoch:this.service.referenceEpoch,expiresAt:this.service.clock()+120000};
    return this.publish({...result,phase:'review-required',reviewToken,reviewExpiresAt:this.review.expiresAt,reviewGeneration:this.review.generation,reviewSourceMode:sourceMode,reviewInputEpoch:this.review.inputEpoch,reviewReferenceEpoch:this.review.referenceEpoch,sourceCandidateId:id,bibleTextVerified:false,formattingVerified:false,outputObserved:false,outputRequests:0});
-  }catch(error){const diagnostics=nativeFailureDiagnostics(error);this.publish({phase:guard()?'blocked':'canceled',reference:c.label,translation:c.translation,reason:error.message,...(diagnostics?{nativeFailure:diagnostics}:{}),outputRequests:0});throw error;}finally{this.release();}
+  }catch(error){this.watchError(error);const diagnostics=nativeFailureDiagnostics(error);this.publish({phase:guard()?'blocked':'canceled',reference:c.label,translation:c.translation,reason:error.message,...(diagnostics?{nativeFailure:diagnostics}:{}),outputRequests:0});throw error;}finally{this.release();}
  }
  // Prepare for volunteer: open the whole chapter in ProPresenter's Bible view, scrolled to the spoken verse,
  // so the volunteer can go back or forward without searching again. No saved copy and no output.
@@ -126,9 +131,9 @@ class PassageCoordinator {
   try{
    this.publish({phase:'preparing',reference:c.label,chapter,focusVerse,translation:c.translation,outputRequests:0});
    const result=await this.savedBible.controller.prepare(chapter,c.translation,guard,{keepListening:true,focusVerse,fromVerse:this.service.volunteerRange==='from-verse'});
-   if(!guard())throw Error('Passage preparation canceled or target changed');
+   this.watchTime(result.workerElapsedMs);if(!guard())throw Error('Passage preparation canceled or target changed');
    return this.publish({phase:'chapter-prepared',reference:c.label,chapter,focusVerse,focusVisible:result.focusVisible===true,fromVerse:result.fromVerse===true,chapterVerses:result.chapterVerses,translation:c.translation,recognition:c.recognition,nativeWorkerMs:result.workerElapsedMs,outputRequests:0,outputObserved:false});
-  }catch(error){const diagnostics=nativeFailureDiagnostics(error);this.publish({phase:guard()?'blocked':'canceled',reference:c.label,translation:c.translation,reason:error.message,...(diagnostics?{nativeFailure:diagnostics}:{}),outputRequests:0});throw error;}finally{this.release();}
+  }catch(error){this.watchError(error);const diagnostics=nativeFailureDiagnostics(error);this.publish({phase:guard()?'blocked':'canceled',reference:c.label,translation:c.translation,reason:error.message,...(diagnostics?{nativeFailure:diagnostics}:{}),outputRequests:0});throw error;}finally{this.release();}
  }
  async rebuildClipped(reviewToken,{formattingCorrected=false,acknowledgeFocusChange=false,acknowledgeCreateCopy=false}={}){
   const r=this.review,s=this.service,c=this.connector;
