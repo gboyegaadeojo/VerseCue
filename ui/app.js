@@ -209,7 +209,7 @@ navigator.mediaDevices?.addEventListener('devicechange',async()=>{if(!listening)
 let autoListenTried=false;
 function autoListen(s){if(autoListenTried||state?.automation||s.autoListen===false||!s.audioDevice||!s.executable||!s.model||!$('audio-consent').checked)return;autoListenTried=true;setTimeout(()=>{if(listening||state?.stopped||state?.mode==='paused')return;$('listen').click();},800);}
 // Version notices (NR-018): "NIV isn't installed in ProPresenter…" reach the status line once each.
-let lastVersionNotice=null;const showVersionNotice=state=>{const n=state?.versionNotice;if(n&&n.id!==lastVersionNotice){lastVersionNotice=n.id;message(n.text,true);}};
+let lastVersionNotice=null;const showVersionNotice=state=>{const n=state?.versionNotice;if(n&&n.id!==lastVersionNotice){lastVersionNotice=n.id;message(n.text);}};
 // New version notice: shown only while not listening; the operator decides whether to download.
 let updateView=null;
 function renderUpdateNotice(){
