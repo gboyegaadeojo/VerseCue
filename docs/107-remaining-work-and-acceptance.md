@@ -33,7 +33,7 @@ Personal Windows testing is authorized under the safeguards in HANDOFF.md. Churc
 
 ## Measure service readiness
 
-- **Auto trust gate.** Build labelled, held-out real sermon recordings and run the [ten-hour Auto rehearsal](117-auto-rehearsal-harness.md): at least 36,000 seconds of reviewed held-out audio with zero wrong automatic outputs (NFR-003). Labels must come from independent listening, never captions or model output.
+- **Auto trust gate.** Build labelled, held-out real sermon recordings and run the [ten-hour Auto rehearsal](117-auto-rehearsal-harness.md): at least 36,000 seconds of reviewed held-out audio with zero wrong automatic outputs (NFR-003). Labels must come from independent listening, never captions or model output. 2026-11-26: the [recording labeller](157-recording-labeller.md) makes these labels by ear without showing the transcript; no real sermon has been labelled yet.
 - **Recognition accuracy.** Score reference precision/recall on the same kind of held-out set with the [offline evaluator](112-labeled-recognition-evaluation.md) (NFR-002). Synthetic transcripts only prove software behavior.
 - Complete the 90-minute and 3-hour stability runs and CPU/RAM measurements on representative hosts.
 - Verify the 30-second manual failback and the failure/reconnect requirements with the defined methods.

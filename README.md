@@ -148,7 +148,7 @@ Audio is processed on your computer and isn't saved. Temporary recognition files
 
 ## Current limits
 
-- Real-world accuracy across many preachers, accents and rooms is still being measured. Treat Auto as supervised until you have tested it in your own setting.
+- Real-world accuracy across many preachers, accents and rooms is still being measured. Treat Auto as supervised until you have tested it in your own setting. To measure it on your own sermons, a recording labeller (`npm run label`, from source) lets someone mark each reference by ear; the labels then score VerseCue's automatic sends ([how it works](docs/157-recording-labeller.md)).
 - Opening passages in ProPresenter's Bible view (Prepare for volunteer) is verified on Windows. The Mac version is being verified.
 - Recognition speed depends on the computer. A graphics card makes it much faster.
 - Automatic sends use King James verse numbering. Other editions are reviewed by a person.
@@ -173,6 +173,7 @@ npm ci
 npm test          # module tests
 npm run check     # syntax, dependency inventory and SBOM
 node scripts/test-accessibility.cjs   # WCAG 2.2 AA, keyboard and target-size check of every screen
+npm run label     # label a sermon recording for the Auto trust check
 npm start         # run from source
 ```
 
