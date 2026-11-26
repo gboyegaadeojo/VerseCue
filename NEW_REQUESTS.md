@@ -208,3 +208,13 @@ See [docs/154](docs/154-open-from-spoken-verse.md).
 - **Clears:** the hint clears when the next chapter opens in under 6 s, which is usually right after a restart.
 
 See [docs/155](docs/155-propresenter-slowdown-hint.md).
+
+## NR-031 - Recording labeller for the Auto trust check
+
+2026-11-26: the user approved "build the labelling tool".
+
+- **What it does:** a separate window (`npm run label`) plays an authorized sermon recording. A person presses M when they hear a Bible reference, types it, and chooses whether the pastor wanted it shown or only mentioned it. The labels are saved automatically and can be copied into a rehearsal stream for the ten-hour Auto trust check (docs/117).
+- **Independence:** the labeller never shows or reads VerseCue's transcript, so the labels come only from listening.
+- **Never:** no network requests, no audio leaves the computer, and it is not part of the installed app. The "authorized" and "labels complete" boxes always start unticked.
+
+See [docs/157](docs/157-recording-labeller.md).
