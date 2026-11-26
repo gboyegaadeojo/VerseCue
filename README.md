@@ -24,13 +24,13 @@ You need:
 
 ## Download
 
-**Latest version: 0.6.11** (development preview)
+**Latest version: 0.6.12** (development preview)
 
 | Computer | Download |
 |---|---|
-| Windows (Intel/AMD 64-bit) | [VerseCue installer (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-Setup-0.6.11.exe) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-0.6.11-win32-x64.zip) |
-| Mac with Apple silicon (M1 or newer) | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-0.6.11-darwin-arm64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-0.6.11-darwin-arm64.zip) |
-| Mac with Intel processor | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-0.6.11-darwin-x64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-0.6.11-darwin-x64.zip) |
+| Windows (Intel/AMD 64-bit) | [VerseCue installer (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.12/VerseCue-Setup-0.6.12.exe) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.12/VerseCue-0.6.12-win32-x64.zip) |
+| Mac with Apple silicon (M1 or newer) | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.12/VerseCue-0.6.12-darwin-arm64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.12/VerseCue-0.6.12-darwin-arm64.zip) |
+| Mac with Intel processor | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.12/VerseCue-0.6.12-darwin-x64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.12/VerseCue-0.6.12-darwin-x64.zip) |
 
 Checksums and older versions are on the [releases page](https://github.com/gboyegaadeojo/VerseCue/releases). Don't use GitHub's automatic "Source code" ZIP to run the app.
 
