@@ -24,13 +24,13 @@ You need:
 
 ## Download
 
-**Latest version: 0.6.9** (development preview)
+**Latest version: 0.6.10** (development preview)
 
 | Computer | Download |
 |---|---|
-| Windows (Intel/AMD 64-bit) | [VerseCue installer (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.9/VerseCue-Setup-0.6.9.exe) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.9/VerseCue-0.6.9-win32-x64.zip) |
-| Mac with Apple silicon (M1 or newer) | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.9/VerseCue-0.6.9-darwin-arm64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.9/VerseCue-0.6.9-darwin-arm64.zip) |
-| Mac with Intel processor | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.9/VerseCue-0.6.9-darwin-x64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.9/VerseCue-0.6.9-darwin-x64.zip) |
+| Windows (Intel/AMD 64-bit) | [VerseCue installer (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.10/VerseCue-Setup-0.6.10.exe) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.10/VerseCue-0.6.10-win32-x64.zip) |
+| Mac with Apple silicon (M1 or newer) | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.10/VerseCue-0.6.10-darwin-arm64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.10/VerseCue-0.6.10-darwin-arm64.zip) |
+| Mac with Intel processor | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.10/VerseCue-0.6.10-darwin-x64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.10/VerseCue-0.6.10-darwin-x64.zip) |
 
 Checksums and older versions are on the [releases page](https://github.com/gboyegaadeojo/VerseCue/releases). Don't use GitHub's automatic "Source code" ZIP to run the app.
 
@@ -132,7 +132,7 @@ A fuller walkthrough is in the [personal test guide](docs/124-personal-auto-firs
 
 ## Before each service (Windows)
 
-**Restart ProPresenter before the service starts.** On Windows, VerseCue opens passages by reading ProPresenter's screen, the way accessibility tools do, so it can confirm what ProPresenter opened. After that, ProPresenter does extra background work for the rest of its session, which makes later steps slower. A fresh start each service keeps it fast. From the next version VerseCue reads much less of ProPresenter's screen: in our tests ProPresenter's own work for each passage dropped to 1 to 5 seconds for the first dozen passages after a restart (before, it slowed down after about eight). After that it can still take 10 to 50 seconds. In a full test of the app with speech on a freshly restarted ProPresenter, the first five passages were open 3 to 9 seconds after the speaker finished the reference, and the next seven took 8 to 24 seconds. If you prepare many passages, restart ProPresenter again at a quiet moment (such as during worship) when it starts to lag. If ProPresenter becomes too slow to respond, VerseCue stops before clicking or typing anything and asks you to restart ProPresenter.
+**Restart ProPresenter before the service starts.** On Windows, VerseCue opens passages by reading ProPresenter's screen, the way accessibility tools do, so it can confirm what ProPresenter opened. After that, ProPresenter does extra background work for the rest of its session, which makes later steps slower. A fresh start each service keeps it fast. From version 0.6.10 VerseCue reads much less of ProPresenter's screen: in our tests ProPresenter's own work for each passage dropped to 1 to 5 seconds for the first dozen passages after a restart (before, it slowed down after about eight). After that it can still take 10 to 50 seconds. In a full test of the app with speech on a freshly restarted ProPresenter, the first five passages were open 3 to 9 seconds after the speaker finished the reference, and the next seven took 8 to 24 seconds. If you prepare many passages, restart ProPresenter again at a quiet moment (such as during worship) when it starts to lag. If ProPresenter becomes too slow to respond, VerseCue stops before clicking or typing anything and asks you to restart ProPresenter.
 
 ## Safety by design
 
