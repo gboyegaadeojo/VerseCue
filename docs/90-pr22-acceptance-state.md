@@ -2,7 +2,7 @@
 
 2026-11-20. This is an evidence map, not an acceptance certificate. The complete RF-01–22 checklist remains unchecked in [PR22](https://github.com/gboyegaadeojo/VerseCue/pull/22). The original 62 functional requirements, 24 nonfunctional requirements and their acceptance procedures remain authoritative. Smaller merged PRs do not waive them.
 
-Shared-source checks currently pass 514 module tests on main and 517 in the integration branch, including its additional soak-summary cases. These are deterministic/software checks. Mac CI runs the source desktop scenarios and packaging; it does not run ProPresenter. Personal-host records are private and excluded from this document.
+Shared-source checks currently pass 534 module tests on main and 537 in the integration branch, including its additional soak-summary cases. These are deterministic/software checks. Mac CI runs the source desktop scenarios and packaging; it does not run ProPresenter. Personal-host records are private and excluded from this document.
 
 | Requirement | Implemented software evidence | Evidence still needed / limitation |
 |---|---|---|

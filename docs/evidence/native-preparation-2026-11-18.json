@@ -1,0 +1,70 @@
+{
+  "scope": "authorized personal Windows ProPresenter21.4.2 preparation only",
+  "sourceVersion": "0.6.0",
+  "reports": [
+    {
+      "at": "2026-11-18T18:30:40.827Z",
+      "translation": "ASV",
+      "reference": "Hosea 1:1",
+      "actualProPresenterAccess": true,
+      "microphoneCapture": false,
+      "requestedOutputCommands": 0,
+      "physicalOutputObserved": false,
+      "passed": true,
+      "pausedDisarmedDryRun": true,
+      "outputUnchanged": true
+    },
+    {
+      "at": "2026-11-18T18:31:50.375Z",
+      "translation": "KJV",
+      "reference": "Hosea 1:1",
+      "actualProPresenterAccess": true,
+      "microphoneCapture": false,
+      "requestedOutputCommands": 0,
+      "physicalOutputObserved": false,
+      "passed": true,
+      "pausedDisarmedDryRun": true,
+      "outputUnchanged": true
+    },
+    {
+      "at": "2026-11-18T18:39:42.402Z",
+      "reference": "Hosea 1:2",
+      "translation": "KJV",
+      "actualProPresenterAccess": true,
+      "microphoneCapture": false,
+      "requestedOutputCommands": 0,
+      "physicalOutputObserved": false,
+      "passed": true,
+      "normalPassageUI": true,
+      "manualLibraryPresentationCueSelection": false,
+      "nativeCopyCreated": true,
+      "completeCueMetadata": true,
+      "cueCount": 3,
+      "clippingWarning": true,
+      "uncheckedConfirmationBlocked": true,
+      "outputUnchanged": true,
+      "sundayPlaylistContentsUnchanged": true
+    },
+    {
+      "at": "2026-11-18T18:41:43.691Z",
+      "reference": "Hosea 1:3",
+      "translation": "KJV",
+      "actualProPresenterAccess": true,
+      "microphoneCapture": false,
+      "requestedOutputCommands": 0,
+      "physicalOutputObserved": false,
+      "passed": true,
+      "normalPassageUI": true,
+      "manualLibraryPresentationCueSelection": false,
+      "nativeCopyCreated": true,
+      "completeCueMetadata": true,
+      "cueCount": 1,
+      "clippingWarning": true,
+      "uncheckedConfirmationBlocked": true,
+      "outputUnchanged": true,
+      "sundayPlaylistContentsUnchanged": true
+    }
+  ],
+  "physicalOutputObserved": false,
+  "acceptance": "PENDING: clipping and field/platform tests"
+}

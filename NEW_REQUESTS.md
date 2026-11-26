@@ -48,6 +48,10 @@ NR-004 delivery: [PR #4](https://github.com/gboyegaadeojo/VerseCue/pull/4), vers
 
 NR-008 selection and implementation: user chooses Studio with Focus readability, then requests premium/non-generic styling. Version0.6.0 implements that direction in the real UI, preserving existing safety/IPC/backend behavior. See [Studio implementation](docs/50-premium-studio-workspace.md). Isolated concepts PR19 merged after selection.
 
+## NR-009 - Complete reference-driven Bible workflow implementation PR
+
+2026-11-18: user rejects per-passage Library/Presentation/Cue selection and asks for every required fix plus an implementation PR. Desired workflow: pastor cites a passage; VerseCue prepares the exact installed Bible/edition and uses passage-level Confirm or explicitly validated Auto while preserving Sunday Service playlist and existing Looks. docs/51 contains22 tracked fixes and full demonstration. Initial draft code adds exact-reference lookup, internal full cue-index planning and KJV range-label completeness checks; it does not finish arbitrary preparation, normal UI orchestration or unattended output. Keep draft unmerged until its exit criteria pass.
+
 ## NR-010 - Start in Auto with an Auto-first Route workspace
 
 2026-11-21: the user, as IFC product owner, decides VerseCue should start in Auto. Confirming every reference defeats the purpose of the product. They chose design direction C (Route) from three clickable concepts, adapted to Auto-first: the main view shows the automatic pipeline (Heard, Matched, Ready, On screen) and the primary control is Hold rather than Show.

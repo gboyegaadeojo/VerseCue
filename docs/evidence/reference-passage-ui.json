@@ -1,0 +1,20 @@
+{
+  "at": "2026-11-18T19:27:46.209Z",
+  "version": "0.6.0",
+  "passed": true,
+  "packaged": false,
+  "normalOperatorUIWired": true,
+  "deliberateKeyboardConfirmation": true,
+  "uncheckedKeyboardOutputBlocked": true,
+  "unsupportedNativeRouteExplainedBeforeConsent": true,
+  "operatorLibraryPresentationCueSelection": false,
+  "previewFromSyntheticProPresenter": true,
+  "explicitAppearanceAndTargetConsent": true,
+  "fakeTargetTriggers": 4,
+  "preparedReviewZoomChecked": true,
+  "multiSlideContinuation": true,
+  "operatorTakeoverBlockedBeforeTrigger": true,
+  "stopLatched": true,
+  "actualProPresenterAccess": false,
+  "microphoneCapture": false
+}

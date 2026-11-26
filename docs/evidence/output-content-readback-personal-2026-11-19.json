@@ -1,0 +1,12 @@
+{
+  "at": "2026-11-19T01:20:08.904Z",
+  "readbackShapeAccepted": true,
+  "twoObservedSnapshotsMatch": true,
+  "actualProPresenterAccess": true,
+  "readOnly": true,
+  "outputRequests": 0,
+  "nativePreparationRequested": false,
+  "microphoneCapture": false,
+  "textOrIdentityPersisted": false,
+  "physicalOutputObserved": false
+}
