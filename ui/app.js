@@ -209,6 +209,8 @@ navigator.mediaDevices?.addEventListener('devicechange',async()=>{if(!listening)
 let autoListenTried=false;
 function autoListen(s){if(autoListenTried||state?.automation||s.autoListen===false||!s.audioDevice||!s.executable||!s.model||!$('audio-consent').checked)return;autoListenTried=true;setTimeout(()=>{if(listening||state?.stopped||state?.mode==='paused')return;$('listen').click();},800);}
 // Version notices (NR-018): "NIV isn't installed in ProPresenter…" reach the status line once each.
+// NR-030: the ProPresenter slowdown hint goes to the main message line once each time it is raised.
+let lastSlowdown=null;const showSlowdown=state=>{const h=state?.proPresenterSlowdown;if(h&&h.id!==lastSlowdown){lastSlowdown=h.id;message(h.text);}};
 let lastVersionNotice=null;const showVersionNotice=state=>{const n=state?.versionNotice;if(n&&n.id!==lastVersionNotice){lastVersionNotice=n.id;message(n.text,true);}};
 // New version notice: shown only while not listening; the operator decides whether to download.
 let updateView=null;
@@ -223,7 +225,7 @@ bind('update-notice-open',async()=>{await call('updateNoticeOpen');});
 bind('update-notice-dismiss',async()=>{updateView=await call('updateNoticeDismiss');renderUpdateNotice();});
 bind('update-notice-check',async()=>{setText('update-notice-status','Checking…');updateView=await call('updateNoticeCheck');renderUpdateNotice();});
 setInterval(refreshUpdateNotice,60000);setTimeout(refreshUpdateNotice,1000);
-api.onState(value=>{render(value);showVersionNotice(value);if(updateView)renderUpdateNotice();});
+api.onState(value=>{render(value);showVersionNotice(value);showSlowdown(value);if(updateView)renderUpdateNotice();});
 Promise.all([call('settings'),call('state'),call('privateApiStatus'),call('identity')]).then(([s,value,apiStatus,identity])=>{selfWindowId=identity.id;fillSettings(s);applyConsentDefaults();render(value);autoListen(s);renderPrivateApi(apiStatus);if(!s.executable||!s.audioDevice)message('Open Setup to select your ProPresenter target, audio input and local speech engine.');else message(s.autoConnect!==false?'Ready. Connecting to ProPresenter at '+s.host+':'+s.port+'…':'Ready. Test the saved ProPresenter connection in Settings.');}).catch(e=>message(e.message));
 setInterval(()=>{if(!state)return;const now=Date.now(),fresh=state.queue.filter(c=>c.expiresAt>now);if(fresh.length!==state.queue.length){state.queue=fresh;render(state);return;}const candidate=state.queue.find(c=>c.id===selectedId);if(candidate)setText('expiry',`${Math.max(0,Math.ceil((candidate.expiresAt-now)/1000))}s remaining`);},250);
 
