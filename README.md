@@ -24,13 +24,13 @@ You need:
 
 ## Download
 
-**Latest version: 0.6.11** (development preview)
+**Latest version: 0.6.12** (development preview)
 
 | Computer | Download |
 |---|---|
-| Windows (Intel/AMD 64-bit) | [VerseCue installer (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-Setup-0.6.11.exe) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-0.6.11-win32-x64.zip) |
-| Mac with Apple silicon (M1 or newer) | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-0.6.11-darwin-arm64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-0.6.11-darwin-arm64.zip) |
-| Mac with Intel processor | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-0.6.11-darwin-x64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.11/VerseCue-0.6.11-darwin-x64.zip) |
+| Windows (Intel/AMD 64-bit) | [VerseCue installer (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.12/VerseCue-Setup-0.6.12.exe) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.12/VerseCue-0.6.12-win32-x64.zip) |
+| Mac with Apple silicon (M1 or newer) | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.12/VerseCue-0.6.12-darwin-arm64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.12/VerseCue-0.6.12-darwin-arm64.zip) |
+| Mac with Intel processor | [Disk image (recommended)](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.12/VerseCue-0.6.12-darwin-x64.dmg) or [ZIP](https://github.com/gboyegaadeojo/VerseCue/releases/download/v0.6.12/VerseCue-0.6.12-darwin-x64.zip) |
 
 Checksums and older versions are on the [releases page](https://github.com/gboyegaadeojo/VerseCue/releases). Don't use GitHub's automatic "Source code" ZIP to run the app.
 
@@ -141,6 +141,7 @@ A fuller walkthrough is in the [personal test guide](docs/124-personal-auto-firs
 - Auto sends only complete, explicit references, at most 10 verses, from passages you approved. Anything unclear, quoted, corrected or slow waits for a person.
 - If the connection drops, output is disarmed and VerseCue pauses.
 - VerseCue never clears ProPresenter, never deletes anything and never changes ProPresenter's settings.
+- Only VerseCue's own window can control it or use the microphone. (Before version 0.6.12, starting VerseCue on Windows from a command line or shortcut that wrote the drive as `c:` instead of `C:` made it refuse its own window, so listening could not start.)
 
 ## Privacy
 
@@ -148,7 +149,7 @@ Audio is processed on your computer and isn't saved. Temporary recognition files
 
 ## Current limits
 
-- Real-world accuracy across many preachers, accents and rooms is still being measured. Treat Auto as supervised until you have tested it in your own setting.
+- Real-world accuracy across many preachers, accents and rooms is still being measured. Treat Auto as supervised until you have tested it in your own setting. To measure it on your own sermons, a recording labeller (`npm run label`, from source) lets someone mark each reference by ear; the labels then score VerseCue's automatic sends ([how it works](docs/157-recording-labeller.md)).
 - Opening passages in ProPresenter's Bible view (Prepare for volunteer) is verified on Windows. The Mac version is being verified.
 - Recognition speed depends on the computer. A graphics card makes it much faster.
 - Automatic sends use King James verse numbering. Other editions are reviewed by a person.
@@ -173,6 +174,7 @@ npm ci
 npm test          # module tests
 npm run check     # syntax, dependency inventory and SBOM
 node scripts/test-accessibility.cjs   # WCAG 2.2 AA, keyboard and target-size check of every screen
+npm run label     # label a sermon recording for the Auto trust check
 npm start         # run from source
 ```
 

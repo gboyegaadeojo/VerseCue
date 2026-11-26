@@ -2,13 +2,13 @@
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
   "version": 1,
-  "serialNumber": "urn:uuid:f70ce76b-c56e-580d-bb32-14a171e007e4",
+  "serialNumber": "urn:uuid:363a708b-602d-5592-9de6-8305b8a7d2e7",
   "metadata": {
     "component": {
       "type": "application",
       "bom-ref": "versecue",
       "name": "VerseCue",
-      "version": "0.6.11",
+      "version": "0.6.12",
       "licenses": [
         {
           "expression": "LicenseRef-VerseCue-Private"
@@ -18,11 +18,11 @@
     "properties": [
       {
         "name": "versecue:lockfileSha256",
-        "value": "272988bfdb00e9e6c68549e1eb49c5d5e50aa2211c87a0f2ff46dd926b44cfdf"
+        "value": "6b59cea168be6b88d75fdec25ecd1fa260e9018f110b583e31051db3d1f11f14"
       },
       {
         "name": "versecue:inventoryApplicationVersion",
-        "value": "0.6.11"
+        "value": "0.6.12"
       },
       {
         "name": "versecue:limits",

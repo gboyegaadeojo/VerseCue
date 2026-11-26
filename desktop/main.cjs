@@ -10,6 +10,7 @@ const path=require('node:path');
 const fs=require('node:fs/promises');
 const {pathToFileURL}=require('node:url');
 const {Connector}=require('../core/connector.cjs');
+const {sameLocalPage}=require('../core/local-page.cjs');
 const {PreparedCatalog}=require('../core/prepared-catalog.cjs');
 const {SavedBibleWorkflow}=require('../core/saved-bible-workflow.cjs');
 const {NativeCopyLedger}=require('../core/native-copy-ledger.cjs');
@@ -62,7 +63,8 @@ const configurationTransition=new ConfigurationTransition({enterSafe:()=>{cancel
 async function changeConfiguration(operation,{restoreMode=true}={}){const previousMode=service.mode==='auto'?'confirm':service.mode;return configurationTransition.run(async()=>{const result=await operation();service.settingsRecoveryRequired=false;service.notify();if(restoreMode&&!service.stopped&&!service.recovery?.required&&service.mode==='paused')service.setMode(previousMode);return result;});}
 let macHelper=null,settings,settingsFile,profiles,mainWindow,compactWindow,healthTimer,healthBusy=false,healthFailures=0,healthFailingSince=0;const windows=new Set();
 const ui=pathToFileURL(path.join(__dirname,'../ui/index.html')).href;
-function trusted(e){if(!windows.has(BrowserWindow.fromWebContents(e.sender))||e.senderFrame!==e.sender.mainFrame||e.senderFrame.url.split('?')[0]!==ui)throw new Error('Untrusted caller');}
+const isUi=url=>sameLocalPage(url,ui);
+function trusted(e){if(!windows.has(BrowserWindow.fromWebContents(e.sender))||e.senderFrame!==e.sender.mainFrame||!isUi(e.senderFrame.url))throw new Error('Untrusted caller');}
 // NR-010: saved Auto start preference and hold window. Start mode applies only at launch/reset (Session.applyStartMode).
 function applySessionPreferences(){automatic.configureDelay(settings.autoHoldMs);service.startMode=settings.startMode;service.chapterContext=settings.chapterContext!==false;service.volunteerRange=settings.volunteerRange==='from-verse'?'from-verse':'chapter';service.earlyPreparation=settings.earlyPreparation!==false;}
 function handler(name,callback,{withEvent=false}={}){ipcMain.handle(name,async(e,...args)=>{try{trusted(e);if(configurationTransition.busy&&!['state','settings','quote-status','private-api-status','profiles-list','window-identity','audio-stop','private-api-stop','command'].includes(name))throw Error('Settings are changing; wait for setup to finish');return {ok:true,value:await callback(...(withEvent?[e,...args]:args))};}catch(error){return {ok:false,error:error.message};}});}
@@ -157,11 +159,11 @@ async function bootstrap(){
   connector.configure(settings.host,settings.port);service.configure({translation:settings.translation,dryRun:true,duplicateCooldownSeconds:settings.duplicateCooldownSeconds,maxPassageVerses:settings.maxPassageVerses});applySessionPreferences();speech.configure(settings.executable,settings.model,settings.speechMode,settings.speechAcceleration);if(!service.settingsRecoveryRequired)service.applyStartMode();
   if(loaded.recovered)service.log('CORRUPT_SETTINGS_RECOVERED','warning');
   session.defaultSession.setPermissionRequestHandler(async(webContents,permission,callback,details)=>{
-    const win=BrowserWindow.fromWebContents(webContents);const local=windows.has(win)&&webContents.getURL().split('?')[0]===ui;
+    const win=BrowserWindow.fromWebContents(webContents);const local=windows.has(win)&&isUi(webContents.getURL());
     if(!local||permission!=='media'||!details.mediaTypes?.includes('audio')||details.mediaTypes.includes('video'))return callback(false);
     if(process.platform==='darwin')return callback(await systemPreferences.askForMediaAccess('microphone'));callback(true);
   });
-  session.defaultSession.setPermissionCheckHandler((webContents,permission,origin,details)=>windows.has(BrowserWindow.fromWebContents(webContents))&&webContents?.getURL().split('?')[0]===ui&&permission==='media'&&details.mediaType==='audio');
+  session.defaultSession.setPermissionCheckHandler((webContents,permission,origin,details)=>windows.has(BrowserWindow.fromWebContents(webContents))&&isUi(webContents?.getURL())&&permission==='media'&&details.mediaType==='audio');
   // Renderer needs local assets only. All ProPresenter traffic is mediated by the core.
   session.defaultSession.webRequest.onBeforeRequest((details,callback)=>callback({cancel:!details.url.startsWith('file://')&&!details.url.startsWith('devtools://')}));
   handler('state',()=>service.snapshot());handler('settings',()=>settings);

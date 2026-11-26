@@ -1,0 +1,91 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; media-src blob:; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'">
+<title>VerseCue recording labeller</title>
+<link rel="stylesheet" href="labeller.css">
+</head>
+<body>
+<header class="bar">
+ <div>
+  <h1>Label a recording</h1>
+  <p class="muted" id="file-line">Open an authorized sermon recording to start.</p>
+ </div>
+ <button id="open" type="button" class="primary">Open recording…</button>
+</header>
+<main>
+ <p class="note">Mark each Bible reference the moment you hear it. VerseCue's transcript is never shown here, so the labels come only from what you hear.</p>
+
+ <section aria-labelledby="player-title">
+  <h2 id="player-title">Recording</h2>
+  <div class="row">
+   <label for="recording-id">Recording ID</label>
+   <input id="recording-id" type="text" maxlength="80" spellcheck="false" autocomplete="off" disabled aria-describedby="recording-id-help">
+   <small id="recording-id-help">Use the same ID when you build the rehearsal stream.</small>
+  </div>
+  <audio id="audio" preload="auto"></audio>
+  <div class="row player">
+   <button id="back" type="button" disabled>Back 5 s <kbd>←</kbd></button>
+   <button id="play" type="button" disabled>Play <kbd>Space</kbd></button>
+   <button id="forward" type="button" disabled>Forward 5 s <kbd>→</kbd></button>
+   <span id="clock" class="clock" aria-live="off">0:00.0 / 0:00</span>
+   <label for="speed">Speed</label>
+   <select id="speed" disabled><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select>
+  </div>
+  <input id="seek" type="range" min="0" max="0" step="0.1" value="0" disabled aria-label="Position in the recording">
+  <button id="mark" type="button" class="primary big" disabled>Mark a reference <kbd>M</kbd></button>
+ </section>
+
+ <section id="form-section" aria-labelledby="form-title" hidden>
+  <h2 id="form-title">What did you hear?</h2>
+  <form id="label-form" novalidate>
+   <div class="row">
+    <label for="at">Time</label>
+    <input id="at" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" aria-describedby="at-help">
+    <button id="earlier" type="button">1 s earlier</button>
+    <button id="later" type="button">1 s later</button>
+    <button id="replay" type="button">Replay from 3 s before</button>
+   </div>
+   <small id="at-help">The time the reference finished being spoken, as minutes:seconds.</small>
+   <div class="row">
+    <label for="reference">Reference</label>
+    <input id="reference" type="text" maxlength="80" spellcheck="false" autocomplete="off" placeholder="John 3:16" aria-describedby="preview">
+    <label for="translation">Version</label>
+    <select id="translation"></select>
+   </div>
+   <fieldset>
+    <legend>What did the pastor want?</legend>
+    <label><input type="radio" name="intent" value="display"> Show it on screen <kbd>1</kbd> <small>(“turn with me to…”, “let’s read…”)</small></label>
+    <label><input type="radio" name="intent" value="mention"> Only mentioned it <kbd>2</kbd> <small>(said in passing, not to be shown)</small></label>
+    <small>Choose every time. While typing the reference, use Alt+1 or Alt+2.</small>
+   </fieldset>
+   <p id="preview" class="preview" role="status" aria-live="polite"></p>
+   <div class="row">
+    <button id="save-label" type="submit" class="primary">Save label <kbd>Enter</kbd></button>
+    <button id="cancel" type="button">Cancel <kbd>Esc</kbd></button>
+   </div>
+  </form>
+ </section>
+
+ <section aria-labelledby="list-title">
+  <h2 id="list-title">Labels <span id="count" class="muted"></span></h2>
+  <table>
+   <thead><tr><th scope="col">Time</th><th scope="col">Reference</th><th scope="col">Version</th><th scope="col">Pastor wanted</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+   <tbody id="rows"><tr><td colspan="5" class="muted">No labels yet.</td></tr></tbody>
+  </table>
+ </section>
+
+ <section aria-labelledby="attest-title">
+  <h2 id="attest-title">Before these labels are used</h2>
+  <label class="check"><input id="authorized" type="checkbox" disabled> The church has authorized using this recording for testing.</label>
+  <label class="check"><input id="reviewed" type="checkbox" disabled> The labels are complete: someone listened to the whole recording and checked every reference.</label>
+  <small>Only recordings with both ticked count towards the ten-hour Auto trust check.</small>
+ </section>
+</main>
+<footer>
+ <p id="status" role="status" aria-live="polite"></p>
+</footer>
+<script src="labeller.js"></script>
+</body>
+</html>

@@ -27,7 +27,7 @@ All three wrong kinds count as wrong automatic outputs. `display` labels without
 
    The stream is written under ignored `test-results/auto-rehearsal/streams/` and never overwrites an existing file. The builder feeds 100 ms packets through the app's `AudioWindowBuffer` in simulated real time and transcribes each window with the real local worker. Slow recognition therefore drops and splits audio exactly as it would live, using per-window dropped-sample counts and the shared audio-loss rule.
 
-2. Add labels from **independent listening**, never from the transcript or captions: `{"atSeconds","reference","translation","intent":"display"|"mention"}`, with canonical references such as `John 3:16`. Set `dataUseAuthorized` and `labelsReviewed` only when both are true.
+2. Add labels from **independent listening**, never from the transcript or captions: `{"atSeconds","reference","translation","intent":"display"|"mention"}`, with canonical references such as `John 3:16`. Set `dataUseAuthorized` and `labelsReviewed` only when both are true. Since 2026-11-26 the [recording labeller](157-recording-labeller.md) (`npm run label`) makes these labels by ear, and `scripts/apply-rehearsal-labels.cjs` copies them into the stream.
 
 3. Score:
 
