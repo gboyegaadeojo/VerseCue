@@ -162,6 +162,8 @@ Audio is processed on your computer and isn't saved. Temporary recognition files
 | **Ctrl/Cmd+K** | Type a reference |
 | **Alt+1–4** | Switch workspace pages |
 
+Every control can be reached with **Tab** and shows a blue focus ring. An automated check runs on every screen at both text sizes: the WCAG 2.2 AA rules, keyboard reach, a visible focus ring, and 44 px targets at Large (booth distance) text. Testing with screen readers (NVDA, VoiceOver) by a person is still to come.
+
 ## For developers
 
 VerseCue is an Electron app with a local whisper.cpp speech engine and ProPresenter's HTTP API. Start with [CLAUDE.md](CLAUDE.md), the [handoff](HANDOFF.md) and the [remaining-work list](docs/107-remaining-work-and-acceptance.md).
@@ -170,6 +172,7 @@ VerseCue is an Electron app with a local whisper.cpp speech engine and ProPresen
 npm ci
 npm test          # module tests
 npm run check     # syntax, dependency inventory and SBOM
+node scripts/test-accessibility.cjs   # WCAG 2.2 AA, keyboard and target-size check of every screen
 npm start         # run from source
 ```
 

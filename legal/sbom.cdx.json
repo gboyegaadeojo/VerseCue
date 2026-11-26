@@ -2,7 +2,7 @@
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
   "version": 1,
-  "serialNumber": "urn:uuid:4a46dd38-97ff-5886-b811-cee8380f6f05",
+  "serialNumber": "urn:uuid:b39ee9fb-a2eb-56b4-a4a8-3c9aecfcc14f",
   "metadata": {
     "component": {
       "type": "application",
@@ -18,7 +18,7 @@
     "properties": [
       {
         "name": "versecue:lockfileSha256",
-        "value": "76e18282d56abd029780c7b488247bb3f66eea1c702f1938835262738c94f054"
+        "value": "e6d8b461615592c353da4ecea3f6c444aaca39a874df72c6fc239151b8b01bb6"
       },
       {
         "name": "versecue:inventoryApplicationVersion",
@@ -121,6 +121,37 @@
         {
           "name": "versecue:packagePath",
           "value": "node_modules/@types/node"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/axe-core@4.14.1",
+      "name": "axe-core",
+      "version": "4.14.1",
+      "purl": "pkg:npm/axe-core@4.14.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MPL-2.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "1477dafa598d8d065f273d6af302aa203c02e83131707b7fa648cd41bd3d6b734f8c22a0dab86ee6a6f64b8afbe804b214d36db85a2826965edfb3a0b9d546b5"
+        }
+      ],
+      "scope": "excluded",
+      "properties": [
+        {
+          "name": "versecue:developmentOnly",
+          "value": "true"
+        },
+        {
+          "name": "versecue:packagePath",
+          "value": "node_modules/axe-core"
         }
       ]
     },

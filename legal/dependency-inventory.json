@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "applicationVersion": "0.6.10",
   "lockfileHashNormalization": "UTF-8 with CRLF normalized to LF",
-  "lockfileSha256": "76e18282d56abd029780c7b488247bb3f66eea1c702f1938835262738c94f054",
+  "lockfileSha256": "e6d8b461615592c353da4ecea3f6c444aaca39a874df72c6fc239151b8b01bb6",
   "components": [
     {
       "packagePath": "node_modules/@electron-internal/extract-zip",
@@ -26,6 +26,14 @@
       "version": "24.19.2",
       "license": "MIT",
       "integrity": "sha512-93d49wCWJkCyN87MxLpNN6KXPCwFw7bVUg79mGUV1OS40JGWwVCr8n61DXCSqz7CV6/VfPkb7xec7uP2M+QHWQ==",
+      "developmentOnly": true
+    },
+    {
+      "packagePath": "node_modules/axe-core",
+      "name": "axe-core",
+      "version": "4.14.1",
+      "license": "MPL-2.0",
+      "integrity": "sha512-FHfa+lmNjQZfJz1q8wKqIDwC6DExcHt/pkjNQb09a3NPjCKg2rhu5qb2S4r76ASyFNNtuFooJpZe37OgudVGtQ==",
       "developmentOnly": true
     },
     {
