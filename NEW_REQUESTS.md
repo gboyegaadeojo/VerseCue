@@ -198,3 +198,13 @@ See [docs/151](docs/151-new-version-notice.md).
 - **Why:** no scrolling and fewer slides for ProPresenter to build, so it stays quicker in a long service; the volunteer cannot go back before the spoken verse without typing.
 
 See [docs/154](docs/154-open-from-spoken-verse.md).
+
+## NR-030 - Suggest a ProPresenter restart when it slows down
+
+2026-11-26: after the packaged check (docs/154), the user approved "build the slowdown hint".
+
+- **What it does:** VerseCue suggests restarting ProPresenter at a quiet moment, such as during worship, when ProPresenter is clearly slowing. That means 2 of the last 3 chapters took 12 s or longer to open, or a preparation was stopped because ProPresenter was responding too slowly.
+- **Never:** VerseCue does not restart, close or click anything in ProPresenter for this. The hint is advice only.
+- **Clears:** the hint clears when the next chapter opens in under 6 s, which is usually right after a restart.
+
+See [docs/155](docs/155-propresenter-slowdown-hint.md).
