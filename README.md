@@ -141,6 +141,7 @@ A fuller walkthrough is in the [personal test guide](docs/124-personal-auto-firs
 - Auto sends only complete, explicit references, at most 10 verses, from passages you approved. Anything unclear, quoted, corrected or slow waits for a person.
 - If the connection drops, output is disarmed and VerseCue pauses.
 - VerseCue never clears ProPresenter, never deletes anything and never changes ProPresenter's settings.
+- Only VerseCue's own window can control it or use the microphone. (Before version 0.6.12, starting VerseCue on Windows from a command line or shortcut that wrote the drive as `c:` instead of `C:` made it refuse its own window, so listening could not start.)
 
 ## Privacy
 
